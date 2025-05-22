@@ -5,6 +5,27 @@
   --mainBlack: #000;
   --yellowTrans: rgba(218, 207, 164, 0.5);
   --mainGrey: rgb(238, 238, 238);
+  /* Modern Food Color Palette */
+  /* Primary Colors */
+  --primary-coral: #FF6B6B;  /* Warm, appetizing coral */
+  --primary-sage: #4ECDC4;   /* Fresh mint/sage */
+  --primary-saffron: #FFB75E; /* Rich saffron/golden */
+  
+  /* Neutral Colors */
+  --neutral-100: #FFFFFF;    /* Pure white */
+  --neutral-200: #F8F9FA;    /* Light background */
+  --neutral-300: #E9ECEF;    /* Light borders */
+  --neutral-400: #CED4DA;    /* Muted elements */
+  --neutral-500: #ADB5BD;    /* Disabled state */
+  --neutral-600: #6C757D;    /* Muted text */
+  --neutral-700: #495057;    /* Secondary text */
+  --neutral-800: #343A40;    /* Primary text */
+  --neutral-900: #212529;    /* Dark text */
+
+  /* Accent Colors */
+  --accent-mint: #00BD9D;    /* Fresh mint */
+  --accent-berry: #FF4B6E;   /* Berry red */
+  --accent-citrus: #FFD93D;  /* Citrus yellow */
 }
 
 body {
@@ -418,97 +439,125 @@ jpg
   transform: scaleX(1);
 }
 
-/* Enhanced Button Gradients and Glow */
-.review-filter-btn,
-.clear-all-btn,
-.review-btn-animate {
-  box-shadow: 0 2px 8px rgba(239, 121, 152, 0.10);
-  transition: background 0.3s, color 0.3s, transform 0.2s, box-shadow 0.2s, border 0.2s;
-}
-.review-filter-btn,
-.clear-all-btn {
-  background: linear-gradient(90deg, var(--mainPink) 60%, var(--mainYellow));
-  color: var(--mainBlack);
-  border: 1.5px solid var(--mainPink);
-}
-.review-filter-btn:hover,
-.review-filter-btn:focus,
-.clear-all-btn:hover,
-.clear-all-btn:focus {
-  background: linear-gradient(90deg, var(--mainYellow), var(--mainPink) 60%);
-  color: #fff;
-  border-color: var(--mainYellow);
-  box-shadow: 0 0 0 4px rgba(239, 121, 152, 0.12), 0 6px 24px rgba(239, 121, 152, 0.18);
-  outline: none;
-}
-.review-filter-btn.active {
-  background: linear-gradient(90deg, var(--mainPink) 10%, var(--mainYellow) 90%);
-  color: #fff;
-  border-color: var(--mainYellow);
-  box-shadow: 0 0 0 4px rgba(249, 228, 148, 0.18), 0 6px 24px rgba(239, 121, 152, 0.18);
-  transform: scale(1.13);
-}
-.clear-all-btn {
-  background: #fff;
-  color: var(--mainPink);
+/* Modern Button Styles */
+.btn {
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
   font-weight: 600;
-}
-.clear-all-btn.active {
-  background: var(--mainPink);
-  color: #fff;
-  border-color: var(--mainPink);
-}
-
-/* Write a Review button: more prominent */
-.review-btn-animate {
-  background: linear-gradient(90deg, var(--mainPink), var(--mainYellow));
-  color: var(--mainWhite);
+  transition: all 0.3s ease;
   border: none;
-  font-weight: bold;
-  letter-spacing: 0.1em;
-  box-shadow: 0 4px 24px rgba(239, 121, 152, 0.18), 0 0 0 6px rgba(239, 121, 152, 0.08);
-  text-shadow: 0 2px 8px rgba(239, 121, 152, 0.10);
-  font-size: 1.25rem;
-  padding: 0.9em 2.5em;
-  border-radius: 2em;
-}
-.review-btn-animate:hover, .review-btn-animate:focus {
-  background: linear-gradient(90deg, var(--mainYellow), var(--mainPink));
-  color: var(--mainBlack);
-  box-shadow: 0 0 0 6px rgba(249, 228, 148, 0.18), 0 8px 32px rgba(239, 121, 152, 0.22);
-  outline: none;
-  transform: scale(1.07);
+  position: relative;
+  overflow: hidden;
 }
 
-/* Improved Review Category Badge for visibility */
-.review-category-badge {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  background: linear-gradient(90deg, var(--mainPink) 60%, var(--mainYellow));
-  color: var(--mainBlack);
-  font-size: 1.05rem;
-  font-weight: 800;
-  padding: 0.45em 1.2em;
-  border-radius: 1.5em;
-  box-shadow: 0 2px 8px rgba(239, 121, 152, 0.18);
-  letter-spacing: 0.05em;
-  opacity: 0.98;
-  z-index: 30;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.10), 0 1px 2px rgba(239, 121, 152, 0.10);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 110px;
+/* Primary Button */
+.btn-primary {
+  background: var(--primary-coral);
+  color: var(--neutral-100);
 }
-.review-count-badge {
-  display: block;
-  font-size: 0.85em;
-  font-weight: 600;
-  color: #222;
-  opacity: 0.85;
-  margin-top: 0.15em;
-  text-shadow: 0 1px 2px rgba(255,255,255,0.15);
+
+.btn-primary:hover {
+  background: var(--accent-berry);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: var(--primary-sage);
+  color: var(--neutral-100);
+}
+
+.btn-secondary:hover {
+  background: var(--accent-mint);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.2);
+}
+
+/* Ghost Button */
+.btn-ghost {
+  background: transparent;
+  color: var(--neutral-800);
+  border: 2px solid var(--neutral-300);
+}
+
+.btn-ghost:hover {
+  border-color: var(--primary-coral);
+  color: var(--primary-coral);
+  transform: translateY(-2px);
+}
+
+/* Filter Buttons */
+.filter-btn {
+  background: var(--neutral-200);
+  color: var(--neutral-700);
+  padding: 0.5rem 1rem;
+  margin: 0.25rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.filter-btn:hover {
+  background: var(--neutral-300);
+  color: var(--neutral-800);
+}
+
+.filter-btn.active {
+  background: var(--primary-sage);
+  color: var(--neutral-100);
+}
+
+/* Banner/CTA Button */
+.banner-link {
+  background: linear-gradient(135deg, var(--primary-coral), var(--accent-berry));
+  color: var(--neutral-100);
+  padding: 1rem 2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.banner-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  color: var(--neutral-100);
+}
+
+/* Search Input Styling */
+.form-control {
+  border-radius: 12px;
+  border: 2px solid var(--neutral-300);
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--primary-sage);
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+}
+
+/* Category Badges */
+.review-category-badge {
+  background: var(--primary-sage);
+  color: var(--neutral-100);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+}
+
+/* Sort Dropdown */
+.review-sort-dropdown {
+  border-radius: 8px;
+  border: 2px solid var(--neutral-300);
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  background-color: var(--neutral-100);
+}
+
+.review-sort-dropdown:focus {
+  border-color: var(--primary-sage);
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
 }
 
 /* Smooth transitions for all nav elements */
@@ -732,23 +781,6 @@ jpg
   transform: scale(2.5);
   opacity: 0;
   transition: transform 0.5s cubic-bezier(0.4,2,0.6,1), opacity 0.5s;
-}
-
-/* Sorting dropdown style */
-.review-sort-dropdown {
-  font-size: 1rem;
-  border-radius: 1.5em;
-  border: 1px solid var(--mainPink);
-  background: #fff;
-  color: var(--mainBlack);
-  box-shadow: 0 2px 8px rgba(239, 121, 152, 0.08);
-  padding: 0.3em 1.2em;
-  transition: border 0.2s, box-shadow 0.2s;
-}
-.review-sort-dropdown:focus {
-  border: 1.5px solid var(--mainYellow);
-  box-shadow: 0 4px 16px rgba(249, 228, 148, 0.12);
-  outline: none;
 }
 
 /* WOW Animations for ServicesSection */
@@ -1048,4 +1080,230 @@ jpg
   .footer-copy-modern { font-size: 1rem; }
   .footer-cta-text-modern { font-size: 1rem; }
   .footer-socials-modern { gap: 1.2rem !important; }
+}
+
+/* Restaurant Card Gallery Styles - WOW Effect */
+.restaurant-card {
+  background: rgba(255,255,255,0.85);
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 16px 0 rgba(78,205,196,0.08), 0 1.5px 8px 0 rgba(255,107,107,0.10);
+  transition: box-shadow 0.3s cubic-bezier(0.4,2,0.6,1), transform 0.3s cubic-bezier(0.4,2,0.6,1), background 0.3s;
+  overflow: hidden;
+  position: relative;
+  min-height: 370px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  animation: restaurantCardIn 0.8s cubic-bezier(0.4,2,0.6,1) both;
+}
+@keyframes restaurantCardIn {
+  0% { opacity: 0; transform: translateY(40px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.restaurant-card:hover, .restaurant-card:focus-within {
+  box-shadow: 0 8px 32px 0 rgba(78,205,196,0.18), 0 4px 24px 0 rgba(255,107,107,0.18);
+  transform: scale(1.035) translateY(-4px);
+  background: rgba(255,255,255,0.97);
+  z-index: 2;
+}
+.restaurant-card-img-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  min-height: 180px;
+  max-height: 260px;
+  overflow: hidden;
+  background: #f8f9fa;
+  border-radius: 1.2rem 1.2rem 0 0;
+  transition: box-shadow 0.3s, transform 0.4s cubic-bezier(0.4,2,0.6,1);
+}
+.restaurant-card-img {
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.4,2,0.6,1);
+}
+.restaurant-card:hover .restaurant-card-img-container,
+.restaurant-card:focus-within .restaurant-card-img-container {
+  box-shadow: 0 4px 24px 0 rgba(78,205,196,0.12);
+  transform: scale(1.04) rotate(-1deg);
+}
+.restaurant-card:hover .restaurant-card-img,
+.restaurant-card:focus-within .restaurant-card-img {
+  transform: scale(1.10) rotate(-1deg);
+}
+.restaurant-card-body {
+  padding: 1.2rem 1.1rem 1.1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+.restaurant-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-coral);
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.01em;
+}
+.restaurant-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.5rem;
+}
+.restaurant-card-location {
+  font-size: 0.98rem;
+  color: var(--neutral-700);
+  background: var(--neutral-200);
+  border-radius: 0.5em;
+  padding: 0.18em 0.7em;
+  font-weight: 500;
+}
+.restaurant-card-rating {
+  display: inline-flex;
+  align-items: center;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--primary-saffron);
+  background: rgba(255,183,94,0.13);
+  border-radius: 0.5em;
+  padding: 0.18em 0.7em;
+  box-shadow: 0 1px 4px 0 rgba(255,183,94,0.08);
+  transition: background 0.3s;
+}
+.restaurant-card-rating-num {
+  font-size: 0.98em;
+  color: var(--neutral-800);
+  margin-left: 0.2em;
+  font-weight: 600;
+}
+.restaurant-card-desc {
+  color: var(--neutral-700);
+  font-size: 1.05rem;
+  margin-top: 0.3rem;
+  flex: 1 1 auto;
+  transition: color 0.3s;
+}
+.restaurant-card:hover .restaurant-card-desc {
+  color: var(--primary-coral);
+}
+@media (max-width: 768px) {
+  .restaurant-card-body { padding: 1rem 0.7rem 1rem 0.7rem; }
+  .restaurant-card-title { font-size: 1.08rem; }
+  .restaurant-card-desc { font-size: 0.98rem; }
+}
+@media (max-width: 576px) {
+  .restaurant-card { min-height: 320px; }
+  .restaurant-card-img-container { min-height: 120px; max-height: 180px; }
+}
+
+/* Enhanced Restaurant Gallery Filters - Modern & Clean */
+.wow-filters-animate {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(8px);
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 16px 0 rgba(78,205,196,0.08), 0 1.5px 8px 0 rgba(255,107,107,0.10);
+  padding: 1.2rem 1.2rem 0.7rem 1.2rem;
+  margin-bottom: 2.2rem !important;
+  animation: filtersFadeIn 0.8s cubic-bezier(0.4,2,0.6,1) 0.1s both;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 0;
+}
+@keyframes filtersFadeIn {
+  0% { opacity: 0; transform: translateY(-20px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.wow-filters-animate .form-control,
+.wow-filters-animate .form-select {
+  border-radius: 0.8em;
+  border: 2px solid var(--neutral-300);
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 1px 4px 0 rgba(78,205,196,0.06);
+  font-size: 1.05rem;
+  padding: 0.7em 1em;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.wow-filters-animate .form-control:focus,
+.wow-filters-animate .form-select:focus {
+  border-color: var(--primary-sage);
+  box-shadow: 0 0 0 3px rgba(78,205,196,0.13);
+  outline: none;
+}
+.wow-filters-animate label {
+  font-size: 1.01rem;
+  color: var(--neutral-700);
+  font-weight: 600;
+}
+.wow-filters-animate input[type="range"] {
+  accent-color: var(--primary-sage);
+  width: 100px;
+  margin-top: 2px;
+  background: transparent;
+  height: 2.5px;
+}
+.wow-filters-animate input[type="range"]::-webkit-slider-thumb {
+  background: var(--primary-sage);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  box-shadow: 0 2px 8px rgba(78,205,196,0.18);
+  border: 2px solid var(--neutral-200);
+  transition: background 0.2s;
+}
+.wow-filters-animate input[type="range"]:focus::-webkit-slider-thumb {
+  background: var(--primary-coral);
+}
+.wow-filters-animate input[type="range"]::-moz-range-thumb {
+  background: var(--primary-sage);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  box-shadow: 0 2px 8px rgba(78,205,196,0.18);
+  border: 2px solid var(--neutral-200);
+  transition: background 0.2s;
+}
+.wow-filters-animate input[type="range"]:focus::-moz-range-thumb {
+  background: var(--primary-coral);
+}
+.wow-filters-animate input[type="range"]::-ms-thumb {
+  background: var(--primary-sage);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  box-shadow: 0 2px 8px rgba(78,205,196,0.18);
+  border: 2px solid var(--neutral-200);
+  transition: background 0.2s;
+}
+.wow-filters-animate input[type="range"]:focus::-ms-thumb {
+  background: var(--primary-coral);
+}
+.wow-filters-animate .btn-ghost.btn-sm {
+  border-radius: 0.8em;
+  border: 1.5px solid var(--neutral-300);
+  background: rgba(255,255,255,0.92);
+  color: var(--neutral-700);
+  font-weight: 500;
+  box-shadow: 0 1px 4px 0 rgba(78,205,196,0.06);
+  margin: 0.15em 0.3em 0.15em 0;
+  padding: 0.3em 0.9em;
+  font-size: 0.97rem;
+  transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
+}
+.wow-filters-animate .btn-ghost.btn-sm:hover,
+.wow-filters-animate .btn-ghost.btn-sm.active {
+  background: var(--primary-sage);
+  color: var(--neutral-100);
+  border-color: var(--primary-sage);
+  box-shadow: 0 2px 8px rgba(78,205,196,0.13);
+}
+.wow-filters-animate .ms-2 {
+  font-weight: 600;
+  color: var(--primary-sage);
+  font-size: 1.08em;
+}
+@media (max-width: 768px) {
+  .wow-filters-animate { padding: 0.7rem 0.5rem 0.5rem 0.5rem; }
+  .wow-filters-animate .form-control, .wow-filters-animate .form-select { font-size: 0.98rem; padding: 0.5em 0.7em; }
+}
+@media (max-width: 576px) {
+  .wow-filters-animate { flex-direction: column; gap: 0.5rem 0; }
 }

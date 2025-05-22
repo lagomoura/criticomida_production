@@ -7,7 +7,7 @@ export default function Banner() {
             <h1 className="text-capitalize">
               welcome to <strong className="banner-title">CritiComida</strong>
             </h1>
-            <a href="#reviews" className="btn banner-link text-uppercase my-2 banner-btn-animate">explore</a>
+            <a href="#reviews" className="btn banner-link text-uppercase">explore</a>
           </div>
         </div>
       </div>

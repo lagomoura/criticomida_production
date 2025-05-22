@@ -170,7 +170,7 @@ export default function ReviewsSection() {
             {filterOptions.map(opt => (
               <button
                 key={opt.value}
-                className={`btn btn-black text-uppercase filter-btn m-2 review-filter-btn${activeFilters.includes(opt.value) ? ' active' : ''}`}
+                className={`btn filter-btn${activeFilters.includes(opt.value) ? ' active' : ''}`}
                 onClick={() => handleFilterClick(opt.value)}
                 type="button"
                 aria-pressed={activeFilters.includes(opt.value)}
@@ -180,7 +180,7 @@ export default function ReviewsSection() {
             ))}
             {activeFilters.length > 1 && (
               <button
-                className="btn btn-outline-secondary text-uppercase m-2 clear-all-btn"
+                className="btn btn-ghost"
                 type="button"
                 onClick={() => setActiveFilters(['all'])}
               >

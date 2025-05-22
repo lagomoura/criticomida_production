@@ -12,7 +12,7 @@ export default function AboutSection() {
             <p className="my-4 text-muted w-75 about-text">
               Somos CritiComida, hecho por una pareja que comparten opiniones reales sobre los mejores (¡y peores!) lugares para comer. Unite a descubrir sabores, recomendar tus favoritos y ayude a otros a elegir dónde darse un buen gusto. ¡Acá la posta la tenés vos!
             </p>
-            <a href="#" className="btn btn-black text-uppercase about-btn-animate">explorar más</a>
+            <a href="#" className="btn btn-primary text-uppercase">explorar más</a>
           </div>
           <div className="col-10 mx-auto col-md-6 my-5 align-self-center about-img-animate">
             <div className="about-img_container about-img-hover" style={{ position: 'relative', width: '100%', aspectRatio: '10/7', minHeight: 0, overflow: 'hidden' }}>
