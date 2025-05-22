@@ -4,7 +4,17 @@ import { useParams } from 'next/navigation';
 import RestaurantCard from '../../components/RestaurantCard';
 import BackButton from '../../components/BackButton';
 
-const mockRestaurants = {
+type RestaurantType = {
+  name: string;
+  image: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  tags: string[];
+};
+
+const mockRestaurants: { [key: string]: RestaurantType[] } = {
   'dulces': [
     { name: 'Dulce Tentación', image: '/img/restaurant-fallback.jpg', location: 'Palermo, CABA', rating: 4.8, reviewCount: 18, description: 'Pastelería artesanal con los mejores postres y tortas.', tags: ['Vegano', 'Sin TACC'] },
     { name: 'La Pastelería', image: '/img/restaurant-fallback.jpg', location: 'Recoleta, CABA', rating: 4.7, reviewCount: 12, description: 'Tortas y tartas caseras.', tags: ['Clásico'] },

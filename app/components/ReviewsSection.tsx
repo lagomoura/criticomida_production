@@ -128,7 +128,7 @@ export default function ReviewsSection() {
   }
 
   // Tooltip auto-dismiss for mobile
-  function handleTooltipShow(category: string) {
+  function handleTooltipShow() {
     if (window.innerWidth < 768) {
       if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
       tooltipTimeout.current = setTimeout(() => {}, 2000);
@@ -227,10 +227,10 @@ export default function ReviewsSection() {
                 className="card single-item review-card-hover text-decoration-none text-dark"
                 style={{display: 'block', position: 'relative', overflow: 'hidden'}}
                 ref={(el) => { rippleRefs.current[item.category] = el; }}
-                onMouseEnter={() => handleTooltipShow(item.category)}
-                onMouseLeave={() => handleTooltipShow(item.category)}
-                onTouchStart={() => handleTooltipShow(item.category)}
-                onTouchEnd={() => handleTooltipShow(item.category)}
+                onMouseEnter={handleTooltipShow}
+                onMouseLeave={handleTooltipShow}
+                onTouchStart={handleTooltipShow}
+                onTouchEnd={handleTooltipShow}
                 onClick={(e) => handleCardClick(e, item.category)}
                 tabIndex={0}
                 aria-label={`Ver todas las reseñas de ${item.label}`}
