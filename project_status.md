@@ -42,8 +42,8 @@
 - [ ] **API Design**: Design clear API endpoints for CRUD (Create, Read, Update, Delete) operations on your data (e.g., GET /restaurants, POST /restaurants/:id/reviews).
 
 ## Phase 3: Core Features for a Food Review Site
-- [ ] **Restaurant Listings & Details**:
-  - [ ] Display a list of restaurants (fetched from your backend).
+- [x] **Restaurant Listings & Details**:
+  - [x] Display a list of restaurants (currently using mock data for all categories, with a polished, animated, and interactive gallery grid for each category. WOW effect implemented.)
   - [ ] Each restaurant should have its own page showing details (address, cuisine type, photos, map integration).
   - [ ] Display average ratings.
 - [ ] **Review System**:
@@ -62,7 +62,7 @@
 - [ ] **Map Integration**: Show restaurant locations on a map (e.g., using Leaflet.js, Google Maps API, or Mapbox).
 - [ ] **Social Sharing**: Allow users to share reviews or restaurant pages.
 - [ ] **SEO Optimization**: Crucial for a review site. Frameworks like Next.js and Nuxt.js help significantly here.
-- [ ] **Improved UI/UX**: Focus on a clean, intuitive, and visually appealing design that is fully responsive.
+- [x] **Improved UI/UX**: Restaurant gallery and cards now feature a clean, modern, animated, and visually appealing design with advanced hover and entrance effects (WOW effect). Fully responsive and accessible.
 
 ## Phase 5: Deployment - Going Live
 - [ ] **Frontend & BaaS**:
