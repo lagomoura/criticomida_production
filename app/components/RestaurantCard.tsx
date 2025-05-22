@@ -8,13 +8,15 @@ interface RestaurantCardProps {
   location: string;
   rating: number;
   description: string;
+  reviewCount: number;
+  categoryLabel?: string;
 }
 
-export default function RestaurantCard({ name, image, location, rating, description }: RestaurantCardProps) {
+export default function RestaurantCard({ name, image, location, rating, description, reviewCount, categoryLabel }: RestaurantCardProps) {
   const [imgSrc, setImgSrc] = useState(image);
   return (
     <div className="restaurant-card shadow-sm">
-      <div className="restaurant-card-img-container">
+      <div className="restaurant-card-img-container" style={{ position: 'relative', width: '100%', aspectRatio: '4/3', minHeight: 0, overflow: 'hidden' }}>
         <Image
           src={imgSrc}
           alt={name}
@@ -24,6 +26,16 @@ export default function RestaurantCard({ name, image, location, rating, descript
           sizes="(max-width: 768px) 100vw, 33vw"
           onError={() => setImgSrc('/img/restaurant-fallback.jpg')}
         />
+        {/* Category bubble (top left) - only if categoryLabel is provided */}
+        {categoryLabel && (
+          <span className="restaurant-card-category-badge">
+            {categoryLabel}
+          </span>
+        )}
+        {/* Review count badge (top right) */}
+        <span className="restaurant-card-review-badge">
+          {reviewCount} reseñas
+        </span>
       </div>
       <div className="restaurant-card-body">
         <h3 className="restaurant-card-title">{name}</h3>

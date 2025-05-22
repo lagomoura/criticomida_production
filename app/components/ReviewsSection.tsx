@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import RestaurantCard from './RestaurantCard';
 
 interface ReviewItem {
   category: string;
@@ -77,7 +77,6 @@ function sortItems(items: ReviewItem[], sort: SortType): ReviewItem[] {
 export default function ReviewsSection() {
   const [activeFilters, setActiveFilters] = useState<string[]>(['all']);
   const [search, setSearch] = useState<string>('');
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [sort, setSort] = useState<SortType>('most');
   const rippleRefs = useRef<RippleRefs>({});
   const tooltipTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -130,10 +129,9 @@ export default function ReviewsSection() {
 
   // Tooltip auto-dismiss for mobile
   function handleTooltipShow(category: string) {
-    setHoveredCard(category);
     if (window.innerWidth < 768) {
       if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
-      tooltipTimeout.current = setTimeout(() => setHoveredCard(null), 2000);
+      tooltipTimeout.current = setTimeout(() => {}, 2000);
     }
   }
 
@@ -229,29 +227,24 @@ export default function ReviewsSection() {
                 className="card single-item review-card-hover text-decoration-none text-dark"
                 style={{display: 'block', position: 'relative', overflow: 'hidden'}}
                 ref={(el) => { rippleRefs.current[item.category] = el; }}
-                onMouseEnter={() => setHoveredCard(item.category)}
-                onMouseLeave={() => setHoveredCard(null)}
+                onMouseEnter={() => handleTooltipShow(item.category)}
+                onMouseLeave={() => handleTooltipShow(item.category)}
                 onTouchStart={() => handleTooltipShow(item.category)}
-                onTouchEnd={() => setHoveredCard(null)}
+                onTouchEnd={() => handleTooltipShow(item.category)}
                 onClick={(e) => handleCardClick(e, item.category)}
                 tabIndex={0}
                 aria-label={`Ver todas las reseñas de ${item.label}`}
               >
-                <div className="img-container review-img-hover" style={{ position: 'relative', width: '100%', height: '250px' }}>
-                  <Image
-                    src={item.img}
-                    alt={item.alt}
-                    fill
-                    className="card-img-top review-img"
-                    style={{ objectFit: 'cover' }}
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                <div style={{ position: 'relative', width: '100%', height: '250px' }}>
+                  <RestaurantCard
+                    name={item.label}
+                    image={item.img}
+                    location={''}
+                    rating={0}
+                    description={item.description}
+                    reviewCount={item.reviewCount}
+                    categoryLabel={item.label}
                   />
-                  <span className="review-category-badge">
-                    {item.label}
-                    <span className="review-count-badge">{item.reviewCount} reseñas</span>
-                  </span>
-                  {/* Tooltip/Overlay for description */}
-                  <span className={`review-description-tooltip${hoveredCard === item.category ? ' show' : ''}`}>{item.description}</span>
                 </div>
                 {/* Ripple effect */}
                 <span className="ripple" />

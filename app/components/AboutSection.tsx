@@ -10,7 +10,7 @@ export default function AboutSection() {
               Sobre <strong className="banner-title">nosotros</strong>
             </h1>
             <p className="my-4 text-muted w-75 about-text">
-              Somos CritiComida, hecho por una pareja que comparten opiniones reales sobre los mejores (¡y peores!) lugares para comer. Unite a descubrir sabores, recomendar tus favoritos y ayude a otros a elegir dónde darse un buen gusto. ¡Acá la posta la tenés vos!
+              Somos CritiComida, hecho por una familia que comparten opiniones reales sobre los mejores (¡y peores!) lugares para comer. Unite a descubrir sabores, recomendar tus favoritos y ayude a otros a elegir dónde darse un buen gusto. ¡Acá la posta la tenés vos!
             </p>
             <a href="#" className="btn btn-primary text-uppercase">explorar más</a>
           </div>

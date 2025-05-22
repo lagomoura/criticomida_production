@@ -1307,3 +1307,52 @@ jpg
 @media (max-width: 576px) {
   .wow-filters-animate { flex-direction: column; gap: 0.5rem 0; }
 }
+
+/* Category bubble (top left) */
+.restaurant-card-category-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 5;
+  background: linear-gradient(120deg, rgba(78,205,196,0.85), rgba(255,255,255,0.65));
+  color: var(--primary-coral);
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.45em 1.1em;
+  border-radius: 1.2em;
+  box-shadow: 0 2px 12px 0 rgba(78,205,196,0.10);
+  backdrop-filter: blur(6px);
+  border: 1.5px solid rgba(78,205,196,0.18);
+  letter-spacing: 0.01em;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Review count badge (top right) */
+.restaurant-card-review-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 5;
+  background: linear-gradient(120deg, rgba(255,107,107,0.85), rgba(255,255,255,0.65));
+  color: var(--neutral-900);
+  font-weight: 600;
+  font-size: 0.98rem;
+  padding: 0.42em 1em;
+  border-radius: 1.2em;
+  box-shadow: 0 2px 12px 0 rgba(255,107,107,0.10);
+  backdrop-filter: blur(6px);
+  border: 1.5px solid rgba(255,107,107,0.18);
+  letter-spacing: 0.01em;
+  transition: background 0.3s, color 0.3s;
+}
+
+@media (max-width: 768px) {
+  .restaurant-card-category-badge,
+  .restaurant-card-review-badge {
+    top: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.92rem;
+    padding: 0.32em 0.7em;
+  }
+}
