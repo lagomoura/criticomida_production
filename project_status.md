@@ -46,6 +46,8 @@
   - [x] Display a list of restaurants (currently using mock data for all categories, with a polished, animated, and interactive gallery grid for each category. WOW effect implemented.)
   - [ ] Each restaurant should have its own page showing details (address, cuisine type, photos, map integration).
   - [ ] Display average ratings.
+  - [x] Restaurant cards are now clickable (desserts category) and link to a modern detail page.
+  - [x] Modern restaurant detail page for dessert restaurants: includes summary with pros/cons, diary/note space, and a gallery of tasted foods (photo, date, text, pros/cons for each plate) with fallback images. (Other categories coming soon.)
 - [ ] **Review System**:
   - [ ] Allow users to submit reviews (text, star rating, potentially photos).
   - [ ] Display reviews on restaurant detail pages.

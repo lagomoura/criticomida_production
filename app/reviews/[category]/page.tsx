@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import RestaurantCard from '../../components/RestaurantCard';
-import BackButton from '../../components/BackButton';
+import Link from 'next/link';
 
 type RestaurantType = {
   name: string;
@@ -17,9 +17,7 @@ type RestaurantType = {
 const mockRestaurants: { [key: string]: RestaurantType[] } = {
   'dulces': [
     { name: 'Dulce Tentación', image: '/img/restaurant-fallback.jpg', location: 'Palermo, CABA', rating: 4.8, reviewCount: 18, description: 'Pastelería artesanal con los mejores postres y tortas.', tags: ['Vegano', 'Sin TACC'] },
-    { name: 'La Pastelería', image: '/img/restaurant-fallback.jpg', location: 'Recoleta, CABA', rating: 4.7, reviewCount: 12, description: 'Tortas y tartas caseras.', tags: ['Clásico'] },
     { name: 'ChocoLovers', image: '/img/restaurant-fallback.jpg', location: 'Belgrano, CABA', rating: 4.9, reviewCount: 22, description: 'Especialidad en postres de chocolate.', tags: ['Chocolate'] },
-    { name: 'Tarta & Co.', image: '/img/restaurant-fallback.jpg', location: 'Caballito, CABA', rating: 4.6, reviewCount: 10, description: 'Tartas dulces y saladas.', tags: ['Tartas'] },
     { name: 'Dulzura Real', image: '/img/restaurant-fallback.jpg', location: 'Almagro, CABA', rating: 4.5, reviewCount: 15, description: 'Variedad de dulces y pastelería.', tags: ['Sin TACC'] },
     { name: 'Postre Express', image: '/img/restaurant-fallback.jpg', location: 'San Telmo, CABA', rating: 4.3, reviewCount: 8, description: 'Postres rápidos y deliciosos.', tags: ['Express'] },
     { name: 'La Dulcería', image: '/img/restaurant-fallback.jpg', location: 'Flores, CABA', rating: 4.4, reviewCount: 11, description: 'Dulces tradicionales argentinos.', tags: ['Tradicional'] },
@@ -38,6 +36,7 @@ const mockRestaurants: { [key: string]: RestaurantType[] } = {
     { name: 'Brunch Time', image: '/img/restaurant-fallback.jpg', location: 'Villa Crespo, CABA', rating: 4.2, reviewCount: 7, description: 'Brunch todo el día.', tags: ['Todo el día'] },
     { name: 'Brunch & Friends', image: '/img/restaurant-fallback.jpg', location: 'Chacarita, CABA', rating: 4.7, reviewCount: 13, description: 'Ideal para grupos grandes.', tags: ['Grupo'] },
     { name: 'Brunch Final', image: '/img/restaurant-fallback.jpg', location: 'Retiro, CABA', rating: 4.5, reviewCount: 10, description: 'El brunch perfecto para cerrar la semana.', tags: ['Cierre de semana'] },
+    { name: 'Tarta & Co.', image: '/img/restaurant-fallback.jpg', location: 'Caballito, CABA', rating: 4.6, reviewCount: 10, description: 'Tartas dulces y saladas.', tags: ['Tartas'] },
   ],
   'desayunos': [
     { name: 'Café Amanecer', image: '/img/restaurant-fallback.jpg', location: 'San Telmo, CABA', rating: 4.4, reviewCount: 7, description: 'Desayunos completos y café de especialidad.', tags: ['Completo'] },
@@ -50,6 +49,7 @@ const mockRestaurants: { [key: string]: RestaurantType[] } = {
     { name: 'Desayuno Final', image: '/img/restaurant-fallback.jpg', location: 'Villa Crespo, CABA', rating: 4.2, reviewCount: 6, description: 'El mejor desayuno para empezar el día.', tags: ['Inicio de día'] },
     { name: 'Café Central', image: '/img/restaurant-fallback.jpg', location: 'Chacarita, CABA', rating: 4.7, reviewCount: 12, description: 'Café clásico y ambiente retro.', tags: ['Clásico'] },
     { name: 'Desayuno & Co.', image: '/img/restaurant-fallback.jpg', location: 'Retiro, CABA', rating: 4.5, reviewCount: 8, description: 'Desayunos internacionales.', tags: ['Internacional'] },
+    { name: 'La Pastelería', image: '/img/restaurant-fallback.jpg', location: 'Recoleta, CABA', rating: 4.7, reviewCount: 12, description: 'Tortas y tartas caseras.', tags: ['Clásico'] },
   ],
   'mexico-food': [
     { name: 'La Lupita', image: '/img/restaurant-fallback.jpg', location: 'Villa Crespo, CABA', rating: 4.7, reviewCount: 11, description: 'Tacos, burritos y margaritas en un ambiente colorido.', tags: ['Tacos', 'Burritos', 'Margaritas'] },
@@ -233,6 +233,16 @@ const categoryDescriptions: Record<string, string> = {
   'peru-food': 'Ceviche y delicias peruanas.',
 };
 
+// Add a slugify function that removes accents and special characters
+function slugify(name: string) {
+  return name
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
 export default function CategoryPage() {
   const params = useParams();
   const category = params.category as string;
@@ -265,9 +275,12 @@ export default function CategoryPage() {
   return (
     <section className="category-gallery py-5">
       <div className="container">
-        <div className="d-flex align-items-center mb-4">
-          <BackButton />
-          <h1 className="text-capitalize mb-0">
+        <div className="d-flex align-items-center mb-4 gap-3">
+          <Link href="/" className="btn btn-lg btn-primary px-4 py-2 fw-bold shadow-sm d-flex align-items-center gap-2 back-main-btn">
+            <span style={{fontSize: '1.4em', lineHeight: 1}}>🏠</span>
+            <span>Volver al inicio</span>
+          </Link>
+          <h1 className="display-4 fw-bold mb-0 category-header-title text-gradient-accent">
             {categoryNames[category] || category}
           </h1>
         </div>
@@ -332,11 +345,19 @@ export default function CategoryPage() {
               <h4 className="text-muted">No hay restaurantes que coincidan con los filtros.</h4>
             </div>
           ) : (
-            filteredRestaurants.map((rest, idx) => (
-              <div className="col-12 col-sm-6 col-lg-4" key={idx}>
+            filteredRestaurants.map((rest, idx) => {
+              const slug = slugify(rest.name);
+              const cardContent = (
                 <RestaurantCard {...rest} />
-              </div>
-            ))
+              );
+              return (
+                <div className="col-12 col-sm-6 col-lg-4" key={idx}>
+                  <Link href={`/restaurants/${slug}`} className="text-decoration-none text-dark">
+                    {cardContent}
+                  </Link>
+                </div>
+              );
+            })
           )}
         </div>
       </div>
