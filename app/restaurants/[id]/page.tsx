@@ -2,9 +2,25 @@
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
 
-const dessertMock = {
+const dessertMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    pros: string[];
+    cons: string[];
+    note: string;
+  }[];
+}> = {
   'dulce-tentacion': {
     name: 'Dulce Tentación',
     location: 'Palermo, CABA',
@@ -296,7 +312,24 @@ const dessertMock = {
 };
 
 // Burger restaurants mock data
-const burgerMock = {
+const burgerMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'burger-bros': {
     name: 'Burger Bros',
     location: 'Palermo, CABA',
@@ -580,7 +613,24 @@ const burgerMock = {
 };
 
 // Desayunos restaurants mock data
-const desayunoMock = {
+const desayunoMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'cafe-amanecer': {
     name: 'Café Amanecer',
     location: 'San Telmo, CABA',
@@ -892,7 +942,24 @@ const desayunoMock = {
 };
 
 // Mexico-food restaurants mock data
-const mexicoMock = {
+const mexicoMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'la-lupita': {
     name: 'La Lupita',
     location: 'Villa Crespo, CABA',
@@ -1036,7 +1103,24 @@ const mexicoMock = {
 };
 
 // Japan-food restaurants mock data
-const japanMock = {
+const japanMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'sushi-house': {
     name: 'Sushi House',
     location: 'Belgrano, CABA',
@@ -1180,7 +1264,24 @@ const japanMock = {
 };
 
 // Arabic-food restaurants mock data
-const arabicMock = {
+const arabicMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'sabores-de-oriente': {
     name: 'Sabores de Oriente',
     location: 'Almagro, CABA',
@@ -1324,7 +1425,24 @@ const arabicMock = {
 };
 
 // Israelfood restaurants mock data
-const israelMock = {
+const israelMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'tel-aviv-bistro': {
     name: 'Tel Aviv Bistró',
     location: 'Colegiales, CABA',
@@ -1468,7 +1586,24 @@ const israelMock = {
 };
 
 // Thaifood restaurants mock data
-const thaiMock = {
+const thaiMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'bangkok-express': {
     name: 'Bangkok Express',
     location: 'Palermo, CABA',
@@ -1612,7 +1747,24 @@ const thaiMock = {
 };
 
 // Koreanfood restaurants mock data
-const koreanMock = {
+const koreanMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'kimchi-house': {
     name: 'Kimchi House',
     location: 'Flores, CABA',
@@ -1756,7 +1908,24 @@ const koreanMock = {
 };
 
 // Chinafood restaurants mock data
-const chinaMock = {
+const chinaMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'gran-dragon': {
     name: 'Gran Dragón',
     location: 'Belgrano, CABA',
@@ -1900,7 +2069,24 @@ const chinaMock = {
 };
 
 // Parrillas restaurants mock data
-const parrillaMock = {
+const parrillaMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'don-asado': {
     name: 'Don Asado',
     location: 'San Nicolás, CABA',
@@ -2044,7 +2230,24 @@ const parrillaMock = {
 };
 
 // Brazilfood restaurants mock data
-const brazilMock = {
+const brazilMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'sabor-brasil': {
     name: 'Sabor Brasil',
     location: 'Centro, CABA',
@@ -2188,7 +2391,24 @@ const brazilMock = {
 };
 
 // Helados restaurants mock data
-const heladoMock = {
+const heladoMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'heladeria-italia': {
     name: 'Heladería Italia',
     location: 'Caballito, CABA',
@@ -2332,7 +2552,24 @@ const heladoMock = {
 };
 
 // Peru-food restaurants mock data
-const peruMock = {
+const peruMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'ceviche-lima': {
     name: 'Ceviche Lima',
     location: 'Retiro, CABA',
@@ -2476,7 +2713,24 @@ const peruMock = {
 };
 
 // Brunch restaurants mock data
-const brunchMock = {
+const brunchMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
   'brunch-co': {
     name: 'Brunch & Co.',
     location: 'Recoleta, CABA',
@@ -2857,18 +3111,18 @@ export default function RestaurantDetailPage() {
       {/* Gallery of tasted foods */}
       <div className="row mb-4">
         <h3 className="mb-4">Platos probados</h3>
-        {data.plates.map((plate, idx) => (
-          <div className="col-12 col-md-6 col-lg-4 mb-4" key={idx}>
-            <div className="card h-100 shadow-sm">
-              <div className="position-relative" style={{width: '100%', aspectRatio: '4/3', minHeight: 0, overflow: 'hidden'}}>
-                <Image
-                  src={plate.image}
-                  alt={plate.name}
-                  fill
-                  className="img-fluid"
-                  style={{objectFit: 'cover'}}
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  onError={(e: any) => { e.target.src = '/img/food-fallback.jpg'; }}
+          {data.plates.map((plate, idx) => (
+            <div className="col-12 col-md-6 col-lg-4 mb-4" key={idx}>
+              <div className="card h-100 shadow-sm">
+                <div className="position-relative" style={{width: '100%', aspectRatio: '4/3', minHeight: 0, overflow: 'hidden'}}>
+                  <Image
+                    src={plate.image}
+                    alt={plate.name}
+                    fill
+                    className="img-fluid"
+                    style={{objectFit: 'cover'}}
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = '/img/food-fallback.jpg'; }}
                 />
               </div>
               <div className="card-body d-flex flex-column">
