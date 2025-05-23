@@ -249,27 +249,46 @@ export default function CategoryPage() {
   const allRestaurants = mockRestaurants[category] || [];
 
   // Gather unique locations and tags for filters
-  const locations = Array.from(new Set(allRestaurants.map(r => r.location)));
   const allTags = Array.from(new Set(allRestaurants.flatMap(r => r.tags || [])));
 
-  // Filter state
+  // --- Advanced Filter State ---
   const [search, setSearch] = useState('');
-  const [location, setLocation] = useState('');
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]); // multi-select
   const [minRating, setMinRating] = useState(0);
+  const [maxRating, setMaxRating] = useState(5);
+  const [minReviews, setMinReviews] = useState(0);
+  const [maxReviews, setMaxReviews] = useState(() => Math.max(...allRestaurants.map(r => r.reviewCount), 0));
   const [activeTags, setActiveTags] = useState<string[]>([]);
 
-  // Filtering logic
+  // --- Advanced Filtering Logic ---
   const filteredRestaurants = allRestaurants.filter(r => {
     const matchesName = r.name.toLowerCase().includes(search.toLowerCase());
-    const matchesLocation = !location || r.location === location;
-    const matchesRating = r.rating >= minRating;
+    const matchesLocation = selectedLocations.length === 0 || selectedLocations.includes(r.location);
+    const matchesRating = r.rating >= minRating && r.rating <= maxRating;
+    const matchesReviewCount = r.reviewCount >= minReviews && r.reviewCount <= maxReviews;
     const matchesTags = activeTags.length === 0 || (r.tags && activeTags.every(tag => r.tags.includes(tag)));
-    return matchesName && matchesLocation && matchesRating && matchesTags;
+    return matchesName && matchesLocation && matchesRating && matchesReviewCount && matchesTags;
   });
 
-  // Tag filter handler
+  // --- Handlers ---
   function handleTagClick(tag: string) {
     setActiveTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+  }
+  function handleClearAll() {
+    setSearch('');
+    setSelectedLocations([]);
+    setMinRating(0);
+    setMaxRating(5);
+    setMinReviews(0);
+    setMaxReviews(Math.max(...allRestaurants.map(r => r.reviewCount), 0));
+    setActiveTags([]);
+  }
+  function handleRemoveChip(type: string, value: string | number) {
+    if (type === 'tag') setActiveTags(prev => prev.filter(t => t !== value));
+    if (type === 'minRating') setMinRating(0);
+    if (type === 'maxRating') setMaxRating(5);
+    if (type === 'minReviews') setMinReviews(0);
+    if (type === 'maxReviews') setMaxReviews(Math.max(...allRestaurants.map(r => r.reviewCount), 0));
   }
 
   return (
@@ -285,58 +304,118 @@ export default function CategoryPage() {
           </h1>
         </div>
         <p className="lead text-muted mb-4">{categoryDescriptions[category]}</p>
-        {/* Filters */}
-        <div className="row mb-4 wow-filters-animate">
-          <div className="col-12 col-md-3 mb-2">
+        {/* Filters - Compact, Horizontal, Modern UX */}
+        <div
+          className="filter-bar mb-4 px-3 py-2 d-flex flex-wrap align-items-center gap-2 gap-md-3 shadow-sm rounded-4 glass-bg"
+          style={{ minHeight: 0, background: 'rgba(255,255,255,0.85)', border: '1px solid #e5e7eb', boxShadow: '0 2px 16px 0 rgba(0,0,0,0.04)', backdropFilter: 'blur(8px)' }}
+        >
+          {/* Search */}
+          <input
+            type="text"
+            className="form-control form-control-sm flex-shrink-0"
+            style={{ maxWidth: 180, minWidth: 120 }}
+            placeholder="Buscar por nombre..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          {/* Multi-select Locations */}
+          {/* Locations filter bubbles removed */}
+          {/* ... existing code ... */}
+          {/* Rating Range */}
+          <div className="d-flex align-items-center gap-1 flex-shrink-0">
+            <label className="fw-bold mb-0" style={{ fontSize: '0.95em' }}>⭐</label>
             <input
-              type="text"
-              className="form-control"
-              placeholder="Buscar por nombre..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-          <div className="col-6 col-md-3 mb-2">
-            <select
-              className="form-select"
-              value={location}
-              onChange={e => setLocation(e.target.value)}
-            >
-              <option value="">Todas las zonas</option>
-              {locations.map(loc => (
-                <option key={loc} value={loc}>{loc}</option>
-              ))}
-            </select>
-          </div>
-          <div className="col-6 col-md-3 mb-2 d-flex align-items-center">
-            <label htmlFor="min-rating" className="me-2 fw-bold">Min. Rating:</label>
-            <input
-              id="min-rating"
               type="range"
               min={0}
               max={5}
               step={0.1}
               value={minRating}
               onChange={e => setMinRating(Number(e.target.value))}
-              style={{ width: '100px' }}
+              style={{ width: '60px' }}
             />
-            <span className="ms-2">{minRating.toFixed(1)}</span>
+            <span style={{ fontSize: '0.92em', minWidth: 28 }}>{minRating.toFixed(1)}</span>
+            <span>-</span>
+            <input
+              type="range"
+              min={0}
+              max={5}
+              step={0.1}
+              value={maxRating}
+              onChange={e => setMaxRating(Number(e.target.value))}
+              style={{ width: '60px' }}
+            />
+            <span style={{ fontSize: '0.92em', minWidth: 28 }}>{maxRating.toFixed(1)}</span>
           </div>
-          {allTags.length > 0 && (
-            <div className="col-12 col-md-3 mb-2 d-flex flex-wrap align-items-center">
-              {allTags.map(tag => (
-                <button
-                  key={tag}
-                  className={`btn btn-ghost btn-sm m-1${activeTags.includes(tag) ? ' active' : ''}`}
-                  type="button"
-                  onClick={() => handleTagClick(tag)}
-                  style={{ fontSize: '0.92rem', padding: '0.3em 0.9em' }}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
+          {/* Review Count Range */}
+          <div className="d-flex align-items-center gap-1 flex-shrink-0">
+            <label className="fw-bold mb-0" style={{ fontSize: '0.95em' }}>#</label>
+            <input
+              type="number"
+              min={0}
+              max={maxReviews}
+              value={minReviews}
+              onChange={e => setMinReviews(Number(e.target.value))}
+              style={{ width: '48px' }}
+              className="form-control form-control-sm"
+            />
+            <span>-</span>
+            <input
+              type="number"
+              min={0}
+              max={maxReviews}
+              value={maxReviews}
+              onChange={e => setMaxReviews(Number(e.target.value))}
+              style={{ width: '48px' }}
+              className="form-control form-control-sm"
+            />
+          </div>
+          {/* Tags */}
+          {allTags.map(tag => (
+            <button
+              key={tag}
+              className={`btn btn-ghost btn-sm px-2 py-1${activeTags.includes(tag) ? ' active' : ''}`}
+              type="button"
+              onClick={() => handleTagClick(tag)}
+              style={{ fontSize: '0.92rem', borderRadius: '999px', border: '1px solid #e5e7eb', background: activeTags.includes(tag) ? 'rgba(255,193,7,0.13)' : 'transparent', color: '#333' }}
+            >
+              {tag}
+            </button>
+          ))}
+          {/* Active Filter Chips */}
+          {selectedLocations.map(loc => (
+            <span key={loc} className="badge bg-info text-dark filter-chip d-flex align-items-center animate__animated animate__fadeIn" style={{ borderRadius: '999px', fontWeight: 500 }}>
+              {loc} <button type="button" className="btn-close btn-close-sm ms-1" aria-label="Quitar" onClick={() => handleRemoveChip('location', loc)} style={{ fontSize: '0.7em' }} />
+            </span>
+          ))}
+          {activeTags.map(tag => (
+            <span key={tag} className="badge bg-warning text-dark filter-chip d-flex align-items-center animate__animated animate__fadeIn" style={{ borderRadius: '999px', fontWeight: 500 }}>
+              {tag} <button type="button" className="btn-close btn-close-sm ms-1" aria-label="Quitar" onClick={() => handleRemoveChip('tag', tag)} style={{ fontSize: '0.7em' }} />
+            </span>
+          ))}
+          {minRating > 0 && (
+            <span className="badge bg-success text-white filter-chip d-flex align-items-center animate__animated animate__fadeIn" style={{ borderRadius: '999px', fontWeight: 500 }}>
+              Min ⭐: {minRating} <button type="button" className="btn-close btn-close-sm ms-1" aria-label="Quitar" onClick={() => handleRemoveChip('minRating', minRating)} style={{ fontSize: '0.7em' }} />
+            </span>
           )}
+          {maxRating < 5 && (
+            <span className="badge bg-success text-white filter-chip d-flex align-items-center animate__animated animate__fadeIn" style={{ borderRadius: '999px', fontWeight: 500 }}>
+              Max ⭐: {maxRating} <button type="button" className="btn-close btn-close-sm ms-1" aria-label="Quitar" onClick={() => handleRemoveChip('maxRating', maxRating)} style={{ fontSize: '0.7em' }} />
+            </span>
+          )}
+          {minReviews > 0 && (
+            <span className="badge bg-primary text-white filter-chip d-flex align-items-center animate__animated animate__fadeIn" style={{ borderRadius: '999px', fontWeight: 500 }}>
+              Min #Reseñas: {minReviews} <button type="button" className="btn-close btn-close-sm ms-1" aria-label="Quitar" onClick={() => handleRemoveChip('minReviews', minReviews)} style={{ fontSize: '0.7em' }} />
+            </span>
+          )}
+          {maxReviews < Math.max(...allRestaurants.map(r => r.reviewCount), 0) && (
+            <span className="badge bg-primary text-white filter-chip d-flex align-items-center animate__animated animate__fadeIn" style={{ borderRadius: '999px', fontWeight: 500 }}>
+              Max #Reseñas: {maxReviews} <button type="button" className="btn-close btn-close-sm ms-1" aria-label="Quitar" onClick={() => handleRemoveChip('maxReviews', maxReviews)} style={{ fontSize: '0.7em' }} />
+            </span>
+          )}
+          {/* Clear All */}
+          <button className="btn btn-outline-danger btn-sm ms-auto px-3 py-1" type="button" onClick={handleClearAll} style={{ borderRadius: '999px', fontWeight: 500 }}>
+            Limpiar filtros
+          </button>
         </div>
         {/* End Filters */}
         <div className="row g-4">

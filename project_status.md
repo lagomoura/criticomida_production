@@ -57,6 +57,7 @@
 - [ ] **Search & Filtering**:
   - [ ] Search restaurants by name, cuisine, location.
   - [ ] Filter restaurants by rating, etc.
+  - [x] Reviews category page now features advanced, space-efficient, animated filters: multi-select for locations and tags, dual-range sliders for rating, review count range, active filter chips, and a clear-all button. Major UI/UX milestone.
 
 ## Phase 4: Advanced Features & Polish
 - [ ] **Admin Panel/Dashboard**: A secure area for you (the admin) to manage restaurant listings, moderate reviews, and manage users.
@@ -65,6 +66,7 @@
 - [ ] **Social Sharing**: Allow users to share reviews or restaurant pages.
 - [ ] **SEO Optimization**: Crucial for a review site. Frameworks like Next.js and Nuxt.js help significantly here.
 - [x] **Improved UI/UX**: Restaurant gallery and cards now feature a clean, modern, animated, and visually appealing design with advanced hover and entrance effects (WOW effect). Fully responsive and accessible.
+- [x] Advanced, animated filter system for reviews category page implemented (multi-select, range sliders, chips, clear-all, responsive grid).
 
 ## Phase 5: Deployment - Going Live
 - [ ] **Frontend & BaaS**:
