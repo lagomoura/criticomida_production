@@ -47,7 +47,7 @@
   - [ ] Each restaurant should have its own page showing details (address, cuisine type, photos, map integration).
   - [ ] Display average ratings.
   - [x] Restaurant cards are now clickable (desserts category) and link to a modern detail page.
-  - [x] Modern restaurant detail page for dessert restaurants: includes summary with pros/cons, diary/note space, and a gallery of tasted foods (photo, date, text, pros/cons for each plate) with fallback images. (Other categories coming soon.)
+  - [x] Modern restaurant detail page for all categories: includes summary, pros/cons, diary/note space, and a gallery of tasted foods (photo, date, text, pros/cons for each plate) with fallback images. Add/edit via modal, grid/timeline toggle, timeline view (horizontal/vertical), and advanced UI polish (gallery, lightbox, animations).
 - [ ] **Review System**:
   - [ ] Allow users to submit reviews (text, star rating, potentially photos).
   - [ ] Display reviews on restaurant detail pages.
@@ -59,6 +59,12 @@
   - [ ] Filter restaurants by rating, etc.
   - [x] Reviews category page now features advanced, space-efficient, animated filters: multi-select for locations and tags, dual-range sliders for rating, review count range, active filter chips, and a clear-all button. Major UI/UX milestone.
 
+## Diary of Plates Eaten (Dessert Category)
+- [x] Modern, animated diary of plates eaten implemented for dessert restaurants.
+  - [x] Each entry supports: plate name, date (formatted), photo (with fallback), notes, pros, cons.
+  - [x] Empty state and accessible UI.
+  - [x] "Agregar plato" button (UI only, disabled for now) for future diary entry addition.
+
 ## Phase 4: Advanced Features & Polish
 - [ ] **Admin Panel/Dashboard**: A secure area for you (the admin) to manage restaurant listings, moderate reviews, and manage users.
 - [ ] **Image Uploads**: For restaurant photos and user review photos.
@@ -67,6 +73,7 @@
 - [ ] **SEO Optimization**: Crucial for a review site. Frameworks like Next.js and Nuxt.js help significantly here.
 - [x] **Improved UI/UX**: Restaurant gallery and cards now feature a clean, modern, animated, and visually appealing design with advanced hover and entrance effects (WOW effect). Fully responsive and accessible.
 - [x] Advanced, animated filter system for reviews category page implemented (multi-select, range sliders, chips, clear-all, responsive grid).
+- [x] Interactive map (Leaflet) for restaurant location, responsive photo gallery with lightbox, and polished, animated timeline (horizontal on desktop, vertical on mobile) now live on detail page.
 
 ## Phase 5: Deployment - Going Live
 - [ ] **Frontend & BaaS**:

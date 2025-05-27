@@ -1,8 +1,8 @@
+import './fontawesome';
 import type { Metadata } from "next";
 import { Dosis, Kaushan_Script } from 'next/font/google';
 import "./globals.css";
 import Navbar from './components/Navbar';
-import './fontawesome';
 
 const dosis = Dosis({ subsets: ['latin'], weight: ['400', '500', '700', '800'], variable: '--font-dosis' });
 const kaushan = Kaushan_Script({ subsets: ['latin'], weight: '400', variable: '--font-kaushan' });

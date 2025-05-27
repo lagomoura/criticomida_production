@@ -2,6 +2,7 @@
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const dessertMock: Record<string, {
   name: string;
@@ -20,6 +21,7 @@ const dessertMock: Record<string, {
     cons: string[];
     note: string;
   }[];
+  gallery?: string[];
 }> = {
   'dulce-tentacion': {
     name: 'Dulce Tentación',
@@ -55,6 +57,11 @@ const dessertMock: Record<string, {
         cons: [],
         note: 'El equilibrio justo entre ácido y dulce.'
       }
+    ],
+    gallery: [
+      '/img/food-fallback.jpg',
+      '/img/food-fallback.jpg',
+      '/img/food-fallback.jpg'
     ]
   },
   'la-pasteleria': {
@@ -937,167 +944,6 @@ const desayunoMock: Record<string, {
         pros: ['Muy cremosa', 'Sabor intenso a chocolate'],
         cons: []
       }
-    ]
-  }
-};
-
-// Mexico-food restaurants mock data
-const mexicoMock: Record<string, {
-  name: string;
-  location: string;
-  rating: number;
-  reviewCount: number;
-  description: string;
-  pros: string[];
-  cons: string[];
-  diary: string;
-  plates: {
-    name: string;
-    date: string;
-    image: string;
-    note: string;
-    pros: string[];
-    cons: string[];
-  }[];
-}> = {
-  'la-lupita': {
-    name: 'La Lupita',
-    location: 'Villa Crespo, CABA',
-    rating: 4.7,
-    reviewCount: 11,
-    description: 'Tacos, burritos y margaritas en un ambiente colorido.',
-    pros: ['Tacos auténticos', 'Margaritas frescas'],
-    cons: ['Puede estar lleno'],
-    diary: 'Probamos los tacos al pastor y las margaritas. El ambiente es muy colorido y animado.',
-    plates: [
-      { name: 'Tacos al Pastor', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Carne jugosa, piña fresca.', pros: ['Muy sabrosos'], cons: [] },
-      { name: 'Margarita', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Refrescante, bien preparada.', pros: ['Muy fresca'], cons: [] }
-    ]
-  },
-  'el-mariachi': {
-    name: 'El Mariachi',
-    location: 'Palermo, CABA',
-    rating: 4.6,
-    reviewCount: 9,
-    description: 'Comida mexicana tradicional y música en vivo.',
-    pros: ['Música en vivo', 'Comida tradicional'],
-    cons: ['Ruidoso'],
-    diary: 'Fuimos a cenar y disfrutamos de la música en vivo. Probamos el guacamole y los nachos.',
-    plates: [
-      { name: 'Guacamole', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Aguacate fresco, bien condimentado.', pros: ['Muy fresco'], cons: [] },
-      { name: 'Nachos', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Crujientes, con mucho queso.', pros: ['Bien servidos'], cons: [] }
-    ]
-  },
-  'azteca-grill': {
-    name: 'Azteca Grill',
-    location: 'Belgrano, CABA',
-    rating: 4.8,
-    reviewCount: 13,
-    description: 'Carnes y salsas picantes.',
-    pros: ['Carnes jugosas', 'Salsas picantes'],
-    cons: ['Picante fuerte'],
-    diary: 'Probamos el burrito de carne y la salsa roja. Muy sabroso pero picante.',
-    plates: [
-      { name: 'Burrito de Carne', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Carne tierna, salsa picante.', pros: ['Muy sabroso'], cons: ['Muy picante'] },
-      { name: 'Salsa Roja', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Picante, pero deliciosa.', pros: ['Buen sabor'], cons: ['Muy picante'] }
-    ]
-  },
-  'taco-loco': {
-    name: 'Taco Loco',
-    location: 'Recoleta, CABA',
-    rating: 4.5,
-    reviewCount: 7,
-    description: 'Tacos y nachos para compartir.',
-    pros: ['Tacos variados', 'Nachos crujientes'],
-    cons: ['Porciones chicas'],
-    diary: 'Ideal para compartir con amigos. Probamos los tacos de pollo y los nachos con queso.',
-    plates: [
-      { name: 'Tacos de Pollo', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pollo tierno, tortillas suaves.', pros: ['Bien servidos'], cons: [] },
-      { name: 'Nachos con Queso', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Queso derretido, nachos crujientes.', pros: ['Muy ricos'], cons: [] }
-    ]
-  },
-  'cantina-frida': {
-    name: 'Cantina Frida',
-    location: 'San Telmo, CABA',
-    rating: 4.4,
-    reviewCount: 8,
-    description: 'Ambiente artístico y margaritas.',
-    pros: ['Decoración artística', 'Margaritas'],
-    cons: ['Pocas mesas'],
-    diary: 'El ambiente es muy original. Probamos la margarita y los tacos vegetarianos.',
-    plates: [
-      { name: 'Margarita', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Bien preparada, refrescante.', pros: ['Muy fresca'], cons: [] },
-      { name: 'Tacos Vegetarianos', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Relleno sabroso, tortillas suaves.', pros: ['Opción veggie'], cons: [] }
-    ]
-  },
-  'chili-house': {
-    name: 'Chili House',
-    location: 'Caballito, CABA',
-    rating: 4.3,
-    reviewCount: 6,
-    description: 'Chili con carne y cervezas artesanales.',
-    pros: ['Chili casero', 'Buena cerveza'],
-    cons: ['Picante fuerte'],
-    diary: 'Probamos el chili con carne y la cerveza artesanal. Muy picante pero sabroso.',
-    plates: [
-      { name: 'Chili con Carne', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Muy picante, carne tierna.', pros: ['Buen sabor'], cons: ['Muy picante'] },
-      { name: 'Cerveza Artesanal', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Rubia, bien fría.', pros: ['Muy fresca'], cons: [] }
-    ]
-  },
-  'guacamole-bar': {
-    name: 'Guacamole Bar',
-    location: 'Almagro, CABA',
-    rating: 4.2,
-    reviewCount: 5,
-    description: 'Guacamole fresco y tacos.',
-    pros: ['Guacamole fresco', 'Tacos variados'],
-    cons: ['Pocas opciones de postre'],
-    diary: 'Probamos el guacamole y los tacos de pescado. Todo muy fresco.',
-    plates: [
-      { name: 'Guacamole', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Aguacate fresco, bien condimentado.', pros: ['Muy fresco'], cons: [] },
-      { name: 'Tacos de Pescado', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pescado fresco, tortillas suaves.', pros: ['Muy sabrosos'], cons: [] }
-    ]
-  },
-  'sabor-azteca': {
-    name: 'Sabor Azteca',
-    location: 'Flores, CABA',
-    rating: 4.7,
-    reviewCount: 10,
-    description: 'Especialidad en enchiladas.',
-    pros: ['Enchiladas caseras', 'Salsas variadas'],
-    cons: ['Picante fuerte'],
-    diary: 'Probamos las enchiladas verdes y la salsa de mole. Muy sabrosas.',
-    plates: [
-      { name: 'Enchiladas Verdes', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Salsa verde, relleno de pollo.', pros: ['Muy sabrosas'], cons: ['Muy picante'] },
-      { name: 'Salsa de Mole', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Sabor intenso, especiado.', pros: ['Muy original'], cons: [] }
-    ]
-  },
-  'fiesta-mex': {
-    name: 'Fiesta Mex',
-    location: 'Chacarita, CABA',
-    rating: 4.6,
-    reviewCount: 9,
-    description: 'Fiesta temática y menú degustación.',
-    pros: ['Menú degustación', 'Ambiente festivo'],
-    cons: ['Ruidoso'],
-    diary: 'Fuimos en grupo y probamos el menú degustación. Muy divertido.',
-    plates: [
-      { name: 'Menú Degustación', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Incluye varios platos típicos.', pros: ['Ideal para grupos'], cons: [] },
-      { name: 'Margarita', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Bien preparada, refrescante.', pros: ['Muy fresca'], cons: [] }
-    ]
-  },
-  'puebla-picante': {
-    name: 'Puebla Picante',
-    location: 'Retiro, CABA',
-    rating: 4.5,
-    reviewCount: 7,
-    description: 'Platos picantes y postres.',
-    pros: ['Platos picantes', 'Postres ricos'],
-    cons: ['Muy picante'],
-    diary: 'Probamos el chile relleno y el pastel de tres leches. Muy sabroso.',
-    plates: [
-      { name: 'Chile Relleno', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Muy picante, relleno de queso.', pros: ['Buen sabor'], cons: ['Muy picante'] },
-      { name: 'Pastel de Tres Leches', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Dulce, bien húmedo.', pros: ['Muy rico'], cons: [] }
     ]
   }
 };
@@ -2573,141 +2419,302 @@ const peruMock: Record<string, {
   'ceviche-lima': {
     name: 'Ceviche Lima',
     location: 'Retiro, CABA',
-    rating: 4.6,
-    reviewCount: 7,
-    description: 'Ceviche, tiraditos y cocina peruana de autor.',
-    pros: ['Ceviche fresco', 'Tiraditos originales'],
-    cons: ['Precios altos'],
-    diary: 'Probamos el ceviche y los tiraditos. Muy buena experiencia.',
-    plates: [
-      { name: 'Ceviche', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pescado fresco, bien marinado.', pros: ['Muy fresco'], cons: [] },
-      { name: 'Tiraditos', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Salsa intensa, pescado tierno.', pros: ['Muy sabroso'], cons: [] }
-    ]
-  },
-  'peru-grill': {
-    name: 'Perú Grill',
-    location: 'Palermo, CABA',
-    rating: 4.7,
-    reviewCount: 9,
-    description: 'Grill peruano.',
-    pros: ['Carnes a la parrilla', 'Ambiente animado'],
+    rating: 4.9,
+    reviewCount: 15,
+    description: 'Ceviches frescos y deliciosos.',
+    pros: ['Ceviches frescos', 'Ambiente acogedor'],
     cons: ['Puede estar lleno'],
-    diary: 'Fuimos a Perú Grill y probamos el anticucho y el arroz chaufa. Muy buena atención.',
+    diary: 'Probamos el ceviche mixto y el ceviche de pescado. Muy buena experiencia.',
     plates: [
-      { name: 'Anticucho', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Brochetas de corazón, bien condimentadas.', pros: ['Muy sabroso'], cons: [] },
-      { name: 'Arroz Chaufa', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Arroz salteado con pollo y verduras.', pros: ['Muy sabroso'], cons: [] }
+      { name: 'Ceviche Mixto', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pescado, camarones y calamar.', pros: ['Muy fresco'], cons: [] },
+      { name: 'Ceviche de Pescado', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pescado fresco, limón y ají.', pros: ['Muy sabroso'], cons: [] }
     ]
   },
-  'lima-cafe': {
-    name: 'Lima Café',
-    location: 'Belgrano, CABA',
+  'peru-central': {
+    name: 'Perú Central',
+    location: 'Palermo, CABA',
     rating: 4.8,
-    reviewCount: 10,
-    description: 'Café y postres peruanos.',
-    pros: ['Postres caseros', 'Café intenso'],
-    cons: ['Pocas mesas'],
-    diary: 'Probamos el suspiro limeño y el café peruano. Todo muy rico.',
+    reviewCount: 12,
+    description: 'Comida peruana auténtica.',
+    pros: ['Platos típicos', 'Ambiente animado'],
+    cons: ['Puede ser ruidoso'],
+    diary: 'Probamos el lomo saltado y el arroz con pollo. Muy buena atención.',
     plates: [
-      { name: 'Suspiro Limeño', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Postre tradicional, muy dulce.', pros: ['Muy dulce'], cons: [] },
-      { name: 'Café Peruano', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Intenso y aromático.', pros: ['Muy intenso'], cons: [] }
+      { name: 'Lomo Saltado', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Carne de res, verduras y fideos.', pros: ['Muy sabroso'], cons: [] },
+      { name: 'Arroz con Pollo', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pollo, arroz y verduras.', pros: ['Muy completo'], cons: [] }
     ]
   },
-  'ceviche-house': {
-    name: 'Ceviche House',
-    location: 'San Telmo, CABA',
-    rating: 4.5,
-    reviewCount: 5,
-    description: 'Casa de ceviche.',
-    pros: ['Ceviche fresco', 'Ambiente relajado'],
-    cons: ['Pocas opciones calientes'],
-    diary: 'Probamos el ceviche mixto y la causa limeña. Muy buena experiencia.',
+  'peru-express': {
+    name: 'Perú Express',
+    location: 'Belgrano, CABA',
+    rating: 4.7,
+    reviewCount: 10,
+    description: 'Comida peruana rápida y deliciosa.',
+    pros: ['Servicio rápido', 'Buena relación precio/calidad'],
+    cons: ['Pocas mesas'],
+    diary: 'Ideal para una comida rápida. Probamos el pollo a la brasa y el arroz chaufa.',
     plates: [
-      { name: 'Ceviche Mixto', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pescado y mariscos frescos.', pros: ['Muy fresco'], cons: [] },
-      { name: 'Causa Limeña', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Puré de papa con pollo.', pros: ['Muy suave'], cons: [] }
+      { name: 'Pollo a la Brasa', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pollo jugoso y bien cocido.', pros: ['Muy jugoso'], cons: [] },
+      { name: 'Arroz Chaufa', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Arroz frito con verduras y carne.', pros: ['Muy sabroso'], cons: [] }
+    ]
+  },
+  'peru-house': {
+    name: 'Perú House',
+    location: 'San Telmo, CABA',
+    rating: 4.6,
+    reviewCount: 8,
+    description: 'Casa de comida peruana.',
+    pros: ['Variedad de platos', 'Ambiente familiar'],
+    cons: ['Puede estar lleno'],
+    diary: 'Visitamos Perú House y probamos el ceviche de pescado y el lomo saltado. Muy buena opción.',
+    plates: [
+      { name: 'Ceviche de Pescado', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pescado fresco, limón y ají.', pros: ['Muy sabroso'], cons: [] },
+      { name: 'Lomo Saltado', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Carne de res, verduras y fideos.', pros: ['Muy sabroso'], cons: [] }
     ]
   },
   'peru-veggie': {
     name: 'Perú Veggie',
     location: 'Caballito, CABA',
-    rating: 4.4,
-    reviewCount: 4,
-    description: 'Opciones vegetarianas.',
+    rating: 4.5,
+    reviewCount: 6,
+    description: 'Opciones vegetarianas y veganas.',
     pros: ['Opciones vegetarianas', 'Sabores originales'],
     cons: ['Pocas opciones tradicionales'],
-    diary: 'Probamos el tacu tacu veggie y la ensalada de quinua. Muy buena opción veggie.',
+    diary: 'Probamos el arroz con verduras y el ají de gallina vegano. Muy buena opción veggie.',
     plates: [
-      { name: 'Tacu Tacu Veggie', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Arroz y porotos, versión vegetariana.', pros: ['Muy original'], cons: [] },
-      { name: 'Ensalada de Quinua', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Quinua, tomate y palta.', pros: ['Muy fresca'], cons: [] }
+      { name: 'Arroz con Verduras', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Arroz con una variedad de verduras.', pros: ['Muy completo'], cons: [] },
+      { name: 'Ají de Gallina Vegano', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Salsa de ají amarillo y papa.', pros: ['Muy sabroso'], cons: [] }
     ]
   },
-  'peru-central': {
+  'peru-central-soho': {
     name: 'Perú Central',
     location: 'Almagro, CABA',
-    rating: 4.3,
-    reviewCount: 3,
+    rating: 4.4,
+    reviewCount: 5,
     description: 'Comida peruana céntrica.',
-    pros: ['Ubicación céntrica', 'Menú variado'],
+    pros: ['Ubicación céntrica', 'Atención rápida'],
     cons: ['Ambiente ruidoso'],
-    diary: 'Probamos el lomo saltado y la papa a la huancaína. Muy buena atención.',
+    diary: 'Fuimos a Perú Central y probamos el ceviche de camarones y el arroz con pollo.',
     plates: [
-      { name: 'Lomo Saltado', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Carne salteada con verduras.', pros: ['Muy sabroso'], cons: [] },
-      { name: 'Papa a la Huancaína', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Papas con salsa de ají amarillo.', pros: ['Muy suave'], cons: [] }
+      { name: 'Ceviche de Camarones', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Camarones frescos, limón y ají.', pros: ['Muy sabroso'], cons: [] },
+      { name: 'Arroz con Pollo', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pollo, arroz y verduras.', pros: ['Muy completo'], cons: [] }
     ]
   },
   'peru-fiesta': {
     name: 'Perú Fiesta',
     location: 'Flores, CABA',
-    rating: 4.2,
-    reviewCount: 3,
+    rating: 4.3,
+    reviewCount: 4,
     description: 'Fiesta peruana.',
-    pros: ['Ambiente festivo', 'Platos típicos'],
+    pros: ['Ambiente festivo', 'Música en vivo'],
     cons: ['Ruidoso'],
-    diary: 'Fuimos en grupo y probamos el ají de gallina y el arroz con mariscos. Muy buena experiencia.',
+    diary: 'Fuimos en grupo y disfrutamos de la música y la comida peruana. Probamos el lomo saltado y el arroz chaufa.',
     plates: [
-      { name: 'Ají de Gallina', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pollo en salsa cremosa.', pros: ['Muy sabroso'], cons: [] },
-      { name: 'Arroz con Mariscos', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Arroz con mariscos frescos.', pros: ['Muy fresco'], cons: [] }
+      { name: 'Lomo Saltado', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Carne de res, verduras y fideos.', pros: ['Muy sabroso'], cons: [] },
+      { name: 'Arroz Chaufa', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Arroz frito con verduras y carne.', pros: ['Muy sabroso'], cons: [] }
     ]
   },
   'peru-friends': {
     name: 'Perú & Friends',
     location: 'Villa Crespo, CABA',
-    rating: 4.1,
-    reviewCount: 2,
+    rating: 4.2,
+    reviewCount: 3,
     description: 'Ideal para grupos.',
-    pros: ['Ideal para grupos', 'Porciones grandes'],
-    cons: ['Pocas opciones individuales'],
-    diary: 'Fuimos en grupo y probamos la parrillada peruana y la chicha morada. Muy buena opción para compartir.',
+    pros: ['Mesas grandes', 'Atención rápida'],
+    cons: ['Poca variedad de sabores'],
+    diary: 'Fuimos en grupo y probamos varios platos. El local es ideal para compartir.',
     plates: [
-      { name: 'Parrillada Peruana', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Varios cortes y chorizos.', pros: ['Muy completa'], cons: [] },
-      { name: 'Chicha Morada', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Bebida típica de maíz morado.', pros: ['Muy refrescante'], cons: [] }
+      { name: 'Ceviche Mixto', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pescado, camarones y calamar.', pros: ['Muy fresco'], cons: [] },
+      { name: 'Lomo Saltado', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Carne de res, verduras y fideos.', pros: ['Muy sabroso'], cons: [] }
     ]
   },
   'peru-final': {
     name: 'Perú Final',
     location: 'Chacarita, CABA',
-    rating: 4.0,
-    reviewCount: 3,
+    rating: 4.1,
+    reviewCount: 4,
     description: 'El mejor final peruano.',
     pros: ['Cierre perfecto', 'Postres ricos'],
-    cons: ['Puede estar lleno'],
-    diary: 'Probamos el final peruano y el suspiro limeño. Muy buen cierre para una comida.',
+    cons: ['Pocas mesas'],
+    diary: 'Probamos el postre de mazamorra y el arroz con leche. Muy buen cierre para una comida.',
     plates: [
-      { name: 'Final Peruano', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Corte especial de la casa.', pros: ['Muy especial'], cons: [] },
-      { name: 'Suspiro Limeño', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Postre tradicional, muy dulce.', pros: ['Muy dulce'], cons: [] }
+      { name: 'Postre de Mazamorra', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Postre de maíz dulce y leche.', pros: ['Muy dulce'], cons: [] },
+      { name: 'Arroz con Leche', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Arroz cremoso con leche y canela.', pros: ['Muy rico'], cons: [] }
     ]
   },
   'peru-rey': {
     name: 'Perú Rey',
     location: 'Retiro, CABA',
-    rating: 3.9,
-    reviewCount: 2,
-    description: 'Comida de reyes.',
-    pros: ['Platos especiales', 'Ambiente elegante'],
+    rating: 4.0,
+    reviewCount: 3,
+    description: 'Comida peruana de reyes.',
+    pros: ['Platos premium', 'Atención cordial'],
     cons: ['Precios altos'],
-    diary: 'Probamos el arroz con pato y el turrón de doña pepa. Muy buena calidad.',
+    diary: 'Probamos el ceviche de pescado y el arroz con pollo. Muy buena calidad.',
     plates: [
-      { name: 'Arroz con Pato', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Arroz con pato tierno.', pros: ['Muy tierno'], cons: [] },
-      { name: 'Turrón de Doña Pepa', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Dulce típico, muy colorido.', pros: ['Muy original'], cons: [] }
+      { name: 'Ceviche de Pescado', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pescado fresco, limón y ají.', pros: ['Muy sabroso'], cons: [] },
+      { name: 'Arroz con Pollo', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pollo, arroz y verduras.', pros: ['Muy completo'], cons: [] }
+    ]
+  }
+};
+
+// Mexico-food restaurants mock data
+const mexicoMock: Record<string, {
+  name: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  pros: string[];
+  cons: string[];
+  diary: string;
+  plates: {
+    name: string;
+    date: string;
+    image: string;
+    note: string;
+    pros: string[];
+    cons: string[];
+  }[];
+}> = {
+  'la-lupita': {
+    name: 'La Lupita',
+    location: 'Villa Crespo, CABA',
+    rating: 4.7,
+    reviewCount: 11,
+    description: 'Tacos, burritos y margaritas en un ambiente colorido.',
+    pros: ['Tacos auténticos', 'Margaritas frescas'],
+    cons: ['Puede estar lleno'],
+    diary: 'Probamos los tacos al pastor y las margaritas. El ambiente es muy colorido y animado.',
+    plates: [
+      { name: 'Tacos al Pastor', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Carne jugosa, piña fresca.', pros: ['Muy sabrosos'], cons: [] },
+      { name: 'Margarita', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Refrescante, bien preparada.', pros: ['Muy fresca'], cons: [] }
+    ]
+  },
+  'el-mariachi': {
+    name: 'El Mariachi',
+    location: 'Palermo, CABA',
+    rating: 4.6,
+    reviewCount: 9,
+    description: 'Comida mexicana tradicional y música en vivo.',
+    pros: ['Música en vivo', 'Comida tradicional'],
+    cons: ['Ruidoso'],
+    diary: 'Fuimos a cenar y disfrutamos de la música en vivo. Probamos el guacamole y los nachos.',
+    plates: [
+      { name: 'Guacamole', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Aguacate fresco, bien condimentado.', pros: ['Muy fresco'], cons: [] },
+      { name: 'Nachos', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Crujientes, con mucho queso.', pros: ['Bien servidos'], cons: [] }
+    ]
+  },
+  'azteca-grill': {
+    name: 'Azteca Grill',
+    location: 'Belgrano, CABA',
+    rating: 4.8,
+    reviewCount: 13,
+    description: 'Carnes y salsas picantes.',
+    pros: ['Carnes jugosas', 'Salsas picantes'],
+    cons: ['Picante fuerte'],
+    diary: 'Probamos el burrito de carne y la salsa roja. Muy sabroso pero picante.',
+    plates: [
+      { name: 'Burrito de Carne', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Carne tierna, salsa picante.', pros: ['Muy sabroso'], cons: ['Muy picante'] },
+      { name: 'Salsa Roja', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Picante, pero deliciosa.', pros: ['Buen sabor'], cons: ['Muy picante'] }
+    ]
+  },
+  'taco-loco': {
+    name: 'Taco Loco',
+    location: 'Recoleta, CABA',
+    rating: 4.5,
+    reviewCount: 7,
+    description: 'Tacos y nachos para compartir.',
+    pros: ['Tacos variados', 'Nachos crujientes'],
+    cons: ['Porciones chicas'],
+    diary: 'Ideal para compartir con amigos. Probamos los tacos de pollo y los nachos con queso.',
+    plates: [
+      { name: 'Tacos de Pollo', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pollo tierno, tortillas suaves.', pros: ['Bien servidos'], cons: [] },
+      { name: 'Nachos con Queso', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Queso derretido, nachos crujientes.', pros: ['Muy ricos'], cons: [] }
+    ]
+  },
+  'cantina-frida': {
+    name: 'Cantina Frida',
+    location: 'San Telmo, CABA',
+    rating: 4.4,
+    reviewCount: 8,
+    description: 'Ambiente artístico y margaritas.',
+    pros: ['Decoración artística', 'Margaritas'],
+    cons: ['Pocas mesas'],
+    diary: 'El ambiente es muy original. Probamos la margarita y los tacos vegetarianos.',
+    plates: [
+      { name: 'Margarita', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Bien preparada, refrescante.', pros: ['Muy fresca'], cons: [] },
+      { name: 'Tacos Vegetarianos', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Relleno sabroso, tortillas suaves.', pros: ['Opción veggie'], cons: [] }
+    ]
+  },
+  'chili-house': {
+    name: 'Chili House',
+    location: 'Caballito, CABA',
+    rating: 4.3,
+    reviewCount: 6,
+    description: 'Chili con carne y cervezas artesanales.',
+    pros: ['Chili casero', 'Buena cerveza'],
+    cons: ['Picante fuerte'],
+    diary: 'Probamos el chili con carne y la cerveza artesanal. Muy picante pero sabroso.',
+    plates: [
+      { name: 'Chili con Carne', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Muy picante, carne tierna.', pros: ['Buen sabor'], cons: ['Muy picante'] },
+      { name: 'Cerveza Artesanal', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Rubia, bien fría.', pros: ['Muy fresca'], cons: [] }
+    ]
+  },
+  'guacamole-bar': {
+    name: 'Guacamole Bar',
+    location: 'Almagro, CABA',
+    rating: 4.2,
+    reviewCount: 5,
+    description: 'Guacamole fresco y tacos.',
+    pros: ['Guacamole fresco', 'Tacos variados'],
+    cons: ['Pocas opciones de postre'],
+    diary: 'Probamos el guacamole y los tacos de pescado. Todo muy fresco.',
+    plates: [
+      { name: 'Guacamole', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Aguacate fresco, bien condimentado.', pros: ['Muy fresco'], cons: [] },
+      { name: 'Tacos de Pescado', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Pescado fresco, tortillas suaves.', pros: ['Muy sabrosos'], cons: [] }
+    ]
+  },
+  'sabor-azteca': {
+    name: 'Sabor Azteca',
+    location: 'Flores, CABA',
+    rating: 4.7,
+    reviewCount: 10,
+    description: 'Especialidad en enchiladas.',
+    pros: ['Enchiladas caseras', 'Salsas variadas'],
+    cons: ['Picante fuerte'],
+    diary: 'Probamos las enchiladas verdes y la salsa de mole. Muy sabrosas.',
+    plates: [
+      { name: 'Enchiladas Verdes', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Salsa verde, relleno de pollo.', pros: ['Muy sabrosas'], cons: ['Muy picante'] },
+      { name: 'Salsa de Mole', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Sabor intenso, especiado.', pros: ['Muy original'], cons: [] }
+    ]
+  },
+  'fiesta-mex': {
+    name: 'Fiesta Mex',
+    location: 'Chacarita, CABA',
+    rating: 4.6,
+    reviewCount: 9,
+    description: 'Fiesta temática y menú degustación.',
+    pros: ['Menú degustación', 'Ambiente festivo'],
+    cons: ['Ruidoso'],
+    diary: 'Fuimos en grupo y probamos el menú degustación. Muy divertido.',
+    plates: [
+      { name: 'Menú Degustación', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Incluye varios platos típicos.', pros: ['Ideal para grupos'], cons: [] },
+      { name: 'Margarita', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Bien preparada, refrescante.', pros: ['Muy fresca'], cons: [] }
+    ]
+  },
+  'puebla-picante': {
+    name: 'Puebla Picante',
+    location: 'Retiro, CABA',
+    rating: 4.5,
+    reviewCount: 7,
+    description: 'Platos picantes y postres.',
+    pros: ['Platos picantes', 'Postres ricos'],
+    cons: ['Muy picante'],
+    diary: 'Probamos el chile relleno y el pastel de tres leches. Muy sabroso.',
+    plates: [
+      { name: 'Chile Relleno', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Muy picante, relleno de queso.', pros: ['Buen sabor'], cons: ['Muy picante'] },
+      { name: 'Pastel de Tres Leches', date: '2024-06-10', image: '/img/food-fallback.jpg', note: 'Dulce, bien húmedo.', pros: ['Muy rico'], cons: [] }
     ]
   }
 };
@@ -2970,6 +2977,25 @@ function slugify(name: string) {
     .replace(/(^-|-$)/g, '');
 }
 
+// Add this type above the component
+
+type Plate = {
+  name: string;
+  date: string;
+  time?: string;
+  note: string;
+  pros: string[];
+  cons: string[];
+  image?: string; // old
+  images?: string[]; // new
+  rating?: number;
+  price?: string;
+  portion?: string;
+  wouldOrderAgain?: boolean;
+  tags?: string[];
+  visitedWith?: string;
+};
+
 export default function RestaurantDetailPage() {
   const params = useParams();
   const id = params.id as string;
@@ -3006,6 +3032,189 @@ export default function RestaurantDetailPage() {
   const isHelado = !!heladoMock[normalizedId];
   const isPeru = !!peruMock[normalizedId];
 
+  // --- Diary state ---
+  const [plates, setPlates] = useState<Plate[]>(
+    (data.plates || []).map((plate: Plate) => ({
+      name: plate.name,
+      date: plate.date,
+      time: plate.time,
+      note: plate.note,
+      pros: plate.pros,
+      cons: plate.cons,
+      image: plate.image ?? (plate.images && plate.images[0]) ?? '/img/food-fallback.jpg',
+      images: plate.images ?? (plate.image ? [plate.image] : ['/img/food-fallback.jpg']),
+      rating: plate.rating ?? 5,
+      price: plate.price ?? '$$',
+      portion: plate.portion ?? 'Medium',
+      wouldOrderAgain: typeof plate.wouldOrderAgain === 'boolean' ? plate.wouldOrderAgain : true,
+      tags: plate.tags ?? [],
+      visitedWith: plate.visitedWith ?? '',
+    }))
+  );
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({
+    name: '',
+    date: '',
+    time: '',
+    images: [''],
+    note: '',
+    pros: '',
+    cons: '',
+    rating: 5,
+    price: '$$',
+    portion: 'Medium',
+    wouldOrderAgain: true,
+    tags: '',
+    visitedWith: ''
+  });
+  const [formError, setFormError] = useState('');
+  // --- Gallery state ---
+  const gallery = data.gallery || [];
+  const [galleryIdx, setGalleryIdx] = useState(0);
+  // --- Diary view toggle ---
+  // const [diaryView, setDiaryView] = useState<'grid' | 'timeline'>('grid');
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  // Add this near other state hooks, above the grid view rendering
+  const [favorites, setFavorites] = useState<{ [idx: number]: boolean }>({});
+  // Add this near other state hooks, above the timeline rendering
+  const [gridImgIdx, setGridImgIdx] = useState<{ [idx: number]: number }>({});
+  
+  // Menu state
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [menu, setMenu] = useState<{image: string, uploadDate: string} | null>(
+    (data as any).menu ? { 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      image: (data as any).menu, 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      uploadDate: (data as any).menuUploadDate || new Date().toISOString().split('T')[0] 
+    } : null
+  );
+  const [showMenuModal, setShowMenuModal] = useState(false);
+  const [menuForm, setMenuForm] = useState({
+    image: '',
+    uploadDate: new Date().toISOString().split('T')[0]
+  });
+
+  // Lightbox keyboard navigation
+  const handleLightboxKey = useCallback((e: KeyboardEvent) => {
+    if (!lightboxOpen) return;
+    if (e.key === 'ArrowLeft') setGalleryIdx(idx => (idx - 1 + gallery.length) % gallery.length);
+    if (e.key === 'ArrowRight') setGalleryIdx(idx => (idx + 1) % gallery.length);
+    if (e.key === 'Escape') setLightboxOpen(false);
+  }, [lightboxOpen, gallery.length]);
+
+  useEffect(() => {
+    if (lightboxOpen) {
+      window.addEventListener('keydown', handleLightboxKey);
+      document.body.style.overflow = 'hidden';
+    } else {
+      window.removeEventListener('keydown', handleLightboxKey);
+      document.body.style.overflow = '';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleLightboxKey);
+      document.body.style.overflow = '';
+    };
+  }, [lightboxOpen, handleLightboxKey]);
+
+  function handleOpenModal() {
+    setForm({ name: '', date: '', time: '', images: [''], note: '', pros: '', cons: '', rating: 5, price: '$$', portion: 'Medium', wouldOrderAgain: true, tags: '', visitedWith: '' });
+    setFormError('');
+    setShowModal(true);
+  }
+  function handleCloseModal() {
+    setShowModal(false);
+  }
+  
+  // Menu handlers
+  function handleOpenMenuModal() {
+    setMenuForm({
+      image: menu?.image || '',
+      uploadDate: menu?.uploadDate || new Date().toISOString().split('T')[0]
+    });
+    setShowMenuModal(true);
+  }
+  
+  function handleCloseMenuModal() {
+    setShowMenuModal(false);
+  }
+  
+  function handleMenuFormChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setMenuForm({ ...menuForm, [name]: value });
+  }
+  
+  function handleMenuFormSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!menuForm.image.trim()) {
+      alert('Por favor ingresa la URL de la imagen del menú.');
+      return;
+    }
+    setMenu({
+      image: menuForm.image.trim(),
+      uploadDate: menuForm.uploadDate
+    });
+    setShowMenuModal(false);
+  }
+  function handleFormChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      // Only for checkboxes (not used currently)
+      if ('checked' in e.target) {
+        setForm({ ...form, [name]: (e.target as HTMLInputElement).checked });
+      }
+    } else if (type === 'radio' && name === 'wouldOrderAgain') {
+      setForm({ ...form, wouldOrderAgain: value === 'true' });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
+  }
+  function handleImageChange(idx: number, value: string) {
+    setForm(form => {
+      const newImages = [...form.images];
+      newImages[idx] = value;
+      return { ...form, images: newImages };
+    });
+  }
+  function handleAddImageField() {
+    setForm(form => ({ ...form, images: [...form.images, ''] }));
+  }
+  function handleRemoveImageField(idx: number) {
+    setForm(form => {
+      const newImages = form.images.filter((_, i) => i !== idx);
+      return { ...form, images: newImages.length ? newImages : [''] };
+    });
+  }
+  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!form.name || !form.date) {
+      setFormError('El nombre y la fecha son obligatorios.');
+      return;
+    }
+    const images = form.images.map(img => img.trim()).filter(Boolean);
+    setPlates([
+      ...plates,
+      {
+        name: form.name,
+        date: form.date,
+        time: form.time || new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+        image: images.length ? images[0] : '/img/food-fallback.jpg',
+        images: images.length ? images : ['/img/food-fallback.jpg'],
+        note: form.note,
+        pros: form.pros.split(',').map(s => s.trim()).filter(Boolean),
+        cons: form.cons.split(',').map(s => s.trim()).filter(Boolean),
+        rating: Number(form.rating),
+        price: form.price,
+        portion: form.portion,
+        wouldOrderAgain: !!form.wouldOrderAgain,
+        tags: form.tags.split(',').map(s => s.trim()).filter(Boolean),
+        visitedWith: form.visitedWith
+      }
+    ]);
+    setShowModal(false);
+  }
+
   if (!data) {
     return (
       <main className="container py-5">
@@ -3017,6 +3226,10 @@ export default function RestaurantDetailPage() {
       </main>
     );
   }
+
+  // --- Map section ---
+  const mapAddress = encodeURIComponent(data.location);
+  const osmUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${mapAddress}&zoom=15&size=600x300&markers=${mapAddress},red-pushpin`;
 
   return (
     <main className="container py-5">
@@ -3077,7 +3290,7 @@ export default function RestaurantDetailPage() {
             <div className="card-body">
               <h5 className="card-title text-success mb-3">Pros</h5>
               <ul className="list-unstyled mb-0">
-                {data.pros.map((pro, i) => (
+                {data.pros.map((pro: string, i: number) => (
                   <li key={i} className="mb-2"><span className="me-2">✅</span>{pro}</li>
                 ))}
               </ul>
@@ -3089,7 +3302,7 @@ export default function RestaurantDetailPage() {
             <div className="card-body">
               <h5 className="card-title text-danger mb-3">Contras</h5>
               <ul className="list-unstyled mb-0">
-                {data.cons.length === 0 ? <li><span className="me-2">🎉</span>¡Nada relevante!</li> : data.cons.map((con, i) => (
+                {data.cons.length === 0 ? <li><span className="me-2">🎉</span>¡Nada relevante!</li> : data.cons.map((con: string, i: number) => (
                   <li key={i} className="mb-2"><span className="me-2">⚠️</span>{con}</li>
                 ))}
               </ul>
@@ -3108,46 +3321,512 @@ export default function RestaurantDetailPage() {
           </div>
         </div>
       </div>
+      {/* Menu section */}
+      <div className="row mb-5">
+        <div className="col-12">
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <h4 className="card-title mb-0">Menú del restaurante</h4>
+                <button
+                  className="btn btn-outline-primary btn-lg fw-bold shadow-sm rounded-pill px-4 py-2 d-flex align-items-center gap-2"
+                  type="button"
+                  onClick={handleOpenMenuModal}
+                  style={{
+                    fontSize: '1.1em',
+                    borderWidth: '2px'
+                  }}
+                >
+                  <span style={{fontSize: '1.3em'}}>📋</span> {menu ? 'Actualizar menú' : 'Subir menú'}
+                </button>
+              </div>
+              {menu ? (
+                <div className="d-flex align-items-start gap-3">
+                  <div style={{flexShrink: 0}}>
+                    <Image
+                      src={menu.image}
+                      alt="Menú del restaurante"
+                      width={200}
+                      height={150}
+                      className="rounded shadow-sm"
+                      style={{maxHeight: '150px', maxWidth: '200px', objectFit: 'cover', cursor: 'pointer'}}
+                      onError={(e: React.SyntheticEvent<HTMLImageElement>) => { 
+                        if (e.currentTarget) e.currentTarget.src = '/img/menu-fallback.jpg'; 
+                      }}
+                      onClick={() => window.open(menu.image, '_blank')}
+                      title="Click para ver en tamaño completo"
+                    />
+                  </div>
+                  <div className="d-flex flex-column justify-content-center">
+                    <div className="d-flex align-items-center gap-2 text-muted mb-2">
+                      <span style={{fontSize: '1.1em'}}>📅</span>
+                      <small>Menú subido el: {new Date(menu.uploadDate).toLocaleDateString('es-AR', { 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric' 
+                      })}</small>
+                    </div>
+                    <small className="text-muted">
+                      <span style={{fontSize: '1em'}}>👆</span> Click en la imagen para ver en tamaño completo
+                    </small>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <div style={{fontSize: '3em', marginBottom: '0.5em'}}>📋</div>
+                  <h5 className="text-muted">No hay menú disponible</h5>
+                  <p className="text-secondary">¡Sube el menú de este restaurante para tenerlo siempre a mano!</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      
       {/* Gallery of tasted foods */}
       <div className="row mb-4">
-        <h3 className="mb-4">Platos probados</h3>
-          {data.plates.map((plate, idx) => (
-            <div className="col-12 col-md-6 col-lg-4 mb-4" key={idx}>
-              <div className="card h-100 shadow-sm">
-                <div className="position-relative" style={{width: '100%', aspectRatio: '4/3', minHeight: 0, overflow: 'hidden'}}>
-                  <Image
-                    src={plate.image}
-                    alt={plate.name}
-                    fill
-                    className="img-fluid"
-                    style={{objectFit: 'cover'}}
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = '/img/food-fallback.jpg'; }}
+        <div className="d-flex align-items-center justify-content-between mb-3">
+          <h3 className="mb-0">Platos probados</h3>
+          <button
+            className="btn btn-gradient btn-lg fw-bold shadow rounded-pill px-4 py-2 d-flex align-items-center gap-2"
+            type="button"
+            onClick={handleOpenModal}
+            style={{
+              background: 'linear-gradient(90deg, #ffb347 0%, #ffcc33 100%)',
+              color: '#333',
+              border: 'none',
+              opacity: 0.85,
+              fontSize: '1.1em',
+              boxShadow: '0 2px 12px 0 rgba(255,193,7,0.13)'
+            }}
+          >
+            <span style={{fontSize: '1.3em'}}>🍽️</span> Agregar plato
+          </button>
+        </div>
+        {plates.length === 0 ? (
+          <div className="col-12 text-center py-5">
+            <div style={{fontSize: '3.5em', marginBottom: '0.5em'}}>📖🍽️</div>
+            <h5 className="text-muted">Todavía no hay platos registrados en el diario de este restaurante.</h5>
+            <p className="text-secondary">¡Animate a ser el primero en sumar una experiencia!</p>
+          </div>
+        ) : (
+          plates.map((plate: Plate, idx: number) => {
+            const images = plate.images ?? (plate.image ? [plate.image] : ['/img/food-fallback.jpg']);
+            const dateObj = new Date(plate.date);
+            const formattedDate = dateObj.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
+            const isFav = !!favorites[idx];
+            const imgIdx = gridImgIdx[idx] ?? 0;
+            // New fields
+            const stars = '★'.repeat(plate.rating ?? 5) + '☆'.repeat(5 - (plate.rating ?? 5));
+            const priceLabel = plate.price || '$$';
+            const portionLabel = plate.portion || 'Medium';
+            const wouldOrderAgain = plate.wouldOrderAgain !== false;
+            const tags = plate.tags && plate.tags.length > 0 ? plate.tags : [];
+            const visitedWith = plate.visitedWith || '';
+            const time = plate.time || '';
+
+            // Restaurant info
+            const restaurantAddress = data.location;
+            // Share handler (copy link)
+            function handleShare() {
+              navigator.clipboard.writeText(window.location.href + `#plate-${idx}`);
+              alert('¡Enlace copiado!');
+            }
+            return (
+              <div
+                className="col-12 col-md-6 col-lg-6 mb-4 diary-plate-animate"
+                key={idx}
+                style={{ '--diary-anim-order': idx } as React.CSSProperties }
+                aria-label={`Plato: ${plate.name}, comido el ${formattedDate}`}
+                id={`plate-${idx}`}
+              >
+                <div
+                  className="card h-100 shadow-sm diary-plate-card position-relative overflow-hidden wow-plate-card"
+                  tabIndex={0}
+                  style={{
+                    borderRadius: '1.2em',
+                    background: 'rgba(255,255,255,0.98)',
+                    backdropFilter: 'blur(12px)',
+                    boxShadow: '0 4px 20px 0 rgba(0,0,0,0.08)',
+                    border: '1px solid rgba(255,255,255,0.9)',
+                    transition: 'transform 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s ease, background 0.3s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    maxWidth: 520,
+                    margin: '0 auto',
+                  }}
+                  onMouseEnter={e => { 
+                    e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)'; 
+                    e.currentTarget.style.boxShadow = '0 12px 40px 0 rgba(0,0,0,0.15)'; 
+                    e.currentTarget.style.background = 'rgba(255,255,255,1)'; 
+                  }}
+                  onMouseLeave={e => { 
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)'; 
+                    e.currentTarget.style.boxShadow = '0 4px 20px 0 rgba(0,0,0,0.08)'; 
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.98)'; 
+                  }}
+                >
+                  {/* Image section with overlays and slider */}
+                  <div className="position-relative" style={{width: '100%', aspectRatio: '4/3', minHeight: 0, overflow: 'hidden', borderRadius: '1.2em 1.2em 0 0', background: 'linear-gradient(135deg, #fffbe7 0%, #fff8e1 100%)'}}>
+                    <Image
+                      src={images[imgIdx]}
+                      alt={plate.name}
+                      width={400}
+                      height={300}
+                      className="img-fluid diary-plate-img plate-image-hover"
+                      style={{objectFit: 'cover', transition: 'filter 0.3s ease, transform 0.3s ease', filter: 'brightness(0.96) contrast(1.05)', width: '100%', height: '100%'}}
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      onError={(e: React.SyntheticEvent<HTMLImageElement>) => { if (e.currentTarget) e.currentTarget.src = '/img/food-fallback.jpg'; }}
+                    />
+                    {/* Overlay badges: rating, price, favorite */}
+                    <span className="position-absolute top-0 start-0 m-3 px-3 py-2" style={{background: 'rgba(255,255,255,0.95)', color: '#ff8f00', borderRadius: '1.2em', fontWeight: 700, fontSize: '1em', boxShadow: '0 4px 12px rgba(255,143,0,0.25)', backdropFilter: 'blur(8px)'}} title="Calificación">{stars}</span>
+                    <span className="position-absolute top-0 end-0 m-3 px-3 py-2" style={{background: 'rgba(255,255,255,0.95)', color: '#2e7d32', borderRadius: '1.2em', fontWeight: 700, fontSize: '1em', boxShadow: '0 4px 12px rgba(46,125,50,0.25)', backdropFilter: 'blur(8px)'}} title="Precio"><span role="img" aria-label="money">💲</span> {priceLabel}</span>
+                    <button
+                      className="btn btn-light btn-sm position-absolute bottom-0 end-0 m-2 wow-fav-btn"
+                      style={{borderRadius: '50%', boxShadow: '0 2px 8px #ffe08255', background: isFav ? '#ffb347' : '#fff', color: isFav ? '#fff' : '#ffb347', transition: 'background 0.2s, color 0.2s'}}
+                      onClick={e => { e.stopPropagation(); setFavorites(favs => ({ ...favs, [idx]: !favs[idx] })); }}
+                      aria-label={isFav ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                      type="button"
+                    >
+                      <span style={{fontSize: '1.3em', transition: 'transform 0.2s', transform: isFav ? 'scale(1.2)' : 'scale(1)'}}>{isFav ? '❤️' : '🤍'}</span>
+                    </button>
+                    {/* Image slider controls */}
+                    {images.length > 1 && (
+                      <>
+                        <button
+                          className="btn btn-light btn-sm position-absolute top-50 start-0 translate-middle-y ms-2 wow-slider-btn"
+                          style={{zIndex: 2, borderRadius: '50%', boxShadow: '0 2px 8px #ffe08255'}}
+                          onClick={e => { e.stopPropagation(); setGridImgIdx(idxObj => ({ ...idxObj, [idx]: (imgIdx - 1 + images.length) % images.length })); }}
+                          aria-label="Imagen anterior"
+                        >‹</button>
+                        <button
+                          className="btn btn-light btn-sm position-absolute top-50 end-0 translate-middle-y me-2 wow-slider-btn"
+                          style={{zIndex: 2, borderRadius: '50%', boxShadow: '0 2px 8px #ffe08255'}}
+                          onClick={e => { e.stopPropagation(); setGridImgIdx(idxObj => ({ ...idxObj, [idx]: (imgIdx + 1) % images.length })); }}
+                          aria-label="Siguiente imagen"
+                        >›</button>
+                        <div className="position-absolute bottom-0 start-50 translate-middle-x text-white pb-2" style={{fontSize: '1em', textShadow: '0 2px 8px #000', background: 'rgba(0,0,0,0.25)', borderRadius: '0.7em', padding: '2px 12px'}}>
+                          {imgIdx + 1} / {images.length}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  {/* Card body: enhanced layout */}
+                  <div className="card-body d-flex flex-column justify-content-between" style={{padding: '1.8em 2.2em 1.5em 2.2em', flex: 1}}>
+                    {/* Main info row: improved layout */}
+                    <div className="row mb-3 g-3">
+                      {/* Left: Plate name, tags, note/desc */}
+                      <div className="col-12 col-md-8 d-flex flex-column justify-content-start">
+                        <h5 className="mb-2 fw-bold" style={{fontSize: '1.35em', color: '#d84315', wordBreak: 'break-word', lineHeight: 1.3}}>{plate.name}</h5>
+                        <div className="mb-2 d-flex flex-wrap gap-2">
+                          {tags.map((tag, i) => (
+                            <span key={i} className="badge text-dark" style={{fontSize: '0.9em', fontWeight: 600, background: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)', border: '1px solid #ffcc02', borderRadius: '0.8em', padding: '0.4em 0.8em'}}><span role="img" aria-label="tag">🏷️</span> {tag}</span>
+                          ))}
+                        </div>
+                        <div style={{fontSize: '1.05em', color: '#424242', minHeight: 40, maxHeight: 60, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', whiteSpace: 'normal', lineHeight: 1.4}}>
+                          <span role="img" aria-label="note" style={{marginRight: '0.5em'}}>📝</span> 
+                          <span style={{fontWeight: 500}}>{plate.note || <span style={{color: '#9e9e9e', fontStyle: 'italic'}}>Sin notas adicionales</span>}</span>
+                        </div>
+                      </div>
+                      {/* Right: Portion, would order again, share */}
+                      <div className="col-12 col-md-4 d-flex flex-column align-items-md-end align-items-start gap-3 mt-2 mt-md-0">
+                        <span className="badge text-white" style={{fontSize: '0.95em', background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)', borderRadius: '0.8em', padding: '0.5em 1em', boxShadow: '0 2px 8px rgba(25,118,210,0.3)'}} title="Tamaño de porción"><span role="img" aria-label="portion">🍽️</span> {portionLabel}</span>
+                        <span className="badge" style={{fontSize: '0.95em', background: wouldOrderAgain ? 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)' : 'linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%)', color: wouldOrderAgain ? '#1b5e20' : '#b71c1c', borderRadius: '0.8em', padding: '0.5em 1em', border: wouldOrderAgain ? '1px solid #4caf50' : '1px solid #f44336', fontWeight: 600}} title="¿Lo pedirías de nuevo?">
+                          {wouldOrderAgain ? <><span role="img" aria-label="repeat">🔁</span> De nuevo</> : <><span role="img" aria-label="no-repeat">🚫</span> No</>}
+                        </span>
+                        <button className="btn btn-outline-primary btn-sm fw-bold shadow-sm" style={{borderRadius: '0.8em', letterSpacing: 0.5, background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', borderColor: '#2196f3', color: '#1565c0', padding: '0.5em 1.2em', fontWeight: 600}} title="Compartir" onClick={handleShare} type="button"><span role="img" aria-label="share">🔗</span> Compartir</button>
+                      </div>
+                    </div>
+                    {/* Pros/Cons row with background */}
+                    <div className="row mb-2 g-2" style={{background: 'rgba(255,236,179,0.3)', borderRadius: 12, padding: '0.5em 0.5em 0.5em 0.5em', border: '1px solid rgba(255,193,7,0.3)'}}>
+                      <div className="col-12 col-md-6 d-flex flex-wrap align-items-center gap-2">
+                        <span className="text-success fw-bold d-flex align-items-center" style={{fontSize: '1.1em', color: '#2e7d32'}}><span role="img" aria-label="pro">👍</span></span>
+                        {plate.pros.length === 0 ? <span className="badge bg-light text-secondary">—</span> : plate.pros.map((pro: string, i: number) => <span key={i} className="badge px-2 py-1" style={{fontWeight: 600, fontSize: '0.95em', background: '#e8f5e9', color: '#1b5e20', border: '1px solid #c8e6c9'}}><span role="img" aria-label="plus" style={{color: '#2e7d32'}}>➕</span> {pro}</span>)}
+                      </div>
+                      <div className="col-12 col-md-6 d-flex flex-wrap align-items-center gap-2">
+                        <span className="text-danger fw-bold d-flex align-items-center" style={{fontSize: '1.1em', color: '#c62828'}}><span role="img" aria-label="con">👎</span></span>
+                        {plate.cons.length === 0 ? <span className="badge bg-light text-secondary">—</span> : plate.cons.map((con: string, i: number) => <span key={i} className="badge px-2 py-1" style={{fontWeight: 600, fontSize: '0.95em', background: '#ffebee', color: '#b71c1c', border: '1px solid #ffcdd2'}}><span role="img" aria-label="minus" style={{color: '#c62828'}}>➖</span> {con}</span>)}
+                      </div>
+                    </div>
+                    {/* Footer: improved layout without redundant location */}
+                    <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 pb-1 card-footer-row" style={{fontSize: '0.98em', color: '#666', borderTop: '1px solid rgba(255,193,7,0.3)', transition: 'background 0.2s'}}>
+                      <div className="d-flex align-items-center flex-wrap gap-3">
+                        {time && <span className="d-flex align-items-center gap-1" title="Hora de la comida"><span role="img" aria-label="clock">⏰</span> <span className="fw-medium">{time}</span></span>}
+                        {visitedWith && <span className="d-flex align-items-center gap-1" title="Compañía"><span role="img" aria-label="group">👥</span> <span className="fw-medium">{visitedWith}</span></span>}
+                      </div>
+                      <div className="d-flex align-items-center gap-2">
+                        <span className="badge bg-light text-muted border" style={{fontSize: '0.85em', fontWeight: 500}} title="Fecha de la visita">
+                          <span role="img" aria-label="calendar">📅</span> {formattedDate}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+      {/* Modal for adding a new plate */}
+      {showModal && (
+        <div className="modal fade show" style={{display: 'block', background: 'rgba(0,0,0,0.35)', zIndex: 1050}} tabIndex={-1} role="dialog" aria-modal="true">
+          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" style={{maxHeight: '90vh'}}>
+            <div className="modal-content rounded-4 shadow-lg">
+              <div className="modal-header border-0 pb-0">
+                <h5 className="modal-title">Agregar plato al diario</h5>
+                <button type="button" className="btn-close" aria-label="Cerrar" onClick={handleCloseModal}></button>
+              </div>
+              <form onSubmit={handleFormSubmit} className="d-flex flex-column h-100">
+                <div className="modal-body pt-2" style={{overflowY: 'auto', maxHeight: 'calc(90vh - 120px)'}}>
+                  {formError && <div className="alert alert-danger py-2">{formError}</div>}
+                  <div className="mb-3">
+                    <label className="form-label">Nombre del plato *</label>
+                    <input type="text" className="form-control" name="name" value={form.name} onChange={handleFormChange} required />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Fecha *</label>
+                    <input type="date" className="form-control" name="date" value={form.date} onChange={handleFormChange} required />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Hora</label>
+                    <input type="time" className="form-control" name="time" value={form.time} onChange={handleFormChange} />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Imágenes del plato</label>
+                    {form.images.map((img, idx) => (
+                      <div key={idx} className="input-group mb-2">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="URL de la imagen"
+                          value={img}
+                          onChange={e => handleImageChange(idx, e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger"
+                          onClick={() => handleRemoveImageField(idx)}
+                          disabled={form.images.length === 1}
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    ))}
+                    <button type="button" className="btn btn-outline-primary btn-sm mt-1" onClick={handleAddImageField}>+ Agregar otra imagen</button>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Notas</label>
+                    <textarea className="form-control" name="note" value={form.note} onChange={handleFormChange} rows={2} />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Pros (separados por coma)</label>
+                    <input type="text" className="form-control" name="pros" value={form.pros} onChange={handleFormChange} placeholder="Ej: Rico, Abundante" />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Contras (separados por coma)</label>
+                    <input type="text" className="form-control" name="cons" value={form.cons} onChange={handleFormChange} placeholder="Ej: Caro, Frío" />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Calificación</label>
+                    <select className="form-select" name="rating" value={form.rating} onChange={handleFormChange}>
+                      <option value={5}>★★★★★ (5)</option>
+                      <option value={4}>★★★★☆ (4)</option>
+                      <option value={3}>★★★☆☆ (3)</option>
+                      <option value={2}>★★☆☆☆ (2)</option>
+                      <option value={1}>★☆☆☆☆ (1)</option>
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Precio</label>
+                    <select className="form-select" name="price" value={form.price} onChange={handleFormChange}>
+                      <option value="$">$ (Barato)</option>
+                      <option value="$$">$$ (Medio)</option>
+                      <option value="$$$">$$$ (Caro)</option>
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Tamaño de porción</label>
+                    <select className="form-select" name="portion" value={form.portion} onChange={handleFormChange}>
+                      <option value="Small">Pequeña</option>
+                      <option value="Medium">Mediana</option>
+                      <option value="Large">Grande</option>
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">¿Lo pedirías de nuevo?</label>
+                    <div className="form-check form-check-inline">
+                      <input className="form-check-input" type="radio" name="wouldOrderAgain" id="wouldOrderAgainYes" value="true" checked={form.wouldOrderAgain === true} onChange={handleFormChange} />
+                      <label className="form-check-label" htmlFor="wouldOrderAgainYes">Sí</label>
+                    </div>
+                    <div className="form-check form-check-inline">
+                      <input className="form-check-input" type="radio" name="wouldOrderAgain" id="wouldOrderAgainNo" value="false" checked={form.wouldOrderAgain === false} onChange={handleFormChange} />
+                      <label className="form-check-label" htmlFor="wouldOrderAgainNo">No</label>
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Etiquetas (separadas por coma)</label>
+                    <input type="text" className="form-control" name="tags" value={form.tags} onChange={handleFormChange} placeholder="Ej: Vegano, Picante, Sin TACC" />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">¿Con quién fuiste?</label>
+                    <input type="text" className="form-control" name="visitedWith" value={form.visitedWith} onChange={handleFormChange} placeholder="Ej: Familia, Amigos, Solo" />
+                  </div>
+                </div>
+                <div className="modal-footer border-0 pt-0">
+                  <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cancelar</button>
+                  <button type="submit" className="btn btn-primary">Agregar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Menu Modal */}
+      {showMenuModal && (
+        <div className="modal fade show" style={{display: 'block', background: 'rgba(0,0,0,0.35)', zIndex: 1050}} tabIndex={-1} role="dialog" aria-modal="true">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content rounded-4 shadow-lg">
+              <div className="modal-header border-0 pb-0">
+                <h5 className="modal-title">
+                  <span style={{fontSize: '1.3em', marginRight: '0.5em'}}>📋</span>
+                  {menu ? 'Actualizar menú' : 'Subir menú del restaurante'}
+                </h5>
+                <button type="button" className="btn-close" aria-label="Cerrar" onClick={handleCloseMenuModal}></button>
+              </div>
+              <form onSubmit={handleMenuFormSubmit}>
+                <div className="modal-body pt-2">
+                  <div className="mb-3">
+                    <label className="form-label">URL de la imagen del menú *</label>
+                    <input 
+                      type="url" 
+                      className="form-control" 
+                      name="image" 
+                      value={menuForm.image} 
+                      onChange={handleMenuFormChange} 
+                      placeholder="https://ejemplo.com/menu.jpg"
+                      required 
+                    />
+                    <div className="form-text">Pega aquí la URL de la imagen del menú</div>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Fecha de subida</label>
+                    <input 
+                      type="date" 
+                      className="form-control" 
+                      name="uploadDate" 
+                      value={menuForm.uploadDate} 
+                      onChange={handleMenuFormChange} 
+                    />
+                    <div className="form-text">Fecha en que obtuviste este menú</div>
+                  </div>
+                  {menuForm.image && (
+                    <div className="mb-3">
+                      <label className="form-label">Vista previa:</label>
+                      <div className="border rounded p-2">
+                        <Image
+                          src={menuForm.image}
+                          alt="Vista previa del menú"
+                          width={400}
+                          height={300}
+                          className="img-fluid rounded"
+                          style={{maxHeight: '200px', objectFit: 'contain'}}
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { 
+                            if (e.currentTarget) e.currentTarget.src = '/img/menu-fallback.jpg'; 
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="modal-footer border-0 pt-0">
+                  <button type="button" className="btn btn-secondary" onClick={handleCloseMenuModal}>Cancelar</button>
+                  <button type="submit" className="btn btn-primary">
+                    <span style={{fontSize: '1.1em', marginRight: '0.5em'}}>💾</span>
+                    {menu ? 'Actualizar' : 'Guardar menú'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Map section */}
+      <div className="row mb-4">
+        <div className="col-12">
+          <div className="card shadow-sm mb-3">
+            <div className="card-body">
+              <h5 className="card-title mb-2">Ubicación</h5>
+              <div className="mb-2 text-muted">{data.location}</div>
+              <div style={{width: '100%', maxWidth: 600, margin: '0 auto'}}>
+                <Image
+                  src={osmUrl}
+                  alt={`Mapa de ${data.location}`}
+                  className="img-fluid rounded shadow-sm"
+                  width={600}
+                  height={300}
+                  style={{width: '100%', height: 'auto', minHeight: 180, objectFit: 'cover'}}
                 />
               </div>
-              <div className="card-body d-flex flex-column">
-                <h5 className="card-title mb-1">{plate.name}</h5>
-                <span className="badge bg-light text-dark mb-2">{plate.date}</span>
-                <p className="mb-2">{plate.note}</p>
-                <div className="d-flex gap-2 flex-wrap mt-auto">
-                  <div>
-                    <span className="text-success fw-bold">Pros:</span>
-                    <ul className="list-unstyled mb-0 ms-2">
-                      {plate.pros.length === 0 ? <li>—</li> : plate.pros.map((pro, i) => <li key={i}>+ {pro}</li>)}
-                    </ul>
-                  </div>
-                  <div>
-                    <span className="text-danger fw-bold">Contras:</span>
-                    <ul className="list-unstyled mb-0 ms-2">
-                      {plate.cons.length === 0 ? <li>—</li> : plate.cons.map((con, i) => <li key={i}>- {con}</li>)}
-                    </ul>
-                  </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Gallery section */}
+      {gallery.length > 0 && (
+        <div className="row mb-4">
+          <div className="col-12">
+            <div className="card shadow-sm mb-3">
+              <div className="card-body">
+                <h5 className="card-title mb-2">Galería de fotos</h5>
+                <div className="d-flex align-items-center justify-content-center gap-3">
+                  <button className="btn btn-light btn-sm" onClick={() => setGalleryIdx((galleryIdx - 1 + gallery.length) % gallery.length)} aria-label="Anterior foto">‹</button>
+                  <Image
+                    src={gallery[galleryIdx]}
+                    alt={`Foto ${galleryIdx + 1} de ${gallery.length}`}
+                    className="img-fluid rounded shadow gallery-thumb"
+                    style={{maxHeight: 260, maxWidth: 400, objectFit: 'cover', cursor: 'pointer'}}
+                    width={400}
+                    height={300}
+                    onClick={() => setLightboxOpen(true)}
+                    tabIndex={0}
+                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setLightboxOpen(true); }}
+                  />
+                  <button className="btn btn-light btn-sm" onClick={() => setGalleryIdx((galleryIdx + 1) % gallery.length)} aria-label="Siguiente foto">›</button>
+                </div>
+                <div className="text-center mt-2" style={{fontSize: '0.95em'}}>
+                  {galleryIdx + 1} / {gallery.length}
                 </div>
               </div>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
+      {/* Lightbox modal */}
+      {lightboxOpen && (
+        <div className="lightbox-modal position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{background: 'rgba(0,0,0,0.92)', zIndex: 2000}} role="dialog" aria-modal="true">
+          <button className="btn btn-light position-absolute top-0 end-0 m-3" style={{zIndex: 2001}} onClick={() => setLightboxOpen(false)} aria-label="Cerrar">✕</button>
+          <button className="btn btn-light position-absolute top-50 start-0 translate-middle-y ms-2" style={{zIndex: 2001}} onClick={() => setGalleryIdx((galleryIdx - 1 + gallery.length) % gallery.length)} aria-label="Anterior foto">‹</button>
+          <Image
+            src={gallery[galleryIdx]}
+            alt={`Foto ${galleryIdx + 1} de ${gallery.length}`}
+            className="img-fluid rounded shadow-lg"
+            style={{maxHeight: '80vh', maxWidth: '90vw', objectFit: 'contain', background: '#222'}}
+            width={800}
+            height={600}
+          />
+          <button className="btn btn-light position-absolute top-50 end-0 translate-middle-y me-2" style={{zIndex: 2001}} onClick={() => setGalleryIdx((galleryIdx + 1) % gallery.length)} aria-label="Siguiente foto">›</button>
+          <div className="position-absolute bottom-0 start-50 translate-middle-x text-white pb-4" style={{fontSize: '1.1em', textShadow: '0 2px 8px #000'}}>
+            {galleryIdx + 1} / {gallery.length}
+          </div>
+        </div>
+      )}
+      <style jsx>{`
+        .card-footer-row:hover {
+          background: #fffbe7;
+        }
+      `}</style>
     </main>
   );
-} 
+}

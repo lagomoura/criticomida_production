@@ -224,8 +224,8 @@ export default function ReviewsSection() {
             >
               <Link
                 href={`/reviews/${item.category}`}
-                className="card single-item review-card-hover text-decoration-none text-dark"
-                style={{display: 'block', position: 'relative', overflow: 'hidden'}}
+                className="gallery-link text-decoration-none"
+                style={{display: 'block', position: 'relative', overflow: 'hidden', background: 'transparent'}}
                 ref={(el) => { rippleRefs.current[item.category] = el; }}
                 onMouseEnter={handleTooltipShow}
                 onMouseLeave={handleTooltipShow}
@@ -235,17 +235,15 @@ export default function ReviewsSection() {
                 tabIndex={0}
                 aria-label={`Ver todas las reseñas de ${item.label}`}
               >
-                <div style={{ position: 'relative', width: '100%', height: '250px' }}>
-                  <RestaurantCard
-                    name={item.label}
-                    image={item.img}
-                    location={''}
-                    rating={0}
-                    description={item.description}
-                    reviewCount={item.reviewCount}
-                    categoryLabel={item.label}
-                  />
-                </div>
+                <RestaurantCard
+                  name={item.label}
+                  image={item.img}
+                  location={''}
+                  rating={0}
+                  description={item.description}
+                  reviewCount={item.reviewCount}
+                  categoryLabel={item.label}
+                />
                 {/* Ripple effect */}
                 <span className="ripple" />
               </Link>

@@ -15,35 +15,42 @@ interface RestaurantCardProps {
 export default function RestaurantCard({ name, image, location, rating, description, reviewCount, categoryLabel }: RestaurantCardProps) {
   const [imgSrc, setImgSrc] = useState(image);
   return (
-    <div className="restaurant-card shadow-sm">
-      <div className="restaurant-card-img-container" style={{ position: 'relative', width: '100%', aspectRatio: '4/3', minHeight: 0, overflow: 'hidden' }}>
+    <div className="gallery-card">
+      <div className="gallery-image-container" style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden', borderRadius: '16px 16px 0 0' }}>
         <Image
           src={imgSrc}
           alt={name}
           fill
-          className="restaurant-card-img"
+          className="gallery-image"
           style={{ objectFit: 'cover' }}
           sizes="(max-width: 768px) 100vw, 33vw"
           onError={() => setImgSrc('/img/restaurant-fallback.jpg')}
         />
-        {/* Category bubble (top left) - only if categoryLabel is provided */}
+        {/* Category badge (top left) */}
         {categoryLabel && (
-          <span className="restaurant-card-category-badge">
+          <div className="gallery-category-badge">
             {categoryLabel}
-          </span>
+          </div>
         )}
         {/* Review count badge (top right) */}
-        <span className="restaurant-card-review-badge">
+        <div className="gallery-review-badge">
           {reviewCount} reseñas
-        </span>
-      </div>
-      <div className="restaurant-card-body">
-        <h3 className="restaurant-card-title">{name}</h3>
-        <div className="restaurant-card-meta">
-          <span className="restaurant-card-location">{location}</span>
-          <span className="restaurant-card-rating">{'★'.repeat(Math.round(rating))} <span className="restaurant-card-rating-num">{rating.toFixed(1)}</span></span>
         </div>
-        <p className="restaurant-card-desc">{description}</p>
+      </div>
+      
+      {/* Restaurant Information */}
+      <div className="gallery-card-info">
+        <h3 className="gallery-card-title">{name}</h3>
+        <div className="gallery-card-meta">
+          <span className="gallery-card-location">{location}</span>
+          {rating > 0 && (
+            <div className="gallery-card-rating">
+              <span className="rating-stars">{'★'.repeat(Math.round(rating))}</span>
+              <span className="rating-number">{rating.toFixed(1)}</span>
+            </div>
+          )}
+        </div>
+        <p className="gallery-card-description">{description}</p>
       </div>
     </div>
   );
