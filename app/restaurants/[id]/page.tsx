@@ -3081,13 +3081,10 @@ export default function RestaurantDetailPage() {
   const [gridImgIdx, setGridImgIdx] = useState<{ [idx: number]: number }>({});
   
   // Menu state
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [menu, setMenu] = useState<{image: string, uploadDate: string} | null>(
-    (data as any).menu ? { 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      image: (data as any).menu, 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      uploadDate: (data as any).menuUploadDate || new Date().toISOString().split('T')[0] 
+    (data as Record<string, unknown>)?.menu ? { 
+      image: (data as Record<string, unknown>).menu as string, 
+      uploadDate: ((data as Record<string, unknown>).menuUploadDate as string) || new Date().toISOString().split('T')[0] 
     } : null
   );
   const [showMenuModal, setShowMenuModal] = useState(false);
@@ -3425,8 +3422,6 @@ export default function RestaurantDetailPage() {
             const visitedWith = plate.visitedWith || '';
             const time = plate.time || '';
 
-            // Restaurant info
-            const restaurantAddress = data.location;
             // Share handler (copy link)
             function handleShare() {
               navigator.clipboard.writeText(window.location.href + `#plate-${idx}`);
