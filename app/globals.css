@@ -1082,21 +1082,25 @@ jpg
   .footer-socials-modern { gap: 1.2rem !important; }
 }
 
-/* Clean Gallery Image Styles */
+/* Clean Gallery Image Styles - Image Only Layout */
 .gallery-link {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
   margin: 0 !important;
+  display: block;
+  text-decoration: none;
 }
 
 .gallery-image-container {
   background: transparent !important;
   border: none !important;
-  box-shadow: none !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   animation: galleryImageIn 0.8s cubic-bezier(0.4,2,0.6,1) both;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 @keyframes galleryImageIn {
@@ -1105,17 +1109,23 @@ jpg
 }
 
 .gallery-image-container:hover {
-  transform: scale(1.02) translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  transform: scale(1.03) translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.2);
   z-index: 2;
 }
 
 .gallery-image {
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, filter 0.3s ease;
 }
 
 .gallery-image-container:hover .gallery-image {
+  transform: scale(1.05);
+  filter: brightness(0.9) contrast(1.1);
+}
+
+/* Enhanced hover effects for badges */
+.gallery-image-container:hover .position-absolute {
   transform: scale(1.05);
 }
 
@@ -1123,6 +1133,12 @@ jpg
 @media (max-width: 768px) {
   .gallery-image-container {
     aspect-ratio: 4/3;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  
+  .gallery-image-container:hover {
+    transform: scale(1.02) translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
   }
 }
 

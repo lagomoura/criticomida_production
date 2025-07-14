@@ -427,7 +427,7 @@ export default function CategoryPage() {
             filteredRestaurants.map((rest, idx) => {
               const slug = slugify(rest.name);
               const cardContent = (
-                <RestaurantCard {...rest} />
+                <RestaurantCard {...rest} showInfo={true} />
               );
               return (
                 <div className="col-12 col-sm-6 col-lg-4" key={idx}>
