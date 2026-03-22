@@ -1,3 +1,5 @@
+@import 'tailwindcss';
+
 :root {
   --mainPink: #ef7998;
   --mainYellow: rgb(249, 228, 148);
@@ -26,6 +28,236 @@
   --accent-mint: #00BD9D;    /* Fresh mint */
   --accent-berry: #FF4B6E;   /* Berry red */
   --accent-citrus: #FFD93D;  /* Citrus yellow */
+}
+
+@theme inline {
+  --color-main-pink: var(--mainPink);
+  --color-main-yellow: var(--mainYellow);
+  --color-main-black: var(--mainBlack);
+  --color-main-white: var(--mainWhite);
+  --color-main-grey: var(--mainGrey);
+  --color-primary-coral: var(--primary-coral);
+  --color-primary-sage: var(--primary-sage);
+  --color-primary-saffron: var(--primary-saffron);
+  --color-accent-berry: var(--accent-berry);
+  --color-accent-mint: var(--accent-mint);
+  --font-sans: var(--font-dosis), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-kaushan), cursive;
+}
+
+/* Layout + forms (replaces Bootstrap after CDN removal) */
+.cc-container {
+  width: 100%;
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .cc-container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+.text-muted {
+  color: var(--neutral-600);
+}
+
+.text-secondary {
+  color: var(--neutral-600);
+}
+
+.text-success {
+  color: #1b5e20;
+}
+
+.text-danger {
+  color: #c62828;
+}
+
+.list-unstyled {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+  color: var(--neutral-800);
+  font-size: 0.95rem;
+}
+
+.form-select {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  border: 2px solid var(--neutral-300);
+  padding: 0.65rem 2.25rem 0.65rem 0.85rem;
+  font-size: 1rem;
+  background-color: var(--neutral-100);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: var(--primary-sage);
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+}
+
+.form-text {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--neutral-600);
+}
+
+.input-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
+}
+
+.form-check {
+  display: inline-block;
+  min-height: 1.5rem;
+  padding-left: 1.5em;
+  margin-bottom: 0.125rem;
+}
+
+.form-check-inline {
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.form-check-input {
+  width: 1em;
+  height: 1em;
+  margin-top: 0.25em;
+  margin-left: -1.5em;
+  vertical-align: top;
+  cursor: pointer;
+}
+
+.form-check-label {
+  cursor: pointer;
+  margin-left: 0.25rem;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 8px;
+}
+
+.btn-lg {
+  padding: 0.85rem 1.65rem;
+  font-size: 1.05rem;
+}
+
+.btn-light {
+  background: var(--neutral-200);
+  color: var(--neutral-900);
+  border: 1px solid var(--neutral-300);
+}
+
+.btn-light:hover {
+  background: var(--neutral-300);
+}
+
+.btn-outline-primary {
+  background: transparent;
+  color: var(--primary-coral);
+  border: 2px solid var(--primary-coral);
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary-coral);
+  color: var(--neutral-100);
+}
+
+.btn-outline-danger {
+  background: transparent;
+  color: #c62828;
+  border: 2px solid #c62828;
+}
+
+.btn-outline-danger:hover {
+  background: #c62828;
+  color: var(--neutral-100);
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
+  color: #333;
+  border: none;
+  box-shadow: 0 2px 12px 0 rgba(255, 193, 7, 0.13);
+}
+
+.btn-gradient:hover {
+  opacity: 1;
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.cc-btn-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--neutral-200);
+  color: var(--neutral-800);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cc-btn-close:hover {
+  background: var(--neutral-300);
+}
+
+.cc-card {
+  border-radius: 0.5rem;
+  border: 1px solid var(--neutral-300);
+  background: var(--neutral-100);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.06);
+}
+
+.cc-card-body {
+  padding: 1.25rem 1.5rem;
+}
+
+.card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.alert {
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.alert-danger {
+  background: #ffebee;
+  color: #b71c1c;
+  border: 1px solid #ffcdd2;
 }
 
 body {
@@ -113,7 +345,6 @@ body {
   /* cor do texto quando passa o mouse */
 }
 /* Deixa carrinho branco no hover */
-jpg
 .cart-info:hover .cart-info_icon {
   color: var(--mainWhite);
 }
@@ -124,8 +355,14 @@ jpg
   background: url("../public/img/banner2.jpg");
   background-repeat: no-repeat;
   background-size: cover;
-  background-attachment: fixed;
+  background-attachment: scroll;
   position: relative;
+}
+
+@media (min-width: 768px) {
+  .max-height {
+    background-attachment: fixed;
+  }
 }
 
 .banner {
@@ -136,7 +373,7 @@ jpg
 .banner-title {
   color: var(--mainPink);
   text-decoration: wavy;
-  font-size: 5rem;
+  font-size: clamp(2rem, 8vw, 5rem);
 }
 
 .banner-link {
@@ -245,9 +482,15 @@ jpg
   color: var(--mainWhite);
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../public/img/services.jpg);
   background-size: cover;
-  background-attachment: fixed;
+  background-attachment: scroll;
   font-size: 1.1rem;
   background-position: center;
+}
+
+@media (min-width: 768px) {
+  .services {
+    background-attachment: fixed;
+  }
 }
 
 .service-title {
@@ -297,10 +540,6 @@ jpg
 
 /* Media Queries */
 @media (max-width: 768px) {
-  .banner-title {
-      font-size: 3rem;
-  }
-
   .banner-link {
       font-size: 1.2rem;
   }
@@ -330,10 +569,6 @@ jpg
 }
 
 @media (max-width: 576px) {
-  .banner-title {
-      font-size: 2rem;
-  }
-
   .banner-link {
       font-size: 1rem;
       border-width: 0.1rem;
@@ -548,6 +783,9 @@ jpg
 
 /* Sort Dropdown */
 .review-sort-dropdown {
+  display: inline-block;
+  width: auto;
+  max-width: 11.25rem;
   border-radius: 8px;
   border: 2px solid var(--neutral-300);
   padding: 0.5rem 1rem;

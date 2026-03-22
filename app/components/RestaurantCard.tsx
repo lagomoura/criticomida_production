@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -13,51 +14,54 @@ interface RestaurantCardProps {
   showInfo?: boolean;
 }
 
-export default function RestaurantCard({ name, image, location, rating, description, reviewCount, categoryLabel, showInfo = false }: RestaurantCardProps) {
+export default function RestaurantCard({
+  name,
+  image,
+  location,
+  rating,
+  description,
+  reviewCount,
+  categoryLabel,
+  showInfo = false,
+}: RestaurantCardProps) {
   const [imgSrc, setImgSrc] = useState(image);
+  const topRadius = showInfo ? 'rounded-t-2xl' : 'rounded-2xl';
+
   return (
-    <div className={showInfo ? "gallery-card" : "gallery-link"}>
-      <div className="gallery-image-container" style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden', borderRadius: showInfo ? '16px 16px 0 0' : '16px' }}>
+    <div className={showInfo ? 'gallery-card' : 'gallery-link'}>
+      <div
+        className={`gallery-image-container relative aspect-[4/3] w-full overflow-hidden ${topRadius}`}
+      >
         <Image
           src={imgSrc}
           alt={name}
           fill
-          className="gallery-image"
-          style={{ objectFit: 'cover' }}
+          className="gallery-image object-cover"
           sizes="(max-width: 768px) 100vw, 33vw"
           onError={() => setImgSrc('/img/restaurant-fallback.jpg')}
         />
-        {/* Category badge (top left) */}
         {categoryLabel && (
-          <div className="position-absolute top-0 start-0 m-3 px-3 py-2" style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            color: '#ff6b35',
-            borderRadius: '1.2em',
-            fontWeight: 700,
-            fontSize: '0.9em',
-            boxShadow: '0 4px 12px rgba(255,107,53,0.25)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 5
-          }}>
+          <div
+            className={
+              'absolute left-0 top-0 z-[5] m-3 rounded-[1.2em] ' +
+              'bg-white/95 px-3 py-2 text-sm font-bold text-orange-500 ' +
+              'shadow-[0_4px_12px_rgba(255,107,53,0.25)] backdrop-blur-sm'
+            }
+          >
             {categoryLabel}
           </div>
         )}
-        {/* Review count badge (top right) */}
-        <div className="position-absolute top-0 end-0 m-3 px-3 py-2" style={{
-          background: 'rgba(0, 0, 0, 0.75)',
-          color: 'white',
-          borderRadius: '1.2em',
-          fontWeight: 600,
-          fontSize: '0.9em',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 5
-        }}>
+        <div
+          className={
+            'absolute right-0 top-0 z-[5] m-3 rounded-[1.2em] ' +
+            'bg-black/75 px-3 py-2 text-sm font-semibold text-white ' +
+            'shadow-[0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-sm'
+          }
+        >
           {reviewCount} reseñas
         </div>
       </div>
-      
-      {/* Restaurant Information - Only show if showInfo is true */}
+
       {showInfo && (
         <div className="gallery-card-info">
           <h3 className="gallery-card-title">{name}</h3>
@@ -65,7 +69,9 @@ export default function RestaurantCard({ name, image, location, rating, descript
             <span className="gallery-card-location">{location}</span>
             {rating > 0 && (
               <div className="gallery-card-rating">
-                <span className="rating-stars">{'★'.repeat(Math.round(rating))}</span>
+                <span className="rating-stars">
+                  {'★'.repeat(Math.round(rating))}
+                </span>
                 <span className="rating-number">{rating.toFixed(1)}</span>
               </div>
             )}
@@ -75,4 +81,4 @@ export default function RestaurantCard({ name, image, location, rating, descript
       )}
     </div>
   );
-} 
+}

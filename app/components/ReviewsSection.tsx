@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
+import { reviewCategoryFilterOptions } from '@/app/data/review-categories';
 import RestaurantCard from './RestaurantCard';
 
 interface ReviewItem {
@@ -32,24 +33,7 @@ const reviewItems: ReviewItem[] = [
   { category: 'peru-food', img: '/img/perufood.jpg', alt: 'Comida peruana Criticomida', title: 'reseña comida peruana', label: 'Peruana', description: 'Ceviche y delicias peruanas.', reviewCount: 29 },
 ];
 
-const filterOptions = [
-  { label: 'Todas', value: 'all' },
-  { label: 'Dulces', value: 'dulces' },
-  { label: 'Brunchs', value: 'brunchs' },
-  { label: 'Desayunos', value: 'desayunos' },
-  { label: 'Mexicana', value: 'mexico-food' },
-  { label: 'Japonesa', value: 'japan-food' },
-  { label: 'Árabe', value: 'arabic-food' },
-  { label: 'Israelí', value: 'israelfood' },
-  { label: 'Tailandesa', value: 'thaifood' },
-  { label: 'Coreana', value: 'koreanfood' },
-  { label: 'China', value: 'chinafood' },
-  { label: 'Parrilla', value: 'parrillas' },
-  { label: 'Brasileña', value: 'brazilfood' },
-  { label: 'Hamburguesas', value: 'burguers' },
-  { label: 'Helados', value: 'helados' },
-  { label: 'Peruana', value: 'peru-food' },
-];
+const filterOptions = reviewCategoryFilterOptions;
 
 const sortOptions = [
   { label: 'Más reseñas', value: 'most' },
@@ -137,35 +121,32 @@ export default function ReviewsSection() {
 
   return (
     <section id="reviews" className="reviews py-5">
-      <div className="container">
-        {/* Sorting Dropdown */}
-        <div className="row mb-3">
-          <div className="col-12 text-end">
-            <label htmlFor="sort-reviews" className="me-2 fw-bold">Ordenar por:</label>
-            <select
-              id="sort-reviews"
-              className="form-select d-inline-block w-auto review-sort-dropdown"
-              value={sort}
-              onChange={e => setSort(e.target.value as SortType)}
-              style={{maxWidth: 180, display: 'inline-block'}}
-            >
-              {sortOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
+      <div className="cc-container">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+          <label htmlFor="sort-reviews" className="mr-2 font-bold">
+            Ordenar por:
+          </label>
+          <select
+            id="sort-reviews"
+            className="form-select review-sort-dropdown"
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortType)}
+          >
+            {sortOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
-        {/* section title */}
-        <div className="row col-10 mx-auto col-sm-6 text-center reviews-title-animate">
-          <h1 className="text-capitalize">
+        <div className="reviews-title-animate mx-auto max-w-md px-4 text-center sm:max-w-lg">
+          <h1 className="capitalize">
             Nuestras <strong className="banner-title">reseñas</strong>
           </h1>
         </div>
-        {/* end of section title */}
-        {/* filter buttons */}
-        <div className="row reviews-filters-animate">
-          <div className="col-lg-8 mx-auto d-flex justify-content-around sortBtn flex-wrap align-items-center">
-            {filterOptions.map(opt => (
+        <div className="reviews-filters-animate mt-4">
+          <div className="sortBtn mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-2">
+            {filterOptions.map((opt) => (
               <button
                 key={opt.value}
                 className={`btn filter-btn${activeFilters.includes(opt.value) ? ' active' : ''}`}
@@ -188,11 +169,9 @@ export default function ReviewsSection() {
           </div>
         </div>
         <br />
-        {/* end of filter buttons */}
-        {/* search box */}
-        <div className="row reviews-search-animate">
-          <div className="col-10 mx-auto col-md-6">
-            <form onSubmit={e => e.preventDefault()}>
+        <div className="reviews-search-animate">
+          <div className="mx-auto max-w-md px-4 md:max-w-lg">
+            <form onSubmit={(e) => e.preventDefault()}>
               <div className="input-group mb-3">
                 <input
                   type="text"
@@ -200,33 +179,35 @@ export default function ReviewsSection() {
                   id="search-id"
                   placeholder="Buscar restaurante o comida..."
                   value={search}
-                  onChange={e => setSearch(e.target.value)}
+                  onChange={(e) => setSearch(e.target.value)}
                   aria-label="Buscar reseñas"
                 />
               </div>
             </form>
           </div>
         </div>
-        {/* end of search box */}
-        {/* review items */}
-        <div className="row review-items" id="review-items">
+        <div
+          className="review-items mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          id="review-items"
+        >
           {filteredItems.length === 0 && (
-            <div className="col-12 text-center py-5">
+            <div className="col-span-full py-12 text-center">
               <h4 className="text-muted">No se encontraron reseñas.</h4>
             </div>
           )}
           {filteredItems.map((item: ReviewItem, idx: number) => (
             <div
               key={item.category}
-              className={`col-10 col-sm-6 col-lg-4 mx-auto my-3 review-item review-card-animate`}
+              className="review-item review-card-animate mx-auto my-3 w-full max-w-sm"
               style={{ '--review-anim-order': idx } as React.CSSProperties}
               data-item={item.category}
             >
               <Link
                 href={`/reviews/${item.category}`}
-                className="gallery-link text-decoration-none"
-                style={{display: 'block', position: 'relative', overflow: 'hidden', background: 'transparent'}}
-                ref={(el) => { rippleRefs.current[item.category] = el; }}
+                className="gallery-link relative block overflow-hidden bg-transparent no-underline"
+                ref={(el) => {
+                  rippleRefs.current[item.category] = el;
+                }}
                 onMouseEnter={handleTooltipShow}
                 onMouseLeave={handleTooltipShow}
                 onTouchStart={handleTooltipShow}
@@ -238,19 +219,17 @@ export default function ReviewsSection() {
                 <RestaurantCard
                   name={item.label}
                   image={item.img}
-                  location={''}
+                  location=""
                   rating={0}
                   description={item.description}
                   reviewCount={item.reviewCount}
                   categoryLabel={item.label}
                 />
-                {/* Ripple effect */}
                 <span className="ripple" />
               </Link>
             </div>
           ))}
         </div>
-        {/* end of review items */}
       </div>
     </section>
   );
