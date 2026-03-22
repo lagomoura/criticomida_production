@@ -1,8 +1,8 @@
-import './fontawesome';
 import type { Metadata, Viewport } from 'next';
 import { Dosis, Kaushan_Script } from 'next/font/google';
+import './fontawesome';
 import './globals.css';
-import Navbar from './components/Navbar';
+import Providers from './components/Providers';
 
 const dosis = Dosis({
   subsets: ['latin'],
@@ -33,8 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${dosis.variable} ${kaushan.variable} antialiased`}>
-        <Navbar />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

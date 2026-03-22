@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Explicit scan roots so utilities always generate (Next / monorepo safe). */
+@source './**/*.{js,ts,jsx,tsx}';
+
 :root {
   --mainPink: #ef7998;
   --mainYellow: rgb(249, 228, 148);
@@ -352,7 +355,7 @@ body {
 .max-height {
   min-height: calc(100vh - 90px);
   /*Resta 100vh menos o tamanho da navbar 90px deixando todo o banner con 100vh*/
-  background: url("../public/img/banner2.jpg");
+  background: url('/img/banner2.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: scroll;
@@ -480,7 +483,8 @@ body {
 
 .services {
   color: var(--mainWhite);
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../public/img/services.jpg);
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url('/img/services.jpg');
   background-size: cover;
   background-attachment: scroll;
   font-size: 1.1rem;
