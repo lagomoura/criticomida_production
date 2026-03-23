@@ -83,7 +83,7 @@ export interface UpdateReviewRequest {
   visited_with?: string;
 }
 
-/** @deprecated Use Dish instead */
+/** Internal view-model used by restaurant detail sub-components. */
 export type Plate = {
   name: string;
   date: string;

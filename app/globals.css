@@ -44,8 +44,10 @@
   --color-primary-saffron: var(--primary-saffron);
   --color-accent-berry: var(--accent-berry);
   --color-accent-mint: var(--accent-mint);
-  --font-sans: var(--font-dosis), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-kaushan), cursive;
+  --font-sans: var(--font-source-sans-3), ui-sans-serif, system-ui, sans-serif;
+  /* Same family as body: clear hierarchy via weight/size, not novelty (Krug). */
+  --font-display: var(--font-source-sans-3), ui-sans-serif, system-ui,
+    sans-serif;
 }
 
 /* Layout + forms (replaces Bootstrap after CDN removal) */
@@ -264,7 +266,9 @@
 }
 
 body {
-  font-family: var(--font-kaushan), cursive;
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
 }
 
 #header {
@@ -292,11 +296,6 @@ body {
   background: black;
 }
 /* Nav links */
-
-.navbar-toggler {
-  /* Tira linha de contorno do menu hamburguer */
-  outline: none !important;
-}
 
 .toggler-icon {
   /*muda a cor do icone de menu sandwich */
@@ -375,8 +374,10 @@ body {
 
 .banner-title {
   color: var(--mainPink);
-  text-decoration: wavy;
   font-size: clamp(2rem, 8vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 .banner-link {
@@ -434,7 +435,7 @@ body {
 }
 
 .single-item {
-  transition: all 0.3s linear;
+  transition: box-shadow 0.3s linear;
 }
 
 .single-item:hover {
@@ -449,7 +450,7 @@ body {
 }
 
 .review-img {
-  transition: all 1s ease-in-out;
+  transition: transform 1s ease-in-out;
   /* efeito que vc quer dar no momento do zoom da foto */
 }
 
@@ -467,7 +468,7 @@ body {
   background: var(--mainPink);
   border-top-left-radius: 2rem;
   /* forma arredondado da borda inferior esquerda */
-  transition: all 0.6s ease-in-out;
+  transition: transform 0.6s ease-in-out;
   transform: translate(100%, 100%)/*esconde 100% a direita e 100% abaixo isso faz desaparecer */
 }
 
@@ -683,7 +684,12 @@ body {
   border-radius: 12px;
   padding: 0.75rem 1.5rem;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   border: none;
   position: relative;
   overflow: hidden;
@@ -768,7 +774,7 @@ body {
   border-radius: 12px;
   border: 2px solid var(--neutral-300);
   padding: 0.75rem 1rem;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-control:focus {
@@ -802,9 +808,13 @@ body {
   box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
 }
 
-/* Smooth transitions for all nav elements */
+/* Smooth transitions for nav descendants */
 .wow-navbar * {
-  transition: all 0.2s cubic-bezier(0.4,2,0.6,1);
+  transition:
+    color 0.2s cubic-bezier(0.4, 2, 0.6, 1),
+    background-color 0.2s cubic-bezier(0.4, 2, 0.6, 1),
+    transform 0.2s cubic-bezier(0.4, 2, 0.6, 1),
+    opacity 0.2s cubic-bezier(0.4, 2, 0.6, 1);
 }
 
 /* Banner WOW Animations */
@@ -1405,7 +1415,11 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  transition: all 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .gallery-review-badge {
@@ -1421,7 +1435,11 @@ body {
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(4px);
-  transition: all 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .gallery-image-container:hover .gallery-category-badge {
@@ -1708,4 +1726,30 @@ body {
 .wow-plate-card:hover .position-absolute {
   background: rgba(255, 255, 255, 0.98) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .banner-animate-content,
+  .about-text-animate,
+  .about-img-animate,
+  .reviews-title-animate,
+  .reviews-filters-animate,
+  .reviews-search-animate,
+  .review-card-animate,
+  .service-card-animate,
+  .brand-animate,
+  .brand-text-animate {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

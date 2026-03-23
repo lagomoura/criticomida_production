@@ -3,6 +3,9 @@
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { Plate } from '@/app/lib/types';
+import { useAuthContext } from '@/app/lib/contexts/AuthContext';
+import { createReview } from '@/app/lib/api/reviews';
+import { ApiError } from '@/app/lib/api/client';
 
 interface PlateCardProps {
   plate: Plate;
@@ -11,6 +14,7 @@ interface PlateCardProps {
   imgIdx: number;
   onToggleFav: (idx: number) => void;
   onChangeImgIdx: (idx: number, newImgIdx: number) => void;
+  dishId?: string;
 }
 
 export default function PlateCard({
@@ -20,12 +24,23 @@ export default function PlateCard({
   imgIdx,
   onToggleFav,
   onChangeImgIdx,
+  dishId,
 }: PlateCardProps) {
+  const { user } = useAuthContext();
   const images =
     plate.images ??
     (plate.image ? [plate.image] : ['/img/food-fallback.jpg']);
   const rawSrc = images[imgIdx];
   const [useFallbackImage, setUseFallbackImage] = useState(false);
+
+  // Review form state
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewNote, setReviewNote] = useState('');
+  const [reviewWouldOrder, setReviewWouldOrder] = useState(true);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
 
   useEffect(() => {
     setUseFallbackImage(false);
@@ -51,6 +66,36 @@ export default function PlateCard({
   function handleShare() {
     navigator.clipboard.writeText(window.location.href + `#plate-${idx}`);
     alert('¡Enlace copiado!');
+  }
+
+  async function handleReviewSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!dishId) return;
+    setReviewError(null);
+    setReviewSubmitting(true);
+    try {
+      await createReview(dishId, {
+        date_tasted: new Date().toISOString().slice(0, 10),
+        note: reviewNote,
+        rating: reviewRating,
+        would_order_again: reviewWouldOrder,
+      });
+      setReviewSuccess(true);
+      setReviewOpen(false);
+      setReviewNote('');
+      setReviewRating(5);
+      setReviewWouldOrder(true);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setReviewError(
+          typeof err.detail === 'string' ? err.detail : 'No se pudo enviar la reseña.'
+        );
+      } else {
+        setReviewError('No se pudo enviar la reseña.');
+      }
+    } finally {
+      setReviewSubmitting(false);
+    }
   }
 
   return (
@@ -401,6 +446,109 @@ export default function PlateCard({
               {formattedDate}
             </span>
           </div>
+
+          {/* Review submission section - only for authenticated users with a dishId */}
+          {user && dishId && (
+            <div className="mt-3 border-t border-amber-300/30 pt-3">
+              {reviewSuccess ? (
+                <p className="text-sm font-medium text-green-700">
+                  <span role="img" aria-label="ok">✅</span> ¡Reseña enviada!
+                </p>
+              ) : reviewOpen ? (
+                <form onSubmit={handleReviewSubmit} className="flex flex-col gap-3">
+                  <p className="mb-1 text-sm font-semibold text-neutral-700">
+                    Dejar reseña
+                  </p>
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor={`review-rating-${idx}`} className="text-xs text-neutral-600">
+                      Calificación
+                    </label>
+                    <select
+                      id={`review-rating-${idx}`}
+                      className="form-select form-select-sm"
+                      value={reviewRating}
+                      onChange={(e) => setReviewRating(Number(e.target.value))}
+                      disabled={reviewSubmitting}
+                    >
+                      <option value={5}>★★★★★ (5)</option>
+                      <option value={4}>★★★★☆ (4)</option>
+                      <option value={3}>★★★☆☆ (3)</option>
+                      <option value={2}>★★☆☆☆ (2)</option>
+                      <option value={1}>★☆☆☆☆ (1)</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor={`review-note-${idx}`} className="text-xs text-neutral-600">
+                      Nota
+                    </label>
+                    <textarea
+                      id={`review-note-${idx}`}
+                      className="form-control form-control-sm"
+                      rows={2}
+                      value={reviewNote}
+                      onChange={(e) => setReviewNote(e.target.value)}
+                      placeholder="¿Qué te pareció?"
+                      disabled={reviewSubmitting}
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-neutral-600">¿Lo pedirías de nuevo?</span>
+                    <div className="form-check form-check-inline mb-0">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        id={`woa-yes-${idx}`}
+                        checked={reviewWouldOrder}
+                        onChange={() => setReviewWouldOrder(true)}
+                        disabled={reviewSubmitting}
+                      />
+                      <label className="form-check-label text-xs" htmlFor={`woa-yes-${idx}`}>Sí</label>
+                    </div>
+                    <div className="form-check form-check-inline mb-0">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        id={`woa-no-${idx}`}
+                        checked={!reviewWouldOrder}
+                        onChange={() => setReviewWouldOrder(false)}
+                        disabled={reviewSubmitting}
+                      />
+                      <label className="form-check-label text-xs" htmlFor={`woa-no-${idx}`}>No</label>
+                    </div>
+                  </div>
+                  {reviewError && (
+                    <p className="m-0 text-xs text-red-600" role="alert">{reviewError}</p>
+                  )}
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-sm"
+                      disabled={reviewSubmitting}
+                    >
+                      {reviewSubmitting ? 'Enviando…' : 'Enviar reseña'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => { setReviewOpen(false); setReviewError(null); }}
+                      disabled={reviewSubmitting}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary btn-sm rounded-[0.8em]"
+                  onClick={() => setReviewOpen(true)}
+                >
+                  <span role="img" aria-label="star" className="mr-1">⭐</span>
+                  Dejar reseña
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

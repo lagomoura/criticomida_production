@@ -2,13 +2,14 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import RestaurantCard from '@/app/components/RestaurantCard';
 import MapComponent from '@/app/components/maps';
-import { visitedRestaurants } from '@/app/data/restaurants';
 import {
   getReviewCategoryLabel,
   isValidReviewCategorySlug,
 } from '@/app/data/review-categories';
 import { notFound } from 'next/navigation';
 import CategoryEmptyState from './CategoryEmptyState';
+import { getRestaurants } from '@/app/lib/api/restaurants';
+import { RestaurantListItem } from '@/app/lib/types';
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -38,12 +39,17 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
 
   const categoryLabel = getReviewCategoryLabel(category);
-  const restaurants = visitedRestaurants.filter(
-    (restaurant) => restaurant.category === category,
-  );
+
+  let restaurants: RestaurantListItem[] = [];
+  try {
+    const result = await getRestaurants({ category_slug: category, per_page: 100 });
+    restaurants = result.items ?? [];
+  } catch {
+    restaurants = [];
+  }
 
   return (
-    <main className="cc-container py-5">
+    <main id="main-content" className="cc-container py-5">
       <nav className="mb-6" aria-label="Navegación de sección">
         <Link
           href="/#reviews"
@@ -80,15 +86,24 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           >
             {restaurants.map((restaurant) => (
               <div key={restaurant.id}>
-                <RestaurantCard
-                  name={restaurant.name}
-                  image={restaurant.image}
-                  location={restaurant.location}
-                  rating={restaurant.rating}
-                  description={restaurant.description}
-                  reviewCount={restaurant.reviewCount}
-                  showInfo={true}
-                />
+                <Link
+                  href={`/restaurants/${restaurant.slug}`}
+                  className={
+                    'block rounded-2xl no-underline ' +
+                    'focus-visible:outline-none focus-visible:ring-2 ' +
+                    'focus-visible:ring-main-pink focus-visible:ring-offset-2'
+                  }
+                >
+                  <RestaurantCard
+                    name={restaurant.name}
+                    image={restaurant.cover_image_url || '/img/restaurant-fallback.jpg'}
+                    location={restaurant.location_name}
+                    rating={restaurant.computed_rating}
+                    description={restaurant.category?.description || restaurant.category?.name || ''}
+                    reviewCount={restaurant.review_count}
+                    showInfo={true}
+                  />
+                </Link>
               </div>
             ))}
           </div>

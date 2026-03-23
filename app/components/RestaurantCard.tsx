@@ -18,13 +18,14 @@ export default function RestaurantCard({
   name,
   image,
   location,
-  rating,
+  rating: ratingProp,
   description,
   reviewCount,
   categoryLabel,
   showInfo = false,
 }: RestaurantCardProps) {
   const [imgSrc, setImgSrc] = useState(image);
+  const rating = Number(ratingProp);
   const topRadius = showInfo ? 'rounded-t-2xl' : 'rounded-2xl';
 
   return (

@@ -1,6 +1,8 @@
+import Link from 'next/link';
+
 export default function Banner() {
   return (
-    <section>
+    <section aria-label="Presentación">
       <div className="w-full px-0">
         <div
           className={
@@ -13,16 +15,16 @@ export default function Banner() {
               'text-center text-white'
             }
           >
-            <h1 className="font-display capitalize">
-              welcome to{' '}
+            <h1 className="font-sans text-balance font-extrabold capitalize">
+              Bienvenidos a{' '}
               <strong className="banner-title">CritiComida</strong>
             </h1>
-            <a
-              href="#reviews"
+            <Link
+              href="/#reviews"
               className="banner-link mt-6 inline-block uppercase"
             >
-              explore
-            </a>
+              Ver reseñas
+            </Link>
           </div>
         </div>
       </div>

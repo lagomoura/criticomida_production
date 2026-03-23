@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { reviewCategoryFilterOptions } from '@/app/data/review-categories';
 import RestaurantCard from './RestaurantCard';
+import { Category } from '@/app/lib/types';
 
 interface ReviewItem {
   category: string;
@@ -15,23 +17,18 @@ interface ReviewItem {
   reviewCount: number;
 }
 
-const reviewItems: ReviewItem[] = [
-  { category: 'dulces', img: '/img/dulces.jpg', alt: 'postres Criticomida', title: 'reseñas de dulces', label: 'Dulces', description: '¡Descubrí los mejores postres y dulces de la ciudad!', reviewCount: 128 },
-  { category: 'brunchs', img: '/img/brunch.jpg', alt: 'brunch Criticomida', title: 'reseñas de brunchs', label: 'Brunchs', description: 'Los mejores lugares para brunchear con amigos.', reviewCount: 87 },
-  { category: 'desayunos', img: '/img/breakfast.jpg', alt: 'Desayunos Criticomida', title: 'reseñas de desayunos', label: 'Desayunos', description: 'Arrancá el día con los desayunos más ricos.', reviewCount: 102 },
-  { category: 'mexico-food', img: '/img/mexfood2.jpg', alt: 'mex-food Criticomida', title: 'reseñas mex-food', label: 'Mexicana', description: 'Comida mexicana picante y llena de sabor.', reviewCount: 95 },
-  { category: 'japan-food', img: '/img/japanfood.jpg', alt: 'japanfood Criticomida', title: 'reseñas japan-food', label: 'Japonesa', description: 'Sushi, ramen y mucho más de Japón.', reviewCount: 76 },
-  { category: 'arabic-food', img: '/img/arabicfood.jpg', alt: 'Comida arabe Criticomida', title: 'reseñas Arabic-food', label: 'Árabe', description: 'Sabores y delicias de Medio Oriente.', reviewCount: 54 },
-  { category: 'israelfood', img: '/img/israelfood.jpg', alt: 'comida israeli criticomida', title: 'reseñas comida Israeli', label: 'Israelí', description: 'Platos únicos y tradicionales de Israel.', reviewCount: 33 },
-  { category: 'thaifood', img: '/img/thaifood.jpg', alt: 'comida thai Criticomida', title: 'reseñas comida Thai', label: 'Tailandesa', description: 'Comida tailandesa exótica y picante.', reviewCount: 61 },
-  { category: 'koreanfood', img: '/img/koreanfood.jpg', alt: 'Korean food Criticomida', title: 'reseñas comida Koreana', label: 'Coreana', description: 'BBQ coreano, kimchi y más.', reviewCount: 44 },
-  { category: 'chinafood', img: '/img/chinafood.jpg', alt: 'comida china Criticomida', title: 'reseñas comida china', label: 'China', description: 'Dim sum, fideos y clásicos chinos.', reviewCount: 70 },
-  { category: 'parrillas', img: '/img/parrilla.jpg', alt: 'parrilas Criticomida', title: 'reseñas parrilas', label: 'Parrilla', description: 'Las mejores parrillas y carnes asadas.', reviewCount: 58 },
-  { category: 'brazilfood', img: '/img/brazilfood.jpg', alt: 'Comida brasilena Criticomida', title: 'reseñas Comida Brasileira', label: 'Brasileña', description: 'Churrasquerías y sabores de Brasil.', reviewCount: 39 },
-  { category: 'burguers', img: '/img/burguers.jpg', alt: 'habuerguesas Criticomida', title: 'reseñas Burguers', label: 'Hamburguesas', description: 'Las hamburguesas más jugosas y sabrosas.', reviewCount: 110 },
-  { category: 'helados', img: '/img/helados.jpg', alt: 'helados Criticomida', title: 'reseñas helados', label: 'Helados', description: 'Refrescate con los mejores helados.', reviewCount: 73 },
-  { category: 'peru-food', img: '/img/perufood.jpg', alt: 'Comida peruana Criticomida', title: 'reseña comida peruana', label: 'Peruana', description: 'Ceviche y delicias peruanas.', reviewCount: 29 },
-];
+function categoryToReviewItem(cat: Category): ReviewItem {
+  const slug = cat.slug;
+  return {
+    category: slug,
+    img: cat.image_url || `/img/${slug}.jpg`,
+    alt: cat.name,
+    title: `reseñas de ${cat.name.toLowerCase()}`,
+    label: cat.name,
+    description: cat.description || `Reseñas de ${cat.name.toLowerCase()}`,
+    reviewCount: cat.reviewCount ?? 0,
+  };
+}
 
 const filterOptions = reviewCategoryFilterOptions;
 
@@ -50,77 +47,153 @@ type RippleRefs = {
 function sortItems(items: ReviewItem[], sort: SortType): ReviewItem[] {
   if (sort === 'most') {
     return [...items].sort((a, b) => b.reviewCount - a.reviewCount);
-  } else if (sort === 'az') {
+  }
+  if (sort === 'az') {
     return [...items].sort((a, b) => a.label.localeCompare(b.label));
-  } else if (sort === 'za') {
+  }
+  if (sort === 'za') {
     return [...items].sort((a, b) => b.label.localeCompare(a.label));
   }
   return items;
 }
 
-export default function ReviewsSection() {
+function parseSortFromParams(params: URLSearchParams): SortType {
+  const value = params.get('sort');
+  if (value === 'az' || value === 'za' || value === 'most') {
+    return value;
+  }
+  return 'most';
+}
+
+function parseFiltersFromParams(params: URLSearchParams): string[] {
+  const raw = params.get('filters');
+  if (!raw || raw === 'all') {
+    return ['all'];
+  }
+  const parts = raw.split(',').map((segment) => segment.trim()).filter(Boolean);
+  return parts.length > 0 ? parts : ['all'];
+}
+
+function pushReviewStateToUrl(
+  router: ReturnType<typeof useRouter>,
+  nextSort: SortType,
+  nextFilters: string[],
+) {
+  const params = new URLSearchParams();
+  if (nextSort !== 'most') {
+    params.set('sort', nextSort);
+  }
+  const isOnlyAll =
+    nextFilters.length === 1 && nextFilters[0] === 'all';
+  if (!isOnlyAll) {
+    params.set('filters', nextFilters.join(','));
+  }
+  const query = params.toString();
+  router.replace(query ? `/?${query}` : '/', { scroll: false });
+}
+
+interface ReviewsSectionProps {
+  categories: Category[];
+}
+
+export default function ReviewsSection({ categories }: ReviewsSectionProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeFilters, setActiveFilters] = useState<string[]>(['all']);
   const [search, setSearch] = useState<string>('');
   const [sort, setSort] = useState<SortType>('most');
   const rippleRefs = useRef<RippleRefs>({});
   const tooltipTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Multi-select filter logic
-  function handleFilterClick(value: string) {
+  const reviewItems: ReviewItem[] = categories.map(categoryToReviewItem);
+
+  useEffect(() => {
+    const nextSort = parseSortFromParams(searchParams);
+    const nextFilters = parseFiltersFromParams(searchParams);
+    setSort(nextSort);
+    setActiveFilters(nextFilters);
+  }, [searchParams]);
+
+  const handleFilterClick = (value: string) => {
+    let next: string[];
     if (value === 'all') {
-      setActiveFilters(['all']);
+      next = ['all'];
     } else {
-      setActiveFilters(prev => {
-        const isActive = prev.includes(value);
-        let next;
-        if (isActive) {
-          next = prev.filter(f => f !== value);
-        } else {
-          next = prev.filter(f => f !== 'all').concat(value);
-        }
-        return next.length === 0 ? ['all'] : next;
-      });
+      const prev = activeFilters;
+      const isActive = prev.includes(value);
+      let draft: string[];
+      if (isActive) {
+        draft = prev.filter((filterValue) => filterValue !== value);
+      } else {
+        draft = prev.filter((filterValue) => filterValue !== 'all').concat(
+          value,
+        );
+      }
+      next = draft.length === 0 ? ['all'] : draft;
     }
-  }
+    setActiveFilters(next);
+    pushReviewStateToUrl(router, sort, next);
+  };
+
+  const handleClearFilters = () => {
+    const next = ['all'];
+    setActiveFilters(next);
+    pushReviewStateToUrl(router, sort, next);
+  };
+
+  const handleSortChange = (nextSort: SortType) => {
+    setSort(nextSort);
+    pushReviewStateToUrl(router, nextSort, activeFilters);
+  };
 
   const filteredItems = sortItems(
     reviewItems.filter((item: ReviewItem) => {
-      const matchesFilter = activeFilters.includes('all') || activeFilters.includes(item.category);
-      const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase()) || item.label.toLowerCase().includes(search.toLowerCase());
+      const matchesFilter =
+        activeFilters.includes('all') ||
+        activeFilters.includes(item.category);
+      const matchesSearch =
+        item.title.toLowerCase().includes(search.toLowerCase()) ||
+        item.label.toLowerCase().includes(search.toLowerCase());
       return matchesFilter && matchesSearch;
     }),
-    sort
+    sort,
   );
 
-  // Ripple effect handler
-  function handleCardClick(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, category: string) {
+  function handleCardClick(
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+    category: string,
+  ) {
     const card = rippleRefs.current[category];
-    if (!card) return;
+    if (!card) {
+      return;
+    }
     const ripple = card.querySelector('.ripple') as HTMLSpanElement | null;
-    if (!ripple) return;
+    if (!ripple) {
+      return;
+    }
     const rect = card.getBoundingClientRect();
     const size = Math.max(rect.width, rect.height);
-    const x = e.nativeEvent ? e.nativeEvent.offsetX : rect.width / 2;
-    const y = e.nativeEvent ? e.nativeEvent.offsetY : rect.height / 2;
+    const x = event.nativeEvent ? event.nativeEvent.offsetX : rect.width / 2;
+    const y = event.nativeEvent ? event.nativeEvent.offsetY : rect.height / 2;
     ripple.style.left = `${x - size / 2}px`;
     ripple.style.top = `${y - size / 2}px`;
     ripple.style.width = ripple.style.height = `${size}px`;
     ripple.classList.remove('show');
-    // force reflow
     void ripple.offsetWidth;
     ripple.classList.add('show');
   }
 
-  // Tooltip auto-dismiss for mobile
   function handleTooltipShow() {
     if (window.innerWidth < 768) {
-      if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
+      if (tooltipTimeout.current) {
+        clearTimeout(tooltipTimeout.current);
+      }
       tooltipTimeout.current = setTimeout(() => {}, 2000);
     }
   }
 
   return (
-    <section id="reviews" className="reviews py-5">
+    <section id="reviews" className="reviews scroll-mt-24 py-5">
       <div className="cc-container">
         <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
           <label htmlFor="sort-reviews" className="mr-2 font-bold">
@@ -128,9 +201,12 @@ export default function ReviewsSection() {
           </label>
           <select
             id="sort-reviews"
+            name="review-sort"
             className="form-select review-sort-dropdown"
             value={sort}
-            onChange={(e) => setSort(e.target.value as SortType)}
+            onChange={(event) =>
+              handleSortChange(event.target.value as SortType)
+            }
           >
             {sortOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -140,9 +216,9 @@ export default function ReviewsSection() {
           </select>
         </div>
         <div className="reviews-title-animate mx-auto max-w-md px-4 text-center sm:max-w-lg">
-          <h1 className="capitalize">
+          <h2 className="capitalize">
             Nuestras <strong className="banner-title">reseñas</strong>
-          </h1>
+          </h2>
         </div>
         <div className="reviews-filters-animate mt-4">
           <div className="sortBtn mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-2">
@@ -161,7 +237,7 @@ export default function ReviewsSection() {
               <button
                 className="btn btn-ghost"
                 type="button"
-                onClick={() => setActiveFilters(['all'])}
+                onClick={handleClearFilters}
               >
                 Limpiar filtros
               </button>
@@ -171,16 +247,19 @@ export default function ReviewsSection() {
         <br />
         <div className="reviews-search-animate">
           <div className="mx-auto max-w-md px-4 md:max-w-lg">
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={(event) => event.preventDefault()}>
               <div className="input-group mb-3">
                 <input
-                  type="text"
+                  type="search"
                   className="form-control"
                   id="search-id"
-                  placeholder="Buscar restaurante o comida..."
+                  name="review-search"
+                  placeholder="Buscar restaurante o comida…"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(event) => setSearch(event.target.value)}
                   aria-label="Buscar reseñas"
+                  autoComplete="off"
+                  spellCheck={false}
                 />
               </div>
             </form>
@@ -205,14 +284,14 @@ export default function ReviewsSection() {
               <Link
                 href={`/reviews/${item.category}`}
                 className="gallery-link relative block overflow-hidden bg-transparent no-underline"
-                ref={(el) => {
-                  rippleRefs.current[item.category] = el;
+                ref={(element) => {
+                  rippleRefs.current[item.category] = element;
                 }}
                 onMouseEnter={handleTooltipShow}
                 onMouseLeave={handleTooltipShow}
                 onTouchStart={handleTooltipShow}
                 onTouchEnd={handleTooltipShow}
-                onClick={(e) => handleCardClick(e, item.category)}
+                onClick={(event) => handleCardClick(event, item.category)}
                 tabIndex={0}
                 aria-label={`Ver todas las reseñas de ${item.label}`}
               >
@@ -233,4 +312,4 @@ export default function ReviewsSection() {
       </div>
     </section>
   );
-} 
+}

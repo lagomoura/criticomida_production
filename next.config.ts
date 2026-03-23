@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
         hostname: 'staticmap.openstreetmap.de',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/**',
+      },
     ],
   },
 };

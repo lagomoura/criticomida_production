@@ -2,17 +2,36 @@
 
 import React from 'react';
 import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
-import { Restaurant } from '@/app/data/restaurants';
+
+interface MapRestaurant {
+  id: number | string;
+  name: string;
+  position?: { lat: number; lng: number };
+  latitude?: number | null;
+  longitude?: number | null;
+}
 
 interface MapComponentProps {
-  restaurants: Restaurant[];
+  restaurants: MapRestaurant[];
+}
+
+const DEFAULT_CENTER = { lat: -34.6037, lng: -58.3816 };
+
+function getPosition(r: MapRestaurant): { lat: number; lng: number } | null {
+  if (r.position) return r.position;
+  if (r.latitude != null && r.longitude != null) {
+    return { lat: r.latitude, lng: r.longitude };
+  }
+  return null;
 }
 
 const MapComponent = ({ restaurants }: MapComponentProps) => {
+  const restaurantsWithPos = restaurants.filter((r) => getPosition(r) !== null);
+
   const mapCenter =
-    restaurants.length > 0
-      ? restaurants[0].position
-      : { lat: 48.8566, lng: 2.3522 };
+    restaurantsWithPos.length > 0
+      ? (getPosition(restaurantsWithPos[0]) ?? DEFAULT_CENTER)
+      : DEFAULT_CENTER;
 
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
@@ -23,13 +42,16 @@ const MapComponent = ({ restaurants }: MapComponentProps) => {
         }
       >
         <Map defaultCenter={mapCenter} defaultZoom={10}>
-          {restaurants.map((restaurant) => (
-            <Marker
-              key={restaurant.id}
-              position={restaurant.position}
-              title={restaurant.name}
-            />
-          ))}
+          {restaurantsWithPos.map((restaurant) => {
+            const pos = getPosition(restaurant)!;
+            return (
+              <Marker
+                key={restaurant.id}
+                position={pos}
+                title={restaurant.name}
+              />
+            );
+          })}
         </Map>
       </div>
     </APIProvider>

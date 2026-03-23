@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 
@@ -47,12 +47,13 @@ export default function AddPlateModal({
     <div
       className={
         'modal fade show fixed inset-0 z-[1050] flex items-start ' +
-        'justify-center overflow-y-auto overflow-x-hidden bg-black/35 ' +
-        'px-3 py-6 sm:px-4'
+        'justify-center overflow-y-auto overflow-x-hidden overscroll-contain ' +
+        'bg-black/35 px-3 py-6 sm:px-4'
       }
       tabIndex={-1}
       role="dialog"
       aria-modal="true"
+      aria-labelledby="add-plate-modal-title"
     >
       <div
         className={
@@ -62,9 +63,12 @@ export default function AddPlateModal({
       >
         <div className="flex max-h-[inherit] flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
           <div className="modal-header flex flex-shrink-0 items-center justify-between border-b border-neutral-200 pb-3 pt-4 pl-5 pr-4">
-            <h5 className="modal-title m-0 text-lg font-semibold">
+            <h2
+              id="add-plate-modal-title"
+              className="modal-title m-0 text-lg font-semibold"
+            >
               Agregar plato al diario
-            </h5>
+            </h2>
             <button
               type="button"
               className="cc-btn-close"
@@ -81,7 +85,7 @@ export default function AddPlateModal({
             <div
               className={
                 'modal-body max-h-[calc(90vh-8rem)] flex-1 overflow-y-auto ' +
-                'px-5 pt-2 pb-4'
+                'overscroll-contain px-5 pt-2 pb-4'
               }
             >
               {formError && <div className="alert alert-danger py-2">{formError}</div>}
@@ -113,6 +117,7 @@ export default function AddPlateModal({
                       className="btn btn-outline-danger"
                       onClick={() => onRemoveImageField(idx)}
                       disabled={form.images.length === 1}
+                      aria-label="Eliminar campo de imagen"
                     >
                       🗑️
                     </button>

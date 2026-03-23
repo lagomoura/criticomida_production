@@ -1,8 +1,17 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faFacebook,
+  faInstagram,
+  faTwitter,
+} from '@fortawesome/free-brands-svg-icons';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 export default function Footer() {
   return (
-    <footer className="footer-modern mt-5 pb-3 pt-5">
+    <footer
+      id="contact"
+      className="footer-modern scroll-mt-24 mt-5 pb-3 pt-5"
+    >
       <div className="cc-container">
         <div className="flex flex-col flex-wrap items-center justify-between gap-6 md:flex-row">
           <div className="w-full text-center md:mb-0 md:w-1/2 md:text-left">
@@ -23,7 +32,7 @@ export default function Footer() {
                 aria-label="Email"
               >
                 <FontAwesomeIcon
-                  icon={['fas', 'envelope']}
+                  icon={faEnvelope}
                   className="footer-icon-modern"
                 />
               </a>
@@ -35,7 +44,7 @@ export default function Footer() {
                 aria-label="Instagram"
               >
                 <FontAwesomeIcon
-                  icon={['fab', 'instagram']}
+                  icon={faInstagram}
                   className="footer-icon-modern"
                 />
               </a>
@@ -47,7 +56,7 @@ export default function Footer() {
                 aria-label="Facebook"
               >
                 <FontAwesomeIcon
-                  icon={['fab', 'facebook']}
+                  icon={faFacebook}
                   className="footer-icon-modern"
                 />
               </a>
@@ -59,7 +68,7 @@ export default function Footer() {
                 aria-label="Twitter"
               >
                 <FontAwesomeIcon
-                  icon={['fab', 'twitter']}
+                  icon={faTwitter}
                   className="footer-icon-modern"
                 />
               </a>

@@ -2,7 +2,10 @@ import Image from 'next/image';
 
 export default function ServicesSection() {
   return (
-    <section id="services" className="services py-5 text-white">
+    <section
+      id="services"
+      className="services scroll-mt-24 py-5 text-white"
+    >
       <div className="cc-container">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <div className="service-card-animate my-3 text-center">

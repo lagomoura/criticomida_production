@@ -15,7 +15,13 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <main className="cc-container flex min-h-[50vh] flex-col items-center justify-center gap-6 py-16 text-center">
+    <main
+      id="main-content"
+      className={
+        'cc-container flex min-h-[50vh] flex-col items-center ' +
+        'justify-center gap-6 py-16 text-center'
+      }
+    >
       <h1 className="m-0 text-2xl font-bold text-neutral-900 md:text-3xl">
         Algo salió mal
       </h1>
