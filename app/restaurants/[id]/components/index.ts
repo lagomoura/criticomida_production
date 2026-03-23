@@ -1,11 +1,17 @@
 export { default as RestaurantHeader } from './RestaurantHeader';
+export { default as RestaurantHero } from './RestaurantHero';
 export { default as ProsCons } from './ProsCons';
 export { default as DiaryEntry } from './DiaryEntry';
 export { default as PlateCard } from './PlateCard';
 export { default as PlateGallery } from './PlateGallery';
 export { default as AddPlateModal } from './AddPlateModal';
+export { default as AddDishModal } from './AddDishModal';
 export { default as AddMenuModal } from './AddMenuModal';
 export { default as MenuSection } from './MenuSection';
 export { default as PhotoGallery } from './PhotoGallery';
 export { default as Lightbox } from './Lightbox';
 export { default as LocationMap } from './LocationMap';
+export { default as DishChecklist } from './DishChecklist';
+export { default as DishChecklistItem } from './DishChecklistItem';
+export { default as StarRating } from './StarRating';
+export { default as DishReviewForm } from './DishReviewForm';

@@ -2,67 +2,40 @@
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plate, Dish, DishReview } from '@/app/lib/types';
+import { Dish, DishReview } from '@/app/lib/types';
 import {
-  RestaurantHeader,
-  ProsCons,
-  DiaryEntry,
-  PlateGallery,
-  AddPlateModal,
-  AddMenuModal,
-  MenuSection,
   PhotoGallery,
   Lightbox,
   LocationMap,
+  DishChecklist,
+  AddDishModal,
+  RestaurantHero,
 } from './components';
 import { getRestaurant } from '@/app/lib/api/restaurants';
 import { getDishes } from '@/app/lib/api/dishes';
 import { getReviews } from '@/app/lib/api/reviews';
 import { RestaurantDetail } from '@/app/lib/types';
+import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 
-// ----- Data mapping helpers -----
+// ----- Types -----
 
-function dishAndReviewsToPlate(dish: Dish, reviews: DishReview[]): Plate {
-  const firstReview = reviews[0];
-  const pros = firstReview
-    ? firstReview.pros_cons.filter((pc) => pc.type === 'pro').map((pc) => pc.text)
-    : [];
-  const cons = firstReview
-    ? firstReview.pros_cons.filter((pc) => pc.type === 'con').map((pc) => pc.text)
-    : [];
-  const images =
-    firstReview && firstReview.images.length > 0
-      ? firstReview.images
-          .sort((a, b) => a.display_order - b.display_order)
-          .map((img) => img.url)
-      : [dish.cover_image_url || '/img/food-fallback.jpg'];
-
-  return {
-    name: dish.name,
-    date: firstReview ? firstReview.date_tasted : dish.created_at.slice(0, 10),
-    time: firstReview?.time_tasted ?? undefined,
-    note: firstReview?.note ?? dish.description ?? '',
-    pros,
-    cons,
-    image: images[0],
-    images,
-    rating: firstReview ? firstReview.rating : dish.computed_rating,
-    price: dish.price_tier ?? '$$',
-    portion: firstReview?.portion_size ?? 'medium',
-    wouldOrderAgain: firstReview?.would_order_again ?? true,
-    tags: firstReview ? firstReview.tags.map((t) => t.tag) : [],
-    visitedWith: firstReview?.visited_with ?? '',
-  };
+interface DishWithReviews {
+  dish: Dish;
+  reviews: DishReview[];
 }
 
 // ----- Loading / not found states -----
 
 function LoadingState() {
   return (
-    <main id="main-content" className="cc-container py-5">
-      <div className="text-center py-12">
-        <div className="spinner-border text-primary" role="status" aria-hidden />
-        <p className="mt-3 text-neutral-600">Cargando restaurante…</p>
+    <main id="main-content" className="cc-container py-8">
+      <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
+        <div
+          className="h-10 w-10 animate-spin rounded-full border-4 border-neutral-200 border-t-[var(--mainPink)]"
+          role="status"
+          aria-label="Cargando"
+        />
+        <p className="text-neutral-500">Cargando restaurante…</p>
       </div>
     </main>
   );
@@ -70,11 +43,16 @@ function LoadingState() {
 
 function NotFoundState() {
   return (
-    <main id="main-content" className="cc-container py-5">
-      <div className="text-center">
-        <h2>No encontrado</h2>
-        <p>No se encontró información para este restaurante.</p>
-        <Link href="/" className="btn btn-primary mt-3">Volver al inicio</Link>
+    <main id="main-content" className="cc-container py-8">
+      <div className="py-16 text-center">
+        <p className="text-5xl" aria-hidden>🍽️</p>
+        <h2 className="mt-3 text-2xl font-bold text-neutral-800">Restaurante no encontrado</h2>
+        <p className="mt-1 text-neutral-500">
+          No se encontró información para este restaurante.
+        </p>
+        <Link href="/" className="btn btn-primary mt-5 inline-block">
+          Volver al inicio
+        </Link>
       </div>
     </main>
   );
@@ -85,44 +63,20 @@ function NotFoundState() {
 export default function RestaurantDetailPage() {
   const params = useParams();
   const id = params.id as string;
+  const { user } = useAuthContext();
 
   const [restaurant, setRestaurant] = useState<RestaurantDetail | null>(null);
+  const [dishItems, setDishItems] = useState<DishWithReviews[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-
-  const [plates, setPlates] = useState<Plate[]>([]);
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({
-    name: '',
-    date: '',
-    time: '',
-    images: [''],
-    note: '',
-    pros: '',
-    cons: '',
-    rating: 5,
-    price: '$$',
-    portion: 'Medium',
-    wouldOrderAgain: true,
-    tags: '',
-    visitedWith: ''
-  });
-  const [formError, setFormError] = useState('');
 
   // Gallery state
   const [gallery, setGallery] = useState<string[]>([]);
   const [galleryIdx, setGalleryIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [favorites, setFavorites] = useState<{ [idx: number]: boolean }>({});
-  const [gridImgIdx, setGridImgIdx] = useState<{ [idx: number]: number }>({});
 
-  // Menu state
-  const [menu, setMenu] = useState<{image: string, uploadDate: string} | null>(null);
-  const [showMenuModal, setShowMenuModal] = useState(false);
-  const [menuForm, setMenuForm] = useState({
-    image: '',
-    uploadDate: new Date().toISOString().split('T')[0]
-  });
+  // Add dish modal
+  const [showAddDish, setShowAddDish] = useState(false);
 
   // Fetch restaurant + dishes + reviews
   useEffect(() => {
@@ -136,7 +90,6 @@ export default function RestaurantDetailPage() {
         ]);
         setRestaurant(restaurantData);
 
-        // Fetch reviews for each dish
         const dishesWithReviews = await Promise.all(
           dishesData.map(async (dish) => {
             try {
@@ -148,12 +101,9 @@ export default function RestaurantDetailPage() {
           })
         );
 
-        const mappedPlates = dishesWithReviews.map(({ dish, reviews }) =>
-          dishAndReviewsToPlate(dish, reviews)
-        );
-        setPlates(mappedPlates);
+        setDishItems(dishesWithReviews);
 
-        // Build gallery from all review images + cover image
+        // Build photo gallery from cover + all review images
         const allImages: string[] = [];
         if (restaurantData.cover_image_url) {
           allImages.push(restaurantData.cover_image_url);
@@ -183,12 +133,17 @@ export default function RestaurantDetailPage() {
   }, [id]);
 
   // Lightbox keyboard navigation
-  const handleLightboxKey = useCallback((e: KeyboardEvent) => {
-    if (!lightboxOpen) return;
-    if (e.key === 'ArrowLeft') setGalleryIdx(idx => (idx - 1 + gallery.length) % gallery.length);
-    if (e.key === 'ArrowRight') setGalleryIdx(idx => (idx + 1) % gallery.length);
-    if (e.key === 'Escape') setLightboxOpen(false);
-  }, [lightboxOpen, gallery.length]);
+  const handleLightboxKey = useCallback(
+    (e: KeyboardEvent) => {
+      if (!lightboxOpen) return;
+      if (e.key === 'ArrowLeft')
+        setGalleryIdx((idx) => (idx - 1 + gallery.length) % gallery.length);
+      if (e.key === 'ArrowRight')
+        setGalleryIdx((idx) => (idx + 1) % gallery.length);
+      if (e.key === 'Escape') setLightboxOpen(false);
+    },
+    [lightboxOpen, gallery.length]
+  );
 
   useEffect(() => {
     if (lightboxOpen) {
@@ -204,188 +159,102 @@ export default function RestaurantDetailPage() {
     };
   }, [lightboxOpen, handleLightboxKey]);
 
-  function handleOpenModal() {
-    setForm({ name: '', date: '', time: '', images: [''], note: '', pros: '', cons: '', rating: 5, price: '$$', portion: 'Medium', wouldOrderAgain: true, tags: '', visitedWith: '' });
-    setFormError('');
-    setShowModal(true);
-  }
-  function handleCloseModal() {
-    setShowModal(false);
-  }
-
-  // Menu handlers
-  function handleOpenMenuModal() {
-    setMenuForm({
-      image: menu?.image || '',
-      uploadDate: menu?.uploadDate || new Date().toISOString().split('T')[0]
-    });
-    setShowMenuModal(true);
-  }
-
-  function handleCloseMenuModal() {
-    setShowMenuModal(false);
-  }
-
-  function handleMenuFormChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const { name, value } = e.target;
-    setMenuForm({ ...menuForm, [name]: value });
-  }
-
-  function handleMenuFormSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!menuForm.image.trim()) {
-      alert('Por favor ingresa la URL de la imagen del menú.');
-      return;
-    }
-    setMenu({
-      image: menuForm.image.trim(),
-      uploadDate: menuForm.uploadDate
-    });
-    setShowMenuModal(false);
+  // Called when a new review is submitted for a dish
+  function handleReviewAdded(dishId: string, review: DishReview) {
+    setDishItems((prev) =>
+      prev.map(({ dish, reviews }) =>
+        dish.id === dishId
+          ? {
+              dish: {
+                ...dish,
+                review_count: dish.review_count + 1,
+                // Recompute locally: average of existing + new rating
+                computed_rating:
+                  dish.review_count === 0
+                    ? review.rating
+                    : parseFloat(
+                        (
+                          (Number(dish.computed_rating) * dish.review_count + review.rating) /
+                          (dish.review_count + 1)
+                        ).toFixed(2)
+                      ),
+              },
+              reviews: [...reviews, review],
+            }
+          : { dish, reviews }
+      )
+    );
   }
 
-  function handleFormChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
-    const { name, value, type } = e.target;
-    if (type === 'checkbox') {
-      if ('checked' in e.target) {
-        setForm({ ...form, [name]: (e.target as HTMLInputElement).checked });
-      }
-    } else if (type === 'radio' && name === 'wouldOrderAgain') {
-      setForm({ ...form, wouldOrderAgain: value === 'true' });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
-  }
-
-  function handleImageChange(idx: number, value: string) {
-    setForm(form => {
-      const newImages = [...form.images];
-      newImages[idx] = value;
-      return { ...form, images: newImages };
-    });
-  }
-
-  function handleAddImageField() {
-    setForm(form => ({ ...form, images: [...form.images, ''] }));
-  }
-
-  function handleRemoveImageField(idx: number) {
-    setForm(form => {
-      const newImages = form.images.filter((_, i) => i !== idx);
-      return { ...form, images: newImages.length ? newImages : [''] };
-    });
-  }
-
-  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!form.name || !form.date) {
-      setFormError('El nombre y la fecha son obligatorios.');
-      return;
-    }
-    const images = form.images.map(img => img.trim()).filter(Boolean);
-    setPlates([
-      ...plates,
-      {
-        name: form.name,
-        date: form.date,
-        time: form.time || new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
-        image: images.length ? images[0] : '/img/food-fallback.jpg',
-        images: images.length ? images : ['/img/food-fallback.jpg'],
-        note: form.note,
-        pros: form.pros.split(',').map(s => s.trim()).filter(Boolean),
-        cons: form.cons.split(',').map(s => s.trim()).filter(Boolean),
-        rating: Number(form.rating),
-        price: form.price,
-        portion: form.portion,
-        wouldOrderAgain: !!form.wouldOrderAgain,
-        tags: form.tags.split(',').map(s => s.trim()).filter(Boolean),
-        visitedWith: form.visitedWith
-      }
-    ]);
-    setShowModal(false);
+  // Called when a new dish is created via the modal
+  function handleDishCreated(dish: Dish) {
+    setDishItems((prev) => [...prev, { dish, reviews: [] }]);
+    setShowAddDish(false);
   }
 
   if (loading) return <LoadingState />;
   if (notFound || !restaurant) return <NotFoundState />;
 
-  // Compute back navigation from category
   const categorySlug = restaurant.category?.slug ?? '';
   const categoryLabel = restaurant.category?.name ?? 'inicio';
   const backHref = categorySlug ? `/reviews/${categorySlug}` : '/';
   const backLabel = categoryLabel;
 
   return (
-    <main id="main-content" className="cc-container py-5">
-      <RestaurantHeader
-        name={restaurant.name}
-        location={restaurant.location_name}
-        rating={restaurant.computed_rating}
-        reviewCount={restaurant.review_count}
-        description={restaurant.description ?? ''}
+    <main id="main-content" className="cc-container py-6 sm:py-8">
+      {/* Restaurant hero: cover image, name, rating, location */}
+      <RestaurantHero
+        restaurant={restaurant}
+        dishCount={dishItems.length}
         backHref={backHref}
         backLabel={backLabel}
       />
 
-      <ProsCons pros={[]} cons={[]} />
-
-      <DiaryEntry diary={restaurant.description ?? ''} />
-
-      <MenuSection menu={menu} onOpenMenuModal={handleOpenMenuModal} />
-
-      <PlateGallery
-        plates={plates}
-        favorites={favorites}
-        gridImgIdx={gridImgIdx}
-        onToggleFav={(idx) => setFavorites(favs => ({ ...favs, [idx]: !favs[idx] }))}
-        onChangeImgIdx={(idx, newImgIdx) => setGridImgIdx(idxObj => ({ ...idxObj, [idx]: newImgIdx }))}
-        onOpenModal={handleOpenModal}
+      {/* PRIMARY FEATURE: dish checklist */}
+      <DishChecklist
+        items={dishItems}
+        currentUserId={user?.id ?? null}
+        onReviewAdded={handleReviewAdded}
+        onAddDish={() => setShowAddDish(true)}
       />
 
-      <AddPlateModal
-        show={showModal}
-        form={form}
-        formError={formError}
-        onClose={handleCloseModal}
-        onFormChange={handleFormChange}
-        onImageChange={handleImageChange}
-        onAddImageField={handleAddImageField}
-        onRemoveImageField={handleRemoveImageField}
-        onSubmit={handleFormSubmit}
-      />
-
-      <AddMenuModal
-        show={showMenuModal}
-        menuForm={menuForm}
-        hasExistingMenu={!!menu}
-        onClose={handleCloseMenuModal}
-        onFormChange={handleMenuFormChange}
-        onSubmit={handleMenuFormSubmit}
-      />
-
+      {/* Location */}
       <LocationMap location={restaurant.location_name} />
 
-      <PhotoGallery
-        gallery={gallery}
-        galleryIdx={galleryIdx}
-        onPrev={() => setGalleryIdx((galleryIdx - 1 + gallery.length) % gallery.length)}
-        onNext={() => setGalleryIdx((galleryIdx + 1) % gallery.length)}
-        onOpenLightbox={() => setLightboxOpen(true)}
-      />
+      {/* Photo gallery — only when there are photos */}
+      {gallery.length > 0 && (
+        <>
+          <PhotoGallery
+            gallery={gallery}
+            galleryIdx={galleryIdx}
+            onPrev={() =>
+              setGalleryIdx((galleryIdx - 1 + gallery.length) % gallery.length)
+            }
+            onNext={() => setGalleryIdx((galleryIdx + 1) % gallery.length)}
+            onOpenLightbox={() => setLightboxOpen(true)}
+          />
+          <Lightbox
+            open={lightboxOpen}
+            gallery={gallery}
+            galleryIdx={galleryIdx}
+            onClose={() => setLightboxOpen(false)}
+            onPrev={() =>
+              setGalleryIdx((galleryIdx - 1 + gallery.length) % gallery.length)
+            }
+            onNext={() => setGalleryIdx((galleryIdx + 1) % gallery.length)}
+          />
+        </>
+      )}
 
-      <Lightbox
-        open={lightboxOpen}
-        gallery={gallery}
-        galleryIdx={galleryIdx}
-        onClose={() => setLightboxOpen(false)}
-        onPrev={() => setGalleryIdx((galleryIdx - 1 + gallery.length) % gallery.length)}
-        onNext={() => setGalleryIdx((galleryIdx + 1) % gallery.length)}
-      />
-
-      <style jsx>{`
-        .card-footer-row:hover {
-          background: #fffbe7;
-        }
-      `}</style>
+      {/* Add dish modal — only shown to authenticated users */}
+      {user && (
+        <AddDishModal
+          show={showAddDish}
+          restaurantSlug={id}
+          onClose={() => setShowAddDish(false)}
+          onDishCreated={handleDishCreated}
+        />
+      )}
     </main>
   );
 }
