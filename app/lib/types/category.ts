@@ -5,6 +5,7 @@ export interface Category {
   description: string | null;
   image_url: string | null;
   display_order: number;
+  review_count: number;
   // Legacy compatibility aliases
   category?: string;
   img?: string;

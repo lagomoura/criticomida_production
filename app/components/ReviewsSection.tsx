@@ -26,7 +26,7 @@ function categoryToReviewItem(cat: Category): ReviewItem {
     title: `reseñas de ${cat.name.toLowerCase()}`,
     label: cat.name,
     description: cat.description || `Reseñas de ${cat.name.toLowerCase()}`,
-    reviewCount: cat.reviewCount ?? 0,
+    reviewCount: cat.review_count ?? cat.reviewCount ?? 0,
   };
 }
 

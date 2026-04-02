@@ -83,6 +83,12 @@ export interface UpdateReviewRequest {
   visited_with?: string;
 }
 
+export interface MyReview extends DishReview {
+  dish_name: string;
+  restaurant_name: string;
+  restaurant_slug: string;
+}
+
 /** Internal view-model used by restaurant detail sub-components. */
 export type Plate = {
   name: string;

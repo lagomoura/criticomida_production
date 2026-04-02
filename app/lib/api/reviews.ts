@@ -1,5 +1,5 @@
 import { fetchApi } from './client';
-import { DishReview, CreateReviewRequest, UpdateReviewRequest } from '../types';
+import { DishReview, MyReview, CreateReviewRequest, UpdateReviewRequest } from '../types';
 
 export async function getReviews(dishId: string): Promise<DishReview[]> {
   return fetchApi<DishReview[]>(`/api/dishes/${dishId}/reviews`);
@@ -29,4 +29,8 @@ export async function deleteReview(reviewId: string): Promise<void> {
   return fetchApi<void>(`/api/dish-reviews/${reviewId}`, {
     method: 'DELETE',
   });
+}
+
+export async function getMyReviews(): Promise<MyReview[]> {
+  return fetchApi<MyReview[]>('/api/users/me/reviews');
 }
