@@ -203,14 +203,14 @@
 }
 
 .btn-gradient {
-  background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
-  color: #333;
+  background: linear-gradient(90deg, var(--mainPink), var(--mainYellow));
+  color: var(--mainBlack);
   border: none;
-  box-shadow: 0 2px 12px 0 rgba(255, 193, 7, 0.13);
+  box-shadow: 0 2px 12px 0 rgba(239, 121, 152, 0.13);
 }
 
 .btn-gradient:hover {
-  opacity: 1;
+  background: linear-gradient(90deg, var(--mainYellow), var(--mainPink));
   filter: brightness(1.05);
   transform: translateY(-1px);
 }
@@ -1220,7 +1220,7 @@ body {
 }
 .footer-title-bold {
   font-size: 2rem;
-  font-weight: 900;
+  font-weight: 800;
   color: #fff;
   letter-spacing: 0.07em;
   text-shadow: 0 2px 8px rgba(0,0,0,0.10);
@@ -1286,7 +1286,7 @@ body {
 }
 .footer-brand-modern {
   font-size: 2.2rem;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--mainPink);
   letter-spacing: 0.08em;
   text-shadow: 0 2px 8px rgba(0,0,0,0.10);

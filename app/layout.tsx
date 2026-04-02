@@ -13,7 +13,7 @@ const sourceSans3 = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: 'Criticomida',
+  title: 'CritiComida',
   description: 'Reseñas honestas de restaurantes, bares y cafés.',
 };
 

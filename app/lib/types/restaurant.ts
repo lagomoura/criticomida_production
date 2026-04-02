@@ -19,7 +19,7 @@ export interface RestaurantDetail {
   location_name: string;
   latitude: number | null;
   longitude: number | null;
-  category_id: number;
+  category_id: number | null;
   cover_image_url: string | null;
   computed_rating: number;
   review_count: number;

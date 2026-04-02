@@ -219,7 +219,11 @@ export default function RestaurantDetailPage() {
       />
 
       {/* Location */}
-      <LocationMap location={restaurant.location_name} />
+      <LocationMap
+        location={restaurant.location_name}
+        latitude={restaurant.latitude}
+        longitude={restaurant.longitude}
+      />
 
       {/* Photo gallery — only when there are photos */}
       {gallery.length > 0 && (
