@@ -1,6 +1,16 @@
 import { fetchApi } from './client';
 import { DishReview, MyReview, CreateReviewRequest, UpdateReviewRequest } from '../types';
 
+export async function uploadReviewPhoto(dishId: string, file: File, displayOrder: number): Promise<string> {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('entity_type', 'dish_cover');
+  form.append('entity_id', dishId);
+  form.append('display_order', String(displayOrder));
+  const result = await fetchApi<{ url: string }>('/api/images/upload', { method: 'POST', body: form });
+  return result.url;
+}
+
 export async function getReviews(dishId: string): Promise<DishReview[]> {
   return fetchApi<DishReview[]>(`/api/dishes/${dishId}/reviews`);
 }

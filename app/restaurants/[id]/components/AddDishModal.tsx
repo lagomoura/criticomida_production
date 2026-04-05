@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createDish } from '@/app/lib/api/dishes';
 import { ApiError } from '@/app/lib/api/client';
-import { Dish, PriceTier } from '@/app/lib/types';
+import { Dish, DishReview, PriceTier } from '@/app/lib/types';
+import DishReviewForm from './DishReviewForm';
 
 interface AddDishModalProps {
   show: boolean;
   restaurantSlug: string;
   onClose: () => void;
-  onDishCreated: (dish: Dish) => void;
+  onDishCreated: (dish: Dish, review?: DishReview) => void;
 }
 
 export default function AddDishModal({
@@ -18,15 +19,24 @@ export default function AddDishModal({
   onClose,
   onDishCreated,
 }: AddDishModalProps) {
+  const [step, setStep] = useState<1 | 2>(1);
+  const [createdDish, setCreatedDish] = useState<Dish | null>(null);
+  // Tracks whether the parent was already notified to prevent double-add
+  const notifiedRef = useRef(false);
+
+  // Step 1 fields
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [priceTier, setPriceTier] = useState<PriceTier | ''>('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset form when modal opens
+  // Reset on open
   useEffect(() => {
     if (show) {
+      setStep(1);
+      setCreatedDish(null);
+      notifiedRef.current = false;
       setName('');
       setDescription('');
       setPriceTier('');
@@ -38,13 +48,24 @@ export default function AddDishModal({
   useEffect(() => {
     if (!show) return;
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') handleClose();
     }
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [show, onClose]);
+  }, [show]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function notify(dish: Dish, review?: DishReview) {
+    if (notifiedRef.current) return;
+    notifiedRef.current = true;
+    onDishCreated(dish, review);
+  }
+
+  function handleClose() {
+    if (createdDish) notify(createdDish);
+    onClose();
+  }
+
+  async function handleSubmitDish(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!name.trim()) return;
     setError(null);
@@ -55,8 +76,8 @@ export default function AddDishModal({
         description: description.trim() || undefined,
         price_tier: priceTier || undefined,
       });
-      onDishCreated(dish);
-      onClose();
+      setCreatedDish(dish);
+      setStep(2);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(typeof err.detail === 'string' ? err.detail : 'No se pudo agregar el plato.');
@@ -68,6 +89,16 @@ export default function AddDishModal({
     }
   }
 
+  function handleReviewSuccess(review: DishReview) {
+    notify(createdDish!, review);
+    onClose();
+  }
+
+  function handleSkipReview() {
+    notify(createdDish!);
+    onClose();
+  }
+
   if (!show) return null;
 
   return (
@@ -76,100 +107,120 @@ export default function AddDishModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="add-dish-modal-title"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => { if (e.target === e.currentTarget && step === 1) handleClose(); }}
     >
-      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div className={`w-full overflow-hidden rounded-2xl bg-white shadow-2xl ${step === 2 ? 'max-w-2xl' : 'max-w-md'}`}>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-4">
-          <h2 id="add-dish-modal-title" className="text-lg font-semibold text-neutral-900">
-            Agregar plato al menú
-          </h2>
+          <div>
+            {step === 2 && (
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--mainPink)]">
+                Plato agregado
+              </p>
+            )}
+            <h2 id="add-dish-modal-title" className="text-lg font-semibold text-neutral-900">
+              {step === 1 ? 'Agregar plato al menú' : `¿Querés reseñar "${createdDish?.name}"?`}
+            </h2>
+          </div>
           <button
             type="button"
             className="cc-btn-close"
             aria-label="Cerrar"
-            onClick={onClose}
+            onClick={handleClose}
           >
             ×
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-4 px-5 py-4">
-            <div>
-              <label htmlFor="dish-name" className="form-label">
-                Nombre del plato *
-              </label>
-              <input
-                id="dish-name"
-                type="text"
-                className="form-control"
-                placeholder="Ej: Milanesa napolitana"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-                disabled={submitting}
-                autoFocus
-              />
+        {/* Step 1 — dish form */}
+        {step === 1 && (
+          <form onSubmit={handleSubmitDish}>
+            <div className="flex flex-col gap-4 px-5 py-4">
+              <div>
+                <label htmlFor="dish-name" className="form-label">
+                  Nombre del plato *
+                </label>
+                <input
+                  id="dish-name"
+                  type="text"
+                  className="form-control"
+                  placeholder="Ej: Milanesa napolitana"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  required
+                  disabled={submitting}
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label htmlFor="dish-description" className="form-label">
+                  Descripción
+                </label>
+                <textarea
+                  id="dish-description"
+                  className="form-control"
+                  rows={2}
+                  placeholder="Descripción breve del plato (opcional)"
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  disabled={submitting}
+                />
+              </div>
+              <div>
+                <label htmlFor="dish-price" className="form-label">
+                  Rango de precio
+                </label>
+                <select
+                  id="dish-price"
+                  className="form-select"
+                  value={priceTier}
+                  onChange={e => setPriceTier(e.target.value as PriceTier | '')}
+                  disabled={submitting}
+                >
+                  <option value="">Sin especificar</option>
+                  <option value="$">$ — Económico</option>
+                  <option value="$$">$$ — Moderado</option>
+                  <option value="$$$">$$$ — Premium</option>
+                </select>
+              </div>
+              {error && (
+                <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+                  {error}
+                </p>
+              )}
             </div>
-            <div>
-              <label htmlFor="dish-description" className="form-label">
-                Descripción
-              </label>
-              <textarea
-                id="dish-description"
-                className="form-control"
-                rows={2}
-                placeholder="Descripción breve del plato (opcional)"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                disabled={submitting}
-              />
-            </div>
-            <div>
-              <label htmlFor="dish-price" className="form-label">
-                Rango de precio
-              </label>
-              <select
-                id="dish-price"
-                className="form-select"
-                value={priceTier}
-                onChange={e => setPriceTier(e.target.value as PriceTier | '')}
+
+            <div className="flex justify-end gap-2 border-t border-neutral-200 px-5 py-4">
+              <button
+                type="button"
+                className="btn btn-light btn-sm"
+                onClick={onClose}
                 disabled={submitting}
               >
-                <option value="">Sin especificar</option>
-                <option value="$">$ — Económico</option>
-                <option value="$$">$$ — Moderado</option>
-                <option value="$$$">$$$ — Premium</option>
-              </select>
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary btn-sm"
+                disabled={submitting || !name.trim()}
+              >
+                {submitting ? 'Agregando…' : 'Agregar plato'}
+              </button>
             </div>
-            {error && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
-                {error}
-              </p>
-            )}
-          </div>
+          </form>
+        )}
 
-          {/* Footer */}
-          <div className="flex justify-end gap-2 border-t border-neutral-200 px-5 py-4">
-            <button
-              type="button"
-              className="btn btn-light btn-sm"
-              onClick={onClose}
-              disabled={submitting}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary btn-sm"
-              disabled={submitting || !name.trim()}
-            >
-              {submitting ? 'Agregando…' : 'Agregar plato'}
-            </button>
+        {/* Step 2 — optional review */}
+        {step === 2 && createdDish && (
+          <div className="overflow-y-auto px-5 py-4" style={{ maxHeight: '70vh' }}>
+            <DishReviewForm
+              dishId={createdDish.id}
+              onSuccess={handleReviewSuccess}
+              onCancel={handleSkipReview}
+              cancelLabel="Saltar por ahora"
+            />
           </div>
-        </form>
+        )}
       </div>
     </div>
   );

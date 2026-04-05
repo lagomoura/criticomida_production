@@ -1,15 +1,15 @@
 "use client";
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dish, DishReview } from '@/app/lib/types';
 import {
-  PhotoGallery,
-  Lightbox,
   LocationMap,
   DishChecklist,
   AddDishModal,
   RestaurantHero,
+  RestaurantRatingSection,
+  TopReviewsGrid,
 } from './components';
 import { getRestaurant } from '@/app/lib/api/restaurants';
 import { getDishes } from '@/app/lib/api/dishes';
@@ -70,10 +70,6 @@ export default function RestaurantDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  // Gallery state
-  const [gallery, setGallery] = useState<string[]>([]);
-  const [galleryIdx, setGalleryIdx] = useState(0);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   // Add dish modal
   const [showAddDish, setShowAddDish] = useState(false);
@@ -103,21 +99,6 @@ export default function RestaurantDetailPage() {
 
         setDishItems(dishesWithReviews);
 
-        // Build photo gallery from cover + all review images
-        const allImages: string[] = [];
-        if (restaurantData.cover_image_url) {
-          allImages.push(restaurantData.cover_image_url);
-        }
-        for (const { reviews } of dishesWithReviews) {
-          for (const review of reviews) {
-            for (const img of review.images) {
-              if (!allImages.includes(img.url)) {
-                allImages.push(img.url);
-              }
-            }
-          }
-        }
-        setGallery(allImages);
       } catch (err: unknown) {
         const status = (err as { status?: number })?.status;
         if (status === 404) {
@@ -132,32 +113,6 @@ export default function RestaurantDetailPage() {
     void load();
   }, [id]);
 
-  // Lightbox keyboard navigation
-  const handleLightboxKey = useCallback(
-    (e: KeyboardEvent) => {
-      if (!lightboxOpen) return;
-      if (e.key === 'ArrowLeft')
-        setGalleryIdx((idx) => (idx - 1 + gallery.length) % gallery.length);
-      if (e.key === 'ArrowRight')
-        setGalleryIdx((idx) => (idx + 1) % gallery.length);
-      if (e.key === 'Escape') setLightboxOpen(false);
-    },
-    [lightboxOpen, gallery.length]
-  );
-
-  useEffect(() => {
-    if (lightboxOpen) {
-      window.addEventListener('keydown', handleLightboxKey);
-      document.body.style.overflow = 'hidden';
-    } else {
-      window.removeEventListener('keydown', handleLightboxKey);
-      document.body.style.overflow = '';
-    }
-    return () => {
-      window.removeEventListener('keydown', handleLightboxKey);
-      document.body.style.overflow = '';
-    };
-  }, [lightboxOpen, handleLightboxKey]);
 
   // Called when a new review is submitted for a dish
   function handleReviewAdded(dishId: string, review: DishReview) {
@@ -186,9 +141,9 @@ export default function RestaurantDetailPage() {
     );
   }
 
-  // Called when a new dish is created via the modal
-  function handleDishCreated(dish: Dish) {
-    setDishItems((prev) => [...prev, { dish, reviews: [] }]);
+  // Called when a new dish is created via the modal (review is optional)
+  function handleDishCreated(dish: Dish, review?: DishReview) {
+    setDishItems((prev) => [...prev, { dish, reviews: review ? [review] : [] }]);
     setShowAddDish(false);
   }
 
@@ -218,6 +173,12 @@ export default function RestaurantDetailPage() {
         onAddDish={() => setShowAddDish(true)}
       />
 
+      {/* Restaurant-level dimension ratings */}
+      <RestaurantRatingSection
+        restaurantSlug={id}
+        currentUserId={user?.id ?? null}
+      />
+
       {/* Location */}
       <LocationMap
         location={restaurant.location_name}
@@ -225,30 +186,8 @@ export default function RestaurantDetailPage() {
         longitude={restaurant.longitude}
       />
 
-      {/* Photo gallery — only when there are photos */}
-      {gallery.length > 0 && (
-        <>
-          <PhotoGallery
-            gallery={gallery}
-            galleryIdx={galleryIdx}
-            onPrev={() =>
-              setGalleryIdx((galleryIdx - 1 + gallery.length) % gallery.length)
-            }
-            onNext={() => setGalleryIdx((galleryIdx + 1) % gallery.length)}
-            onOpenLightbox={() => setLightboxOpen(true)}
-          />
-          <Lightbox
-            open={lightboxOpen}
-            gallery={gallery}
-            galleryIdx={galleryIdx}
-            onClose={() => setLightboxOpen(false)}
-            onPrev={() =>
-              setGalleryIdx((galleryIdx - 1 + gallery.length) % gallery.length)
-            }
-            onNext={() => setGalleryIdx((galleryIdx + 1) % gallery.length)}
-          />
-        </>
-      )}
+      {/* Top reviews showcase */}
+      <TopReviewsGrid items={dishItems} />
 
       {/* Add dish modal — only shown to authenticated users */}
       {user && (

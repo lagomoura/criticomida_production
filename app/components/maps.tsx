@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
 
 interface MapRestaurant {
   id: number | string;
@@ -19,19 +19,42 @@ const DEFAULT_CENTER = { lat: -34.6037, lng: -58.3816 };
 
 function getPosition(r: MapRestaurant): { lat: number; lng: number } | null {
   if (r.position) return r.position;
-  if (r.latitude != null && r.longitude != null) {
-    return { lat: r.latitude, lng: r.longitude };
-  }
+  const lat = r.latitude != null ? Number(r.latitude) : NaN;
+  const lng = r.longitude != null ? Number(r.longitude) : NaN;
+  if (isFinite(lat) && isFinite(lng)) return { lat, lng };
+  return null;
+}
+
+// Fits map bounds to the given positions — only re-runs when positions change by value.
+function BoundsFitter({ positions }: { positions: { lat: number; lng: number }[] }) {
+  const map = useMap();
+  const prevKeyRef = useRef('');
+
+  useEffect(() => {
+    if (!map || positions.length === 0) return;
+    const key = positions.map(p => `${p.lat},${p.lng}`).join('|');
+    if (key === prevKeyRef.current) return;
+    prevKeyRef.current = key;
+
+    if (positions.length === 1) {
+      map.setCenter(positions[0]);
+      map.setZoom(14);
+      return;
+    }
+    const bounds = new google.maps.LatLngBounds();
+    positions.forEach(p => bounds.extend(p));
+    map.fitBounds(bounds, 60);
+  }, [map, positions]);
+
   return null;
 }
 
 const MapComponent = ({ restaurants }: MapComponentProps) => {
-  const restaurantsWithPos = restaurants.filter((r) => getPosition(r) !== null);
-
-  const mapCenter =
-    restaurantsWithPos.length > 0
-      ? (getPosition(restaurantsWithPos[0]) ?? DEFAULT_CENTER)
-      : DEFAULT_CENTER;
+  const positions = useMemo(() => {
+    return restaurants
+      .map(r => getPosition(r))
+      .filter((p): p is { lat: number; lng: number } => p !== null);
+  }, [restaurants]);
 
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
@@ -41,9 +64,11 @@ const MapComponent = ({ restaurants }: MapComponentProps) => {
           'overflow-hidden rounded-xl border border-neutral-200 shadow-sm'
         }
       >
-        <Map defaultCenter={mapCenter} defaultZoom={10}>
-          {restaurantsWithPos.map((restaurant) => {
-            const pos = getPosition(restaurant)!;
+        <Map defaultCenter={DEFAULT_CENTER} defaultZoom={10}>
+          <BoundsFitter positions={positions} />
+          {restaurants.map((restaurant) => {
+            const pos = getPosition(restaurant);
+            if (!pos) return null;
             return (
               <Marker
                 key={restaurant.id}

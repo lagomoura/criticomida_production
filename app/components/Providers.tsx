@@ -2,10 +2,13 @@
 
 import { ReactNode } from 'react';
 import { AuthProvider } from '../lib/contexts/AuthContext';
+import { ThemeProvider } from '../lib/contexts/ThemeContext';
+import ChatWidget from './ChatWidget';
 import Navbar from './Navbar';
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <a
         href="#main-content"
@@ -20,6 +23,8 @@ export default function Providers({ children }: { children: ReactNode }) {
       </a>
       <Navbar />
       {children}
+      <ChatWidget />
     </AuthProvider>
+    </ThemeProvider>
   );
 }

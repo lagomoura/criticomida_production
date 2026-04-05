@@ -105,7 +105,10 @@ export default function ReviewsSection({ categories }: ReviewsSectionProps) {
   const rippleRefs = useRef<RippleRefs>({});
   const tooltipTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const reviewItems: ReviewItem[] = categories.map(categoryToReviewItem);
+  // "otros" is an internal staging category — hide it from the public view
+  const reviewItems: ReviewItem[] = categories
+    .filter((cat) => cat.slug !== 'otros')
+    .map(categoryToReviewItem);
 
   useEffect(() => {
     const nextSort = parseSortFromParams(searchParams);

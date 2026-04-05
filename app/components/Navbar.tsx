@@ -23,6 +23,7 @@ import {
 } from 'react';
 import { useAuthContext } from '../lib/contexts/AuthContext';
 import { ApiError } from '../lib/api/client';
+import ThemeToggle from './ThemeToggle';
 
 type AuthTab = 'login' | 'register';
 
@@ -268,6 +269,7 @@ export default function Navbar() {
               'md:gap-3'
             }
           >
+            <ThemeToggle />
             {isLoading ? (
               <div
                 className="h-9 w-28 max-w-full rounded-lg bg-neutral-200/80 animate-pulse"
@@ -346,7 +348,7 @@ export default function Navbar() {
           <div
             className={
               'relative z-10 w-full max-w-md overscroll-contain ' +
-              'rounded-2xl border border-neutral-200 bg-white p-6 shadow-xl'
+              'rounded-2xl border border-neutral-300 bg-neutral-100 p-6 shadow-xl'
             }
             role="dialog"
             aria-modal="true"
@@ -382,7 +384,7 @@ export default function Navbar() {
                 className={
                   'flex-1 rounded-md py-1.5 text-sm font-semibold transition-colors ' +
                   (activeTab === 'login'
-                    ? 'bg-white text-main-pink shadow-sm'
+                    ? 'bg-neutral-100 text-main-pink shadow-sm'
                     : 'text-neutral-500 hover:text-neutral-700')
                 }
                 onClick={() => handleTabChange('login')}
@@ -395,7 +397,7 @@ export default function Navbar() {
                 className={
                   'flex-1 rounded-md py-1.5 text-sm font-semibold transition-colors ' +
                   (activeTab === 'register'
-                    ? 'bg-white text-main-pink shadow-sm'
+                    ? 'bg-neutral-100 text-main-pink shadow-sm'
                     : 'text-neutral-500 hover:text-neutral-700')
                 }
                 onClick={() => handleTabChange('register')}

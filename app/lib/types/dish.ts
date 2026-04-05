@@ -53,6 +53,7 @@ export interface DishReview {
   portion_size: PortionSize | null;
   would_order_again: boolean | null;
   visited_with: string | null;
+  is_anonymous: boolean;
   created_at: string;
   updated_at: string;
   pros_cons: DishReviewProsCons[];
@@ -68,6 +69,7 @@ export interface CreateReviewRequest {
   portion_size?: PortionSize;
   would_order_again?: boolean;
   visited_with?: string;
+  is_anonymous?: boolean;
   pros_cons?: { type: DishReviewProsConsType; text: string }[];
   tags?: { tag: string }[];
   images?: { url: string; alt_text?: string; display_order?: number }[];
@@ -81,6 +83,7 @@ export interface UpdateReviewRequest {
   portion_size?: PortionSize;
   would_order_again?: boolean;
   visited_with?: string;
+  is_anonymous?: boolean;
 }
 
 export interface MyReview extends DishReview {

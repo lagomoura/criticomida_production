@@ -15,3 +15,5 @@ export { default as DishChecklist } from './DishChecklist';
 export { default as DishChecklistItem } from './DishChecklistItem';
 export { default as StarRating } from './StarRating';
 export { default as DishReviewForm } from './DishReviewForm';
+export { default as RestaurantRatingSection } from './RestaurantRatingSection';
+export { default as TopReviewsGrid } from './TopReviewsGrid';

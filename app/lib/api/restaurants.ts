@@ -1,5 +1,5 @@
 import { fetchApi } from './client';
-import { RestaurantDetail, RestaurantListItem } from '../types';
+import type { RestaurantDetail, RestaurantListItem, CreateRestaurantRequest } from '../types';
 import { PaginatedResponse } from '../types/common';
 
 export interface GetRestaurantsParams {
@@ -31,4 +31,11 @@ export async function getRestaurants(
 
 export async function getRestaurant(slug: string): Promise<RestaurantDetail> {
   return fetchApi<RestaurantDetail>(`/api/restaurants/${slug}`);
+}
+
+export async function createRestaurant(data: CreateRestaurantRequest): Promise<RestaurantDetail> {
+  return fetchApi<RestaurantDetail>('/api/restaurants', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
 }

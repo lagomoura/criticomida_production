@@ -3,6 +3,9 @@
 /* Explicit scan roots so utilities always generate (Next / monorepo safe). */
 @source './**/*.{js,ts,jsx,tsx}';
 
+/* Class-based dark mode: .dark on <html> enables dark: utilities */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --mainPink: #ef7998;
   --mainYellow: rgb(249, 228, 148);
@@ -44,6 +47,16 @@
   --color-primary-saffron: var(--primary-saffron);
   --color-accent-berry: var(--accent-berry);
   --color-accent-mint: var(--accent-mint);
+  /* Map neutral scale to CSS vars so dark mode updates all bg/text-neutral-* utilities */
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-900: var(--neutral-900);
   --font-sans: var(--font-source-sans-3), ui-sans-serif, system-ui, sans-serif;
   /* Same family as body: clear hierarchy via weight/size, not novelty (Krug). */
   --font-display: var(--font-source-sans-3), ui-sans-serif, system-ui,
@@ -1752,4 +1765,121 @@ body {
     opacity: 1 !important;
     transform: none !important;
   }
+}
+/* Google Places Autocomplete dropdown — must appear above modals (z-[1050]) */
+.pac-container {
+  z-index: 1100 !important;
+}
+
+/* Google PlaceAutocompleteElement web component */
+gmp-place-autocomplete {
+  width: 100%;
+}
+
+/* ============================================================
+   Dark Mode — .dark class on <html>
+   CSS variable overrides cascade automatically to all classes
+   that consume these vars (cc-card, form-*, btn-*, etc.)
+   ============================================================ */
+
+body {
+  background-color: var(--neutral-100);
+  color: var(--neutral-900);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Inverted neutral scale */
+  --neutral-100: #1a1b1e;
+  --neutral-200: #25262b;
+  --neutral-300: #373a40;
+  --neutral-400: #4a4d55;
+  --neutral-500: #5c6070;
+  --neutral-600: #909296;
+  --neutral-700: #c1c2c5;
+  --neutral-800: #d1d2d5;
+  --neutral-900: #e8e9ec;
+
+  /* Legacy vars used throughout global CSS classes */
+  --mainWhite: #1a1b1e;
+  --mainBlack: #e8e9ec;
+  --mainGrey: rgb(37, 38, 43);
+  --yellowTrans: rgba(50, 45, 20, 0.4);
+}
+
+/* Navbar glassy bg: hardcoded rgba white → dark equivalent */
+.dark .glassy-navbar {
+  background: rgba(26, 27, 30, 0.88);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Review tooltip: hardcoded white → dark */
+.dark .review-description-tooltip {
+  background: rgba(37, 38, 43, 0.97);
+  color: var(--neutral-900);
+}
+
+/* Alert-danger: red tones readable on dark bg */
+.dark .alert-danger {
+  background: #3d1515;
+  color: #ffb3b3;
+  border-color: #6b2020;
+}
+
+/* Status colors adjusted for dark backgrounds */
+.dark .text-success {
+  color: #69db7c;
+}
+.dark .text-danger {
+  color: #ff8080;
+}
+
+/* Inputs and selects with hardcoded white bg */
+.dark .form-control,
+.dark .form-select,
+.dark .review-sort-dropdown {
+  background-color: var(--neutral-200);
+  color: var(--neutral-900);
+  border-color: var(--neutral-300);
+  color-scheme: dark;
+}
+
+/* Gallery cards with hardcoded white */
+.dark .gallery-card,
+.dark .gallery-card-info {
+  background: var(--neutral-200);
+  border-color: var(--neutral-300);
+}
+
+/* Gallery category badge: hardcoded white bg */
+.dark .gallery-category-badge {
+  background: rgba(37, 38, 43, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Filters panel: hardcoded white bg */
+.dark .wow-filters-animate {
+  background: rgba(37, 38, 43, 0.88);
+}
+.dark .wow-filters-animate .form-control,
+.dark .wow-filters-animate .form-select {
+  background: rgba(55, 58, 64, 0.95);
+  color: var(--neutral-900);
+}
+.dark .wow-filters-animate .btn-ghost.btn-sm {
+  background: rgba(55, 58, 64, 0.92);
+  color: var(--neutral-700);
+}
+
+/* Section backgrounds */
+.dark #header {
+  background-color: var(--neutral-200);
+}
+.dark .footer-contact {
+  background: var(--neutral-200);
+}
+.dark .reviews {
+  background: rgba(50, 45, 20, 0.5);
 }
