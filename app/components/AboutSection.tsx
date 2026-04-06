@@ -11,10 +11,7 @@ export default function AboutSection() {
               Sobre <strong className="banner-title">nosotros</strong>
             </h2>
             <p className="about-text my-4 w-full max-w-md text-muted md:w-3/4">
-              Somos CritiComida, hecho por una familia que comparten opiniones
-              reales sobre los mejores (¡y peores!) lugares para comer. Unite a
-              descubrir sabores, recomendar tus favoritos y ayude a otros a
-              elegir dónde darse un buen gusto. ¡Acá la posta la tenés vos!
+              CritiComida es la comunidad de personas reales que reseñan cada plato, en cada lugar. Miles de opiniones auténticas de usuarios de todo el país para que descubras qué pedir y dónde probar algo nuevo. Sumate a compartir tus experiencias, recomendá tus favoritos y ayudá a decidir a miles de comensales antes de salir a comer. Acá la recomendación la hace la gente, plato por plato.
             </p>
             <Link
               href="/#reviews"

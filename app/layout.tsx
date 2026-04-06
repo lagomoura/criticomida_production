@@ -1,20 +1,29 @@
 import type { Metadata, Viewport } from 'next';
-import { Source_Sans_3 } from 'next/font/google';
+import { DM_Sans, Cormorant_Garamond } from 'next/font/google';
 import './fontawesome';
 import './globals.css';
 import Providers from './components/Providers';
 
-/** Legible sans for UI + reading (Krug: scanability, zero guesswork). */
-const sourceSans3 = Source_Sans_3({
+/** UI sans-serif — legible, contemporary, zero ego. */
+const dmSans = DM_Sans({
   subsets: ['latin'],
-  weight: ['400', '600', '700', '800'],
-  variable: '--font-source-sans-3',
+  weight: ['300', '400', '500'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+});
+
+/** Display serif — editorial authority for dish names and headlines. */
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['300', '400', '500'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
   title: 'CritiComida',
-  description: 'Reseñas honestas de restaurantes, bares y cafés.',
+  description: 'Cada plato, su reseña.',
 };
 
 export const viewport: Viewport = {
@@ -29,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className={`${sourceSans3.variable} antialiased`}>
+      <body className={`${dmSans.variable} ${cormorantGaramond.variable} antialiased`}>
         {/* Inline script runs before hydration to avoid flash of wrong theme */}
         <script
           dangerouslySetInnerHTML={{

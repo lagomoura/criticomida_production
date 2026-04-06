@@ -19,12 +19,10 @@ export default function ServicesSection() {
                 />
               </div>
               <h6 className="service-title my-3 uppercase">
-                leé reseñas honestas
+                millones de reseñas de platos
               </h6>
               <p className="service-text mx-auto w-full max-w-xs text-left md:w-3/4">
-                Accedé a críticas detalladas y sinceras sobre restaurantes,
-                bares y cafés de Argentina. Probamos todo para que vos elijas
-                con confianza.
+                Consultá opiniones auténticas de miles de platos en todo el país. Descubrí lo mejor (y lo peor) de cada restaurante y evitá sorpresas: todas las reseñas son de comensales reales.
               </p>
             </div>
           </div>
@@ -33,18 +31,16 @@ export default function ServicesSection() {
               <div className="service-icon-animate mb-2 flex items-center justify-center">
                 <Image
                   src="/img/delivery.png"
-                  alt="Buscar restaurantes"
+                  alt="Buscá por plato o lugar"
                   width={80}
                   height={80}
                 />
               </div>
               <h6 className="service-title my-3 uppercase">
-                buscá y descubrí
+                buscá por plato, lugar o estilo
               </h6>
               <p className="service-text mx-auto w-full max-w-xs text-left md:w-3/4">
-                Encontrá restaurantes, platos y estilos de comida según tu
-                antojo. Filtrá por barrio, tipo de cocina o recomendación de
-                la comunidad.
+                Filtrá por nombre de plato, restaurante, tipo de cocina, precio, barrio y más. Encontrá exactamente lo que querés comer, estés donde estés.
               </p>
             </div>
           </div>
@@ -53,18 +49,16 @@ export default function ServicesSection() {
               <div className="service-icon-animate mb-2 flex items-center justify-center">
                 <Image
                   src="/img/vending.png"
-                  alt="Recomendaciones"
+                  alt="Ranking confiable"
                   width={80}
                   height={80}
                 />
               </div>
               <h6 className="service-title my-3 uppercase">
-                recomendaciones reales
+                ranking y comunidad activa
               </h6>
               <p className="service-text mx-auto w-full max-w-xs text-left md:w-3/4">
-                Descubrí los lugares favoritos de la comunidad, las joyitas
-                ocultas y los platos que no te podés perder. ¡Sumate y
-                recomendá vos también!
+                Descubrí los platos top de cada ciudad, los restaurantes más valorados y hasta joyitas ocultas recomendadas por la comunidad. Sumá tus propias reseñas y formá parte de la guía gastronómica más grande del país.
               </p>
             </div>
           </div>
