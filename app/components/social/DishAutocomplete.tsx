@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUtensils, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { fetchApi } from '@/app/lib/api/client';
@@ -39,6 +39,7 @@ export default function DishAutocomplete({
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
 
+  const listboxId = useId();
   const debounceRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -179,6 +180,7 @@ export default function DishAutocomplete({
           autoComplete="off"
           aria-expanded={open}
           aria-autocomplete="list"
+          aria-controls={listboxId}
           role="combobox"
           className={cn(
             'h-10 w-full rounded-md border bg-surface-card pl-9 pr-9 font-sans text-sm text-text-primary',
@@ -213,6 +215,7 @@ export default function DishAutocomplete({
       {open && !value && (results.length > 0 || query.trim().length >= 2) && (
         <ul
           role="listbox"
+          id={listboxId}
           className="absolute inset-x-0 top-full z-20 mt-1 max-h-72 overflow-auto rounded-xl border border-border-default bg-surface-card py-1 shadow-lg"
         >
           {results.map((d, i) => (

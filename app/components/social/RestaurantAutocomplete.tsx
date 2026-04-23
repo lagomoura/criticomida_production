@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass, faLocationDot, faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -76,6 +76,7 @@ function AutocompleteInner({
   const [activeIndex, setActiveIndex] = useState(-1);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
+  const listboxId = useId();
   const debounceRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -248,6 +249,7 @@ function AutocompleteInner({
           autoComplete="off"
           aria-expanded={open}
           aria-autocomplete="list"
+          aria-controls={listboxId}
           role="combobox"
           className={cn(
             'h-10 w-full rounded-md border bg-surface-card pl-9 pr-9 font-sans text-sm text-text-primary',
@@ -286,6 +288,7 @@ function AutocompleteInner({
       {open && predictions.length > 0 && !value && (
         <ul
           role="listbox"
+          id={listboxId}
           className="absolute inset-x-0 top-full z-20 mt-1 max-h-72 overflow-auto rounded-xl border border-border-default bg-surface-card py-1 shadow-lg"
         >
           {predictions.map((p, i) => (

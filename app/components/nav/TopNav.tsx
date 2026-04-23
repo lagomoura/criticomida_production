@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faArrowTrendUp,
   faBell,
   faHouse,
   faMagnifyingGlass,
@@ -59,6 +60,7 @@ export default function TopNav({ onOpenAuthModal, unreadCount = 0 }: TopNavProps
         <ul className="mx-auto flex list-none items-center gap-1 p-0" role="list">
           <NavLink href="/" icon={faHouse} label="Inicio" active={isActive('/')} />
           <NavLink href="/search" icon={faMagnifyingGlass} label="Buscar" active={isActive('/search')} />
+          <NavLink href="/trending" icon={faArrowTrendUp} label="Trending" active={isActive('/trending')} />
           <li>
             <button
               type="button"
