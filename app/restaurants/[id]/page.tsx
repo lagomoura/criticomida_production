@@ -152,7 +152,7 @@ export default function RestaurantDetailPage() {
 
   const categorySlug = restaurant.category?.slug ?? '';
   const categoryLabel = restaurant.category?.name ?? 'inicio';
-  const backHref = categorySlug ? `/reviews/${categorySlug}` : '/';
+  const backHref = categorySlug ? `/categorias/${categorySlug}` : '/';
   const backLabel = categoryLabel;
 
   return (

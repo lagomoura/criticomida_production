@@ -13,6 +13,38 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  async redirects() {
+    // Legacy editorial category URLs → new social path. Only the known slugs
+    // redirect; anything else under /reviews/* resolves to the social detail
+    // route (/reviews/[id]).
+    const legacySlugs = [
+      'dulces',
+      'brunchs',
+      'desayunos',
+      'mexico-food',
+      'japan-food',
+      'arabic-food',
+      'israelfood',
+      'thaifood',
+      'koreanfood',
+      'chinafood',
+      'parrillas',
+      'brazilfood',
+      'burguers',
+      'helados',
+      'peru-food',
+    ];
+    return [
+      {
+        source: `/reviews/:slug(${legacySlugs.join('|')})`,
+        destination: '/categorias/:slug',
+        // 307 en lugar de 308: los browsers cachean 308 de forma agresiva y
+        // cambios posteriores al pattern dejan a los usuarios atrapados en
+        // redirects viejos. Para slugs editoriales legacy alcanza con 307.
+        permanent: false,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
@@ -34,6 +66,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'maps.googleapis.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
         pathname: '/**',
       },
     ],

@@ -52,6 +52,44 @@
   --neutral-700: #3A3530;                   /* texto de soporte */
   --neutral-800: var(--color-carbon-mid);   /* texto UI */
   --neutral-900: var(--color-carbon);       /* texto principal */
+
+  /* ── Tokens semánticos (capa de consumo para componentes sociales) ── */
+  /* Los tokens --text-* y --surface-* se apoyan en --neutral-* porque esa     */
+  /* escala ya se invierte en .dark; los --action-* usan --color-* de marca    */
+  /* (cromáticos, no cambian en dark). Ver docs/brand-identity-v2.md §11.1.   */
+
+  /* Texto */
+  --text-primary:   var(--neutral-900);   /* cuerpo principal, títulos */
+  --text-secondary: var(--neutral-700);   /* subtítulos, labels */
+  --text-muted:     var(--neutral-600);   /* metadata, timestamps, hint */
+  --text-disabled:  var(--neutral-500);
+  --text-inverse:   var(--color-white);   /* sobre fondos de marca (azafrán/páprika); fijo en ambos temas */
+
+  /* Superficies */
+  --surface-page:   var(--neutral-200);   /* fondo de página */
+  --surface-card:   var(--neutral-100);   /* cards, modales, inputs */
+  --surface-subtle: var(--neutral-300);   /* hover bg, chips, dividers sutiles */
+  --surface-raised: var(--neutral-100);   /* card con sombra (= card, sema redundante) */
+
+  /* Bordes */
+  --border-subtle:  var(--neutral-300);
+  --border-default: var(--neutral-400);
+  --border-strong:  var(--neutral-500);
+
+  /* Acciones — siempre cromáticos (no invierten en dark) */
+  --action-primary:       var(--color-azafran);       /* CTAs, links, énfasis */
+  --action-primary-hover: var(--color-canela);        /* hover de primary */
+  --action-secondary:     var(--color-albahaca);      /* confirmaciones, follow activo */
+  --action-highlight:     var(--color-azafran-light); /* ratings, unread, guardar */
+  --action-danger:        var(--color-paprika);       /* errores, report, delete */
+
+  /* Estados sociales (selected = activo) */
+  --state-like-on:   var(--color-paprika);
+  --state-save-on:   var(--color-azafran);
+  --state-follow-on: var(--color-albahaca);
+
+  /* Focus ring (consumir como box-shadow) */
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-azafran) 35%, transparent);
 }
 
 @theme inline {
@@ -76,6 +114,25 @@
   --color-neutral-700: var(--neutral-700);
   --color-neutral-800: var(--neutral-800);
   --color-neutral-900: var(--neutral-900);
+  /* ── Tokens semánticos (generan utilidades Tailwind: text-text-primary,   */
+  /*    bg-surface-card, border-border-default, text-action-primary, etc.)   */
+  --color-text-primary:         var(--text-primary);
+  --color-text-secondary:       var(--text-secondary);
+  --color-text-muted:           var(--text-muted);
+  --color-text-disabled:        var(--text-disabled);
+  --color-text-inverse:         var(--text-inverse);
+  --color-surface-page:         var(--surface-page);
+  --color-surface-card:         var(--surface-card);
+  --color-surface-subtle:       var(--surface-subtle);
+  --color-surface-raised:       var(--surface-raised);
+  --color-border-subtle:        var(--border-subtle);
+  --color-border-default:       var(--border-default);
+  --color-border-strong:        var(--border-strong);
+  --color-action-primary:       var(--action-primary);
+  --color-action-primary-hover: var(--action-primary-hover);
+  --color-action-secondary:     var(--action-secondary);
+  --color-action-highlight:     var(--action-highlight);
+  --color-action-danger:        var(--action-danger);
   /* ── Tipografía v2 ── */
   --font-sans: var(--font-dm-sans), 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;

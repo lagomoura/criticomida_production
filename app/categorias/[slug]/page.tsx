@@ -10,19 +10,19 @@ import { RestaurantListItem } from '@/app/lib/types';
 import CategoryPageClient from './CategoryPageClient';
 
 interface CategoryPageProps {
-  params: Promise<{ category: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
-  const { category } = await params;
+  const { slug } = await params;
 
-  if (!isValidReviewCategorySlug(category)) {
+  if (!isValidReviewCategorySlug(slug)) {
     return { title: 'Categoría no encontrada | Criticomida' };
   }
 
-  const label = getReviewCategoryLabel(category);
+  const label = getReviewCategoryLabel(slug);
   return {
     title: `${label} | Restaurantes | Criticomida`,
     description: `Restaurantes y reseñas en la categoría ${label} en Criticomida.`,
@@ -30,17 +30,17 @@ export async function generateMetadata({
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const { category } = await params;
+  const { slug } = await params;
 
-  if (!isValidReviewCategorySlug(category)) {
+  if (!isValidReviewCategorySlug(slug)) {
     notFound();
   }
 
-  const categoryLabel = getReviewCategoryLabel(category);
+  const categoryLabel = getReviewCategoryLabel(slug);
 
   let restaurants: RestaurantListItem[] = [];
   try {
-    const result = await getRestaurants({ category_slug: category, per_page: 100 });
+    const result = await getRestaurants({ category_slug: slug, per_page: 100 });
     restaurants = result.items ?? [];
   } catch {
     restaurants = [];
@@ -49,7 +49,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   let categoryId: number | null = null;
   try {
     const categories = await getCategories();
-    const found = categories.find(c => c.slug === category);
+    const found = categories.find(c => c.slug === slug);
     categoryId = found?.id ?? null;
   } catch {
     categoryId = null;
@@ -57,7 +57,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <CategoryPageClient
-      categorySlug={category}
+      categorySlug={slug}
       categoryLabel={categoryLabel}
       categoryId={categoryId}
       initialRestaurants={restaurants}

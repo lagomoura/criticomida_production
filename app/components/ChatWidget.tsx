@@ -83,7 +83,7 @@ export default function ChatWidget() {
       {/* Chat panel */}
       {isOpen && (
         <div
-          className="fixed bottom-20 right-6 z-[1100] flex w-80 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-neutral-800"
+          className="fixed bottom-20 right-6 z-[1100] hidden w-80 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:flex dark:bg-neutral-800"
           style={{ height: '480px' }}
           role="dialog"
           aria-label="Chat con CritiComida"
@@ -155,7 +155,7 @@ export default function ChatWidget() {
       {/* Floating button */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="fixed bottom-6 right-6 z-[1100] flex h-14 w-14 items-center justify-center rounded-full bg-main-pink text-2xl shadow-lg transition-transform hover:scale-105 active:scale-95"
+        className="fixed bottom-6 right-6 z-[1100] hidden h-14 w-14 items-center justify-center rounded-full bg-main-pink text-2xl shadow-lg transition-transform hover:scale-105 active:scale-95 md:flex"
         aria-label={isOpen ? 'Cerrar chat' : 'Abrir chat'}
       >
         {isOpen ? '✕' : '💬'}

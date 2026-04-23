@@ -23,6 +23,10 @@ interface AuthContextType {
     password: string,
     displayName: string
   ) => Promise<void>;
+  /** Re-fetch `/api/auth/me` and update local user. Callers use this after
+   * editing the profile so every consumer of `useAuthContext()` sees the new
+   * data without re-logging. */
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,6 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(currentUser);
   };
 
+  const refreshUser = useCallback(async () => {
+    const currentUser = await authApi.getCurrentUser();
+    setUser(currentUser);
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -78,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         register,
+        refreshUser,
       }}
     >
       {children}

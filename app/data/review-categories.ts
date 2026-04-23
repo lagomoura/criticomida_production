@@ -1,5 +1,5 @@
 /**
- * Canonical review category slugs (URLs /reviews/[slug] and home filters).
+ * Canonical review category slugs (URLs /categorias/[slug] and home filters).
  * Keep in sync with review cards on the home page.
  */
 export const REVIEW_CATEGORIES = [

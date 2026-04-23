@@ -5,9 +5,20 @@ export interface User {
   email: string;
   display_name: string;
   avatar_url: string | null;
+  handle: string | null;
+  bio: string | null;
+  location: string | null;
   role: UserRole;
   created_at: string;
   updated_at: string;
+}
+
+export interface UpdateProfileRequest {
+  display_name?: string;
+  handle?: string | null;
+  bio?: string | null;
+  location?: string | null;
+  avatar_url?: string | null;
 }
 
 export interface TokenResponse {

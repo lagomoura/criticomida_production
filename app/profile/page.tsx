@@ -8,6 +8,8 @@ import { MyReview } from '@/app/lib/types';
 import ReviewCard from './components/ReviewCard';
 import AddReviewModal from './components/AddReviewModal';
 import EditReviewModal from './components/EditReviewModal';
+import EditProfileForm from './components/EditProfileForm';
+import ThemeToggle from '@/app/components/ThemeToggle';
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin',
@@ -91,6 +93,32 @@ export default function ProfilePage() {
             </div>
             <p className="text-sm text-neutral-500">{user!.email}</p>
           </div>
+        </div>
+
+        {/* Edit public profile */}
+        <EditProfileForm />
+
+        {/* Quick link to saved reviews */}
+        <Link
+          href="/saved"
+          className="mb-6 flex items-center justify-between rounded-2xl border border-border-default bg-surface-card px-4 py-3 no-underline transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+        >
+          <div>
+            <p className="font-sans text-sm font-medium text-text-primary">Guardados</p>
+            <p className="font-sans text-xs text-text-muted">
+              Las reseñas que marcaste para volver.
+            </p>
+          </div>
+          <span className="font-sans text-sm text-action-primary">Ver →</span>
+        </Link>
+
+        {/* Theme setting */}
+        <div className="mb-8 flex items-center justify-between rounded-2xl border border-border-default bg-surface-card px-4 py-3">
+          <div>
+            <p className="font-sans text-sm font-medium text-text-primary">Tema</p>
+            <p className="font-sans text-xs text-text-muted">Alterná entre claro y oscuro.</p>
+          </div>
+          <ThemeToggle />
         </div>
 
         {/* Reviews section */}
