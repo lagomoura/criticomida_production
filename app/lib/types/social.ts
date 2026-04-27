@@ -129,15 +129,103 @@ export interface UserSearchResult {
 export interface DishDetail {
   id: string;
   name: string;
+  description?: string | null;
   restaurantId: string;
   restaurantName: string;
+  restaurantSlug?: string | null;
+  restaurantLocationName?: string | null;
+  restaurantCoverUrl?: string | null;
+  restaurantAverageRating?: number | null;
+  restaurantGoogleRating?: number | null;
+  restaurantLatitude?: number | null;
+  restaurantLongitude?: number | null;
   category?: string | null;
+  cuisineTypes?: string[] | null;
   heroImage?: string | null;
   averageScore: number;
   reviewCount: number;
   /** 0–100, percentage of reviewers that scored ≥ 3.5 (scale is 1..5). */
   wouldOrderAgainPct?: number;
   priceRange?: string | null;
+  isSignature?: boolean;
+  editorialBlurb?: string | null;
+  editorialSource?: string | null;
+  createdByDisplayName?: string | null;
+}
+
+export interface DishProsConsItem {
+  text: string;
+  count: number;
+}
+
+export interface DishTagItem {
+  tag: string;
+  count: number;
+}
+
+export interface DishWouldOrderAgainBreakdown {
+  yes: number;
+  no: number;
+  noAnswer: number;
+  pct: number | null;
+}
+
+export interface DishAggregates {
+  prosTop: DishProsConsItem[];
+  consTop: DishProsConsItem[];
+  tagsTop: DishTagItem[];
+  ratingHistogram: Record<'1' | '2' | '3' | '4' | '5', number>;
+  portionDistribution: { small: number; medium: number; large: number; noAnswer: number };
+  wouldOrderAgain: DishWouldOrderAgainBreakdown;
+  photosCount: number;
+  uniqueEaters: number;
+}
+
+export interface DishPhoto {
+  id: string;
+  url: string;
+  altText?: string | null;
+  takenAt?: string | null;
+  dishId: string;
+  dishName?: string | null;
+  reviewId?: string | null;
+  userId?: string | null;
+  userHandle?: string | null;
+  userDisplayName?: string | null;
+  isCover?: boolean;
+}
+
+export interface DishPhotosPage {
+  items: DishPhoto[];
+  nextCursor: string | null;
+}
+
+export interface DishRecentEater {
+  id: string;
+  handle?: string | null;
+  displayName?: string | null;
+  avatarUrl?: string | null;
+}
+
+export interface DishDiaryStats {
+  uniqueEaters: number;
+  reviewsTotal: number;
+  reviewsLast7d: number;
+  recentEaters: DishRecentEater[];
+}
+
+export interface RelatedDishItem {
+  id: string;
+  name: string;
+  coverImageUrl?: string | null;
+  computedRating: number;
+  reviewCount: number;
+  priceTier?: '$' | '$$' | '$$$' | null;
+  restaurantId: string;
+  restaurantSlug: string;
+  restaurantName: string;
+  restaurantLocation: string;
+  restaurantCity?: string | null;
 }
 
 export type FeedType = 'for_you' | 'following';

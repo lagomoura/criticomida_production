@@ -56,3 +56,9 @@ env/
 dist/
 build/
 *.egg
+google_maps_data
+
+# Playwright MCP runtime artefacts
+/.playwright-mcp/
+# Screenshots captured during dev/Playwright sessions
+/*.png
