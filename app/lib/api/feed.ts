@@ -74,7 +74,7 @@ export interface FeedItemDTO {
   extras: FeedExtrasDTO | null;
 }
 
-interface FeedPageDTO {
+export interface FeedPageDTO {
   items: FeedItemDTO[];
   next_cursor: string | null;
 }
