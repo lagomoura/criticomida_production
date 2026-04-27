@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Tabs from '@/app/components/ui/Tabs';
 import FeedList, { type FeedState } from './FeedList';
@@ -36,6 +36,11 @@ export default function FeedClient() {
   const [activeTab, setActiveTab] = useState<FeedType>('for_you');
   const [cache, setCache] = useState<TabCache>(INITIAL_CACHE);
   const [reportTarget, setReportTarget] = useState<{ id: string; subject: string } | null>(null);
+  // Tracks which tabs we've already fired loadFirstPage for. Lets us trigger
+  // load on tab switch without keeping `cache` in the effect deps — depending
+  // on `cache` would loop because loadFirstPage immediately writes to cache
+  // while the slot is still in 'loading' state.
+  const startedTabsRef = useRef<Set<FeedType>>(new Set());
   const { user } = useAuthContext();
   const router = useRouter();
 
@@ -140,10 +145,10 @@ export default function FeedClient() {
   );
 
   useEffect(() => {
-    if (cache[activeTab].state.status === 'loading') {
-      void loadFirstPage(activeTab);
-    }
-  }, [activeTab, cache, loadFirstPage]);
+    if (startedTabsRef.current.has(activeTab)) return;
+    startedTabsRef.current.add(activeTab);
+    void loadFirstPage(activeTab);
+  }, [activeTab, loadFirstPage]);
 
   const handleToggleLike = useCallback((postId: string, next: boolean) => {
     setCache((prev) => mapPosts(prev, (post) => (post.id === postId ? applyLike(post, next) : post)));
