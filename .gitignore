@@ -30,9 +30,13 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
+# .env / .env*.local stay ignored (secrets). Templates and the dev-shared
+# defaults are committed: .env.example, .env.development, .env.production.
 .env*
 !**/.env.example
+!.env.development
+!.env.production
 
 # vercel
 .vercel
@@ -62,3 +66,4 @@ google_maps_data
 /.playwright-mcp/
 # Screenshots captured during dev/Playwright sessions
 /*.png
+.claude
