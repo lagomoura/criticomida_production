@@ -12,12 +12,12 @@ npm run lint         # ESLint check
 npm run test:backend # Run pytest in backend/ submodule
 ```
 
-The backend FastAPI server (in `backend/` git submodule) must be running on `http://localhost:8000` for API calls to work. Start it separately.
+The backend FastAPI server (in `backend/` git submodule) must be running on `http://localhost:8002` for API calls to work. Start it from `backend/` with `docker compose up` — the compose file maps host `:8002` → container `:8000` so the host's `:8000` stays free for other projects.
 
 ## Environment Variables
 
 ```
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_URL=http://localhost:8002
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<key>
 ```
 
