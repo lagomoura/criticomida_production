@@ -4,7 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Tabs from '@/app/components/ui/Tabs';
 import FeedList, { type FeedState } from './FeedList';
+import AnonWelcome from './AnonWelcome';
 import { getFeed } from '@/app/lib/api/feed';
+import { likePost, unlikePost, savePost, unsavePost } from '@/app/lib/api/interactions';
+import { useToast } from '@/app/components/ui/Toast';
 import ReportModal from '@/app/components/social/ReportModal';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import type { FeedType, ReviewPost } from '@/app/lib/types/social';
@@ -43,6 +46,7 @@ export default function FeedClient() {
   const startedTabsRef = useRef<Set<FeedType>>(new Set());
   const { user } = useAuthContext();
   const router = useRouter();
+  const toast = useToast();
 
   const loadFirstPage = useCallback(async (tab: FeedType) => {
     setCache((prev) => ({
@@ -150,13 +154,41 @@ export default function FeedClient() {
     void loadFirstPage(activeTab);
   }, [activeTab, loadFirstPage]);
 
-  const handleToggleLike = useCallback((postId: string, next: boolean) => {
-    setCache((prev) => mapPosts(prev, (post) => (post.id === postId ? applyLike(post, next) : post)));
-  }, []);
+  const handleToggleLike = useCallback(
+    async (postId: string, next: boolean) => {
+      // Optimistic: mirror the toggle in every cached tab (the same post may
+      // appear in for_you AND following).
+      setCache((prev) => mapPosts(prev, (post) => (post.id === postId ? applyLike(post, next) : post)));
+      try {
+        if (next) await likePost(postId);
+        else await unlikePost(postId);
+      } catch {
+        setCache((prev) => mapPosts(prev, (post) => (post.id === postId ? applyLike(post, !next) : post)));
+        toast.error(
+          next ? 'No se pudo dar like' : 'No se pudo quitar el like',
+          'Probá de nuevo en un momento.',
+        );
+      }
+    },
+    [toast],
+  );
 
-  const handleToggleSave = useCallback((postId: string, next: boolean) => {
-    setCache((prev) => mapPosts(prev, (post) => (post.id === postId ? applySave(post, next) : post)));
-  }, []);
+  const handleToggleSave = useCallback(
+    async (postId: string, next: boolean) => {
+      setCache((prev) => mapPosts(prev, (post) => (post.id === postId ? applySave(post, next) : post)));
+      try {
+        if (next) await savePost(postId);
+        else await unsavePost(postId);
+      } catch {
+        setCache((prev) => mapPosts(prev, (post) => (post.id === postId ? applySave(post, !next) : post)));
+        toast.error(
+          next ? 'No se pudo guardar' : 'No se pudo quitar de guardados',
+          'Probá de nuevo en un momento.',
+        );
+      }
+    },
+    [toast],
+  );
 
   const tabs = [
     { value: 'for_you', label: 'Para ti' },
@@ -164,9 +196,13 @@ export default function FeedClient() {
   ];
 
   return (
-    <section className="cc-container flex flex-col gap-4 py-6">
-      <header>
+    <section className="cc-container flex flex-col gap-6 py-6">
+      <AnonWelcome />
+      <header className="flex flex-col gap-2">
         <h1 className="sr-only">Feed</h1>
+        <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-text-muted">
+          El feed
+        </p>
         <Tabs
           ariaLabel="Tipo de feed"
           value={activeTab}
@@ -222,8 +258,8 @@ export default function FeedClient() {
             void navigator.share({ url: `${location.origin}/reviews/${postId}` });
           }
         }}
-        onToggleLike={handleToggleLike}
-        onToggleSave={handleToggleSave}
+        onToggleLike={(id, next) => void handleToggleLike(id, next)}
+        onToggleSave={(id, next) => void handleToggleSave(id, next)}
       />
     </section>
   );

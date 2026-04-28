@@ -77,7 +77,7 @@ export default function Lightbox({
       <div
         className={
           'absolute bottom-4 left-1/2 -translate-x-1/2 text-base ' +
-          'text-white shadow-[0_2px_8px_#000]'
+          'text-white shadow-[0_2px_8px_rgba(26,22,20,0.6)]'
         }
       >
         {galleryIdx + 1} / {gallery.length}

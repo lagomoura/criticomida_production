@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { likePost, unlikePost, savePost, unsavePost } from '../api/interactions';
+import { useToast } from '../../components/ui/Toast';
 import type { ReviewPost } from '../types/social';
 
 export interface UsePostsInteractionResult {
@@ -14,36 +15,49 @@ export interface UsePostsInteractionResult {
 
 /**
  * Owns a mutable list of posts plus the optimistic toggles for like/save.
- * On API failure, rolls the list state back to the pre-click value.
+ * On API failure, rolls the list state back to the pre-click value and emits
+ * a toast so the user knows the action didn't persist.
  *
  * Consumers: FeedClient, PublicProfileClient, DishDetailClient,
  * ReviewDetailClient (single-item list).
  */
 export function usePostsInteraction(initial: ReviewPost[] = []): UsePostsInteractionResult {
   const [posts, setPosts] = useState<ReviewPost[]>(initial);
+  const toast = useToast();
 
-  const toggleLike = useCallback(async (postId: string, next: boolean) => {
-    let rolledBack = false;
-    setPosts((prev) => prev.map((p) => (p.id === postId ? applyLike(p, next) : p)));
-    try {
-      if (next) await likePost(postId);
-      else await unlikePost(postId);
-    } catch {
-      rolledBack = true;
-      setPosts((prev) => prev.map((p) => (p.id === postId ? applyLike(p, !next) : p)));
-    }
-    void rolledBack;
-  }, []);
+  const toggleLike = useCallback(
+    async (postId: string, next: boolean) => {
+      setPosts((prev) => prev.map((p) => (p.id === postId ? applyLike(p, next) : p)));
+      try {
+        if (next) await likePost(postId);
+        else await unlikePost(postId);
+      } catch {
+        setPosts((prev) => prev.map((p) => (p.id === postId ? applyLike(p, !next) : p)));
+        toast.error(
+          next ? 'No se pudo dar like' : 'No se pudo quitar el like',
+          'Probá de nuevo en un momento.',
+        );
+      }
+    },
+    [toast],
+  );
 
-  const toggleSave = useCallback(async (postId: string, next: boolean) => {
-    setPosts((prev) => prev.map((p) => (p.id === postId ? applySave(p, next) : p)));
-    try {
-      if (next) await savePost(postId);
-      else await unsavePost(postId);
-    } catch {
-      setPosts((prev) => prev.map((p) => (p.id === postId ? applySave(p, !next) : p)));
-    }
-  }, []);
+  const toggleSave = useCallback(
+    async (postId: string, next: boolean) => {
+      setPosts((prev) => prev.map((p) => (p.id === postId ? applySave(p, next) : p)));
+      try {
+        if (next) await savePost(postId);
+        else await unsavePost(postId);
+      } catch {
+        setPosts((prev) => prev.map((p) => (p.id === postId ? applySave(p, !next) : p)));
+        toast.error(
+          next ? 'No se pudo guardar' : 'No se pudo quitar de guardados',
+          'Probá de nuevo en un momento.',
+        );
+      }
+    },
+    [toast],
+  );
 
   const prependPost = useCallback((post: ReviewPost) => {
     setPosts((prev) => [post, ...prev]);

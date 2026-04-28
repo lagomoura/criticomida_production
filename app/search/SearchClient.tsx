@@ -12,6 +12,7 @@ import Tabs from '@/app/components/ui/Tabs';
 import Avatar from '@/app/components/ui/Avatar';
 import Skeleton from '@/app/components/ui/Skeleton';
 import EmptyState from '@/app/components/ui/EmptyState';
+import RatingPill from '@/app/components/ui/RatingPill';
 import { searchAll, type SearchEntity, type SearchResults } from '@/app/lib/api/search';
 import { cn } from '@/app/lib/utils/cn';
 import type {
@@ -81,25 +82,33 @@ export default function SearchClient() {
 
   return (
     <div className="cc-container flex flex-col gap-5 py-6">
-      <header className="flex flex-col gap-4">
-        <h1 className="font-display text-3xl font-medium text-text-primary sm:text-4xl">Buscar</h1>
+      <header className="flex flex-col gap-5">
+        <div>
+          <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-action-primary">
+            Encontrá lo que vale la pena
+          </p>
+          <h1 className="mt-1.5 m-0 font-display text-[clamp(2rem,4.5vw,3rem)] font-medium leading-[1.05] text-text-primary">
+            Buscar
+          </h1>
+        </div>
         <label className="relative block">
           <span className="sr-only">Buscar platos, restaurantes o críticos</span>
           <FontAwesomeIcon
             icon={faMagnifyingGlass}
             aria-hidden
-            className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+            className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted transition-colors peer-focus:text-action-primary"
           />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Qué estás buscando — plato, restaurante, crítico…"
+            placeholder="Plato, restaurante o crítico…"
             className={cn(
-              'h-12 w-full rounded-full border bg-surface-card pl-11 pr-11 font-sans text-sm text-text-primary',
-              'placeholder:text-text-muted',
-              'focus:outline-none focus:[box-shadow:var(--focus-ring)]',
-              'border-border-default focus:border-action-primary',
+              'h-14 w-full rounded-2xl border-2 bg-surface-card pl-14 pr-12 font-display text-lg text-text-primary',
+              'shadow-[var(--shadow-base)] transition-[border-color,box-shadow] duration-[var(--duration-standard)]',
+              'placeholder:font-sans placeholder:text-base placeholder:text-text-muted',
+              'focus:outline-none focus:border-action-primary focus:shadow-[var(--shadow-elevated)]',
+              'border-border-default',
             )}
             autoFocus
           />
@@ -108,7 +117,7 @@ export default function SearchClient() {
               type="button"
               onClick={handleClear}
               aria-label="Limpiar búsqueda"
-              className="absolute right-3 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+              className="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle hover:text-text-primary focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
             >
               <FontAwesomeIcon icon={faXmark} className="h-3.5 w-3.5" />
             </button>
@@ -224,30 +233,25 @@ function labelForTab(tab: SearchEntity): string {
 }
 
 function DishResultRow({ dish }: { dish: DishSearchResult }) {
-  const tone = dish.averageScore >= 4.5 ? 'text-action-secondary' : 'text-text-primary';
   return (
     <Link
       href={`/dishes/${dish.id}`}
-      className="flex items-center gap-4 rounded-2xl border border-border-default bg-surface-card p-4 transition-colors hover:bg-surface-subtle/40 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+      className="flex items-center gap-4 rounded-2xl border border-border-subtle bg-surface-card p-4 shadow-[var(--shadow-base)] transition-[transform,box-shadow] duration-[var(--duration-standard)] hover:-translate-y-px hover:shadow-[var(--shadow-elevated)] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
     >
       <div className="min-w-0 flex-1">
-        <p className="truncate font-display text-xl font-medium text-text-primary">{dish.name}</p>
+        <p className="truncate font-display text-xl font-medium italic text-text-primary">
+          {dish.name}
+        </p>
         <p className="truncate font-sans text-sm text-text-muted">
-          en {dish.restaurantName}
+          <span className="font-display italic text-text-secondary">en </span>
+          {dish.restaurantName}
           {dish.category && <span> · {dish.category}</span>}
         </p>
         <p className="mt-1 font-sans text-xs text-text-muted">
           {dish.reviewCount} {dish.reviewCount === 1 ? 'reseña' : 'reseñas'}
         </p>
       </div>
-      <span
-        className={cn(
-          'shrink-0 rounded-full border border-border-default bg-surface-card px-3 py-1 font-display text-xl font-medium leading-none tabular-nums',
-          tone,
-        )}
-      >
-        {dish.averageScore.toFixed(1)}
-      </span>
+      <RatingPill value={dish.averageScore * 2} size="md" className="shrink-0" />
     </Link>
   );
 }

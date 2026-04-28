@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { RestaurantDetail } from '@/app/lib/types';
+import RatingPill from '@/app/components/ui/RatingPill';
+import Breadcrumb from '@/app/components/ui/Breadcrumb';
 import OpenStatus from './OpenStatus';
 import RestaurantActionsBar from './RestaurantActionsBar';
 import DistanceBadge from './DistanceBadge';
@@ -46,7 +48,6 @@ export default function HeroV2({
       ? fallbackCoverUrl ?? null
       : null;
   const rating = Number(restaurant.computed_rating ?? 0);
-  const ratingTone = rating >= 9 ? 'text-[var(--color-albahaca)]' : 'text-[var(--color-azafran)]';
   const priceLabel =
     typeof restaurant.price_level === 'number' && restaurant.price_level >= 1
       ? PRICE_LABEL[Math.min(restaurant.price_level, 4) - 1]
@@ -90,13 +91,15 @@ export default function HeroV2({
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-[var(--color-carbon)]" />
 
-        <Link
-          href={backHref}
-          className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-sm font-semibold text-[var(--color-carbon)] no-underline shadow-sm backdrop-blur transition hover:bg-white sm:left-6 sm:top-6"
-        >
-          <span aria-hidden>←</span>
-          {backLabel}
-        </Link>
+        <div className="absolute inset-x-0 top-0 px-4 pt-4 sm:px-6 sm:pt-5 lg:px-8">
+          <Breadcrumb
+            tone="on-dark"
+            items={[
+              { label: backLabel, href: backHref },
+              { label: restaurant.name },
+            ]}
+          />
+        </div>
 
         <div className="cc-container absolute inset-x-0 bottom-0 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8">
           <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/85">
@@ -128,23 +131,17 @@ export default function HeroV2({
             />
           </div>
 
-          <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl font-medium leading-[1.05] text-white sm:text-5xl md:text-6xl">
+          <h1 className="mt-3 font-display text-[clamp(2.5rem,6vw,4.5rem)] font-medium leading-[1.02] text-white">
             {restaurant.name}
           </h1>
 
           <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/90">
-            <span className="inline-flex items-center gap-1.5">
-              <span aria-hidden>📍</span>
-              {restaurant.location_name}
-            </span>
+            <span className="font-sans">{restaurant.location_name}</span>
             {rating > 0 && (
-              <span className="inline-flex items-baseline gap-1.5" title="Promedio CritiComida">
-                <span aria-hidden className="text-[var(--color-azafran-light)]">★</span>
-                <span className={`text-2xl font-semibold ${ratingTone === 'text-[var(--color-albahaca)]' ? 'text-[var(--color-albahaca-light)]' : 'text-[var(--color-azafran-light)]'}`}>
-                  {rating.toFixed(1)}
-                </span>
-                <span className="text-white/70">
-                  · {reviewsCount} {reviewsCount === 1 ? 'reseña' : 'reseñas'}
+              <span className="inline-flex items-baseline gap-2" title="Promedio CritiComida">
+                <RatingPill value={rating} size="md" />
+                <span className="font-sans text-white/70">
+                  {reviewsCount} {reviewsCount === 1 ? 'reseña' : 'reseñas'}
                 </span>
               </span>
             )}

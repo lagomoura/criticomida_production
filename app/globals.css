@@ -6,6 +6,11 @@
 /* Class-based dark mode: .dark on <html> enables dark: utilities */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Tokens canónicos: docs/brand-identity-v2.md (Especiería).
+ * Cualquier color/sombra/radio/easing en componentes consume estos tokens.
+ * Cambios aquí impactan todo el sistema — coordinar con el doc.
+ */
 :root {
   /* ── Nueva paleta v2 — Especiería ── */
   --color-azafran:        #D4870A;   /* Azafrán: color de marca, CTAs, links, acento */
@@ -26,7 +31,13 @@
   --color-crema-darker:   #D9D1C4;   /* Crema más oscuro: bordes, divisores */
   --color-white:          #FFFFFF;   /* Blanco puro: superficies de tarjetas */
 
-  /* ── Aliases legacy — compatibilidad con clases existentes ── */
+  /* ── Aliases legacy (DEPRECATED) ── */
+  /* No usar en código nuevo. Migrar a tokens semánticos:                       */
+  /*   bg-main-pink     → bg-action-primary                                     */
+  /*   text-main-black  → text-text-primary                                     */
+  /*   bg-main-white    → bg-surface-card                                       */
+  /*   bg-main-grey     → bg-surface-subtle                                     */
+  /* Mantenidos solo para evitar regresiones; remover en pasada Fase 4.         */
   --mainPink:    var(--color-azafran);
   --mainYellow:  var(--color-azafran-light);
   --mainWhite:   var(--color-white);
@@ -90,6 +101,33 @@
 
   /* Focus ring (consumir como box-shadow) */
   --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-azafran) 35%, transparent);
+
+  /* ── Radius (significado semántico, no solo tamaño) ── */
+  --radius-none: 0;
+  --radius-xs:   4px;    /* badges compactos */
+  --radius-sm:   8px;    /* botones, inputs, alerts */
+  --radius-md:   12px;   /* cards compactas */
+  --radius-lg:   16px;   /* cards principales, post items */
+  --radius-xl:   24px;   /* hero cards, paneles de detalle */
+  --radius-2xl:  32px;   /* footer, secciones grandes */
+  --radius-full: 9999px; /* pills (ratings, location, categorías) */
+
+  /* ── Sombras warm-tinted (Carbón rgba en lugar de negro) ── */
+  --shadow-micro:    0 1px 3px rgba(26, 22, 20, 0.08);   /* badges, chips */
+  --shadow-base:     0 2px 8px rgba(26, 22, 20, 0.06);   /* cards en reposo */
+  --shadow-media:    0 4px 16px rgba(26, 22, 20, 0.10);  /* dropdowns, cards interactivas */
+  --shadow-elevated: 0 8px 28px rgba(26, 22, 20, 0.12);  /* hover, modales */
+  --shadow-floating: 0 12px 40px rgba(26, 22, 20, 0.18); /* navbar, toasts, tooltips */
+
+  /* ── Easings firma ── */
+  --ease-spoon:    cubic-bezier(0.34, 1.56, 0.64, 1);  /* overshoot bounce, marca */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);       /* funcional (inputs, dropdowns) */
+
+  /* ── Duraciones estándar ── */
+  --duration-micro:    150ms;
+  --duration-standard: 250ms;
+  --duration-entrance: 600ms;
+  --duration-hero:     1000ms;
 }
 
 @theme inline {
@@ -136,6 +174,17 @@
   /* ── Tipografía v2 ── */
   --font-sans: var(--font-dm-sans), 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+
+  /* ── Sombras (utilidades Tailwind: shadow-micro, shadow-elevated, etc.) ── */
+  --shadow-micro:    var(--shadow-micro);
+  --shadow-base:     var(--shadow-base);
+  --shadow-media:    var(--shadow-media);
+  --shadow-elevated: var(--shadow-elevated);
+  --shadow-floating: var(--shadow-floating);
+
+  /* ── Easings (utilidades Tailwind: ease-spoon, ease-standard) ── */
+  --ease-spoon:    var(--ease-spoon);
+  --ease-standard: var(--ease-standard);
 }
 
 /* Layout + forms (replaces Bootstrap after CDN removal) */
@@ -152,6 +201,45 @@
   .cc-container {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
+  }
+}
+
+/*
+ * Grain overlay (textura "papel"). Inline SVG noise — no asset request.
+ * Aplicado al body via ::before; muy bajo opacity para no competir con
+ * el contenido. Respeta prefers-reduced-motion (no anima, solo es estática).
+ */
+body {
+  position: relative;
+  background-color: var(--surface-page);
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.85'/></svg>");
+  background-size: 200px 200px;
+  mix-blend-mode: multiply;
+}
+.dark body::before {
+  opacity: 0.06;
+  mix-blend-mode: screen;
+}
+
+/* Pop bounce — applied via class when a "like" toggle becomes selected.    */
+/* Honors prefers-reduced-motion (no pop).                                  */
+@keyframes cc-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.28); }
+  70%  { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cc-pop-on-select {
+    animation: cc-pop 360ms var(--ease-spoon);
   }
 }
 
@@ -281,13 +369,13 @@
 
 .btn-outline-danger {
   background: transparent;
-  color: #c62828;
-  border: 2px solid #c62828;
+  color: var(--color-paprika);
+  border: 2px solid var(--color-paprika);
 }
 
 .btn-outline-danger:hover {
-  background: #c62828;
-  color: var(--neutral-100);
+  background: var(--color-paprika);
+  color: var(--color-white);
 }
 
 .btn-gradient {
@@ -1243,191 +1331,6 @@ body {
   .footer-cta-text { font-size: 1rem; }
 }
 
-/* Minimalist Dark Footer Styles */
-.footer-dark {
-  background: #18181b;
-  color: #f3f3f3;
-  border-radius: 2rem 2rem 0 0;
-  box-shadow: 0 -4px 24px 0 rgba(0,0,0,0.10);
-  position: relative;
-  overflow: hidden;
-}
-.footer-title-dark {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--mainPink);
-  letter-spacing: 0.05em;
-}
-.footer-copy-dark {
-  font-size: 1.1rem;
-  color: #e5e5e5;
-  opacity: 0.85;
-}
-.footer-socials-dark {
-  gap: 1.2rem !important;
-}
-.footer-icon-link-dark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: #23232a;
-  width: 48px;
-  height: 48px;
-  transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
-  box-shadow: 0 2px 8px rgba(239, 121, 152, 0.10);
-}
-.footer-icon-link-dark:hover, .footer-icon-link-dark:focus {
-  background: var(--mainPink);
-  box-shadow: 0 0 0 6px rgba(239, 121, 152, 0.10);
-  transform: scale(1.13) translateY(-2px);
-  outline: none;
-}
-.footer-icon-dark {
-  font-size: 1.6rem;
-  color: #f3f3f3;
-  transition: color 0.3s, text-shadow 0.3s;
-}
-.footer-icon-link-dark:hover .footer-icon-dark, .footer-icon-link-dark:focus .footer-icon-dark {
-  color: #fff;
-  text-shadow: 0 2px 8px var(--mainPink);
-}
-.footer-cta-text-dark {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--mainPink);
-  letter-spacing: 0.03em;
-}
-@media (max-width: 768px) {
-  .footer-title-dark { font-size: 1.4rem; }
-  .footer-copy-dark { font-size: 1rem; }
-  .footer-cta-text-dark { font-size: 1rem; }
-}
-
-/* Bold & Colorful Footer Styles */
-.footer-bold {
-  background: var(--mainPink);
-  color: #fff;
-  border-radius: 2rem 2rem 0 0;
-  box-shadow: 0 -4px 24px 0 rgba(239,121,152,0.10);
-  position: relative;
-  overflow: hidden;
-}
-.footer-title-bold {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: 0.07em;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.10);
-}
-.footer-copy-bold {
-  font-size: 1.1rem;
-  color: #fff;
-  opacity: 0.92;
-}
-.footer-socials-bold {
-  gap: 1.2rem !important;
-}
-.footer-icon-link-bold {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--mainYellow);
-  width: 48px;
-  height: 48px;
-  transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
-  box-shadow: 0 2px 8px rgba(249, 228, 148, 0.18);
-}
-.footer-icon-link-bold:hover, .footer-icon-link-bold:focus {
-  background: var(--mainPink);
-  box-shadow: 0 0 0 6px rgba(249, 228, 148, 0.18);
-  transform: scale(1.13) translateY(-2px);
-  outline: none;
-}
-.footer-icon-bold {
-  font-size: 1.6rem;
-  color: var(--mainPink);
-  transition: color 0.3s, text-shadow 0.3s;
-}
-.footer-icon-link-bold:hover .footer-icon-bold, .footer-icon-link-bold:focus .footer-icon-bold {
-  color: #fff;
-  text-shadow: 0 2px 8px var(--mainYellow);
-}
-.footer-cta-text-bold {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.04em;
-  text-shadow: 0 2px 8px var(--mainPink);
-}
-@media (max-width: 768px) {
-  .footer-title-bold { font-size: 1.4rem; }
-  .footer-copy-bold { font-size: 1rem; }
-  .footer-cta-text-bold { font-size: 1rem; }
-}
-
-/* Modern Flat Footer Styles */
-.footer-modern {
-  background: var(--color-carbon);
-  color: var(--color-crema);
-  border-radius: 2rem 2rem 0 0;
-  border-top: 3px solid var(--color-azafran);
-  box-shadow: 0 -4px 24px 0 rgba(26,23,20,0.12);
-  position: relative;
-  overflow: hidden;
-  padding-top: 2.5rem !important;
-  padding-bottom: 2rem !important;
-}
-.footer-brand-modern {
-  font-family: var(--font-display);
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--color-azafran);
-  letter-spacing: 0.04em;
-}
-.footer-copy-modern {
-  font-size: 1rem;
-  color: var(--color-carbon-soft);
-  opacity: 1;
-  font-weight: 300;
-}
-.footer-socials-modern {
-  gap: 2rem !important;
-}
-.footer-icon-modern-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-sm);
-  background: none;
-  width: 2.6rem;
-  height: 2.6rem;
-  transition: color var(--ease-micro), transform var(--ease-micro);
-}
-.footer-icon-modern {
-  font-size: 2.1rem;
-  color: var(--color-crema-darker);
-  transition: color var(--ease-micro);
-}
-.footer-icon-modern-link:hover .footer-icon-modern, .footer-icon-modern-link:focus .footer-icon-modern {
-  color: var(--color-azafran);
-  text-shadow: none;
-  transform: scale(1.15);
-}
-.footer-cta-text-modern {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-azafran);
-  letter-spacing: 0.04em;
-  text-shadow: none;
-}
-@media (max-width: 768px) {
-  .footer-brand-modern { font-size: 1.5rem; }
-  .footer-copy-modern { font-size: 0.9375rem; }
-  .footer-cta-text-modern { font-size: 0.9375rem; }
-  .footer-socials-modern { gap: 1.2rem !important; }
-}
 
 /* Clean Gallery Image Styles - Image Only Layout */
 .gallery-link {
@@ -1904,7 +1807,7 @@ body {
 /* Alert-danger: páprika legible sobre fondo oscuro */
 .dark .alert-danger {
   background: rgba(192, 59, 40, 0.12);
-  color: #f0846a;
+  color: var(--color-paprika-light);
   border-color: rgba(192, 59, 40, 0.3);
 }
 

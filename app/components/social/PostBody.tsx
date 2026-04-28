@@ -33,6 +33,10 @@ export default function PostBody({
         className={cn(
           'whitespace-pre-wrap',
           !isExpanded && 'line-clamp-4 sm:line-clamp-6',
+          // Editorial drop-cap on the first letter when fully expanded.
+          // Tailwind first-letter variant + Cormorant italic.
+          isExpanded &&
+            'first-letter:float-left first-letter:mr-2 first-letter:mt-1 first-letter:font-display first-letter:text-[3.25rem] first-letter:font-medium first-letter:italic first-letter:leading-[0.85] first-letter:text-action-primary',
         )}
       >
         {text}

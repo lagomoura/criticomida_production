@@ -1,28 +1,31 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faComments, faXmark, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { ChatMessage, sendChatMessage } from '../lib/api/chat';
+import { cn } from '../lib/utils/cn';
 
 const WELCOME_MESSAGE: ChatMessage = {
   role: 'assistant',
   content:
-    '¡Hola! Soy el asistente de CritiComida. Pregúntame sobre restaurantes o platos que tenemos registrados.',
+    'Hola, soy el asistente de CritiComida. Preguntame sobre platos o restaurantes que tengamos registrados.',
 };
 
 function TypingIndicator() {
   return (
     <div className="flex items-end gap-2">
-      <div className="flex gap-1 rounded-2xl rounded-bl-sm bg-neutral-200 px-4 py-3 dark:bg-neutral-700">
+      <div className="flex gap-1 rounded-2xl rounded-bl-sm bg-surface-subtle px-4 py-3">
         <span
-          className="h-2 w-2 animate-bounce rounded-full bg-neutral-500"
+          className="h-2 w-2 animate-bounce rounded-full bg-text-muted"
           style={{ animationDelay: '0ms' }}
         />
         <span
-          className="h-2 w-2 animate-bounce rounded-full bg-neutral-500"
+          className="h-2 w-2 animate-bounce rounded-full bg-text-muted"
           style={{ animationDelay: '150ms' }}
         />
         <span
-          className="h-2 w-2 animate-bounce rounded-full bg-neutral-500"
+          className="h-2 w-2 animate-bounce rounded-full bg-text-muted"
           style={{ animationDelay: '300ms' }}
         />
       </div>
@@ -63,7 +66,7 @@ export default function ChatWidget() {
         ...prev,
         {
           role: 'assistant',
-          content: 'Lo siento, ocurrió un error. Por favor intenta de nuevo.',
+          content: 'Algo salió mal. Probá de nuevo en un momento.',
         },
       ]);
     } finally {
@@ -83,23 +86,32 @@ export default function ChatWidget() {
       {/* Chat panel */}
       {isOpen && (
         <div
-          className="fixed bottom-20 right-6 z-[1100] hidden w-80 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:flex dark:bg-neutral-800"
+          className={cn(
+            'fixed bottom-20 right-6 z-[1100] hidden w-80 flex-col overflow-hidden rounded-2xl border border-border-default bg-surface-card md:flex',
+            'shadow-[var(--shadow-floating)]',
+          )}
           style={{ height: '480px' }}
           role="dialog"
           aria-label="Chat con CritiComida"
         >
           {/* Header */}
-          <div className="flex items-center justify-between bg-main-pink px-4 py-3">
+          <div className="flex items-center justify-between border-b border-border-subtle bg-surface-subtle px-4 py-3">
             <div className="flex items-center gap-2">
-              <span className="text-lg">🍽️</span>
-              <span className="font-semibold text-white">CritiComida Bot</span>
+              <FontAwesomeIcon icon={faComments} aria-hidden className="text-action-primary" />
+              <span className="font-display text-base font-medium text-text-primary">
+                Asistente CritiComida
+              </span>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="cc-btn-close !bg-white/20 !text-white hover:!bg-white/30"
+              className={cn(
+                'inline-flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition-colors',
+                'hover:bg-surface-card hover:text-text-primary',
+                'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+              )}
               aria-label="Cerrar chat"
             >
-              ✕
+              <FontAwesomeIcon icon={faXmark} aria-hidden />
             </button>
           </div>
 
@@ -108,14 +120,18 @@ export default function ChatWidget() {
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={cn(
+                  'flex',
+                  msg.role === 'user' ? 'justify-end' : 'justify-start',
+                )}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
+                  className={cn(
+                    'max-w-[85%] rounded-2xl px-3 py-2 font-sans text-sm leading-relaxed',
                     msg.role === 'user'
-                      ? 'rounded-br-sm bg-main-pink text-white'
-                      : 'rounded-bl-sm bg-neutral-100 text-neutral-900 dark:bg-neutral-700 dark:text-neutral-100'
-                  }`}
+                      ? 'rounded-br-sm bg-action-primary text-text-inverse'
+                      : 'rounded-bl-sm bg-surface-subtle text-text-primary',
+                  )}
                 >
                   {msg.content}
                 </div>
@@ -126,26 +142,37 @@ export default function ChatWidget() {
           </div>
 
           {/* Input */}
-          <div className="border-t border-neutral-200 p-3 dark:border-neutral-700">
+          <div className="border-t border-border-subtle p-3">
             <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Escribe tu pregunta..."
+                placeholder="Preguntá lo que quieras…"
                 rows={1}
-                className="form-control flex-1 resize-none text-sm"
+                className={cn(
+                  'flex-1 resize-none rounded-md border border-border-default bg-surface-card px-3 py-2 font-sans text-sm text-text-primary',
+                  'placeholder:text-text-muted',
+                  'focus:outline-none focus:[box-shadow:var(--focus-ring)]',
+                  'disabled:opacity-60',
+                )}
                 style={{ minHeight: '38px', maxHeight: '96px' }}
                 disabled={isLoading}
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || isLoading}
-                className="btn btn-primary shrink-0 px-3 py-2 text-sm disabled:opacity-50"
+                className={cn(
+                  'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                  'bg-action-primary text-text-inverse transition-colors',
+                  'hover:bg-action-primary-hover',
+                  'disabled:cursor-not-allowed disabled:opacity-50',
+                  'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                )}
                 aria-label="Enviar mensaje"
               >
-                ↑
+                <FontAwesomeIcon icon={faPaperPlane} aria-hidden className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
@@ -155,10 +182,15 @@ export default function ChatWidget() {
       {/* Floating button */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="fixed bottom-6 right-6 z-[1100] hidden h-14 w-14 items-center justify-center rounded-full bg-main-pink text-2xl shadow-lg transition-transform hover:scale-105 active:scale-95 md:flex"
+        className={cn(
+          'fixed bottom-6 right-6 z-[1100] hidden h-14 w-14 items-center justify-center rounded-full md:flex',
+          'bg-action-primary text-text-inverse shadow-[var(--shadow-elevated)]',
+          'transition-transform hover:scale-105 active:scale-95',
+          'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+        )}
         aria-label={isOpen ? 'Cerrar chat' : 'Abrir chat'}
       >
-        {isOpen ? '✕' : '💬'}
+        <FontAwesomeIcon icon={isOpen ? faXmark : faComments} aria-hidden className="h-5 w-5" />
       </button>
     </>
   );

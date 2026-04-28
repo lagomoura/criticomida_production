@@ -6,8 +6,8 @@ import { faUtensils, faTriangleExclamation } from '@fortawesome/free-solid-svg-i
 import type { ReviewPost } from '@/app/lib/types/social';
 import PostCard from '@/app/components/social/PostCard';
 import EmptyState from '@/app/components/ui/EmptyState';
-import Skeleton from '@/app/components/ui/Skeleton';
 import Button from '@/app/components/ui/Button';
+import { PostCardSkeleton } from '@/app/components/ui/SkeletonPresets';
 import type { PostCardProps } from '@/app/components/social/PostCard';
 
 export type FeedState =
@@ -117,9 +117,12 @@ export default function FeedList({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {state.posts.map((post) => (
-        <PostCard key={post.id} post={post} {...cardHandlers} />
+    <div className="flex flex-col">
+      {state.posts.map((post, idx) => (
+        <div key={post.id} className="flex flex-col">
+          {idx > 0 && <FeedSeparator />}
+          <PostCard post={post} {...cardHandlers} />
+        </div>
       ))}
 
       {/* Sentinel: invisible; IntersectionObserver watches this div. */}
@@ -128,7 +131,7 @@ export default function FeedList({
       )}
 
       {loadingMore && (
-        <div className="flex flex-col gap-4" aria-busy="true" aria-live="polite">
+        <div className="mt-4 flex flex-col gap-4" aria-busy="true" aria-live="polite">
           <PostCardSkeleton />
           <PostCardSkeleton />
         </div>
@@ -146,7 +149,7 @@ export default function FeedList({
       )}
 
       {!hasMore && !state.loadMoreError && state.posts.length >= 6 && (
-        <p className="py-4 text-center font-sans text-xs text-text-muted">
+        <p className="py-4 text-center font-display italic text-sm text-text-muted">
           Llegaste al final del feed.
         </p>
       )}
@@ -154,34 +157,13 @@ export default function FeedList({
   );
 }
 
-function PostCardSkeleton() {
+function FeedSeparator() {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-border-default bg-surface-card p-4 sm:p-5">
-      <div className="flex items-center gap-3">
-        <Skeleton shape="circle" width={32} height={32} />
-        <div className="flex flex-col gap-1.5">
-          <Skeleton shape="line" width={120} />
-          <Skeleton shape="line" width={80} />
-        </div>
-      </div>
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <Skeleton shape="line" width="60%" height={24} />
-          <Skeleton shape="line" width="40%" />
-        </div>
-        <Skeleton shape="box" width={56} height={32} className="rounded-full" />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Skeleton shape="line" />
-        <Skeleton shape="line" />
-        <Skeleton shape="line" width="70%" />
-      </div>
-      <Skeleton shape="box" width="100%" height={220} />
-      <div className="flex gap-6">
-        <Skeleton shape="line" width={50} />
-        <Skeleton shape="line" width={50} />
-        <Skeleton shape="line" width={50} />
-      </div>
+    <div aria-hidden className="my-5 flex items-center justify-center gap-3 px-4">
+      <span className="h-px flex-1 bg-border-subtle" />
+      <span className="h-1.5 w-1.5 rounded-full bg-action-primary opacity-70" />
+      <span className="h-px flex-1 bg-border-subtle" />
     </div>
   );
 }
+

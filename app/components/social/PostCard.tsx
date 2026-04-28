@@ -56,8 +56,10 @@ export default function PostCard({
   return (
     <article
       className={cn(
-        'relative isolate flex flex-col gap-4 rounded-2xl border border-border-default bg-surface-card p-4 transition-colors sm:p-5',
-        overlayEnabled && 'hover:bg-surface-subtle/40',
+        'relative isolate flex flex-col gap-4 rounded-2xl border border-border-subtle bg-surface-card p-4 sm:p-5',
+        'shadow-[var(--shadow-base)] transition-[transform,box-shadow] duration-[var(--duration-standard)]',
+        'motion-safe:[transition-timing-function:var(--ease-standard)]',
+        overlayEnabled && 'hover:-translate-y-[2px] hover:shadow-[var(--shadow-elevated)]',
         className,
       )}
     >

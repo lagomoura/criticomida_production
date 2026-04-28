@@ -59,8 +59,15 @@ export default function NotificationsClient() {
 
   return (
     <div className="cc-container flex flex-col gap-5 py-6">
-      <header className="flex items-center justify-between">
-        <h1 className="font-display text-3xl font-medium text-text-primary">Notificaciones</h1>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-action-primary">
+            Tu actividad
+          </p>
+          <h1 className="mt-1.5 m-0 font-display text-[clamp(2rem,4.5vw,3rem)] font-medium leading-[1.05] text-text-primary">
+            Notificaciones
+          </h1>
+        </div>
         {hasUnread && (
           <Button variant="ghost" size="sm" onClick={() => void markAllRead()}>
             Marcar todas como leídas

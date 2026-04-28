@@ -20,6 +20,7 @@ import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { createPost, type ComposeRestaurant } from '@/app/lib/api/compose';
 import { getDishDetail } from '@/app/lib/api/dishes-social';
 import { ApiError } from '@/app/lib/api/client';
+import { useToast } from '@/app/components/ui/Toast';
 import { cn } from '@/app/lib/utils/cn';
 import type { PortionSize, PriceTier, ReviewExtras } from '@/app/lib/types/social';
 
@@ -42,6 +43,7 @@ export default function ComposeClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuthContext();
+  const toast = useToast();
 
   const prefillDishId = searchParams?.get('dish') ?? null;
 
@@ -165,6 +167,7 @@ export default function ComposeClient() {
             avatarUrl: user.avatar_url ?? null,
           },
         });
+        toast.success('Reseña publicada', `${dish.name} en ${place.name}`);
         router.push(`/reviews/${post.id}`);
       } catch (err) {
         const message =
@@ -172,10 +175,11 @@ export default function ComposeClient() {
             ? err.detail
             : 'No se pudo publicar la reseña. Probá de nuevo.';
         setFormError(message);
+        toast.error('No se publicó la reseña', message);
         setSubmitting(false);
       }
     },
-    [canSubmit, user, score, place, dish, category, text, buildExtras, router],
+    [canSubmit, user, score, place, dish, category, text, buildExtras, router, toast],
   );
 
   const handleAddChip = (value: string, list: string[], setList: (v: string[]) => void, clear: () => void) => {
@@ -199,11 +203,24 @@ export default function ComposeClient() {
           Iniciá sesión para publicar
         </h1>
         <p className="max-w-md font-sans text-sm text-text-muted">
-          Solo usuarios con sesión pueden escribir reseñas. Volvé al feed y usá el botón de iniciar sesión del menú.
+          Las reseñas las firmás vos. Entrá a tu cuenta para publicar.
         </p>
-        <Button variant="primary" size="md" onClick={() => router.push('/')}>
-          Volver al feed
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => router.push('/login?next=/compose')}
+          >
+            Iniciar sesión
+          </Button>
+          <Button
+            variant="ghost"
+            size="md"
+            onClick={() => router.push('/registro?next=/compose')}
+          >
+            Crear cuenta
+          </Button>
+        </div>
       </div>
     );
   }

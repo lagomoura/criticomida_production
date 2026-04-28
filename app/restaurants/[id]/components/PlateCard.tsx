@@ -216,7 +216,7 @@ export default function PlateCard({
                 className={
                   'absolute bottom-0 left-1/2 -translate-x-1/2 rounded-[0.7em] ' +
                   'bg-black/25 px-3 py-0.5 pb-2 text-base text-white ' +
-                  'shadow-[0_2px_8px_#000]'
+                  'shadow-[0_2px_8px_rgba(26,22,20,0.6)]'
                 }
               >
                 {imgIdx + 1} / {images.length}

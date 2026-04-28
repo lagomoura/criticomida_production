@@ -52,7 +52,14 @@ export default function IconButton({
         className,
       )}
     >
-      <span aria-hidden className="inline-flex h-5 w-5 items-center justify-center">
+      <span
+        aria-hidden
+        key={`${intent}-${selected ? 'on' : 'off'}`}
+        className={cn(
+          'inline-flex h-5 w-5 items-center justify-center',
+          intent === 'like' && selected && 'cc-pop-on-select',
+        )}
+      >
         {loading ? <Spinner /> : icon}
       </span>
       {typeof count === 'number' && (

@@ -76,12 +76,12 @@ export default function RestaurantTabs({ children, counts }: RestaurantTabsProps
   return (
     <div className="mt-2">
       <div
-        className="sticky top-14 z-20 -mx-4 mb-6 border-y border-[var(--color-crema-darker)] bg-[var(--color-crema)]/95 px-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+        className="sticky top-14 z-20 -mx-4 mb-6 border-y border-border-default bg-surface-page/90 px-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
         role="tablist"
         aria-label="Secciones del restaurante"
         onKeyDown={handleKeyDown}
       >
-        <nav className="cc-container -mx-4 flex gap-1 overflow-x-auto px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <nav className="cc-container relative -mx-4 flex gap-1 overflow-x-auto px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
           {TABS.map((tab) => {
             const isActive = tab.key === activeTab;
             const count = counts?.[tab.key];
@@ -95,33 +95,39 @@ export default function RestaurantTabs({ children, counts }: RestaurantTabsProps
                 id={`tab-${tab.key}`}
                 tabIndex={isActive ? 0 : -1}
                 onClick={() => handleSelect(tab.key)}
-                className={`relative shrink-0 px-4 py-3 text-sm font-semibold transition ${
+                className={`group relative shrink-0 px-4 py-3 font-sans text-sm font-medium transition-colors ${
                   isActive
-                    ? 'text-[var(--color-azafran)]'
-                    : 'text-[var(--color-carbon-soft)] hover:text-[var(--color-carbon)]'
+                    ? 'text-action-primary'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 {tab.label}
                 {typeof count === 'number' && count > 0 && (
                   <span
-                    className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs ${
+                    className={`ml-1.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full px-1.5 font-sans text-[0.7rem] font-semibold tabular-nums transition-colors ${
                       isActive
-                        ? 'bg-[var(--color-azafran-pale)] text-[var(--color-canela)]'
-                        : 'bg-[var(--color-crema-dark)] text-[var(--color-carbon-soft)]'
+                        ? 'bg-action-primary text-text-inverse'
+                        : 'bg-surface-subtle text-text-secondary group-hover:bg-border-subtle'
                     }`}
                   >
                     {count}
                   </span>
                 )}
-                {isActive && (
-                  <span
-                    aria-hidden
-                    className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[var(--color-azafran)]"
-                  />
-                )}
+                <span
+                  aria-hidden
+                  className={`pointer-events-none absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-action-primary origin-left transition-transform duration-[var(--duration-standard)] ${
+                    isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-50'
+                  }`}
+                  style={{ transitionTimingFunction: 'var(--ease-spoon)' }}
+                />
               </button>
             );
           })}
+          {/* Right-edge fade — hints at scrollable overflow on mobile */}
+          <span
+            aria-hidden
+            className="pointer-events-none sticky right-0 top-0 -ml-6 h-full w-6 shrink-0 bg-gradient-to-l from-surface-page to-transparent md:hidden"
+          />
         </nav>
       </div>
 

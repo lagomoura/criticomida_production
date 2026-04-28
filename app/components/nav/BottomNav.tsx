@@ -8,8 +8,8 @@ import {
   faBell,
   faHouse,
   faMagnifyingGlass,
-  faPlus,
-  faUser,
+  faPenToSquare,
+  faRightToBracket,
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import Avatar from '@/app/components/ui/Avatar';
@@ -60,20 +60,22 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
         <BottomItem href="/" icon={faHouse} label="Inicio" active={isActive('/')} />
         <BottomItem href="/search" icon={faMagnifyingGlass} label="Buscar" active={isActive('/search')} />
 
-        {/* Crear — slot central destacado */}
-        <li className="flex justify-center">
+        {/* Publicar — slot central destacado */}
+        <li className="flex flex-col items-center justify-center gap-0.5">
           <button
             type="button"
             onClick={handleCompose}
             aria-label="Publicar una reseña"
             className={cn(
-              '-mt-3 inline-flex h-12 w-12 items-center justify-center rounded-full shadow-md transition-transform',
-              'bg-action-primary text-text-inverse hover:bg-action-primary-hover active:scale-95',
+              '-mt-3 inline-flex h-12 w-12 items-center justify-center rounded-full transition-transform',
+              'bg-action-primary text-text-inverse shadow-[var(--shadow-elevated)]',
+              'hover:bg-action-primary-hover active:scale-95',
               'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
             )}
           >
-            <FontAwesomeIcon icon={faPlus} aria-hidden className="h-4 w-4" />
+            <FontAwesomeIcon icon={faPenToSquare} aria-hidden className="h-4 w-4" />
           </button>
+          <span className="font-sans text-[10px] text-text-muted">Publicar</span>
         </li>
 
         <BottomButton
@@ -91,19 +93,32 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
               aria-label="Mi perfil"
               aria-current={isActive(`/u/${user.id}`) ? 'page' : undefined}
               className={cn(
-                'flex min-h-[56px] flex-col items-center justify-center gap-0.5 font-sans text-[10px]',
+                'relative flex min-h-[56px] flex-col items-center justify-center gap-0.5 font-sans text-[10px]',
                 isActive(`/u/${user.id}`) ? 'text-text-primary' : 'text-text-muted',
               )}
             >
               <Avatar src={user.avatar_url} name={user.display_name || user.email} size="xs" />
               <span>Perfil</span>
+              <ActiveDot active={isActive(`/u/${user.id}`)} />
             </Link>
           </li>
         ) : (
-          <BottomButton icon={faUser} label="Perfil" active={false} onClick={handleProfile} />
+          <BottomButton icon={faRightToBracket} label="Entrar" active={false} onClick={handleProfile} />
         )}
       </ul>
     </nav>
+  );
+}
+
+function ActiveDot({ active }: { active: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-action-primary transition-opacity',
+        active ? 'opacity-100' : 'opacity-0',
+      )}
+    />
   );
 }
 
@@ -140,6 +155,7 @@ function BottomItem({
           )}
         </span>
         <span>{label}</span>
+        <ActiveDot active={active} />
       </Link>
     </li>
   );
@@ -178,6 +194,7 @@ function BottomButton({
           )}
         </span>
         <span>{label}</span>
+        <ActiveDot active={active} />
       </button>
     </li>
   );

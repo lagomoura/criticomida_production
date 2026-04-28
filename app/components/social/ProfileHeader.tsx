@@ -21,31 +21,42 @@ export default function ProfileHeader({
   onOpenFollowing,
 }: ProfileHeaderProps) {
   const { isSelf, following } = profile.viewerState;
+  const kicker = isSelf ? 'Tu paladar' : 'Crítico';
 
   return (
-    <header className="flex flex-col gap-5">
-      <div className="flex items-start gap-5">
-        <Avatar src={profile.avatarUrl} name={profile.displayName} size="xl" />
+    <header className="flex flex-col gap-6 border-b border-border-subtle pb-6">
+      <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-action-primary">
+        {kicker}
+      </p>
+
+      <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-end sm:gap-7">
+        <Avatar
+          src={profile.avatarUrl}
+          name={profile.displayName}
+          size="xl"
+          className="ring-2 ring-surface-card shadow-[var(--shadow-base)]"
+        />
         <div className="min-w-0 flex-1">
-          <h1 className="font-display text-3xl font-medium text-text-primary sm:text-4xl">
+          <h1 className="m-0 font-display text-[clamp(2rem,5vw,3.5rem)] font-medium leading-[1.05] text-text-primary">
             {profile.displayName}
           </h1>
-          {profile.handle && (
-            <p className="mt-0.5 font-sans text-sm text-text-muted">@{profile.handle}</p>
-          )}
-          {profile.location && (
-            <p className="mt-1 font-sans text-sm text-text-muted">{profile.location}</p>
-          )}
+          <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 font-sans text-sm text-text-muted">
+            {profile.handle && <span>@{profile.handle}</span>}
+            {profile.handle && profile.location && (
+              <span aria-hidden className="opacity-60">·</span>
+            )}
+            {profile.location && <span>{profile.location}</span>}
+          </div>
         </div>
       </div>
 
       {profile.bio && (
-        <p className="max-w-2xl whitespace-pre-wrap font-sans text-[15px] leading-relaxed text-text-primary">
+        <p className="max-w-2xl whitespace-pre-wrap font-display italic text-base leading-relaxed text-text-secondary sm:text-lg">
           {profile.bio}
         </p>
       )}
 
-      <dl className="flex items-center gap-6 font-sans text-sm">
+      <dl className="flex flex-wrap items-baseline gap-x-7 gap-y-3 font-sans text-sm">
         <Stat label="reseñas" value={profile.counts.reviews} />
         <Stat
           label="seguidores"
@@ -89,9 +100,13 @@ function Stat({
   const content = (
     <>
       <dt className="sr-only">{label}</dt>
-      <dd className="flex items-baseline gap-1">
-        <span className="font-sans text-base font-medium tabular-nums text-text-primary">{value}</span>
-        <span className="font-sans text-sm text-text-muted">{label}</span>
+      <dd className="m-0 flex items-baseline gap-1.5">
+        <span className="font-display text-2xl font-medium tabular-nums text-action-primary">
+          {value}
+        </span>
+        <span className="font-sans text-xs uppercase tracking-[0.14em] text-text-muted">
+          {label}
+        </span>
       </dd>
     </>
   );
@@ -101,7 +116,7 @@ function Stat({
       <button
         type="button"
         onClick={onClick}
-        className="rounded-md text-left hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+        className="rounded-md text-left transition-colors hover:[&_dd>span:first-child]:text-action-primary-hover focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
       >
         {content}
       </button>

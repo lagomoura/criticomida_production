@@ -22,6 +22,12 @@ const kindTint: Record<NotificationKind, string> = {
   follow: 'text-[var(--state-follow-on)]',
 };
 
+const kindKicker: Record<NotificationKind, string> = {
+  like: 'Like',
+  comment: 'Comentario',
+  follow: 'Nuevo seguidor',
+};
+
 export default function NotificationItem({ notification, onOpen }: NotificationItemProps) {
   const Wrapper = onOpen ? 'button' : 'div';
   const wrapperProps = onOpen
@@ -56,7 +62,15 @@ export default function NotificationItem({ notification, onOpen }: NotificationI
         </span>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-sans text-sm text-text-primary">
+        <p
+          className={cn(
+            'm-0 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.2em]',
+            kindTint[notification.kind],
+          )}
+        >
+          {kindKicker[notification.kind]}
+        </p>
+        <p className="mt-0.5 m-0 font-sans text-sm text-text-primary">
           <span className="font-medium">{notification.actor.displayName}</span>{' '}
           <span className="text-text-secondary">{notification.text}</span>
         </p>
