@@ -171,6 +171,7 @@ export interface NearbyRestaurantItem {
   name: string;
   location_name: string;
   cover_image_url: string | null;
+  google_photo_url: string | null;
   computed_rating: number;
   review_count: number;
   category: Category | null;

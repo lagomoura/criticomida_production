@@ -42,13 +42,25 @@ export default function SignatureDishes({ items, totalDishes }: SignatureDishesP
             >
               <div className="relative h-32 w-32 shrink-0 sm:h-40 sm:w-40">
                 {dish.cover_image_url ? (
-                  <Image
-                    src={dish.cover_image_url}
-                    alt={dish.name}
-                    fill
-                    sizes="160px"
-                    className="object-cover"
-                  />
+                  // Las URLs de Google (lh3.googleusercontent.com / Places)
+                  // suelen romper next/image (302 a hosts variables, sin
+                  // dimensiones). Plain <img> es lo que ya hace HeroV2.
+                  /^https?:\/\/[^/]*google/i.test(dish.cover_image_url) ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={dish.cover_image_url}
+                      alt={dish.name}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={dish.cover_image_url}
+                      alt={dish.name}
+                      fill
+                      sizes="160px"
+                      className="object-cover"
+                    />
+                  )
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-[var(--color-canela)] text-3xl text-white/70">
                     🍽️

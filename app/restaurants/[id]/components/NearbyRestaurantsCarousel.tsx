@@ -33,19 +33,44 @@ export default function NearbyRestaurantsCarousel({
               className="group flex w-56 flex-col overflow-hidden rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-crema)] no-underline transition hover:border-[var(--color-azafran)]"
             >
               <div className="relative h-32 w-full bg-[var(--color-canela)]">
-                {r.cover_image_url ? (
-                  <Image
-                    src={r.cover_image_url}
-                    alt={r.name}
-                    fill
-                    sizes="224px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-3xl text-white/70">
-                    🍽️
-                  </div>
-                )}
+                {(() => {
+                  // Mismo patrón que HeroV2: si cover_image_url es una URL stale
+                  // del JS SDK de Places (caduca a los pocos minutos), preferimos
+                  // la URL HTTP de google_photos cacheada en Fase B.
+                  const isStaleJsSdkUrl = (url: string | null) =>
+                    !!url && url.includes('/maps/api/place/js/PhotoService');
+                  const cover = isStaleJsSdkUrl(r.cover_image_url) && r.google_photo_url
+                    ? null
+                    : r.cover_image_url;
+                  if (cover) {
+                    return (
+                      <Image
+                        src={cover}
+                        alt={r.name}
+                        fill
+                        sizes="224px"
+                        className="object-cover"
+                      />
+                    );
+                  }
+                  if (r.google_photo_url) {
+                    // URLs de Google Places redirigen 302 a hosts variables;
+                    // <img> evita el whitelist de next/image.
+                    return (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={r.google_photo_url}
+                        alt={r.name}
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                    );
+                  }
+                  return (
+                    <div className="flex h-full w-full items-center justify-center text-3xl text-white/70">
+                      🍽️
+                    </div>
+                  );
+                })()}
                 <span className="absolute right-2 top-2 rounded-full bg-[var(--color-carbon)]/85 px-2 py-0.5 text-xs font-semibold text-white">
                   {formatDistance(r.distance_km)}
                 </span>
