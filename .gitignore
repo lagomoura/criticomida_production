@@ -66,4 +66,14 @@ google_maps_data
 /.playwright-mcp/
 # Screenshots captured during dev/Playwright sessions
 /*.png
-.claude
+# Claude Code state.
+# Track shared project state (skills, agents, memory, plans) so the next
+# machine can pick up where the previous left off. Ignore local-only files
+# like settings.local.json (may include dev DB URLs) and any caches.
+.claude/*
+!.claude/README.md
+!.claude/skills/
+!.claude/agents/
+!.claude/agent-memory/
+!.claude/memory/
+!.claude/plans/
