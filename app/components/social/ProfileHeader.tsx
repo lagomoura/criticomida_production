@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
 import FollowButton from './FollowButton';
@@ -8,6 +10,8 @@ export interface ProfileHeaderProps {
   followLoading?: boolean;
   onFollowToggle?: (userId: string, next: boolean) => void;
   onEditProfile?: () => void;
+  onLogout?: () => void;
+  logoutLoading?: boolean;
   onOpenFollowers?: (userId: string) => void;
   onOpenFollowing?: (userId: string) => void;
 }
@@ -17,6 +21,8 @@ export default function ProfileHeader({
   followLoading = false,
   onFollowToggle,
   onEditProfile,
+  onLogout,
+  logoutLoading = false,
   onOpenFollowers,
   onOpenFollowing,
 }: ProfileHeaderProps) {
@@ -70,11 +76,26 @@ export default function ProfileHeader({
         />
       </dl>
 
-      <div>
+      <div className="flex flex-wrap items-center gap-2">
         {isSelf ? (
-          <Button variant="outline" size="md" onClick={onEditProfile}>
-            Editar perfil
-          </Button>
+          <>
+            <Button variant="outline" size="md" onClick={onEditProfile}>
+              Editar perfil
+            </Button>
+            {onLogout && (
+              <Button
+                variant="ghost"
+                size="md"
+                loading={logoutLoading}
+                onClick={onLogout}
+                leftIcon={
+                  <FontAwesomeIcon icon={faRightFromBracket} className="h-3.5 w-3.5" aria-hidden />
+                }
+              >
+                Cerrar sesión
+              </Button>
+            )}
+          </>
         ) : onFollowToggle ? (
           <FollowButton
             userId={profile.id}

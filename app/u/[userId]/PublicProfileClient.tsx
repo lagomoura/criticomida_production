@@ -3,18 +3,21 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faTriangleExclamation, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import Button from '@/app/components/ui/Button';
 import Skeleton from '@/app/components/ui/Skeleton';
 import EmptyState from '@/app/components/ui/EmptyState';
 import ProfileHeader from '@/app/components/social/ProfileHeader';
 import PostCard from '@/app/components/social/PostCard';
 import { getUserProfile, getUserPosts } from '@/app/lib/api/users';
+import { deleteReview } from '@/app/lib/api/reviews';
 import { ApiError } from '@/app/lib/api/client';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { usePostsInteraction } from '@/app/lib/hooks/usePostsInteraction';
 import { useFollowToggle } from '@/app/lib/hooks/useFollowToggle';
-import type { PublicUserProfile } from '@/app/lib/types/social';
+import type { PublicUserProfile, ReviewPost } from '@/app/lib/types/social';
+import PostActionsMenu from './PostActionsMenu';
+import EditPostModal from './EditPostModal';
 
 interface Props {
   userId: string;
@@ -30,8 +33,53 @@ export default function PublicProfileClient({ userId }: Props) {
   const [viewState, setViewState] = useState<ViewState>({ status: 'loading' });
   const { posts, setPosts, toggleLike, toggleSave } = usePostsInteraction();
   const { loading: followLoading, toggle: toggleFollow } = useFollowToggle();
-  const { user } = useAuthContext();
+  const { user, logout } = useAuthContext();
   const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [menuPost, setMenuPost] = useState<ReviewPost | null>(null);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+
+  const handleLogout = useCallback(async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+      router.push('/');
+    } catch {
+      setLoggingOut(false);
+    }
+  }, [logout, router]);
+
+  const handleDeletePost = useCallback(
+    async (postId: string) => {
+      await deleteReview(postId);
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+      // Keep the header counter in sync with the visible list.
+      setViewState((prev) =>
+        prev.status === 'ready'
+          ? {
+              ...prev,
+              profile: {
+                ...prev.profile,
+                counts: {
+                  ...prev.profile.counts,
+                  reviews: Math.max(0, prev.profile.counts.reviews - 1),
+                },
+              },
+            }
+          : prev,
+      );
+    },
+    [setPosts],
+  );
+
+  const handlePostUpdated = useCallback(
+    (postId: string, overlay: Partial<ReviewPost>) => {
+      setPosts((prev) =>
+        prev.map((p) => (p.id === postId ? { ...p, ...overlay } : p)),
+      );
+    },
+    [setPosts],
+  );
 
   const load = useCallback(async () => {
     setViewState({ status: 'loading' });
@@ -128,16 +176,30 @@ export default function PublicProfileClient({ userId }: Props) {
         profile={profile}
         followLoading={followLoading}
         onFollowToggle={(id, next) => void handleFollow(id, next)}
-        onEditProfile={() => router.push('/profile')}
+        onEditProfile={() => router.push('/settings')}
+        onLogout={() => void handleLogout()}
+        logoutLoading={loggingOut}
       />
 
       <section className="flex flex-col gap-4" aria-labelledby="user-reviews-title">
-        <h2 id="user-reviews-title" className="font-display text-2xl font-medium text-text-primary">
-          Reseñas
-          <span className="ml-2 font-sans text-base font-normal text-text-muted">
-            ({profile.counts.reviews})
-          </span>
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="user-reviews-title" className="font-display text-2xl font-medium text-text-primary">
+            Reseñas
+            <span className="ml-2 font-sans text-base font-normal text-text-muted">
+              ({profile.counts.reviews})
+            </span>
+          </h2>
+          {profile.viewerState.isSelf && posts.length > 0 && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => router.push('/compose')}
+              leftIcon={<FontAwesomeIcon icon={faPenToSquare} className="h-3.5 w-3.5" aria-hidden />}
+            >
+              Publicar reseña
+            </Button>
+          )}
+        </div>
 
         {posts.length === 0 ? (
           <EmptyState
@@ -166,11 +228,36 @@ export default function PublicProfileClient({ userId }: Props) {
                 onToggleLike={(id, next) => void toggleLike(id, next)}
                 onToggleSave={(id, next) => void toggleSave(id, next)}
                 onComment={(id) => router.push(`/reviews/${id}#comments`)}
+                onOpenMenu={
+                  profile.viewerState.isSelf
+                    ? (id) => setMenuPost(posts.find((p) => p.id === id) ?? null)
+                    : undefined
+                }
               />
             ))}
           </div>
         )}
       </section>
+
+      {menuPost && (
+        <PostActionsMenu
+          post={menuPost}
+          onClose={() => setMenuPost(null)}
+          onDelete={handleDeletePost}
+          onEdit={(id) => {
+            setMenuPost(null);
+            setEditingPostId(id);
+          }}
+        />
+      )}
+
+      {editingPostId && (
+        <EditPostModal
+          postId={editingPostId}
+          onClose={() => setEditingPostId(null)}
+          onUpdated={handlePostUpdated}
+        />
+      )}
     </div>
   );
 }

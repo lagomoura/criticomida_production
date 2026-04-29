@@ -1,5 +1,5 @@
 import { fetchApi } from './client';
-import { DishReview, MyReview, CreateReviewRequest, UpdateReviewRequest } from '../types';
+import { DishReview, CreateReviewRequest, UpdateReviewRequest } from '../types';
 
 export async function uploadReviewPhoto(dishId: string, file: File, displayOrder: number): Promise<string> {
   const form = new FormData();
@@ -39,8 +39,4 @@ export async function deleteReview(reviewId: string): Promise<void> {
   return fetchApi<void>(`/api/dish-reviews/${reviewId}`, {
     method: 'DELETE',
   });
-}
-
-export async function getMyReviews(): Promise<MyReview[]> {
-  return fetchApi<MyReview[]>('/api/users/me/reviews');
 }
