@@ -110,7 +110,7 @@ export default function DishChecklistItem({
 
         {/* Actions */}
         <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
-          {user && !hasReviewed && !showForm && (
+          {user && !showForm && (
             <button
               type="button"
               onClick={() => { setShowForm(true); setExpanded(true); }}
@@ -120,7 +120,7 @@ export default function DishChecklistItem({
                 'hover:bg-[var(--mainPink)] hover:text-white sm:text-sm'
               }
             >
-              Reseñar
+              {hasReviewed ? 'Reseñar de nuevo' : 'Reseñar'}
             </button>
           )}
           {reviews.length > 0 && (
@@ -152,9 +152,11 @@ export default function DishChecklistItem({
       {expanded && (
         <div className="border-t border-neutral-100 px-3 pb-4 pt-3 sm:px-4">
           {/* Inline review form */}
-          {showForm && user && !hasReviewed && (
+          {showForm && user && (
             <div className="mb-4">
-              <p className="mb-2 text-sm font-semibold text-neutral-700">Tu reseña de {dish.name}</p>
+              <p className="mb-2 text-sm font-semibold text-neutral-700">
+                {hasReviewed ? `Nueva reseña de ${dish.name}` : `Tu reseña de ${dish.name}`}
+              </p>
               <DishReviewForm
                 dishId={dish.id}
                 dishName={dish.name}
