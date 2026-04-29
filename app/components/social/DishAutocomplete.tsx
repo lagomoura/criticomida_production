@@ -4,7 +4,9 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUtensils, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { fetchApi } from '@/app/lib/api/client';
+import { suggestSimilarDishes, type DishSuggestion } from '@/app/lib/api/dishes';
 import { cn } from '@/app/lib/utils/cn';
+import SimilarDishConfirmModal from './SimilarDishConfirmModal';
 
 export interface SelectedDish {
   /** If the user picked an existing dish. Absent when creating a new one. */
@@ -38,6 +40,9 @@ export default function DishAutocomplete({
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [pendingNewName, setPendingNewName] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<DishSuggestion[]>([]);
+  const [checkingSimilar, setCheckingSimilar] = useState(false);
 
   const listboxId = useId();
   const debounceRef = useRef<number | null>(null);
@@ -110,12 +115,56 @@ export default function DishAutocomplete({
     [onChange],
   );
 
-  const createNew = useCallback(() => {
+  // "Crear plato nuevo" path — first ask the backend if the input would
+  // duplicate an existing dish (with typos / accents). If the backend returns
+  // candidates we pop a modal so the user can either pick one or insist on a
+  // brand-new dish; if it returns nothing we just create silently.
+  const createNew = useCallback(async () => {
     const name = query.trim();
-    if (!name) return;
-    onChange({ id: null, name });
-    setOpen(false);
-  }, [query, onChange]);
+    if (!name || !restaurantPlaceId) return;
+    setCheckingSimilar(true);
+    try {
+      const candidates = await suggestSimilarDishes(restaurantPlaceId, name);
+      if (candidates.length === 0) {
+        onChange({ id: null, name });
+        setOpen(false);
+        return;
+      }
+      setSuggestions(candidates);
+      setPendingNewName(name);
+      setOpen(false);
+    } catch {
+      // If the suggest endpoint blows up, fall back to the old behavior so
+      // the user can still publish their review.
+      onChange({ id: null, name });
+      setOpen(false);
+    } finally {
+      setCheckingSimilar(false);
+    }
+  }, [query, restaurantPlaceId, onChange]);
+
+  const confirmExisting = useCallback(
+    (suggestion: DishSuggestion) => {
+      onChange({ id: suggestion.id, name: suggestion.name });
+      setQuery(suggestion.name);
+      setSuggestions([]);
+      setPendingNewName(null);
+    },
+    [onChange],
+  );
+
+  const confirmCreateNew = useCallback(() => {
+    if (pendingNewName) {
+      onChange({ id: null, name: pendingNewName });
+    }
+    setSuggestions([]);
+    setPendingNewName(null);
+  }, [pendingNewName, onChange]);
+
+  const cancelModal = useCallback(() => {
+    setSuggestions([]);
+    setPendingNewName(null);
+  }, []);
 
   const clearSelection = useCallback(() => {
     onChange(null);
@@ -140,7 +189,7 @@ export default function DishAutocomplete({
           if (activeIndex < results.length) {
             pickExisting(results[activeIndex]);
           } else {
-            createNew();
+            void createNew();
           }
         }
       } else if (e.key === 'Escape') {
@@ -243,16 +292,22 @@ export default function DishAutocomplete({
                 role="option"
                 aria-selected={activeIndex === results.length}
                 onMouseEnter={() => setActiveIndex(results.length)}
-                onClick={createNew}
+                onClick={() => void createNew()}
+                disabled={checkingSimilar}
                 className={cn(
                   'flex w-full items-center gap-2 px-3 py-2 text-left font-sans text-sm',
                   activeIndex === results.length
                     ? 'bg-surface-subtle text-text-primary'
                     : 'bg-transparent text-action-primary',
+                  checkingSimilar && 'cursor-wait opacity-60',
                 )}
               >
                 <FontAwesomeIcon icon={faPlus} className="h-3 w-3" aria-hidden />
-                <span className="truncate">Crear plato nuevo: &ldquo;{query.trim()}&rdquo;</span>
+                <span className="truncate">
+                  {checkingSimilar
+                    ? 'Buscando platos parecidos…'
+                    : `Crear plato nuevo: “${query.trim()}”`}
+                </span>
               </button>
             </li>
           )}
@@ -263,6 +318,16 @@ export default function DishAutocomplete({
         <p className="absolute inset-x-0 top-full z-20 mt-1 rounded-xl border border-border-default bg-surface-card px-3 py-2 font-sans text-xs text-text-muted shadow-lg">
           Empezá a tipear el nombre del plato (≥2 caracteres).
         </p>
+      )}
+
+      {pendingNewName && suggestions.length > 0 && (
+        <SimilarDishConfirmModal
+          attemptedName={pendingNewName}
+          suggestions={suggestions}
+          onPickExisting={confirmExisting}
+          onCreateNew={confirmCreateNew}
+          onCancel={cancelModal}
+        />
       )}
     </div>
   );
