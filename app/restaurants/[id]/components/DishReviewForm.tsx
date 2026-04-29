@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { createReview, uploadReviewPhoto } from '@/app/lib/api/reviews';
 import { ApiError } from '@/app/lib/api/client';
 import { PortionSize, DishReview } from '@/app/lib/types';
@@ -56,6 +56,8 @@ export default function DishReviewForm({ dishId, resolveDishId, dishName, onSucc
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // File picker programático (evita quirks de <label>+input nesteado).
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
 
   function addPro() { setPros(p => [...p, { id: nextId(), text: '' }]); }
   function removePro(id: number) { setPros(p => p.filter(x => x.id !== id)); }
@@ -282,18 +284,23 @@ export default function DishReviewForm({ dishId, resolveDishId, dishName, onSucc
                   </button>
                 </div>
               ))}
-              <label className="group flex h-16 w-16 shrink-0 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-dashed border-border-default bg-surface-card text-text-muted transition-all hover:border-color-azafran hover:bg-color-azafran-pale hover:text-color-azafran">
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                disabled={submitting}
+                className="group flex h-16 w-16 shrink-0 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-dashed border-border-default bg-surface-card text-text-muted transition-all hover:border-color-azafran hover:bg-color-azafran-pale hover:text-color-azafran disabled:cursor-not-allowed disabled:opacity-50"
+              >
                 <span className="text-lg leading-none">+</span>
                 <span className="text-[10px] font-medium">Foto</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="sr-only"
-                  onChange={handlePhotoAdd}
-                  disabled={submitting}
-                />
-              </label>
+              </button>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                onChange={handlePhotoAdd}
+              />
             </div>
           </div>
         </div>

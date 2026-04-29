@@ -217,9 +217,15 @@ export default function PublishReviewModal({
         aria-modal="true"
         aria-labelledby="publish-review-title"
         className={[
-          'relative z-10 flex w-full flex-col overflow-hidden bg-surface-card text-text-primary',
-          // dvh = dynamic viewport height: se ajusta al viewport real cuando se abre/cierra
-          // el file picker en mobile (vh queda stale y rompe el layout).
+          'relative z-10 grid w-full overflow-hidden bg-surface-card text-text-primary',
+          // Grid 2 filas: chrome (drag + header + divider) + body scrollable.
+          // minmax(0, 1fr) en el body es CRÍTICO: el min:0 evita que el grid
+          // use min-content (que desactivaría el overflow-y-auto del body),
+          // y permite que el body crezca/scrollee dentro del modal de altura
+          // estable. flex-1 + min-h-0 funciona pero es más frágil ante
+          // re-layouts (file picker en Chrome/Edge dispara uno y colapsaba
+          // el body a ~3px).
+          'grid-rows-[auto_minmax(0,1fr)]',
           'max-h-[94dvh] sm:max-h-[88dvh] sm:max-w-[48rem]',
           'rounded-t-3xl sm:rounded-3xl',
           'border-t border-border-subtle sm:border',
@@ -227,13 +233,15 @@ export default function PublishReviewModal({
           'motion-safe:animate-[cc-modal-sheet-up_320ms_var(--ease-spoon)] sm:motion-safe:animate-[cc-modal-pop_240ms_var(--ease-spoon)]',
         ].join(' ')}
       >
+        {/* Row 1: chrome (drag + header + divider) */}
+        <div>
         {/* Drag indicator (mobile) */}
-        <div className="flex shrink-0 justify-center pb-1 pt-2.5 sm:hidden">
+        <div className="flex justify-center pb-1 pt-2.5 sm:hidden">
           <div className="h-1 w-10 rounded-full bg-border-default" aria-hidden />
         </div>
 
         {/* Header */}
-        <header className="relative shrink-0 px-6 pt-5 pb-4 sm:px-8 sm:pt-7 sm:pb-5">
+        <header className="relative px-6 pt-5 pb-4 sm:px-8 sm:pt-7 sm:pb-5">
           <p className="font-sans text-[10.5px] font-semibold uppercase tracking-[0.22em] text-color-azafran">
             Reseña · Publicar
           </p>
@@ -265,10 +273,12 @@ export default function PublishReviewModal({
           </button>
         </header>
 
-        <div className="mx-6 h-px shrink-0 bg-border-subtle sm:mx-8" aria-hidden />
+        <div className="mx-6 h-px bg-border-subtle sm:mx-8" aria-hidden />
+        </div>
 
-        {/* Body — min-h-0 es crítico para que overflow-y-auto funcione dentro de flex-col. */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 sm:px-8 sm:py-6">
+        {/* Row 2: body scrollable. minmax(0,1fr) del grid-template del padre
+            le da altura definida; overflow-y-auto se encarga del scroll. */}
+        <div className="overflow-y-auto px-6 py-5 sm:px-8 sm:py-6">
           {!selection && (
             <DishPicker
               query={query}

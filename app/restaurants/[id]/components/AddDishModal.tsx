@@ -200,7 +200,11 @@ export default function AddDishModal({
         aria-modal="true"
         aria-labelledby="add-dish-title"
         className={[
-          'relative z-10 flex w-full flex-col overflow-hidden bg-surface-card text-text-primary',
+          'relative z-10 grid w-full overflow-hidden bg-surface-card text-text-primary',
+          // Grid 3 filas: chrome, body scrollable, footer sticky.
+          // minmax(0,1fr) en el body es necesario para que el overflow-y-auto
+          // funcione sin colapsar (ver comentario en PublishReviewModal).
+          'grid-rows-[auto_minmax(0,1fr)_auto]',
           'max-h-[92dvh] sm:max-h-[88dvh] sm:max-w-[28rem]',
           'rounded-t-3xl sm:rounded-3xl',
           'border-t border-border-subtle sm:border',
@@ -208,13 +212,15 @@ export default function AddDishModal({
           'motion-safe:animate-[cc-modal-sheet-up_320ms_var(--ease-spoon)] sm:motion-safe:animate-[cc-modal-pop_240ms_var(--ease-spoon)]',
         ].join(' ')}
       >
+        {/* Row 1: chrome */}
+        <div>
         {/* Drag indicator (mobile) */}
-        <div className="flex shrink-0 justify-center pb-1 pt-2.5 sm:hidden">
+        <div className="flex justify-center pb-1 pt-2.5 sm:hidden">
           <div className="h-1 w-10 rounded-full bg-border-default" aria-hidden />
         </div>
 
         {/* Header */}
-        <header className="relative shrink-0 px-6 pt-5 pb-4 sm:px-7 sm:pt-7 sm:pb-5">
+        <header className="relative px-6 pt-5 pb-4 sm:px-7 sm:pt-7 sm:pb-5">
           <p className="font-sans text-[10.5px] font-semibold uppercase tracking-[0.22em] text-color-azafran">
             Menú · Nueva entrada
           </p>
@@ -246,11 +252,14 @@ export default function AddDishModal({
           </button>
         </header>
 
-        <div className="mx-6 h-px shrink-0 bg-border-subtle sm:mx-7" aria-hidden />
+        <div className="mx-6 h-px bg-border-subtle sm:mx-7" aria-hidden />
+        </div>
 
-        {/* Body */}
-        <div className="flex min-h-0 flex-1 flex-col">
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 sm:px-7 sm:py-6">
+        {/* Row 2 + 3: body + footer (mantengo la estructura del form para
+            que envuelva ambos y el submit funcione naturalmente, pero el
+            grid del padre dimensiona body y footer independientemente). */}
+        <div className="contents">
+          <div className="overflow-y-auto px-6 py-5 sm:px-7 sm:py-6">
             <div className="flex flex-col gap-5">
               {/* Cover photo dropzone */}
               <CoverPhotoField
