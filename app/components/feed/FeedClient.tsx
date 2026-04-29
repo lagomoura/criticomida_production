@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import Tabs from '@/app/components/ui/Tabs';
 import FeedList, { type FeedState } from './FeedList';
 import FeedWelcome from './FeedWelcome';
+import DiscoveryRails from './discovery/DiscoveryRails';
 import { getFeed } from '@/app/lib/api/feed';
 import { likePost, unlikePost, savePost, unsavePost } from '@/app/lib/api/interactions';
+import { addToWantToTry, removeFromWantToTry } from '@/app/lib/api/want-to-try';
 import { useToast } from '@/app/components/ui/Toast';
 import ReportModal from '@/app/components/social/ReportModal';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
@@ -149,6 +151,7 @@ export default function FeedClient() {
   );
 
   useEffect(() => {
+    if (activeTab === 'for_you') return; // 'Para ti' ahora son rails — no hay cursor.
     if (startedTabsRef.current.has(activeTab)) return;
     startedTabsRef.current.add(activeTab);
     void loadFirstPage(activeTab);
@@ -190,6 +193,32 @@ export default function FeedClient() {
     [toast],
   );
 
+  const handleToggleWantToTry = useCallback(
+    async (dishId: string, next: boolean) => {
+      // Toggle a TODAS las posts del mismo plato (puede aparecer en varios tabs).
+      setCache((prev) =>
+        mapPosts(prev, (post) =>
+          post.dish.id === dishId ? applyWantToTry(post, next) : post,
+        ),
+      );
+      try {
+        if (next) await addToWantToTry(dishId);
+        else await removeFromWantToTry(dishId);
+      } catch {
+        setCache((prev) =>
+          mapPosts(prev, (post) =>
+            post.dish.id === dishId ? applyWantToTry(post, !next) : post,
+          ),
+        );
+        toast.error(
+          next ? 'No se pudo agregar a tu lista' : 'No se pudo quitar de tu lista',
+          'Probá de nuevo en un momento.',
+        );
+      }
+    },
+    [toast],
+  );
+
   const tabs = [
     { value: 'for_you', label: 'Para ti' },
     { value: 'following', label: 'Siguiendo' },
@@ -221,46 +250,45 @@ export default function FeedClient() {
         />
       )}
 
-      <FeedList
-        state={cache[activeTab].state}
-        emptyTitle={activeTab === 'following' ? 'Todavía no seguís a nadie' : 'Sin reseñas por ahora'}
-        emptyDescription={
-          activeTab === 'following'
-            ? 'Seguí a críticos o amigos para ver sus reseñas acá.'
-            : 'Cuando haya reseñas nuevas las vas a ver en este feed.'
-        }
-        emptyAction={
-          activeTab === 'following'
-            ? { label: 'Descubrir críticos', href: '/search' }
-            : undefined
-        }
-        onReachEnd={() => void loadNextPage(activeTab)}
-        onLoadMoreRetry={() => void loadNextPage(activeTab)}
-        onOpenPost={(postId) => router.push(`/reviews/${postId}`)}
-        onOpenDish={(dishId) => router.push(`/dishes/${dishId}`)}
-        onOpenAuthor={(userId) => router.push(`/u/${userId}`)}
-        onOpenRestaurant={(restaurantId) => router.push(`/restaurants/${restaurantId}`)}
-        onComment={(postId) => router.push(`/reviews/${postId}#comments`)}
-        onOpenMenu={
-          user
-            ? (postId) => {
-                const slot = cache[activeTab];
-                const post = slot.state.status === 'ready'
-                  ? slot.state.posts.find((p) => p.id === postId)
-                  : undefined;
-                const subject = post ? `${post.dish.name} @ ${post.dish.restaurantName}` : undefined;
-                setReportTarget({ id: postId, subject: subject ?? '' });
-              }
-            : undefined
-        }
-        onShare={(postId) => {
-          if (typeof navigator !== 'undefined' && navigator.share) {
-            void navigator.share({ url: `${location.origin}/reviews/${postId}` });
+      {activeTab === 'for_you' ? (
+        <DiscoveryRails />
+      ) : (
+        <FeedList
+          state={cache[activeTab].state}
+          emptyTitle="Todavía no seguís a nadie"
+          emptyDescription="Seguí a críticos o amigos para ver sus reseñas acá."
+          emptyAction={{ label: 'Descubrir críticos', href: '/search' }}
+          onReachEnd={() => void loadNextPage(activeTab)}
+          onLoadMoreRetry={() => void loadNextPage(activeTab)}
+          onOpenPost={(postId) => router.push(`/reviews/${postId}`)}
+          onOpenDish={(dishId) => router.push(`/dishes/${dishId}`)}
+          onOpenAuthor={(userId) => router.push(`/u/${userId}`)}
+          onOpenRestaurant={(restaurantId) => router.push(`/restaurants/${restaurantId}`)}
+          onComment={(postId) => router.push(`/reviews/${postId}#comments`)}
+          onOpenMenu={
+            user
+              ? (postId) => {
+                  const slot = cache[activeTab];
+                  const post = slot.state.status === 'ready'
+                    ? slot.state.posts.find((p) => p.id === postId)
+                    : undefined;
+                  const subject = post ? `${post.dish.name} @ ${post.dish.restaurantName}` : undefined;
+                  setReportTarget({ id: postId, subject: subject ?? '' });
+                }
+              : undefined
           }
-        }}
-        onToggleLike={(id, next) => void handleToggleLike(id, next)}
-        onToggleSave={(id, next) => void handleToggleSave(id, next)}
-      />
+          onShare={(postId) => {
+            if (typeof navigator !== 'undefined' && navigator.share) {
+              void navigator.share({ url: `${location.origin}/reviews/${postId}` });
+            }
+          }}
+          onToggleLike={(id, next) => void handleToggleLike(id, next)}
+          onToggleSave={(id, next) => void handleToggleSave(id, next)}
+          onToggleWantToTry={
+            user ? (dishId, next) => void handleToggleWantToTry(dishId, next) : undefined
+          }
+        />
+      )}
     </section>
   );
 }
@@ -294,5 +322,13 @@ function applySave(post: ReviewPost, next: boolean): ReviewPost {
     ...post,
     viewerState: { ...post.viewerState, saved: next },
     stats: { ...post.stats, saves: post.stats.saves + (next ? 1 : -1) },
+  };
+}
+
+function applyWantToTry(post: ReviewPost, next: boolean): ReviewPost {
+  if ((post.viewerState.wantToTry ?? false) === next) return post;
+  return {
+    ...post,
+    viewerState: { ...post.viewerState, wantToTry: next },
   };
 }

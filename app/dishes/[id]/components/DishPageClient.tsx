@@ -87,9 +87,11 @@ export default function DishPageClient({
         resumen: (
           <div className="space-y-8">
             <DishActionsBar
+              dishId={dish.id}
               dishName={dish.name}
               restaurantSlug={dish.restaurantSlug}
               restaurantId={dish.restaurantId}
+              initialWantToTry={dish.wantToTry ?? false}
             />
             {dish.description ? (
               <DishDescriptionCard description={dish.description} />

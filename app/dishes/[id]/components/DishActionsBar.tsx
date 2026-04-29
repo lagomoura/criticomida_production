@@ -3,21 +3,29 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
+import { useToast } from '@/app/components/ui/Toast';
+import { addToWantToTry, removeFromWantToTry } from '@/app/lib/api/want-to-try';
 
 interface DishActionsBarProps {
+  dishId: string;
   dishName: string;
   restaurantSlug?: string | null;
   restaurantId: string;
+  initialWantToTry?: boolean;
 }
 
 export default function DishActionsBar({
+  dishId,
   dishName,
   restaurantSlug,
   restaurantId,
+  initialWantToTry = false,
 }: DishActionsBarProps) {
   const router = useRouter();
   const { user } = useAuthContext();
-  const [saved, setSaved] = useState(false);
+  const toast = useToast();
+  const [wantToTry, setWantToTry] = useState(initialWantToTry);
+  const [busy, setBusy] = useState(false);
   const [shared, setShared] = useState(false);
 
   const handleWriteReview = useCallback(() => {
@@ -30,6 +38,29 @@ export default function DishActionsBar({
     // pensado para el caso "no sé qué plato" con Google Places autocomplete).
     window.dispatchEvent(new CustomEvent('cc:publish-review'));
   }, [router, user]);
+
+  const handleToggleWantToTry = useCallback(async () => {
+    if (!user) {
+      router.push('/login?next=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
+    if (busy) return;
+    const next = !wantToTry;
+    setWantToTry(next);
+    setBusy(true);
+    try {
+      if (next) await addToWantToTry(dishId);
+      else await removeFromWantToTry(dishId);
+    } catch {
+      setWantToTry(!next);
+      toast.error(
+        next ? 'No se pudo agregar a tu lista' : 'No se pudo quitar de tu lista',
+        'Probá de nuevo en un momento.',
+      );
+    } finally {
+      setBusy(false);
+    }
+  }, [busy, dishId, router, toast, user, wantToTry]);
 
   const handleShare = useCallback(async () => {
     if (typeof window === 'undefined') return;
@@ -68,15 +99,16 @@ export default function DishActionsBar({
       </button>
       <button
         type="button"
-        onClick={() => setSaved((v) => !v)}
-        aria-pressed={saved}
-        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-          saved
+        onClick={handleToggleWantToTry}
+        aria-pressed={wantToTry}
+        aria-busy={busy || undefined}
+        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition disabled:opacity-60 ${
+          wantToTry
             ? 'border-[var(--color-azafran)] bg-[var(--color-azafran-pale)] text-[var(--color-canela)]'
             : 'border-[var(--color-crema-darker)] bg-white text-[var(--color-carbon)] hover:border-[var(--color-azafran)]'
         }`}
       >
-        {saved ? '★ Guardado' : '☆ Guardar'}
+        {wantToTry ? '★ En tu lista' : '☆ Quiero probarlo'}
       </button>
       <button
         type="button"

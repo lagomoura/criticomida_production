@@ -47,6 +47,7 @@ interface FeedViewerStateDTO {
   liked: boolean;
   saved: boolean;
   following_author: boolean;
+  want_to_try?: boolean;
 }
 
 interface FeedExtrasDTO {
@@ -118,6 +119,7 @@ export function toReviewPost(dto: FeedItemDTO): ReviewPost {
       liked: dto.viewer_state.liked,
       saved: dto.viewer_state.saved,
       followingAuthor: dto.viewer_state.following_author,
+      wantToTry: dto.viewer_state.want_to_try ?? false,
     },
     extras,
   };

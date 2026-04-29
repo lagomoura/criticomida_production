@@ -43,6 +43,7 @@ interface DishSocialDetailDTO {
   editorial_blurb: string | null;
   editorial_source: string | null;
   created_by_display_name: string | null;
+  want_to_try?: boolean;
 }
 
 interface DishPillarBreakdownDTO {
@@ -145,6 +146,7 @@ function toDishDetail(dto: DishSocialDetailDTO): DishDetail {
     editorialBlurb: dto.editorial_blurb,
     editorialSource: dto.editorial_source,
     createdByDisplayName: dto.created_by_display_name,
+    wantToTry: dto.want_to_try ?? false,
   };
 }
 

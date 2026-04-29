@@ -57,6 +57,8 @@ export interface PostViewerState {
   liked: boolean;
   saved: boolean;
   followingAuthor?: boolean;
+  /** Marcado por el usuario como 'Quiero probarlo' (wishlist a nivel plato). */
+  wantToTry?: boolean;
 }
 
 export interface ReviewPost {
@@ -155,6 +157,7 @@ export interface DishDetail {
   editorialBlurb?: string | null;
   editorialSource?: string | null;
   createdByDisplayName?: string | null;
+  wantToTry?: boolean;
 }
 
 export interface DishProsConsItem {
@@ -253,6 +256,75 @@ export interface RelatedDishItem {
 }
 
 export type FeedType = 'for_you' | 'following';
+
+// --- Discovery feed (Geek Score, rails) ---
+
+export type DiscoverySort =
+  | 'geek_score'
+  | 'execution'
+  | 'value_prop'
+  | 'presentation'
+  | 'distance';
+
+export interface DiscoveryPillarStats {
+  presentationAvg: number | null;
+  presentationN: number;
+  valuePropAvg: number | null;
+  valuePropN: number;
+  executionAvg: number | null;
+  executionN: number;
+}
+
+export interface DiscoveryDishItem {
+  dishId: string;
+  dishName: string;
+  coverImageUrl: string | null;
+  priceTier: PriceTier | null;
+  computedRating: number;
+  reviewCount: number;
+  /** 0..100 — combinación bayesiana de pilares + estrellas. */
+  geekScore: number;
+  pillars: DiscoveryPillarStats;
+  distanceKm: number | null;
+  restaurantId: string;
+  restaurantSlug: string;
+  restaurantName: string;
+  restaurantCity: string | null;
+  category: string | null;
+  wantToTry: boolean;
+}
+
+export interface DiscoveryDishPage {
+  items: DiscoveryDishItem[];
+}
+
+export interface DishDuel {
+  category: string | null;
+  items: DiscoveryDishItem[];
+}
+
+// --- Wishlist 'Quiero probarlo' ---
+
+export interface WantToTryItem {
+  dishId: string;
+  dishName: string;
+  coverImageUrl: string | null;
+  computedRating: number;
+  reviewCount: number;
+  restaurantId: string;
+  restaurantSlug: string;
+  restaurantName: string;
+  restaurantCity: string | null;
+  restaurantLatitude: number | null;
+  restaurantLongitude: number | null;
+  /** ISO timestamp del momento en que se agregó a la wishlist. */
+  savedAt: string;
+}
+
+export interface WantToTryPage {
+  items: WantToTryItem[];
+  nextCursor: string | null;
+}
 
 export interface PublicUserProfile {
   id: string;

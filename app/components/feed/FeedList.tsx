@@ -39,6 +39,7 @@ export interface FeedListProps {
   onOpenRestaurant?: PostCardProps['onOpenRestaurant'];
   onToggleLike?: PostCardProps['onToggleLike'];
   onToggleSave?: PostCardProps['onToggleSave'];
+  onToggleWantToTry?: PostCardProps['onToggleWantToTry'];
   onComment?: PostCardProps['onComment'];
   onShare?: PostCardProps['onShare'];
   onOpenMenu?: PostCardProps['onOpenMenu'];

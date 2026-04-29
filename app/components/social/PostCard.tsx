@@ -7,6 +7,7 @@ import PostBody from './PostBody';
 import PostMedia from './PostMedia';
 import PostActions from './PostActions';
 import PostExtras from './PostExtras';
+import WantToTryButton from '@/app/components/dishes/WantToTryButton';
 
 export interface PostCardProps {
   post: ReviewPost;
@@ -18,6 +19,7 @@ export interface PostCardProps {
   onOpenRestaurant?: (restaurantId: string) => void;
   onToggleLike?: (postId: string, next: boolean) => void;
   onToggleSave?: (postId: string, next: boolean) => void;
+  onToggleWantToTry?: (dishId: string, next: boolean) => void;
   onComment?: (postId: string) => void;
   onShare?: (postId: string) => void;
   onOpenMenu?: (postId: string) => void;
@@ -33,6 +35,7 @@ export default function PostCard({
   onOpenRestaurant,
   onToggleLike,
   onToggleSave,
+  onToggleWantToTry,
   onComment,
   onShare,
   onOpenMenu,
@@ -132,6 +135,16 @@ export default function PostCard({
           onShare={onShare}
         />
       </div>
+
+      {onToggleWantToTry && (
+        <div className="relative z-10 flex justify-end">
+          <WantToTryButton
+            dishId={post.dish.id}
+            active={Boolean(post.viewerState.wantToTry)}
+            onToggle={onToggleWantToTry}
+          />
+        </div>
+      )}
     </article>
   );
 }
