@@ -26,4 +26,11 @@ export type {
   OpenStatusInfo,
 } from './restaurant';
 export type { Category } from './category';
+export type {
+  MapDishHighlight,
+  MapRestaurantPin,
+  BboxQuery,
+  MapBboxResponse,
+  MapSort,
+} from './discovery';
 export type { User, TokenResponse, RegisterRequest, LoginRequest, UserRole } from './user';

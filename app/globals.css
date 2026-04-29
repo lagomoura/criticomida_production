@@ -1773,6 +1773,14 @@ gmp-place-autocomplete {
   width: 100%;
 }
 
+/* Google Maps InfoWindow: el .gm-style-iw-d pone overflow: auto inline y
+   muestra una scrollbar horizontal aunque el contenido entre — una pelusa
+   subpixel basta. Forzamos overflow-x: hidden manteniendo overflow-y: auto
+   por si el contenido excede la altura disponible. */
+.gm-style-iw-d {
+  overflow-x: hidden !important;
+}
+
 /* ============================================================
    Dark Mode — .dark class on <html>
    CSS variable overrides cascade automatically to all classes

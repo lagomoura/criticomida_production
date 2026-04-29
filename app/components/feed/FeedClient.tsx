@@ -6,6 +6,7 @@ import Tabs from '@/app/components/ui/Tabs';
 import FeedList, { type FeedState } from './FeedList';
 import FeedWelcome from './FeedWelcome';
 import DiscoveryRails from './discovery/DiscoveryRails';
+import MapDiscoveryView from './discovery/MapDiscoveryView';
 import { getFeed } from '@/app/lib/api/feed';
 import { likePost, unlikePost, savePost, unsavePost } from '@/app/lib/api/interactions';
 import { addToWantToTry, removeFromWantToTry } from '@/app/lib/api/want-to-try';
@@ -37,8 +38,10 @@ const INITIAL_CACHE: TabCache = {
 
 const PAGE_SIZE = 10;
 
+type FeedTabValue = FeedType | 'map';
+
 export default function FeedClient() {
-  const [activeTab, setActiveTab] = useState<FeedType>('for_you');
+  const [activeTab, setActiveTab] = useState<FeedTabValue>('for_you');
   const [cache, setCache] = useState<TabCache>(INITIAL_CACHE);
   const [reportTarget, setReportTarget] = useState<{ id: string; subject: string } | null>(null);
   // Tracks which tabs we've already fired loadFirstPage for. Lets us trigger
@@ -152,6 +155,7 @@ export default function FeedClient() {
 
   useEffect(() => {
     if (activeTab === 'for_you') return; // 'Para ti' ahora son rails — no hay cursor.
+    if (activeTab === 'map') return; // El mapa maneja su propio fetch por bbox.
     if (startedTabsRef.current.has(activeTab)) return;
     startedTabsRef.current.add(activeTab);
     void loadFirstPage(activeTab);
@@ -222,6 +226,7 @@ export default function FeedClient() {
   const tabs = [
     { value: 'for_you', label: 'Para ti' },
     { value: 'following', label: 'Siguiendo' },
+    { value: 'map', label: 'Mapa' },
   ];
 
   return (
@@ -236,7 +241,7 @@ export default function FeedClient() {
           ariaLabel="Tipo de feed"
           value={activeTab}
           items={tabs}
-          onChange={(next) => setActiveTab(next as FeedType)}
+          onChange={(next) => setActiveTab(next as FeedTabValue)}
         />
       </header>
 
@@ -252,42 +257,49 @@ export default function FeedClient() {
 
       {activeTab === 'for_you' ? (
         <DiscoveryRails />
+      ) : activeTab === 'map' ? (
+        <MapDiscoveryView />
       ) : (
-        <FeedList
-          state={cache[activeTab].state}
-          emptyTitle="Todavía no seguís a nadie"
-          emptyDescription="Seguí a críticos o amigos para ver sus reseñas acá."
-          emptyAction={{ label: 'Descubrir críticos', href: '/search' }}
-          onReachEnd={() => void loadNextPage(activeTab)}
-          onLoadMoreRetry={() => void loadNextPage(activeTab)}
-          onOpenPost={(postId) => router.push(`/reviews/${postId}`)}
-          onOpenDish={(dishId) => router.push(`/dishes/${dishId}`)}
-          onOpenAuthor={(userId) => router.push(`/u/${userId}`)}
-          onOpenRestaurant={(restaurantId) => router.push(`/restaurants/${restaurantId}`)}
-          onComment={(postId) => router.push(`/reviews/${postId}#comments`)}
-          onOpenMenu={
-            user
-              ? (postId) => {
-                  const slot = cache[activeTab];
-                  const post = slot.state.status === 'ready'
-                    ? slot.state.posts.find((p) => p.id === postId)
-                    : undefined;
-                  const subject = post ? `${post.dish.name} @ ${post.dish.restaurantName}` : undefined;
-                  setReportTarget({ id: postId, subject: subject ?? '' });
+        (() => {
+          const tab: FeedType = activeTab;
+          return (
+            <FeedList
+              state={cache[tab].state}
+              emptyTitle="Todavía no seguís a nadie"
+              emptyDescription="Seguí a críticos o amigos para ver sus reseñas acá."
+              emptyAction={{ label: 'Descubrir críticos', href: '/search' }}
+              onReachEnd={() => void loadNextPage(tab)}
+              onLoadMoreRetry={() => void loadNextPage(tab)}
+              onOpenPost={(postId) => router.push(`/reviews/${postId}`)}
+              onOpenDish={(dishId) => router.push(`/dishes/${dishId}`)}
+              onOpenAuthor={(userId) => router.push(`/u/${userId}`)}
+              onOpenRestaurant={(restaurantId) => router.push(`/restaurants/${restaurantId}`)}
+              onComment={(postId) => router.push(`/reviews/${postId}#comments`)}
+              onOpenMenu={
+                user
+                  ? (postId) => {
+                      const slot = cache[tab];
+                      const post = slot.state.status === 'ready'
+                        ? slot.state.posts.find((p) => p.id === postId)
+                        : undefined;
+                      const subject = post ? `${post.dish.name} @ ${post.dish.restaurantName}` : undefined;
+                      setReportTarget({ id: postId, subject: subject ?? '' });
+                    }
+                  : undefined
+              }
+              onShare={(postId) => {
+                if (typeof navigator !== 'undefined' && navigator.share) {
+                  void navigator.share({ url: `${location.origin}/reviews/${postId}` });
                 }
-              : undefined
-          }
-          onShare={(postId) => {
-            if (typeof navigator !== 'undefined' && navigator.share) {
-              void navigator.share({ url: `${location.origin}/reviews/${postId}` });
-            }
-          }}
-          onToggleLike={(id, next) => void handleToggleLike(id, next)}
-          onToggleSave={(id, next) => void handleToggleSave(id, next)}
-          onToggleWantToTry={
-            user ? (dishId, next) => void handleToggleWantToTry(dishId, next) : undefined
-          }
-        />
+              }}
+              onToggleLike={(id, next) => void handleToggleLike(id, next)}
+              onToggleSave={(id, next) => void handleToggleSave(id, next)}
+              onToggleWantToTry={
+                user ? (dishId, next) => void handleToggleWantToTry(dishId, next) : undefined
+              }
+            />
+          );
+        })()
       )}
     </section>
   );

@@ -6,6 +6,12 @@ import type {
   DishDuel,
   PriceTier,
 } from '@/app/lib/types/social';
+import type {
+  BboxQuery,
+  MapBboxResponse,
+  MapDishHighlight,
+  MapRestaurantPin,
+} from '@/app/lib/types/discovery';
 
 interface DiscoveryPillarStatsDTO {
   presentation_avg: number | null;
@@ -116,4 +122,101 @@ export async function getDishDuel(params: DishDuelParams): Promise<DishDuel> {
 
   const raw = await fetchApi<DishDuelDTO>(`/api/dishes/duel?${qs}`);
   return { category: raw.category, items: raw.items.map(toItem) };
+}
+
+interface MapDishHighlightDTO {
+  dish_id: string;
+  name: string;
+  cover_image_url: string | null;
+  execution_avg: number | null;
+  value_prop_avg: number | null;
+  presentation_avg: number | null;
+  review_count: number;
+  geek_score: number;
+}
+
+interface MapRestaurantPinDTO {
+  restaurant_id: string;
+  slug: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  top_geek_score: number;
+  has_chef_badge: boolean;
+  has_gem_badge: boolean;
+  cover_image_url: string | null;
+  location_name: string | null;
+  computed_rating: number;
+  review_count: number;
+  price_level: number | null;
+  cuisine_types: string[] | null;
+  category_name: string | null;
+  trending_count: number;
+  is_empty: boolean;
+  golden_dish: MapDishHighlightDTO | null;
+  best_value_dish: MapDishHighlightDTO | null;
+}
+
+interface MapBboxResponseDTO {
+  items: MapRestaurantPinDTO[];
+  truncated: boolean;
+}
+
+function toHighlight(dto: MapDishHighlightDTO | null): MapDishHighlight | null {
+  if (dto === null) return null;
+  return {
+    dishId: dto.dish_id,
+    name: dto.name,
+    coverImageUrl: dto.cover_image_url,
+    executionAvg: dto.execution_avg,
+    valuePropAvg: dto.value_prop_avg,
+    presentationAvg: dto.presentation_avg,
+    reviewCount: dto.review_count,
+    geekScore: dto.geek_score,
+  };
+}
+
+function toPin(dto: MapRestaurantPinDTO): MapRestaurantPin {
+  return {
+    restaurantId: dto.restaurant_id,
+    slug: dto.slug,
+    name: dto.name,
+    latitude: dto.latitude,
+    longitude: dto.longitude,
+    topGeekScore: dto.top_geek_score,
+    hasChefBadge: dto.has_chef_badge,
+    hasGemBadge: dto.has_gem_badge,
+    coverImageUrl: dto.cover_image_url,
+    locationName: dto.location_name,
+    computedRating: dto.computed_rating,
+    reviewCount: dto.review_count,
+    priceLevel: dto.price_level,
+    cuisineTypes: dto.cuisine_types,
+    categoryName: dto.category_name,
+    trendingCount: dto.trending_count,
+    isEmpty: dto.is_empty,
+    goldenDish: toHighlight(dto.golden_dish),
+    bestValueDish: toHighlight(dto.best_value_dish),
+  };
+}
+
+export async function getRestaurantsInBbox(
+  bbox: BboxQuery,
+  signal?: AbortSignal,
+): Promise<MapBboxResponse> {
+  const qs = new URLSearchParams({
+    min_lat: String(bbox.minLat),
+    min_lng: String(bbox.minLng),
+    max_lat: String(bbox.maxLat),
+    max_lng: String(bbox.maxLng),
+  });
+  if (bbox.limit !== undefined) qs.set('limit', String(bbox.limit));
+  if (bbox.sort) qs.set('sort', bbox.sort);
+  if (bbox.includeEmpty) qs.set('include_empty', 'true');
+
+  const raw = await fetchApi<MapBboxResponseDTO>(
+    `/api/restaurants/in-bbox?${qs}`,
+    { signal },
+  );
+  return { items: raw.items.map(toPin), truncated: raw.truncated };
 }
