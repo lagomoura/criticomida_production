@@ -7,16 +7,18 @@ import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import Button from '@/app/components/ui/Button';
 
 /**
- * Editorial welcome strip shown above the feed for anonymous viewers.
- * Authenticated users see nothing — they get straight feed.
+ * Editorial welcome strip shown above the feed.
+ * Anonymous viewers see CTAs; authenticated users see a personalized greeting.
  */
-export default function AnonWelcome() {
+export default function FeedWelcome() {
   const { user, isLoading } = useAuthContext();
-  if (isLoading || user) return null;
+  if (isLoading) return null;
+
+  const firstName = user?.display_name?.trim().split(/\s+/)[0] ?? '';
 
   return (
     <section
-      aria-labelledby="anon-welcome-title"
+      aria-labelledby="feed-welcome-title"
       className="relative overflow-hidden rounded-3xl border border-border-default bg-surface-card"
     >
       {/* Decorative saffron blob — purely visual */}
@@ -34,37 +36,48 @@ export default function AnonWelcome() {
             Cada plato, su reseña
           </p>
           <h2
-            id="anon-welcome-title"
+            id="feed-welcome-title"
             className="mt-3 m-0 font-display text-[clamp(2rem,4.5vw,3.25rem)] font-medium leading-[1.05] text-text-primary"
           >
             Un feed editorial de{' '}
             <em className="not-italic text-action-primary">lo que vale la pena pedir</em>.
           </h2>
-          <p className="mt-3 max-w-prose font-sans text-sm text-text-secondary md:text-base">
-            CritiComida no opina de restaurantes enteros: opina del plato. Entrá
-            o creá cuenta para reseñar lo que probás, guardar lo que querés
-            probar y seguir el paladar de gente que conoce.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link href="/registro" className="no-underline">
-              <Button
-                variant="primary"
-                size="md"
-                leftIcon={<FontAwesomeIcon icon={faPenToSquare} className="h-3.5 w-3.5" />}
-              >
-                Crear cuenta
-              </Button>
-            </Link>
-            <Link href="/login" className="no-underline">
-              <Button
-                variant="ghost"
-                size="md"
-                leftIcon={<FontAwesomeIcon icon={faRightToBracket} className="h-3.5 w-3.5" />}
-              >
-                Iniciar sesión
-              </Button>
-            </Link>
-          </div>
+          {user ? (
+            <p className="mt-3 max-w-prose font-sans text-sm text-text-secondary md:text-base">
+              Hola,{' '}
+              <span className="font-semibold text-text-primary">{firstName}</span>.
+              Acá abajo, lo último de la gente que seguís y los platos que vale
+              la pena probar.
+            </p>
+          ) : (
+            <>
+              <p className="mt-3 max-w-prose font-sans text-sm text-text-secondary md:text-base">
+                CritiComida no opina de restaurantes enteros: opina del plato.
+                Entrá o creá cuenta para reseñar lo que probás, guardar lo que
+                querés probar y seguir el paladar de gente que conoce.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Link href="/registro" className="no-underline">
+                  <Button
+                    variant="primary"
+                    size="md"
+                    leftIcon={<FontAwesomeIcon icon={faPenToSquare} className="h-3.5 w-3.5" />}
+                  >
+                    Crear cuenta
+                  </Button>
+                </Link>
+                <Link href="/login" className="no-underline">
+                  <Button
+                    variant="ghost"
+                    size="md"
+                    leftIcon={<FontAwesomeIcon icon={faRightToBracket} className="h-3.5 w-3.5" />}
+                  >
+                    Iniciar sesión
+                  </Button>
+                </Link>
+              </div>
+            </>
+          )}
         </div>
 
         <ul className="flex flex-col gap-3 border-t border-border-subtle pt-5 md:border-l md:border-t-0 md:pl-8 md:pt-0">

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Tabs from '@/app/components/ui/Tabs';
 import FeedList, { type FeedState } from './FeedList';
-import AnonWelcome from './AnonWelcome';
+import FeedWelcome from './FeedWelcome';
 import { getFeed } from '@/app/lib/api/feed';
 import { likePost, unlikePost, savePost, unsavePost } from '@/app/lib/api/interactions';
 import { useToast } from '@/app/components/ui/Toast';
@@ -197,7 +197,7 @@ export default function FeedClient() {
 
   return (
     <section className="cc-container flex flex-col gap-6 py-6">
-      <AnonWelcome />
+      <FeedWelcome />
       <header className="flex flex-col gap-2">
         <h1 className="sr-only">Feed</h1>
         <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-text-muted">
