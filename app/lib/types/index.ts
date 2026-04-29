@@ -6,6 +6,8 @@ export type {
   RestaurantListItem,
   CreateRestaurantRequest,
   CreateRestaurantResponse,
+  MatchCandidate,
+  MatchCandidatesResponse,
   RatingDimensionKey,
   RestaurantRatingsResponse,
   RestaurantAggregates,

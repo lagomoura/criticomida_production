@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
-import { createRestaurant } from '@/app/lib/api/restaurants';
+import { createRestaurant, getMatchCandidates } from '@/app/lib/api/restaurants';
 import { getCategories, createCategory } from '@/app/lib/api/categories';
 import { ApiError } from '@/app/lib/api/client';
-import { RestaurantListItem, Category } from '@/app/lib/types';
+import { RestaurantListItem, Category, MatchCandidate } from '@/app/lib/types';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { useToast } from '@/app/components/ui/Toast';
 
@@ -144,6 +144,17 @@ export default function AddRestaurantModal({
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(categoryId);
 
+  // Phase 2.2 fuzzy-match check. Runs after a Google Place is selected; if any
+  // existing restaurant looks like a duplicate (different place_id but same
+  // physical venue), the form is replaced by a candidate panel and the user
+  // must pick one or cancel — no "create anyway" path (hard block).
+  type MatchState =
+    | { status: 'idle' }
+    | { status: 'checking' }
+    | { status: 'no-match' }
+    | { status: 'has-match'; candidates: MatchCandidate[] };
+  const [matchState, setMatchState] = useState<MatchState>({ status: 'idle' });
+
   // New category creation state
   const [newCategoryMode, setNewCategoryMode] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -185,6 +196,7 @@ export default function AddRestaurantModal({
       setNewCategoryName('');
       setNewCategoryImageUrl(undefined);
       setDuplicateCategory(null);
+      setMatchState({ status: 'idle' });
     }
   }, [show]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -237,6 +249,40 @@ export default function AddRestaurantModal({
       if (imageDebounceRef.current) clearTimeout(imageDebounceRef.current);
     };
   }, [newCategoryName, newCategoryMode, categories]);
+
+  // After a Google Place is imported, query the backend for potential
+  // duplicates. The check is gated on having a name + coords because
+  // match-candidates is meaningless without geographic data — the manual-fill
+  // path falls through to no-match.
+  useEffect(() => {
+    if (!placeImported || !name || lat === undefined || lng === undefined) {
+      return;
+    }
+    let cancelled = false;
+    setMatchState({ status: 'checking' });
+    // We DON'T pass excludePlaceId here on purpose: if the user picked a
+    // Google Place whose place_id is already in the DB, we want the panel to
+    // surface it directly so they go to the existing ficha. Excluding it
+    // would leave us in "no-match" state and the user would only learn after
+    // submit (via the Fase 2.1 redirect) — confusing.
+    getMatchCandidates({ name, lat, lng })
+      .then((res) => {
+        if (cancelled) return;
+        if (res.items.length > 0) {
+          setMatchState({ status: 'has-match', candidates: res.items });
+        } else {
+          setMatchState({ status: 'no-match' });
+        }
+      })
+      .catch(() => {
+        // If the check fails, fall through to allow submission. The Fase 2.1
+        // place_id dedup is a backstop on the backend either way.
+        if (!cancelled) setMatchState({ status: 'no-match' });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [placeImported, name, lat, lng]);
 
   const handlePlaceSelected = useCallback((data: PlaceData) => {
     setName(data.name);
@@ -323,6 +369,8 @@ export default function AddRestaurantModal({
   const canSubmit =
     name.trim() &&
     locationName.trim() &&
+    matchState.status !== 'checking' &&
+    matchState.status !== 'has-match' &&
     (newCategoryMode
       ? newCategoryName.trim() && !duplicateCategory
       : selectedCategoryId !== null);
@@ -346,6 +394,16 @@ export default function AddRestaurantModal({
           </button>
         </div>
 
+        {matchState.status === 'has-match' ? (
+          <MatchCandidatesPanel
+            candidates={matchState.candidates}
+            onSelect={(c) => {
+              onClose();
+              router.push(`/restaurants/${c.slug}`);
+            }}
+            onCancel={onClose}
+          />
+        ) : (
         <form onSubmit={handleSubmit}>
           {/* Two-column body */}
           <div className="grid grid-cols-2 gap-0 divide-x divide-neutral-200">
@@ -356,9 +414,14 @@ export default function AddRestaurantModal({
                 <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
                   <PlacesSearchInput onPlaceSelected={handlePlaceSelected} disabled={submitting} />
                 </APIProvider>
-                {placeImported && (
+                {placeImported && matchState.status === 'checking' && (
+                  <p className="mt-1 text-xs text-neutral-500">
+                    Verificando duplicados…
+                  </p>
+                )}
+                {placeImported && matchState.status === 'no-match' && (
                   <p className="mt-1 text-xs text-emerald-600">
-                    ✓ Datos importados. Podés editarlos a la derecha.
+                    ✓ Datos importados, sin duplicados.
                   </p>
                 )}
               </div>
@@ -656,7 +719,70 @@ export default function AddRestaurantModal({
             </button>
           </div>
         </form>
+        )}
       </div>
     </div>
+  );
+}
+
+function MatchCandidatesPanel({
+  candidates,
+  onSelect,
+  onCancel,
+}: {
+  candidates: MatchCandidate[];
+  onSelect: (c: MatchCandidate) => void;
+  onCancel: () => void;
+}) {
+  const isPlural = candidates.length > 1;
+  return (
+    <>
+      <div className="px-6 py-5">
+        <p className="mb-1 text-sm font-medium text-neutral-900">
+          {isPlural
+            ? 'Encontramos restaurantes muy parecidos en la app'
+            : 'Encontramos un restaurante muy parecido en la app'}
+        </p>
+        <p className="mb-4 text-sm text-neutral-600">
+          {isPlural
+            ? 'Para evitar duplicados, elegí el que querías agregar y te llevamos a su ficha.'
+            : 'Para evitar duplicados, ¿es este el que querías agregar?'}
+        </p>
+        <ul className="flex flex-col gap-2">
+          {candidates.map((c) => (
+            <li key={c.id}>
+              <button
+                type="button"
+                onClick={() => onSelect(c)}
+                className="flex w-full items-center gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-left transition-colors hover:border-[var(--mainPink)] hover:bg-pink-50"
+              >
+                {c.cover_image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={c.cover_image_url}
+                    alt=""
+                    className="h-12 w-12 flex-shrink-0 rounded object-cover"
+                  />
+                ) : (
+                  <div className="h-12 w-12 flex-shrink-0 rounded bg-neutral-100" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-neutral-900">{c.name}</p>
+                  <p className="truncate text-xs text-neutral-500">{c.location_name}</p>
+                </div>
+                <span className="text-sm font-medium text-[var(--mainPink)]">
+                  Ver ficha →
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="flex justify-end border-t border-neutral-200 px-6 py-4">
+        <button type="button" className="btn btn-light btn-sm" onClick={onCancel}>
+          Ninguno es, cerrar
+        </button>
+      </div>
+    </>
   );
 }

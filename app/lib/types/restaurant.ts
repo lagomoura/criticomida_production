@@ -62,6 +62,26 @@ export interface RestaurantDetail {
   } | null;
 }
 
+export interface MatchCandidate {
+  id: string;
+  slug: string;
+  name: string;
+  location_name: string;
+  latitude: number | null;
+  longitude: number | null;
+  google_place_id: string | null;
+  cover_image_url: string | null;
+  computed_rating: number;
+  review_count: number;
+  name_similarity: number;
+  distance_m: number;
+  confidence_score: number;
+}
+
+export interface MatchCandidatesResponse {
+  items: MatchCandidate[];
+}
+
 export interface CreateRestaurantResponse extends RestaurantDetail {
   /** True when a restaurant with the same google_place_id already existed and
    *  the backend returned it instead of creating a new row. */

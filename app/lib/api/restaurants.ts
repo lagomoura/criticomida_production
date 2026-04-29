@@ -4,6 +4,7 @@ import type {
   RestaurantListItem,
   CreateRestaurantRequest,
   CreateRestaurantResponse,
+  MatchCandidatesResponse,
   RestaurantAggregates,
   RestaurantPhotosResponse,
   DiaryStats,
@@ -50,6 +51,27 @@ export async function createRestaurant(
     method: 'POST',
     body: JSON.stringify(data),
   });
+}
+
+export interface GetMatchCandidatesParams {
+  name: string;
+  lat: number;
+  lng: number;
+  excludePlaceId?: string;
+}
+
+export async function getMatchCandidates(
+  params: GetMatchCandidatesParams,
+): Promise<MatchCandidatesResponse> {
+  const sp = new URLSearchParams({
+    name: params.name,
+    lat: String(params.lat),
+    lng: String(params.lng),
+  });
+  if (params.excludePlaceId) sp.set('exclude_place_id', params.excludePlaceId);
+  return fetchApi<MatchCandidatesResponse>(
+    `/api/restaurants/match-candidates?${sp.toString()}`,
+  );
 }
 
 export async function getRestaurantAggregates(slug: string): Promise<RestaurantAggregates> {
