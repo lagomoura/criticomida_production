@@ -14,16 +14,21 @@ interface DishChecklistProps {
   items: DishWithReviews[];
   currentUserId: string | null;
   onReviewAdded: (dishId: string, review: DishReview) => void;
-  onAddDish: () => void;
 }
 
 export default function DishChecklist({
   items,
   currentUserId,
   onReviewAdded,
-  onAddDish,
 }: DishChecklistProps) {
   const { user } = useAuthContext();
+
+  function dispatchAddDish() {
+    window.dispatchEvent(new CustomEvent('cc:add-dish'));
+  }
+  function dispatchPublishReview() {
+    window.dispatchEvent(new CustomEvent('cc:publish-review'));
+  }
 
   const reviewedCount = currentUserId
     ? items.filter(({ reviews }) =>
@@ -54,18 +59,32 @@ export default function DishChecklist({
           )}
         </div>
         {user && (
-          <button
-            type="button"
-            onClick={onAddDish}
-            className={
-              'flex shrink-0 items-center gap-2 rounded-xl border-2 border-[var(--mainPink)] ' +
-              'bg-white px-4 py-2 text-sm font-semibold text-[var(--mainPink)] ' +
-              'transition-colors hover:bg-[var(--mainPink)] hover:text-white'
-            }
-          >
-            <span aria-hidden className="text-base leading-none">+</span>
-            Agregar plato
-          </button>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={dispatchPublishReview}
+              className={
+                'flex items-center gap-2 rounded-xl border-2 border-[var(--mainPink)] ' +
+                'bg-[var(--mainPink)] px-4 py-2 text-sm font-semibold text-white ' +
+                'transition-colors hover:opacity-90'
+              }
+            >
+              <span aria-hidden className="text-base leading-none">★</span>
+              Publicar reseña
+            </button>
+            <button
+              type="button"
+              onClick={dispatchAddDish}
+              className={
+                'flex items-center gap-2 rounded-xl border-2 border-[var(--mainPink)] ' +
+                'bg-white px-4 py-2 text-sm font-semibold text-[var(--mainPink)] ' +
+                'transition-colors hover:bg-pink-50'
+              }
+            >
+              <span aria-hidden className="text-base leading-none">+</span>
+              Agregar plato
+            </button>
+          </div>
         )}
       </div>
 
@@ -97,17 +116,29 @@ export default function DishChecklist({
               : 'Todavía no hay platos en el menú de este restaurante.'}
           </p>
           {user && (
-            <button
-              type="button"
-              onClick={onAddDish}
-              className={
-                'mt-4 rounded-xl border-2 border-[var(--mainPink)] bg-white px-5 py-2.5 ' +
-                'font-semibold text-[var(--mainPink)] transition-colors ' +
-                'hover:bg-[var(--mainPink)] hover:text-white'
-              }
-            >
-              Agregar el primer plato
-            </button>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={dispatchPublishReview}
+                className={
+                  'rounded-xl border-2 border-[var(--mainPink)] bg-[var(--mainPink)] px-5 py-2.5 ' +
+                  'font-semibold text-white transition hover:opacity-90'
+                }
+              >
+                Publicar primera reseña
+              </button>
+              <button
+                type="button"
+                onClick={dispatchAddDish}
+                className={
+                  'rounded-xl border-2 border-[var(--mainPink)] bg-white px-5 py-2.5 ' +
+                  'font-semibold text-[var(--mainPink)] transition-colors ' +
+                  'hover:bg-pink-50'
+                }
+              >
+                Agregar plato
+              </button>
+            </div>
           )}
         </div>
       ) : (

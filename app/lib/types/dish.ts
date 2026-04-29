@@ -1,6 +1,7 @@
 export type PriceTier = '$' | '$$' | '$$$';
 export type PortionSize = 'small' | 'medium' | 'large';
 export type DishReviewProsConsType = 'pro' | 'con';
+export type PillarScore = 1 | 2 | 3;
 
 export interface Dish {
   id: string;
@@ -20,6 +21,13 @@ export interface CreateDishRequest {
   description?: string;
   cover_image_url?: string;
   price_tier?: PriceTier;
+}
+
+export interface UpdateDishRequest {
+  name?: string;
+  description?: string | null;
+  cover_image_url?: string | null;
+  price_tier?: PriceTier | null;
 }
 
 export interface DishReviewProsCons {
@@ -54,6 +62,9 @@ export interface DishReview {
   would_order_again: boolean | null;
   visited_with: string | null;
   is_anonymous: boolean;
+  presentation: PillarScore | null;
+  value_prop: PillarScore | null;
+  execution: PillarScore | null;
   created_at: string;
   updated_at: string;
   pros_cons: DishReviewProsCons[];
@@ -70,6 +81,9 @@ export interface CreateReviewRequest {
   would_order_again?: boolean;
   visited_with?: string;
   is_anonymous?: boolean;
+  presentation?: PillarScore;
+  value_prop?: PillarScore;
+  execution?: PillarScore;
   pros_cons?: { type: DishReviewProsConsType; text: string }[];
   tags?: { tag: string }[];
   images?: { url: string; alt_text?: string; display_order?: number }[];
@@ -84,6 +98,9 @@ export interface UpdateReviewRequest {
   would_order_again?: boolean;
   visited_with?: string;
   is_anonymous?: boolean;
+  presentation?: PillarScore;
+  value_prop?: PillarScore;
+  execution?: PillarScore;
 }
 
 /** Internal view-model used by restaurant detail sub-components. */

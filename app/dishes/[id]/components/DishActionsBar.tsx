@@ -5,14 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 
 interface DishActionsBarProps {
-  dishId: string;
   dishName: string;
   restaurantSlug?: string | null;
   restaurantId: string;
 }
 
 export default function DishActionsBar({
-  dishId,
   dishName,
   restaurantSlug,
   restaurantId,
@@ -23,12 +21,15 @@ export default function DishActionsBar({
   const [shared, setShared] = useState(false);
 
   const handleWriteReview = useCallback(() => {
-    if (user) {
-      router.push(`/compose?dish=${encodeURIComponent(dishId)}`);
-    } else {
-      router.push('/');
+    if (!user) {
+      router.push('/login?next=' + encodeURIComponent(window.location.pathname));
+      return;
     }
-  }, [router, user, dishId]);
+    // El plato y el restaurante ya los conocemos: abrimos el modal de
+    // PublishReview pre-seleccionado en vez de mandar a /compose (que está
+    // pensado para el caso "no sé qué plato" con Google Places autocomplete).
+    window.dispatchEvent(new CustomEvent('cc:publish-review'));
+  }, [router, user]);
 
   const handleShare = useCallback(async () => {
     if (typeof window === 'undefined') return;

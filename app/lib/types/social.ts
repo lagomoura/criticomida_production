@@ -41,6 +41,10 @@ export interface ReviewExtras {
   visitedWith?: string | null;
   isAnonymous?: boolean | null;
   priceTier?: PriceTier | null;
+  /** Technical pillars: 1=poor / 2=neutral / 3=excellent. */
+  presentation?: 1 | 2 | 3 | null;
+  valueProp?: 1 | 2 | 3 | null;
+  execution?: 1 | 2 | 3 | null;
 }
 
 export interface PostStats {
@@ -170,6 +174,25 @@ export interface DishWouldOrderAgainBreakdown {
   pct: number | null;
 }
 
+export interface DishPillarBreakdown {
+  /** Cuántos reviewers calificaron con 1 (negativo). */
+  one: number;
+  /** Cuántos con 2 (neutral). */
+  two: number;
+  /** Cuántos con 3 (positivo). */
+  three: number;
+  /** Total de reviewers que contestaron este pilar (one+two+three). */
+  answered: number;
+  /** Promedio (1..3) o null si nadie contestó. */
+  avg: number | null;
+}
+
+export interface DishPillarsAggregates {
+  presentation: DishPillarBreakdown;
+  valueProp: DishPillarBreakdown;
+  execution: DishPillarBreakdown;
+}
+
 export interface DishAggregates {
   prosTop: DishProsConsItem[];
   consTop: DishProsConsItem[];
@@ -177,6 +200,7 @@ export interface DishAggregates {
   ratingHistogram: Record<'1' | '2' | '3' | '4' | '5', number>;
   portionDistribution: { small: number; medium: number; large: number; noAnswer: number };
   wouldOrderAgain: DishWouldOrderAgainBreakdown;
+  pillars: DishPillarsAggregates;
   photosCount: number;
   uniqueEaters: number;
 }

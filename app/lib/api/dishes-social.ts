@@ -45,6 +45,14 @@ interface DishSocialDetailDTO {
   created_by_display_name: string | null;
 }
 
+interface DishPillarBreakdownDTO {
+  one: number;
+  two: number;
+  three: number;
+  answered: number;
+  avg: number | null;
+}
+
 interface DishAggregatesDTO {
   pros_top: { text: string; count: number }[];
   cons_top: { text: string; count: number }[];
@@ -52,6 +60,11 @@ interface DishAggregatesDTO {
   rating_histogram: Record<string, number>;
   portion_distribution: Record<string, number>;
   would_order_again: { yes: number; no: number; no_answer: number; pct: number | null };
+  pillars: {
+    presentation: DishPillarBreakdownDTO;
+    value_prop: DishPillarBreakdownDTO;
+    execution: DishPillarBreakdownDTO;
+  };
   photos_count: number;
   unique_eaters: number;
 }
@@ -160,10 +173,17 @@ function toAggregates(dto: DishAggregatesDTO): DishAggregates {
       noAnswer: dto.would_order_again.no_answer,
       pct: dto.would_order_again.pct,
     },
+    pillars: {
+      presentation: dto.pillars?.presentation ?? emptyPillar,
+      valueProp: dto.pillars?.value_prop ?? emptyPillar,
+      execution: dto.pillars?.execution ?? emptyPillar,
+    },
     photosCount: dto.photos_count,
     uniqueEaters: dto.unique_eaters,
   };
 }
+
+const emptyPillar = { one: 0, two: 0, three: 0, answered: 0, avg: null };
 
 function toPhotosPage(dto: DishPhotosPageDTO): DishPhotosPage {
   return {

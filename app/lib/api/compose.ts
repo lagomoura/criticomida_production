@@ -61,6 +61,9 @@ interface PostCreateDTO {
     pros?: string[];
     cons?: string[];
     tags?: string[];
+    presentation?: 1 | 2 | 3 | null;
+    value_prop?: 1 | 2 | 3 | null;
+    execution?: 1 | 2 | 3 | null;
   };
 }
 
@@ -101,6 +104,9 @@ function toPostCreateDTO(input: CreatePostInput): PostCreateDTO {
       pros: extras.pros ?? [],
       cons: extras.cons ?? [],
       tags: extras.tags ?? [],
+      presentation: extras.presentation ?? null,
+      value_prop: extras.valueProp ?? null,
+      execution: extras.execution ?? null,
     };
   }
   return dto;

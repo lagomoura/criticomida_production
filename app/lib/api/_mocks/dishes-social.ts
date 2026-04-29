@@ -111,9 +111,23 @@ export function mockGetDishAggregates(dishId: string): DishAggregates {
       noAnswer: 1,
       pct: Math.round((yes / total) * 100),
     },
+    pillars: {
+      presentation: mockPillar(total, [0.1, 0.3, 0.6]),
+      valueProp: mockPillar(total, [0.2, 0.5, 0.3]),
+      execution: mockPillar(total, [0.1, 0.25, 0.65]),
+    },
     photosCount: reviews.reduce((acc, r) => acc + (r.media?.length ?? 0), 0),
     uniqueEaters: total,
   };
+}
+
+function mockPillar(total: number, weights: [number, number, number]) {
+  const one = Math.round(total * weights[0]);
+  const two = Math.round(total * weights[1]);
+  const three = Math.round(total * weights[2]);
+  const answered = one + two + three;
+  const avg = answered === 0 ? null : (one * 1 + two * 2 + three * 3) / answered;
+  return { one, two, three, answered, avg: avg ? Number(avg.toFixed(2)) : null };
 }
 
 export function mockGetDishPhotos(dishId: string): DishPhotosPage {

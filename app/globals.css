@@ -1588,6 +1588,20 @@ body {
   0% { opacity: 0; transform: translateY(-20px) scale(0.98); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* Modales (AddDishModal, PublishReviewModal): backdrop + sheet/center entrance. */
+@keyframes cc-modal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes cc-modal-sheet-up {
+  from { transform: translateY(100%); opacity: 0.6; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes cc-modal-pop {
+  from { transform: translateY(8px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
 .wow-filters-animate .form-control,
 .wow-filters-animate .form-select {
   border-radius: 0.8em;

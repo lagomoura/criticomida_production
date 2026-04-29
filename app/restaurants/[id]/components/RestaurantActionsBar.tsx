@@ -6,14 +6,12 @@ interface RestaurantActionsBarProps {
   restaurantSlug: string;
   restaurantName: string;
   googleMapsUrl: string | null;
-  onAddDish?: () => void;
 }
 
 export default function RestaurantActionsBar({
   restaurantSlug,
   restaurantName,
   googleMapsUrl,
-  onAddDish,
 }: RestaurantActionsBarProps) {
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
@@ -40,21 +38,28 @@ export default function RestaurantActionsBar({
     // TODO Fase C4: integrar con bookmarks API
   }
 
-  function scrollToCompose() {
-    if (onAddDish) {
-      onAddDish();
-      return;
-    }
-    const target = document.getElementById('platos');
-    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  function dispatchAddDish() {
+    window.dispatchEvent(new CustomEvent('cc:add-dish'));
+  }
+
+  function dispatchPublishReview() {
+    window.dispatchEvent(new CustomEvent('cc:publish-review'));
   }
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-white)] px-3 py-2 shadow-sm sm:gap-3 sm:px-4">
       <button
         type="button"
-        onClick={scrollToCompose}
+        onClick={dispatchPublishReview}
         className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-azafran)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-canela)]"
+      >
+        <span aria-hidden>★</span>
+        Publicar reseña
+      </button>
+      <button
+        type="button"
+        onClick={dispatchAddDish}
+        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-azafran)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-azafran)] transition hover:bg-[var(--color-azafran-pale)]"
       >
         <span aria-hidden>＋</span>
         Agregar plato

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dish, DishReview, RestaurantDetail } from '@/app/lib/types';
 import type {
   RestaurantAggregates,
@@ -24,6 +24,7 @@ import TopReviewsGrid from './TopReviewsGrid';
 import RestaurantRatingSection from './RestaurantRatingSection';
 import LocationMap from './LocationMap';
 import AddDishModal from './AddDishModal';
+import PublishReviewModal from './PublishReviewModal';
 
 interface DishWithReviews {
   dish: Dish;
@@ -54,6 +55,22 @@ export default function RestaurantPageClient({
   const { user } = useAuthContext();
   const [dishItems, setDishItems] = useState<DishWithReviews[]>(initialDishes);
   const [showAddDish, setShowAddDish] = useState(false);
+  const [showPublish, setShowPublish] = useState(false);
+  const [pendingReviewDish, setPendingReviewDish] = useState<Dish | null>(null);
+
+  // Custom events para los CTAs que viven en server components siblings
+  // (Hero) o componentes hijos profundos (DishChecklist).
+  useEffect(() => {
+    if (!user) return;
+    function handleAddDish() { setShowAddDish(true); }
+    function handlePublish() { setShowPublish(true); }
+    window.addEventListener('cc:add-dish', handleAddDish);
+    window.addEventListener('cc:publish-review', handlePublish);
+    return () => {
+      window.removeEventListener('cc:add-dish', handleAddDish);
+      window.removeEventListener('cc:publish-review', handlePublish);
+    };
+  }, [user]);
 
   function handleReviewAdded(dishId: string, review: DishReview) {
     setDishItems((prev) =>
@@ -124,7 +141,6 @@ export default function RestaurantPageClient({
                 items={dishItems}
                 currentUserId={user?.id ?? null}
                 onReviewAdded={handleReviewAdded}
-                onAddDish={() => setShowAddDish(true)}
               />
             </div>
           ),
@@ -160,12 +176,48 @@ export default function RestaurantPageClient({
       </RestaurantTabs>
 
       {user && (
-        <AddDishModal
-          show={showAddDish}
-          restaurantSlug={restaurant.slug}
-          onClose={() => setShowAddDish(false)}
-          onDishCreated={handleDishCreated}
-        />
+        <>
+          <AddDishModal
+            show={showAddDish}
+            restaurantSlug={restaurant.slug}
+            existingDishes={dishItems.map(({ dish }) => dish)}
+            onClose={() => setShowAddDish(false)}
+            onDishCreated={handleDishCreated}
+            onDishCreatedAndReview={(dish) => {
+              // Cierra el modal de "agregar" y abre el de reseñar con el plato preseleccionado.
+              handleDishCreated(dish);
+              setShowAddDish(false);
+              setPendingReviewDish(dish);
+              setShowPublish(true);
+            }}
+            onSelectExistingForReview={(dish) => {
+              // El user detectó un duplicado y eligió reseñar el plato existente:
+              // cerrar AddDishModal sin crear nada, abrir PublishReviewModal preseleccionado.
+              setShowAddDish(false);
+              setPendingReviewDish(dish);
+              setShowPublish(true);
+            }}
+          />
+          <PublishReviewModal
+            show={showPublish}
+            restaurantSlug={restaurant.slug}
+            existingDishes={dishItems.map(({ dish }) => dish)}
+            initialDish={pendingReviewDish}
+            onClose={() => {
+              setShowPublish(false);
+              setPendingReviewDish(null);
+            }}
+            onSuccess={(dish, review) => {
+              const exists = dishItems.some(({ dish: d }) => d.id === dish.id);
+              if (exists) {
+                handleReviewAdded(dish.id, review);
+              } else {
+                handleDishCreated(dish, review);
+              }
+              setPendingReviewDish(null);
+            }}
+          />
+        </>
       )}
     </>
   );

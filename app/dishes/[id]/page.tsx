@@ -78,6 +78,11 @@ export default async function DishDetailPage({ params }: PageProps) {
           >,
           portionDistribution: { small: 0, medium: 0, large: 0, noAnswer: 0 },
           wouldOrderAgain: { yes: 0, no: 0, noAnswer: 0, pct: null },
+          pillars: {
+            presentation: { one: 0, two: 0, three: 0, answered: 0, avg: null },
+            valueProp: { one: 0, two: 0, three: 0, answered: 0, avg: null },
+            execution: { one: 0, two: 0, three: 0, answered: 0, avg: null },
+          },
           photosCount: 0,
           uniqueEaters: 0,
         };

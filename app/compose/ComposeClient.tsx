@@ -23,6 +23,9 @@ import { ApiError } from '@/app/lib/api/client';
 import { useToast } from '@/app/components/ui/Toast';
 import { cn } from '@/app/lib/utils/cn';
 import type { PortionSize, PriceTier, ReviewExtras } from '@/app/lib/types/social';
+import TechnicalPillars, {
+  type TechnicalPillarsValue,
+} from '@/app/restaurants/[id]/components/TechnicalPillars';
 
 const CATEGORIES = [
   'Argentina',
@@ -67,6 +70,13 @@ export default function ComposeClient() {
   const [prosInput, setProsInput] = useState('');
   const [consInput, setConsInput] = useState('');
   const [tagsInput, setTagsInput] = useState('');
+
+  // Technical pillars (1=poor / 2=neutral / 3=excellent) — siempre visibles.
+  const [pillars, setPillars] = useState<TechnicalPillarsValue>({
+    presentation: null,
+    value_prop: null,
+    execution: null,
+  });
 
   const [prefilling, setPrefilling] = useState(Boolean(prefillDishId));
   const [submitting, setSubmitting] = useState(false);
@@ -129,8 +139,11 @@ export default function ComposeClient() {
     if (pros.length) extras.pros = pros;
     if (cons.length) extras.cons = cons;
     if (tags.length) extras.tags = tags;
+    if (pillars.presentation) extras.presentation = pillars.presentation;
+    if (pillars.value_prop) extras.valueProp = pillars.value_prop;
+    if (pillars.execution) extras.execution = pillars.execution;
     return Object.keys(extras).length > 0 ? extras : undefined;
-  }, [portionSize, wouldOrderAgain, priceTier, dateTasted, visitedWith, isAnonymous, pros, cons, tags]);
+  }, [portionSize, wouldOrderAgain, priceTier, dateTasted, visitedWith, isAnonymous, pros, cons, tags, pillars]);
 
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
@@ -294,6 +307,14 @@ export default function ComposeClient() {
               </span>
             </div>
           </div>
+
+          {/* Pilares técnicos — siempre visibles, opt-in opcional. */}
+          <TechnicalPillars
+            value={pillars}
+            onChange={setPillars}
+            disabled={submitting}
+          />
+
 
           <Textarea
             label="Reseña"
