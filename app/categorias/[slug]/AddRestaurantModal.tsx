@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { createRestaurant } from '@/app/lib/api/restaurants';
 import { getCategories, createCategory } from '@/app/lib/api/categories';
 import { ApiError } from '@/app/lib/api/client';
 import { RestaurantListItem, Category } from '@/app/lib/types';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
+import { useToast } from '@/app/components/ui/Toast';
 
 interface PlaceData {
   name: string;
@@ -119,6 +121,8 @@ export default function AddRestaurantModal({
 }: AddRestaurantModalProps) {
   const { user } = useAuthContext();
   const isAdmin = user?.role === 'admin';
+  const router = useRouter();
+  const toast = useToast();
 
   const [name, setName] = useState('');
   const [locationName, setLocationName] = useState('');
@@ -290,6 +294,17 @@ export default function AddRestaurantModal({
         price_level: priceLevel,
         opening_hours: openingHours,
       });
+
+      if (restaurant.existed) {
+        toast.info(
+          'Este restaurante ya estaba en la app',
+          `Te llevamos a la ficha de ${restaurant.name}.`,
+        );
+        onClose();
+        router.push(`/restaurants/${restaurant.slug}`);
+        return;
+      }
+
       onRestaurantCreated(restaurant as unknown as RestaurantListItem);
       onClose();
     } catch (err) {

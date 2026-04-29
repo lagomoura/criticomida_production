@@ -3,6 +3,7 @@ import type {
   RestaurantDetail,
   RestaurantListItem,
   CreateRestaurantRequest,
+  CreateRestaurantResponse,
   RestaurantAggregates,
   RestaurantPhotosResponse,
   DiaryStats,
@@ -42,8 +43,10 @@ export async function getRestaurant(slug: string): Promise<RestaurantDetail> {
   return fetchApi<RestaurantDetail>(`/api/restaurants/${slug}`);
 }
 
-export async function createRestaurant(data: CreateRestaurantRequest): Promise<RestaurantDetail> {
-  return fetchApi<RestaurantDetail>('/api/restaurants', {
+export async function createRestaurant(
+  data: CreateRestaurantRequest,
+): Promise<CreateRestaurantResponse> {
+  return fetchApi<CreateRestaurantResponse>('/api/restaurants', {
     method: 'POST',
     body: JSON.stringify(data),
   });

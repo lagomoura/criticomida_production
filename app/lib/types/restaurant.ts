@@ -62,6 +62,12 @@ export interface RestaurantDetail {
   } | null;
 }
 
+export interface CreateRestaurantResponse extends RestaurantDetail {
+  /** True when a restaurant with the same google_place_id already existed and
+   *  the backend returned it instead of creating a new row. */
+  existed: boolean;
+}
+
 export interface CreateRestaurantRequest {
   slug: string;
   name: string;
