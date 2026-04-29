@@ -13,6 +13,19 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  async rewrites() {
+    // El backend devuelve URLs relativas (/uploads/abc.webp) y los archivos
+    // los sirve FastAPI en NEXT_PUBLIC_API_URL/uploads/*. En dev apunta a
+    // localhost:8002, en prod a Railway. Mantener la URL relativa en la DB
+    // hace que las fotos sean portables si cambia el dominio del backend.
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: `${apiUrl}/uploads/:path*`,
+      },
+    ];
+  },
   async redirects() {
     // Legacy editorial category URLs → new social path. Only the known slugs
     // redirect; anything else under /reviews/* resolves to the social detail
