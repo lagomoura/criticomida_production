@@ -8,6 +8,7 @@ import StarRating from './StarRating';
 
 interface DishReviewFormProps {
   dishId: string;
+  dishName: string;
   onSuccess: (review: DishReview) => void;
   onCancel: () => void;
   cancelLabel?: string;
@@ -27,12 +28,13 @@ interface PhotoEntry {
   preview: string;
 }
 
-export default function DishReviewForm({ dishId, onSuccess, onCancel, cancelLabel = 'Cancelar' }: DishReviewFormProps) {
+export default function DishReviewForm({ dishId, dishName, onSuccess, onCancel, cancelLabel = 'Cancelar' }: DishReviewFormProps) {
   const [rating, setRating] = useState(5);
   const [note, setNote] = useState('');
   const [wouldOrderAgain, setWouldOrderAgain] = useState<boolean | null>(null);
   const [portionSize, setPortionSize] = useState<PortionSize | ''>('');
   const [dateTasted, setDateTasted] = useState(new Date().toISOString().slice(0, 10));
+  const [timeTasted, setTimeTasted] = useState('');
   const [visitedWith, setVisitedWith] = useState('');
   const [pros, setPros] = useState<ProConEntry[]>([{ id: nextId(), text: '' }]);
   const [cons, setCons] = useState<ProConEntry[]>([{ id: nextId(), text: '' }]);
@@ -83,10 +85,17 @@ export default function DishReviewForm({ dishId, onSuccess, onCancel, cancelLabe
         photos.map((photo, i) => uploadReviewPhoto(dishId, photo.file, i))
       );
 
+      const trimmedDishName = dishName.trim();
+      const altFor = (index: number) =>
+        imageUrls.length > 1
+          ? `Foto ${index + 1} de ${trimmedDishName}`
+          : `Foto de ${trimmedDishName}`;
+
       const review = await createReview(dishId, {
         rating,
         note,
         date_tasted: dateTasted,
+        time_tasted: timeTasted || undefined,
         would_order_again: wouldOrderAgain ?? undefined,
         portion_size: portionSize || undefined,
         visited_with: visitedWith.trim() || undefined,
@@ -96,7 +105,7 @@ export default function DishReviewForm({ dishId, onSuccess, onCancel, cancelLabe
           ...consFiltered.map(text => ({ type: 'con' as const, text })),
         ],
         tags: tagsFiltered.map(tag => ({ tag })),
-        images: imageUrls.map((url, i) => ({ url, display_order: i })),
+        images: imageUrls.map((url, i) => ({ url, alt_text: altFor(i), display_order: i })),
       });
       onSuccess(review);
     } catch (err) {
@@ -300,16 +309,27 @@ export default function DishReviewForm({ dishId, onSuccess, onCancel, cancelLabe
         </div>
         <div>
           <label htmlFor="review-date" className="form-label mb-1">
-            Fecha
+            Fecha y hora
           </label>
-          <input
-            id="review-date"
-            type="date"
-            className="form-control"
-            value={dateTasted}
-            onChange={e => setDateTasted(e.target.value)}
-            disabled={submitting}
-          />
+          <div className="flex gap-2">
+            <input
+              id="review-date"
+              type="date"
+              className="form-control flex-1"
+              value={dateTasted}
+              onChange={e => setDateTasted(e.target.value)}
+              disabled={submitting}
+            />
+            <input
+              id="review-time"
+              type="time"
+              aria-label="Hora"
+              className="form-control flex-1"
+              value={timeTasted}
+              onChange={e => setTimeTasted(e.target.value)}
+              disabled={submitting}
+            />
+          </div>
         </div>
         <div>
           <label htmlFor="review-visited" className="form-label mb-1">

@@ -215,6 +215,7 @@ export default function AddDishModal({
           <div className="overflow-y-auto px-5 py-4" style={{ maxHeight: '70vh' }}>
             <DishReviewForm
               dishId={createdDish.id}
+              dishName={createdDish.name}
               onSuccess={handleReviewSuccess}
               onCancel={handleSkipReview}
               cancelLabel="Saltar por ahora"

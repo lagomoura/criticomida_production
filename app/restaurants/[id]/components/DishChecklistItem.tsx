@@ -157,6 +157,7 @@ export default function DishChecklistItem({
               <p className="mb-2 text-sm font-semibold text-neutral-700">Tu reseña de {dish.name}</p>
               <DishReviewForm
                 dishId={dish.id}
+                dishName={dish.name}
                 onSuccess={handleReviewSuccess}
                 onCancel={() => { setShowForm(false); }}
               />
