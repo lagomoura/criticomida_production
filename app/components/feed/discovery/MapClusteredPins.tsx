@@ -26,6 +26,90 @@ export default function MapClusteredPins({ pins, selectedId, onSelect, onClose }
   const markersRef = useRef<Map<string, Marker>>(new Map());
   const syncScheduledRef = useRef(false);
 
+  // Mantenemos pins en un ref para que el effect de centrado NO dependa
+  // de su identidad. Sin esto, panBy → bounds_changed → refetch del bbox →
+  // nueva referencia de pins → effect re-dispara → loop visible (el mapa
+  // sube y baja indefinidamente).
+  const pinsRef = useRef(pins);
+  useEffect(() => {
+    pinsRef.current = pins;
+  }, [pins]);
+
+  // Cuando un pin se selecciona, garantizamos que el InfoWindow + el pin
+  // entren completos en el viewport.
+  //
+  // Estrategia en 2 pasos:
+  //   1. Verificar si el preview cabe en el viewport al zoom actual.
+  //      Si SÍ → solo paneamos a una coord ajustada (pin queda abajo,
+  //      InfoWindow se abre arriba con espacio). Sin tocar el zoom.
+  //   2. Si NO cabe → fitBounds para hacer zoom out al nivel mínimo
+  //      donde sí entra. Es el único caso donde se sacrifica zoom.
+  //
+  // Sin esto, fitBounds incondicional hacía zoom-in/out en cada click, aun
+  // cuando el preview ya cabía cómodo al zoom del usuario.
+  useEffect(() => {
+    if (!map || !selectedId) return;
+    const target = pinsRef.current.find((p) => p.restaurantId === selectedId);
+    if (!target) return;
+
+    const projection = map.getProjection();
+    const zoom = map.getZoom();
+    const div = map.getDiv();
+    if (!projection || zoom === undefined || !div) {
+      map.panTo({ lat: target.latitude, lng: target.longitude });
+      return;
+    }
+
+    const PREVIEW_W = 360;
+    const PREVIEW_H = 500;
+    const SAFE_PAD = 24;
+    const PIN_TAIL = 80;
+
+    const requiredW = PREVIEW_W + 2 * SAFE_PAD;
+    const requiredH = PREVIEW_H + PIN_TAIL + 2 * SAFE_PAD;
+    const fitsAtCurrentZoom =
+      requiredW <= div.clientWidth && requiredH <= div.clientHeight;
+
+    const scale = Math.pow(2, zoom);
+    const pinLatLng = new google.maps.LatLng(target.latitude, target.longitude);
+    const pinPoint = projection.fromLatLngToPoint(pinLatLng);
+    if (!pinPoint) {
+      map.panTo(pinLatLng);
+      return;
+    }
+
+    if (fitsAtCurrentZoom) {
+      // Pan only — desplaza el centro al norte del pin para que el pin quede
+      // por debajo del centro vertical, dejando espacio arriba para el
+      // InfoWindow. Mercator: norte = world.y MENOR.
+      const offsetPx = (PREVIEW_H - PIN_TAIL) / 2;
+      const adjusted = new google.maps.Point(
+        pinPoint.x,
+        pinPoint.y - offsetPx / scale,
+      );
+      const adjustedLatLng = projection.fromPointToLatLng(adjusted);
+      map.panTo(adjustedLatLng ?? pinLatLng);
+      return;
+    }
+
+    // No cabe — zoom out vía fitBounds.
+    const dxWorld = (PREVIEW_W / 2 + SAFE_PAD) / scale;
+    const dyAboveWorld = (PREVIEW_H + SAFE_PAD) / scale;
+    const dyBelowWorld = (PIN_TAIL + SAFE_PAD) / scale;
+    const ne = projection.fromPointToLatLng(
+      new google.maps.Point(pinPoint.x + dxWorld, pinPoint.y - dyAboveWorld),
+    );
+    const sw = projection.fromPointToLatLng(
+      new google.maps.Point(pinPoint.x - dxWorld, pinPoint.y + dyBelowWorld),
+    );
+    if (!ne || !sw) {
+      map.panTo(pinLatLng);
+      return;
+    }
+    const bounds = new google.maps.LatLngBounds(sw, ne);
+    map.fitBounds(bounds, { top: 16, bottom: 16, left: 16, right: 16 });
+  }, [map, selectedId]);
+
   const sync = useCallback(() => {
     const c = clustererRef.current;
     if (!c) return;
@@ -115,7 +199,7 @@ function PinMarker({ pin, selected, onClick, onClose, register }: PinMarkerProps
           {pin.isEmpty ? (
             <MapEmptyRestaurantBody pin={pin} />
           ) : (
-            <MapRestaurantPreviewBody pin={pin} />
+            <MapRestaurantPreviewBody pin={pin} onClose={onClose} />
           )}
         </InfoWindow>
       )}
