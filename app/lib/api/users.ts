@@ -9,6 +9,19 @@ import type { UpdateProfileRequest, User } from '@/app/lib/types/user';
  * Backend wire format for the public profile endpoint (`GET /api/users/{id_or_handle}`).
  * Snake_case mirrors the rest of the FastAPI responses.
  */
+interface CategoryStatDTO {
+  name: string;
+  review_count: number;
+  avg_rating: number;
+  score: number;
+}
+
+interface ReputationDTO {
+  verified_review_count: number;
+  restaurants_visited: number;
+  top_categories: CategoryStatDTO[];
+}
+
 interface PublicUserResponseDTO {
   id: string;
   display_name: string;
@@ -17,6 +30,7 @@ interface PublicUserResponseDTO {
   bio: string | null;
   location: string | null;
   counts: { reviews: number; followers: number; following: number };
+  reputation?: ReputationDTO;
   viewer_state: { is_self: boolean; following: boolean };
 }
 
@@ -29,6 +43,18 @@ function toPublicUserProfile(dto: PublicUserResponseDTO): PublicUserProfile {
     bio: dto.bio,
     location: dto.location,
     counts: dto.counts,
+    reputation: dto.reputation
+      ? {
+          verifiedReviewCount: dto.reputation.verified_review_count,
+          restaurantsVisited: dto.reputation.restaurants_visited,
+          topCategories: dto.reputation.top_categories.map((c) => ({
+            name: c.name,
+            reviewCount: c.review_count,
+            avgRating: c.avg_rating,
+            score: c.score,
+          })),
+        }
+      : undefined,
     // `is_self` and `following` come resolved from the backend when the caller
     // carries a session; PublicProfileClient still guards `is_self` locally so
     // mock mode (where the backend doesn't know the viewer) stays correct.
