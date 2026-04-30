@@ -55,13 +55,17 @@ export default function PostCard({
   }
 
   const overlayEnabled = !expanded && Boolean(onOpenPost);
+  const verified = post.verifiedByExpert === true;
 
   return (
     <article
       className={cn(
-        'relative isolate flex flex-col gap-4 rounded-2xl border border-border-subtle bg-surface-card p-4 sm:p-5',
+        'relative isolate flex flex-col gap-4 rounded-2xl border bg-surface-card p-4 sm:p-5',
         'shadow-[var(--shadow-base)] transition-[transform,box-shadow] duration-[var(--duration-standard)]',
         'motion-safe:[transition-timing-function:var(--ease-standard)]',
+        verified
+          ? 'border-[color:var(--color-azafran)]/45'
+          : 'border-border-subtle',
         overlayEnabled && 'hover:-translate-y-[2px] hover:shadow-[var(--shadow-elevated)]',
         className,
       )}
@@ -90,6 +94,7 @@ export default function PostCard({
           createdAt={post.createdAt}
           onOpenAuthor={onOpenAuthor}
           onOpenMenu={onOpenMenu ? () => onOpenMenu(post.id) : undefined}
+          verified={verified}
         />
       </div>
 

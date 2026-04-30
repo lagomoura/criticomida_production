@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import Avatar from '@/app/components/ui/Avatar';
+import Tooltip from '@/app/components/ui/Tooltip';
 import { formatRelativeTime } from '@/app/lib/utils/time';
 import type { AuthorSummary } from '@/app/lib/types/social';
 
@@ -9,15 +10,48 @@ export interface PostHeaderProps {
   createdAt: string;
   onOpenAuthor?: (userId: string) => void;
   onOpenMenu?: () => void;
+  /** Cuando true, muestra el sello "Reseña experta" pegado al nombre del
+   * autor — la review tiene los 3 pilares técnicos completados. */
+  verified?: boolean;
 }
 
-export default function PostHeader({ author, createdAt, onOpenAuthor, onOpenMenu }: PostHeaderProps) {
+export default function PostHeader({
+  author,
+  createdAt,
+  onOpenAuthor,
+  onOpenMenu,
+  verified = false,
+}: PostHeaderProps) {
   const authorLabel = author.handle ? `@${author.handle}` : author.displayName;
 
   const AuthorBlock = (
     <span className="flex min-w-0 flex-col leading-tight">
-      <span className="truncate font-sans text-sm font-medium text-text-primary">
-        {author.displayName}
+      <span className="flex min-w-0 items-center gap-1.5">
+        <span className="truncate font-sans text-sm font-medium text-text-primary">
+          {author.displayName}
+        </span>
+        {verified && (
+          <Tooltip
+            multiline
+            label={
+              <>
+                <strong className="font-semibold">Reseña experta.</strong>{' '}
+                El autor calificó los 3 pilares técnicos: presentación, costo/beneficio y
+                ejecución. Tiene más peso en el Geek Score que una reseña con solo
+                estrellas.
+              </>
+            }
+          >
+            <span
+              className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--color-azafran)]/12 px-1.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-[0.1em] text-[color:var(--color-azafran)]"
+              aria-label="Reseña experta: el autor evaluó los 3 pilares técnicos"
+              tabIndex={0}
+            >
+              <span aria-hidden>✦</span>
+              Reseña experta
+            </span>
+          </Tooltip>
+        )}
       </span>
       <span className="truncate font-sans text-xs text-text-muted">
         {author.handle ? `@${author.handle} · ` : ''}

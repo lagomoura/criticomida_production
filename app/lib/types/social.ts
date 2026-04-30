@@ -73,6 +73,10 @@ export interface ReviewPost {
   viewerState: PostViewerState;
   status?: PostStatus;
   extras?: ReviewExtras | null;
+  /** True cuando la review tiene los 3 pilares técnicos completos
+   * (presentación + costo/beneficio + ejecución). Habilita el sello
+   * "Verificada por experto" en la UI. */
+  verifiedByExpert?: boolean;
 }
 
 export interface Comment {
@@ -329,6 +333,23 @@ export interface WantToTryPage {
   nextCursor: string | null;
 }
 
+export interface CategoryStat {
+  name: string;
+  reviewCount: number;
+  avgRating: number;
+  /** Score interno usado por el backend para rankear (no se renderiza). */
+  score: number;
+}
+
+export interface UserReputation {
+  /** Reviews con los 3 pilares técnicos completos. */
+  verifiedReviewCount: number;
+  /** Restaurantes únicos reseñados por el usuario. */
+  restaurantsVisited: number;
+  /** Top categorías donde el usuario muestra criterio (ya rankeadas). */
+  topCategories: CategoryStat[];
+}
+
 export interface PublicUserProfile {
   id: string;
   displayName: string;
@@ -341,6 +362,7 @@ export interface PublicUserProfile {
     followers: number;
     following: number;
   };
+  reputation?: UserReputation;
   viewerState: {
     isSelf: boolean;
     following: boolean;
