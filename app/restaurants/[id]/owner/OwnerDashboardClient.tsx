@@ -43,6 +43,7 @@ export default function OwnerDashboardClient({
   const router = useRouter();
 
   const [gate, setGate] = useState<GateState>({ kind: 'checking' });
+  const [isAdminViewer, setIsAdminViewer] = useState(false);
   const [photos, setPhotos] = useState<OfficialPhoto[]>([]);
   const [reviews, setReviews] = useState<OwnerReviewItem[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
@@ -75,10 +76,12 @@ export default function OwnerDashboardClient({
       try {
         const detail = await getRestaurant(restaurantSlug);
         if (cancelled) return;
-        if (!detail.viewer_is_owner) {
+        const isAdmin = user.role === 'admin';
+        if (!detail.viewer_is_owner && !isAdmin) {
           setGate({ kind: 'forbidden' });
           return;
         }
+        setIsAdminViewer(isAdmin && !detail.viewer_is_owner);
         setGate({ kind: 'authorized' });
         await loadAll();
       } catch {
@@ -197,6 +200,12 @@ export default function OwnerDashboardClient({
         <p className="font-sans text-sm text-text-muted">
           {restaurantLocation}
         </p>
+        {isAdminViewer && (
+          <p className="mt-2 inline-flex items-center gap-2 self-start rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+            Estás viendo este panel como admin (soporte). Las acciones quedan
+            registradas a tu cuenta.
+          </p>
+        )}
       </header>
 
       <section className="flex flex-col gap-3">
