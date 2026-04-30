@@ -8,9 +8,11 @@ import FeedWelcome from './FeedWelcome';
 import DiscoveryRails from './discovery/DiscoveryRails';
 import MapDiscoveryView from './discovery/MapDiscoveryView';
 import { getFeed } from '@/app/lib/api/feed';
+import { getUserProfile } from '@/app/lib/api/users';
 import { likePost, unlikePost, savePost, unsavePost } from '@/app/lib/api/interactions';
 import { addToWantToTry, removeFromWantToTry } from '@/app/lib/api/want-to-try';
 import { useToast } from '@/app/components/ui/Toast';
+import { PostCardSkeleton } from '@/app/components/ui/SkeletonPresets';
 import ReportModal from '@/app/components/social/ReportModal';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { cn } from '@/app/lib/utils/cn';
@@ -60,7 +62,13 @@ export default function FeedClient() {
   // depending on `cache` would loop because loadFirstPage immediately writes
   // to cache while the slot is still in 'loading' state.
   const startedSlotsRef = useRef<Set<SlotKey>>(new Set());
-  const { user } = useAuthContext();
+  // Hasta que esto sea true mostramos esqueleto en vez del contenido del tab,
+  // así evitamos el flicker entre el default 'for_you' y el switch a
+  // 'following' una vez que sabemos que el usuario sigue a alguien. El ref
+  // espeja el estado para chequeos sincrónicos dentro de promesas en vuelo.
+  const tabResolvedRef = useRef(false);
+  const [tabResolved, setTabResolved] = useState(false);
+  const { user, isLoading: isAuthLoading } = useAuthContext();
   const router = useRouter();
   const toast = useToast();
 
@@ -176,6 +184,37 @@ export default function FeedClient() {
     void loadFirstPage(activeTab, followingSort);
   }, [activeTab, followingSort, loadFirstPage]);
 
+  // Tab por defecto basado en si el usuario sigue a alguien: si ya hay al
+  // menos un follow, abrir directo en 'Siguiendo'; si no, dejar 'Para ti'.
+  // Anónimos y errores de red caen al default actual ('for_you').
+  useEffect(() => {
+    if (tabResolvedRef.current) return;
+    if (isAuthLoading) return;
+    if (!user) {
+      tabResolvedRef.current = true;
+      setTabResolved(true);
+      return;
+    }
+    let cancelled = false;
+    void getUserProfile(user.id)
+      .then((profile) => {
+        if (cancelled || tabResolvedRef.current) return;
+        tabResolvedRef.current = true;
+        if (profile.counts.following > 0) {
+          setActiveTab('following');
+        }
+        setTabResolved(true);
+      })
+      .catch(() => {
+        if (cancelled || tabResolvedRef.current) return;
+        tabResolvedRef.current = true;
+        setTabResolved(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, isAuthLoading]);
+
   const handleToggleLike = useCallback(
     async (postId: string, next: boolean) => {
       // Optimistic: mirror the toggle in every cached tab (the same post may
@@ -256,7 +295,11 @@ export default function FeedClient() {
           ariaLabel="Tipo de feed"
           value={activeTab}
           items={tabs}
-          onChange={(next) => setActiveTab(next as FeedTabValue)}
+          onChange={(next) => {
+            tabResolvedRef.current = true;
+            setTabResolved(true);
+            setActiveTab(next as FeedTabValue);
+          }}
         />
       </header>
 
@@ -270,7 +313,18 @@ export default function FeedClient() {
         />
       )}
 
-      {activeTab === 'for_you' ? (
+      {!tabResolved ? (
+        <div
+          className="flex flex-col gap-4"
+          aria-busy="true"
+          aria-live="polite"
+          aria-label="Cargando feed"
+        >
+          {Array.from({ length: 3 }).map((_, i) => (
+            <PostCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : activeTab === 'for_you' ? (
         <DiscoveryRails />
       ) : activeTab === 'map' ? (
         <MapDiscoveryView />
