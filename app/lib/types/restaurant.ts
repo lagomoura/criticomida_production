@@ -69,6 +69,8 @@ export interface RestaurantDetail {
   reservation_partner_meta: Record<string, unknown> | null;
   // Claim flow (migration 024)
   is_claimed?: boolean;
+  // True solo si el viewer actual es el verified owner del restaurant.
+  viewer_is_owner?: boolean;
   creator: {
     id: string;
     email: string;

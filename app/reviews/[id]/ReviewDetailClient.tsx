@@ -10,6 +10,7 @@ import PostCard from '@/app/components/social/PostCard';
 import CommentItem from '@/app/components/social/CommentItem';
 import CommentComposer from '@/app/components/social/CommentComposer';
 import ReportModal from '@/app/components/social/ReportModal';
+import OwnerResponseBlock from '@/app/components/social/OwnerResponseBlock';
 import { getPost, getComments, createComment } from '@/app/lib/api/posts';
 import { ApiError } from '@/app/lib/api/client';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
@@ -175,6 +176,11 @@ export default function ReviewDetailClient({ postId }: Props) {
           onClose={() => setReportTarget(null)}
         />
       )}
+
+      <OwnerResponseBlock
+        reviewId={post.id}
+        restaurantSlugOrId={post.dish.restaurantId}
+      />
 
       <section id="comments" aria-labelledby="comments-title" className="flex flex-col gap-5">
         <h2 id="comments-title" className="font-display text-2xl font-medium text-text-primary">
