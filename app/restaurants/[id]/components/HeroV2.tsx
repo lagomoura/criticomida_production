@@ -187,6 +187,8 @@ export default function HeroV2({
           restaurantSlug={restaurant.slug}
           restaurantName={restaurant.name}
           googleMapsUrl={restaurant.google_maps_url}
+          reservationUrl={restaurant.reservation_url}
+          reservationProvider={restaurant.reservation_provider}
         />
       </div>
     </section>

@@ -12,6 +12,7 @@ interface RestaurantCardProps {
   reviewCount: number;
   categoryLabel?: string;
   showInfo?: boolean;
+  hasReservation?: boolean;
 }
 
 export default function RestaurantCard({
@@ -23,6 +24,7 @@ export default function RestaurantCard({
   reviewCount,
   categoryLabel,
   showInfo = false,
+  hasReservation = false,
 }: RestaurantCardProps) {
   const [imgSrc, setImgSrc] = useState(image);
   const rating = Number(ratingProp);
@@ -61,6 +63,17 @@ export default function RestaurantCard({
         >
           {reviewCount} reseñas
         </div>
+        {hasReservation && (
+          <div
+            className={
+              'absolute bottom-0 right-0 z-[5] m-3 rounded-full ' +
+              'bg-[var(--mainPink,#ef7998)] px-3 py-1 text-xs font-semibold text-white ' +
+              'shadow-[0_4px_12px_rgba(0,0,0,0.2)]'
+            }
+          >
+            Reserva online
+          </div>
+        )}
       </div>
 
       {showInfo && (

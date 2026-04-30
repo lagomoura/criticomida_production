@@ -53,6 +53,22 @@ export async function createRestaurant(
   });
 }
 
+export interface UpdateRestaurantRequest {
+  reservation_url?: string | null;
+  reservation_provider?: string | null;
+  reservation_partner_meta?: Record<string, unknown> | null;
+}
+
+export async function updateRestaurant(
+  slug: string,
+  data: UpdateRestaurantRequest,
+): Promise<RestaurantDetail> {
+  return fetchApi<RestaurantDetail>(`/api/restaurants/${slug}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
 export interface GetMatchCandidatesParams {
   name: string;
   lat: number;
@@ -126,4 +142,35 @@ export async function getNearbyRestaurants(
   return fetchApi<NearbyRestaurantsResponse>(
     `/api/restaurants/${slug}/nearby${query ? `?${query}` : ''}`,
   );
+}
+
+export interface LogReservationClickInput {
+  provider?: string | null;
+  utm?: Record<string, string> | null;
+  session_id?: string | null;
+  referrer?: string | null;
+}
+
+const RESERVATION_API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8002';
+
+/** Logs a click on the "Reservar mesa" CTA. Uses fetch directly (instead of
+ *  fetchApi) so we can pass `keepalive: true` — the browser keeps the request
+ *  alive even after we navigate away to the partner's site. */
+export async function logReservationClick(
+  slug: string,
+  body: LogReservationClickInput,
+): Promise<void> {
+  try {
+    await fetch(`${RESERVATION_API_URL}/api/restaurants/${slug}/reservation-click`, {
+      method: 'POST',
+      credentials: 'include',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    /* Click tracking failures must never block the user — the CTA still opens
+     *  the partner URL. We swallow errors deliberately. */
+  }
 }

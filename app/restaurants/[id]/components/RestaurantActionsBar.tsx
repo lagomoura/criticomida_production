@@ -2,16 +2,23 @@
 
 import { useState } from 'react';
 
+import type { ReservationProvider } from '@/app/lib/types/restaurant';
+import ReservationCTA from './ReservationCTA';
+
 interface RestaurantActionsBarProps {
   restaurantSlug: string;
   restaurantName: string;
   googleMapsUrl: string | null;
+  reservationUrl?: string | null;
+  reservationProvider?: ReservationProvider | null;
 }
 
 export default function RestaurantActionsBar({
   restaurantSlug,
   restaurantName,
   googleMapsUrl,
+  reservationUrl,
+  reservationProvider,
 }: RestaurantActionsBarProps) {
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
@@ -48,6 +55,13 @@ export default function RestaurantActionsBar({
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-white)] px-3 py-2 shadow-sm sm:gap-3 sm:px-4">
+      {reservationUrl && (
+        <ReservationCTA
+          slug={restaurantSlug}
+          reservationUrl={reservationUrl}
+          reservationProvider={reservationProvider ?? null}
+        />
+      )}
       <button
         type="button"
         onClick={dispatchPublishReview}

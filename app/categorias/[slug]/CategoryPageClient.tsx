@@ -93,6 +93,7 @@ export default function CategoryPageClient({
                       description={restaurant.category?.description || restaurant.category?.name || ''}
                       reviewCount={restaurant.review_count}
                       showInfo={true}
+                      hasReservation={restaurant.has_reservation ?? false}
                     />
                   </Link>
                 </div>

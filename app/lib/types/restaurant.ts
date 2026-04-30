@@ -8,6 +8,16 @@ export interface GooglePhoto {
   url: string | null;
 }
 
+export type ReservationProvider =
+  | 'opentable'
+  | 'thefork'
+  | 'cover'
+  | 'mesaya'
+  | 'tablecheck'
+  | 'own_site'
+  | 'whatsapp'
+  | (string & {});
+
 export interface RestaurantListItem {
   id: string;
   slug: string;
@@ -19,6 +29,8 @@ export interface RestaurantListItem {
   computed_rating: number;
   review_count: number;
   category: Category | null;
+  has_reservation?: boolean;
+  reservation_provider?: ReservationProvider | null;
 }
 
 export interface RestaurantDetail {
@@ -51,6 +63,10 @@ export interface RestaurantDetail {
   editorial_summary_lang: string | null;
   cuisine_types: string[] | null;
   google_cached_at: string | null;
+  // Reservas afiliadas (migration 023)
+  reservation_url: string | null;
+  reservation_provider: ReservationProvider | null;
+  reservation_partner_meta: Record<string, unknown> | null;
   creator: {
     id: string;
     email: string;
