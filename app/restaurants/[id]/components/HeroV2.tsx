@@ -34,15 +34,21 @@ export default function HeroV2({
   // URL we cached during Fase B enrichment when present.
   const isStaleJsSdkUrl = (url: string | null | undefined) =>
     !!url && url.includes('/maps/api/place/js/PhotoService');
+  // Verified owners suben fotos oficiales que tienen prioridad sobre cualquier
+  // fuente externa — son la voz oficial del local.
+  const officialCover = restaurant.official_photos?.[0]?.url ?? null;
   const googleCover = restaurant.google_photos?.find((g) => g.url)?.url ?? null;
   // Hierarchy of cover sources:
-  //   1. restaurant.cover_image_url (unless it's a stale JS SDK URL and we have
+  //   1. official_photos[0].url (verified owner upload — highest authority)
+  //   2. restaurant.cover_image_url (unless it's a stale JS SDK URL and we have
   //      a fresh google_photos URL that supersedes it)
-  //   2. google_photos[0].url (Fase B Places HTTP API, persistent)
-  //   3. fallbackCoverUrl (e.g. top signature dish photo)
-  const cover = isStaleJsSdkUrl(restaurant.cover_image_url) && googleCover
-    ? null
-    : restaurant.cover_image_url;
+  //   3. google_photos[0].url (Fase B Places HTTP API, persistent)
+  //   4. fallbackCoverUrl (e.g. top signature dish photo)
+  const cover = officialCover
+    ? officialCover
+    : isStaleJsSdkUrl(restaurant.cover_image_url) && googleCover
+      ? null
+      : restaurant.cover_image_url;
   const dishFallback =
     !cover && !googleCover && !isStaleJsSdkUrl(fallbackCoverUrl)
       ? fallbackCoverUrl ?? null

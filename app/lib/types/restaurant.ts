@@ -71,6 +71,13 @@ export interface RestaurantDetail {
   is_claimed?: boolean;
   // True solo si el viewer actual es el verified owner del restaurant.
   viewer_is_owner?: boolean;
+  // Fotos oficiales subidas por el verified owner (migration 025).
+  official_photos?: Array<{
+    id: string;
+    url: string;
+    alt_text: string | null;
+    display_order: number;
+  }>;
   creator: {
     id: string;
     email: string;

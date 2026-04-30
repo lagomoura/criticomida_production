@@ -65,3 +65,32 @@ export async function deleteOfficialPhoto(
     method: 'DELETE',
   });
 }
+
+// ----- Dashboard del owner -----
+
+export interface OwnerReviewItem {
+  id: string;
+  dish_id: string;
+  dish_name: string;
+  rating: number;
+  note: string;
+  user_display_name: string;
+  user_handle: string | null;
+  is_anonymous: boolean;
+  date_tasted: string;
+  has_owner_response: boolean;
+}
+
+export interface OwnerReviewsListResponse {
+  items: OwnerReviewItem[];
+  total: number;
+  pending_count: number;
+}
+
+export async function listOwnerReviews(
+  slug: string,
+): Promise<OwnerReviewsListResponse> {
+  return fetchApi<OwnerReviewsListResponse>(
+    `/api/restaurants/${slug}/owner/reviews`,
+  );
+}

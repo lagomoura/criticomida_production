@@ -179,6 +179,7 @@ export default function RestaurantPageClient({
       <ClaimPromptFooter
         restaurantSlug={restaurant.slug}
         isClaimed={Boolean(restaurant.is_claimed)}
+        viewerIsOwner={Boolean(restaurant.viewer_is_owner)}
       />
 
       {user && (
