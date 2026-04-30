@@ -32,8 +32,11 @@ export default function IconButton({
   ...rest
 }: IconButtonProps) {
   const isToggle = intent !== 'neutral';
-  const selectedTint = selectedTintFor(intent, selected);
+  const selectedClasses = selectedClassesFor(intent, selected);
   const isDisabled = disabled || loading;
+  // Micro-interacción especiería: cualquier intent toggleable hace pop al
+  // pasar a 'selected'. Antes solo aplicaba a 'like'.
+  const shouldPop = isToggle && selected;
 
   return (
     <button
@@ -48,7 +51,7 @@ export default function IconButton({
         'hover:bg-surface-subtle active:opacity-85',
         'disabled:cursor-not-allowed disabled:opacity-60',
         'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
-        selectedTint,
+        selectedClasses,
         className,
       )}
     >
@@ -57,27 +60,41 @@ export default function IconButton({
         key={`${intent}-${selected ? 'on' : 'off'}`}
         className={cn(
           'inline-flex h-5 w-5 items-center justify-center',
-          intent === 'like' && selected && 'cc-pop-on-select',
+          shouldPop && 'cc-pop-on-select',
         )}
       >
         {loading ? <Spinner /> : icon}
       </span>
       {typeof count === 'number' && (
-        <span className="font-sans text-xs tabular-nums text-text-muted">{count}</span>
+        <span
+          className={cn(
+            'font-sans text-xs tabular-nums',
+            selected && intent !== 'neutral'
+              ? 'text-[currentColor]'
+              : 'text-text-muted',
+          )}
+        >
+          {count}
+        </span>
       )}
     </button>
   );
 }
 
-function selectedTintFor(intent: IconButtonIntent, selected: boolean): string {
+/**
+ * Cuando un toggle está seleccionado, además del color del icono pintamos un
+ * fondo "encendido" (color pale del token) — el botón se siente activo, no
+ * solo "marcado". Cuando no está seleccionado: muted neutro.
+ */
+function selectedClassesFor(intent: IconButtonIntent, selected: boolean): string {
   if (!selected) return 'text-text-muted';
   switch (intent) {
     case 'like':
-      return 'text-[var(--state-like-on)]';
+      return 'text-[var(--state-like-on)] bg-[color:var(--color-paprika-pale)] hover:bg-[color:var(--color-paprika-pale)]';
     case 'save':
-      return 'text-[var(--state-save-on)]';
+      return 'text-[var(--state-save-on)] bg-[color:var(--color-azafran-pale)] hover:bg-[color:var(--color-azafran-pale)]';
     case 'follow':
-      return 'text-[var(--state-follow-on)]';
+      return 'text-[var(--state-follow-on)] bg-[color:var(--color-albahaca-pale)] hover:bg-[color:var(--color-albahaca-pale)]';
     default:
       return 'text-text-primary';
   }

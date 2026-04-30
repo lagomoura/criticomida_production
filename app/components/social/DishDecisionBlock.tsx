@@ -10,8 +10,14 @@ export interface DishDecisionBlockProps {
 }
 
 /**
- * The "qué pedir" block. Always visible in PostCard and review detail.
- * Dish name (Cormorant 500), restaurant meta, score pill.
+ * El bloque "héroe" del PostCard — el "qué pedir". Estructurado como cabeza
+ * editorial:
+ *   EL PEDIDO            (kicker en sans uppercase, micro)
+ *   {nombre del plato}   (Cormorant 500, grande)
+ *   {restaurant} · {cat} (DM Sans, sutil)
+ *   ────────             (regla decorativa que separa del cuerpo del post)
+ *
+ * Score pill flota a la derecha — alineada visualmente con el nombre del plato.
  */
 export default function DishDecisionBlock({
   dish,
@@ -21,38 +27,57 @@ export default function DishDecisionBlock({
   className,
 }: DishDecisionBlockProps) {
   return (
-    <div className={cn('flex items-start justify-between gap-3', className)}>
-      <div className="min-w-0 flex-1">
-        {onOpenDish ? (
-          <button
-            type="button"
-            onClick={() => onOpenDish(dish.id)}
-            className="block max-w-full truncate text-left font-display text-xl font-medium text-text-primary hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] sm:text-2xl"
-          >
-            {dish.name}
-          </button>
-        ) : (
-          <h3 className="truncate font-display text-xl font-medium text-text-primary sm:text-2xl">
-            {dish.name}
-          </h3>
-        )}
-        <p className="mt-0.5 truncate font-sans text-sm text-text-muted">
-          en{' '}
-          {onOpenRestaurant ? (
+    <div className={cn('flex flex-col gap-2', className)}>
+      <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-text-muted">
+        El pedido
+      </p>
+
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          {onOpenDish ? (
             <button
               type="button"
-              onClick={() => onOpenRestaurant(dish.restaurantId)}
-              className="hover:text-text-secondary hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+              onClick={() => onOpenDish(dish.id)}
+              className="block max-w-full truncate text-left font-display text-2xl font-medium leading-[1.05] text-text-primary hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] sm:text-[28px]"
             >
-              {dish.restaurantName}
+              {dish.name}
             </button>
           ) : (
-            <span>{dish.restaurantName}</span>
+            <h3 className="truncate font-display text-2xl font-medium leading-[1.05] text-text-primary sm:text-[28px]">
+              {dish.name}
+            </h3>
           )}
-          {dish.category && <span className="text-text-muted"> · {dish.category}</span>}
-        </p>
+          <p className="mt-1.5 truncate font-sans text-[13px] text-text-muted">
+            <span className="text-text-muted/70">en </span>
+            {onOpenRestaurant ? (
+              <button
+                type="button"
+                onClick={() => onOpenRestaurant(dish.restaurantId)}
+                className="font-medium text-text-secondary hover:text-text-primary hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+              >
+                {dish.restaurantName}
+              </button>
+            ) : (
+              <span className="font-medium text-text-secondary">{dish.restaurantName}</span>
+            )}
+            {dish.category && (
+              <>
+                <span className="mx-1.5 text-text-muted/60" aria-hidden>·</span>
+                <span className="uppercase tracking-[0.08em] text-[11px] text-text-muted">
+                  {dish.category}
+                </span>
+              </>
+            )}
+          </p>
+        </div>
+        <ScoreBadge score={score} />
       </div>
-      <ScoreBadge score={score} />
+
+      {/* Regla decorativa: cierra el bloque "héroe" como un titular de revista */}
+      <div
+        aria-hidden
+        className="mt-1 h-px w-12 bg-[color:var(--color-azafran)]/45"
+      />
     </div>
   );
 }
