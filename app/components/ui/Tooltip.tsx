@@ -20,6 +20,9 @@ export interface TooltipProps {
   side?: Side;
   /** Delay before showing (ms). Default 250ms — feels responsive without being noisy. */
   delay?: number;
+  /** Cuando true, permite envolver texto largo en lugar de mantenerlo en una sola línea.
+   * Limita el ancho a ~280px y alinea a la izquierda. Útil para descripciones de sellos / badges. */
+  multiline?: boolean;
   children: ReactElement;
 }
 
@@ -30,7 +33,13 @@ const sideClass: Record<Side, string> = {
   right: 'left-full top-1/2 -translate-y-1/2 ml-1.5',
 };
 
-export default function Tooltip({ label, side = 'top', delay = 250, children }: TooltipProps) {
+export default function Tooltip({
+  label,
+  side = 'top',
+  delay = 250,
+  multiline = false,
+  children,
+}: TooltipProps) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -79,9 +88,12 @@ export default function Tooltip({ label, side = 'top', delay = 250, children }: 
           role="tooltip"
           id={id}
           className={cn(
-            'pointer-events-none absolute z-50 whitespace-nowrap rounded-md px-2 py-1 font-sans text-xs font-medium',
+            'pointer-events-none absolute z-50 rounded-md px-2 py-1 font-sans text-xs font-medium',
             'bg-text-primary text-text-inverse shadow-[var(--shadow-elevated)]',
             'motion-safe:animate-[tooltip-in_140ms_var(--ease-standard)]',
+            multiline
+              ? 'w-max max-w-[18rem] whitespace-normal text-left leading-snug'
+              : 'whitespace-nowrap',
             sideClass[side],
           )}
         >

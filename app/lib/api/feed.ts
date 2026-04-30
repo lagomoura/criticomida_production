@@ -75,6 +75,7 @@ export interface FeedItemDTO {
   stats: FeedStatsDTO;
   viewer_state: FeedViewerStateDTO;
   extras: FeedExtrasDTO | null;
+  verified_by_expert?: boolean;
 }
 
 export interface FeedPageDTO {
@@ -124,6 +125,7 @@ export function toReviewPost(dto: FeedItemDTO): ReviewPost {
       wantToTry: dto.viewer_state.want_to_try ?? false,
     },
     extras,
+    verifiedByExpert: dto.verified_by_expert ?? false,
   };
 }
 

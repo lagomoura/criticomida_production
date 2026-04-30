@@ -73,6 +73,10 @@ export interface ReviewPost {
   viewerState: PostViewerState;
   status?: PostStatus;
   extras?: ReviewExtras | null;
+  /** True cuando la review tiene los 3 pilares técnicos completos
+   * (presentación + costo/beneficio + ejecución). Habilita el sello
+   * "Verificada por experto" en la UI. */
+  verifiedByExpert?: boolean;
 }
 
 export interface Comment {
