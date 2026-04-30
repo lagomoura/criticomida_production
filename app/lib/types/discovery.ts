@@ -41,6 +41,7 @@ export interface BboxQuery {
   limit?: number;
   sort?: MapSort;
   includeEmpty?: boolean;
+  chefOnly?: boolean;
 }
 
 export interface MapBboxResponse {

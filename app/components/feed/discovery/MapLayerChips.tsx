@@ -10,6 +10,8 @@ interface Props {
   onSortChange: (next: MapSort) => void;
   includeEmpty: boolean;
   onIncludeEmptyChange: (next: boolean) => void;
+  chefOnly: boolean;
+  onChefOnlyChange: (next: boolean) => void;
 }
 
 const SORT_OPTIONS: ReadonlyArray<{ value: MapSort; label: string; icon: typeof faStar }> = [
@@ -23,6 +25,8 @@ export default function MapLayerChips({
   onSortChange,
   includeEmpty,
   onIncludeEmptyChange,
+  chefOnly,
+  onChefOnlyChange,
 }: Props) {
   return (
     <div
@@ -52,15 +56,36 @@ export default function MapLayerChips({
       })}
       <button
         type="button"
+        onClick={() => onChefOnlyChange(!chefOnly)}
+        aria-pressed={chefOnly}
+        className={cn(
+          'inline-flex h-8 items-center gap-1.5 rounded-full border px-3 font-sans text-xs font-medium shadow-sm backdrop-blur transition-colors',
+          chefOnly
+            ? 'border-[color:var(--color-azafran)] bg-[color:var(--color-azafran)] text-white'
+            : 'border-border-default bg-surface-card/95 text-text-primary hover:bg-surface-subtle',
+        )}
+        title="Solo restaurantes con plato Chef Badge (ejecución técnica destacada)"
+      >
+        <span aria-hidden>👨‍🍳</span>
+        Solo Chef
+      </button>
+      <button
+        type="button"
         onClick={() => onIncludeEmptyChange(!includeEmpty)}
         aria-pressed={includeEmpty}
+        disabled={chefOnly}
         className={cn(
           'inline-flex h-8 items-center gap-1.5 rounded-full border px-3 font-sans text-xs font-medium shadow-sm backdrop-blur transition-colors',
           includeEmpty
             ? 'border-[color:var(--color-albahaca)] bg-[color:var(--color-albahaca)] text-white'
             : 'border-border-default bg-surface-card/95 text-text-primary hover:bg-surface-subtle',
+          chefOnly && 'opacity-50 cursor-not-allowed',
         )}
-        title="Mostrar locales sin reviews — sé el primero"
+        title={
+          chefOnly
+            ? 'Los locales sin reviews no pueden tener Chef Badge'
+            : 'Mostrar locales sin reviews — sé el primero'
+        }
       >
         <FontAwesomeIcon icon={faPlus} className="text-[10px]" aria-hidden />
         Sin reviews

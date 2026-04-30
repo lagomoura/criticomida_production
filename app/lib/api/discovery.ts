@@ -213,6 +213,7 @@ export async function getRestaurantsInBbox(
   if (bbox.limit !== undefined) qs.set('limit', String(bbox.limit));
   if (bbox.sort) qs.set('sort', bbox.sort);
   if (bbox.includeEmpty) qs.set('include_empty', 'true');
+  if (bbox.chefOnly) qs.set('chef_only', 'true');
 
   const raw = await fetchApi<MapBboxResponseDTO>(
     `/api/restaurants/in-bbox?${qs}`,

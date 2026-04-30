@@ -14,6 +14,7 @@ interface Props {
   retryNonce?: number;
   sort: MapSort;
   includeEmpty: boolean;
+  chefOnly: boolean;
 }
 
 export default function MapBboxFetcher({
@@ -23,6 +24,7 @@ export default function MapBboxFetcher({
   retryNonce,
   sort,
   includeEmpty,
+  chefOnly,
 }: Props) {
   const map = useMap();
   const [rawBbox, setRawBbox] = useState<BboxQuery | null>(null);
@@ -58,7 +60,7 @@ export default function MapBboxFetcher({
     onError(null);
 
     getRestaurantsInBbox(
-      { ...debouncedBbox, sort, includeEmpty },
+      { ...debouncedBbox, sort, includeEmpty, chefOnly },
       controller.signal,
     )
       .then((res) => {
@@ -78,6 +80,7 @@ export default function MapBboxFetcher({
     debouncedBbox,
     sort,
     includeEmpty,
+    chefOnly,
     onResponse,
     onLoadingChange,
     onError,

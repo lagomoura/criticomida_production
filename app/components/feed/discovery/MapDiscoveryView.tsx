@@ -29,6 +29,7 @@ export default function MapDiscoveryView() {
   const [retryNonce, setRetryNonce] = useState(0);
   const [sort, setSort] = useState<MapSort>('geek_score');
   const [includeEmpty, setIncludeEmpty] = useState(false);
+  const [chefOnly, setChefOnly] = useState(false);
   const { location } = useUserLocation();
 
   const initialCenter = useMemo(() => {
@@ -79,6 +80,7 @@ export default function MapDiscoveryView() {
             retryNonce={retryNonce}
             sort={sort}
             includeEmpty={includeEmpty}
+            chefOnly={chefOnly}
           />
           <MapClusteredPins
             pins={pins}
@@ -94,6 +96,8 @@ export default function MapDiscoveryView() {
         onSortChange={setSort}
         includeEmpty={includeEmpty}
         onIncludeEmptyChange={setIncludeEmpty}
+        chefOnly={chefOnly}
+        onChefOnlyChange={setChefOnly}
       />
 
       <MapTop3Overlay pins={pins} sort={sort} onSelect={handleSelect} />
