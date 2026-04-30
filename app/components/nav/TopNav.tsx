@@ -132,7 +132,7 @@ export default function TopNav({ onOpenAuthModal, unreadCount = 0 }: TopNavProps
             </Link>
           )}
           <ThemeToggle />
-          {!isLoading && !user && (
+          {!isLoading && !user && pathname !== '/login' && (
             <Button variant="outline" size="sm" onClick={onOpenAuthModal} leftIcon={<FontAwesomeIcon icon={faRightToBracket} className="h-3.5 w-3.5" />}>
               Iniciar sesión
             </Button>
