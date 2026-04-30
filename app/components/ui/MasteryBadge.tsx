@@ -52,11 +52,14 @@ export default function MasteryBadge({
   const { title, tooltip } = COPY[level];
   const label =
     variant === 'compact' || !category ? title : `${title} de ${category}`;
+  // Sin `title` HTML: si el caller quiere un tooltip visible, envuelve con
+  // <Tooltip>. Mantener el title nativo se duplicaba con el tooltip externo
+  // del FeaturedTitleBadge en hover lento. La descripción queda en aria-label
+  // para que screen readers la lean.
   return (
     <span
       role="img"
       aria-label={`${label}. ${tooltip}`}
-      title={tooltip}
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-sans text-[11px] font-semibold uppercase tracking-[0.08em]',
         STYLE[level],
