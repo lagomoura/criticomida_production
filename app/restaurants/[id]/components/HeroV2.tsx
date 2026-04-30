@@ -129,6 +129,15 @@ export default function HeroV2({
               latitude={restaurant.latitude !== null ? Number(restaurant.latitude) : null}
               longitude={restaurant.longitude !== null ? Number(restaurant.longitude) : null}
             />
+            {restaurant.is_claimed && (
+              <span
+                className="inline-flex items-center gap-1 rounded-full bg-emerald-500/90 px-3 py-1 text-white shadow-sm backdrop-blur"
+                title="Esta ficha fue verificada por el dueño del restaurante."
+              >
+                <span aria-hidden>✓</span>
+                Verificado por el restaurante
+              </span>
+            )}
           </div>
 
           <h1 className="mt-3 font-display text-[clamp(2.5rem,6vw,4.5rem)] font-medium leading-[1.02] text-white">

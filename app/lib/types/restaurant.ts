@@ -67,6 +67,8 @@ export interface RestaurantDetail {
   reservation_url: string | null;
   reservation_provider: ReservationProvider | null;
   reservation_partner_meta: Record<string, unknown> | null;
+  // Claim flow (migration 024)
+  is_claimed?: boolean;
   creator: {
     id: string;
     email: string;

@@ -25,6 +25,7 @@ import RestaurantRatingSection from './RestaurantRatingSection';
 import LocationMap from './LocationMap';
 import AddDishModal from './AddDishModal';
 import PublishReviewModal from './PublishReviewModal';
+import ClaimPromptFooter from './ClaimPromptFooter';
 
 interface DishWithReviews {
   dish: Dish;
@@ -174,6 +175,11 @@ export default function RestaurantPageClient({
           ),
         }}
       </RestaurantTabs>
+
+      <ClaimPromptFooter
+        restaurantSlug={restaurant.slug}
+        isClaimed={Boolean(restaurant.is_claimed)}
+      />
 
       {user && (
         <>
