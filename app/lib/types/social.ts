@@ -257,6 +257,9 @@ export interface RelatedDishItem {
 
 export type FeedType = 'for_you' | 'following';
 
+/** Orden del feed 'Siguiendo': cronológico vs ranking por priority. */
+export type FeedSort = 'recent' | 'top';
+
 // --- Discovery feed (Geek Score, rails) ---
 
 export type DiscoverySort =

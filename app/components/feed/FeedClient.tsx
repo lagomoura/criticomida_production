@@ -13,56 +13,68 @@ import { addToWantToTry, removeFromWantToTry } from '@/app/lib/api/want-to-try';
 import { useToast } from '@/app/components/ui/Toast';
 import ReportModal from '@/app/components/social/ReportModal';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
-import type { FeedType, ReviewPost } from '@/app/lib/types/social';
+import { cn } from '@/app/lib/utils/cn';
+import type { FeedSort, FeedType, ReviewPost } from '@/app/lib/types/social';
 
 /**
- * Tab-scoped state. Keeps posts, cursor, and in-flight flags separate per
- * tab so switching doesn't lose scroll position / fetched pages.
+ * Slot-scoped state. Cada combinación (tab, sort) tiene su propio slot para
+ * que alternar entre Recientes/Mejor puntuadas no pierda scroll ni páginas
+ * ya bajadas.
  */
 interface TabSlot {
   state: FeedState;
   nextCursor: string | null;
 }
 
-type TabCache = Record<FeedType, TabSlot>;
+type SlotKey = 'for_you' | 'following:recent' | 'following:top';
+
+type SlotCache = Record<SlotKey, TabSlot>;
 
 const INITIAL_SLOT: TabSlot = {
   state: { status: 'loading' },
   nextCursor: null,
 };
 
-const INITIAL_CACHE: TabCache = {
+const INITIAL_CACHE: SlotCache = {
   for_you: INITIAL_SLOT,
-  following: INITIAL_SLOT,
+  'following:recent': INITIAL_SLOT,
+  'following:top': INITIAL_SLOT,
 };
 
 const PAGE_SIZE = 10;
 
 type FeedTabValue = FeedType | 'map';
 
+function slotKeyFor(type: FeedType, sort: FeedSort): SlotKey {
+  if (type === 'for_you') return 'for_you';
+  return sort === 'top' ? 'following:top' : 'following:recent';
+}
+
 export default function FeedClient() {
   const [activeTab, setActiveTab] = useState<FeedTabValue>('for_you');
-  const [cache, setCache] = useState<TabCache>(INITIAL_CACHE);
+  const [followingSort, setFollowingSort] = useState<FeedSort>('recent');
+  const [cache, setCache] = useState<SlotCache>(INITIAL_CACHE);
   const [reportTarget, setReportTarget] = useState<{ id: string; subject: string } | null>(null);
-  // Tracks which tabs we've already fired loadFirstPage for. Lets us trigger
-  // load on tab switch without keeping `cache` in the effect deps — depending
-  // on `cache` would loop because loadFirstPage immediately writes to cache
-  // while the slot is still in 'loading' state.
-  const startedTabsRef = useRef<Set<FeedType>>(new Set());
+  // Tracks which slots we've already fired loadFirstPage for. Lets us trigger
+  // load on tab/sort switch without keeping `cache` in the effect deps —
+  // depending on `cache` would loop because loadFirstPage immediately writes
+  // to cache while the slot is still in 'loading' state.
+  const startedSlotsRef = useRef<Set<SlotKey>>(new Set());
   const { user } = useAuthContext();
   const router = useRouter();
   const toast = useToast();
 
-  const loadFirstPage = useCallback(async (tab: FeedType) => {
+  const loadFirstPage = useCallback(async (type: FeedType, sort: FeedSort) => {
+    const key = slotKeyFor(type, sort);
     setCache((prev) => ({
       ...prev,
-      [tab]: { state: { status: 'loading' }, nextCursor: null },
+      [key]: { state: { status: 'loading' }, nextCursor: null },
     }));
     try {
-      const page = await getFeed({ type: tab, limit: PAGE_SIZE });
+      const page = await getFeed({ type, sort, limit: PAGE_SIZE });
       setCache((prev) => ({
         ...prev,
-        [tab]: {
+        [key]: {
           state: {
             status: 'ready',
             posts: page.items,
@@ -75,11 +87,11 @@ export default function FeedClient() {
     } catch {
       setCache((prev) => ({
         ...prev,
-        [tab]: {
+        [key]: {
           state: {
             status: 'error',
             message: 'No pudimos cargar el feed. Probá de nuevo en un momento.',
-            onRetry: () => void loadFirstPage(tab),
+            onRetry: () => void loadFirstPage(type, sort),
           },
           nextCursor: null,
         },
@@ -88,8 +100,9 @@ export default function FeedClient() {
   }, []);
 
   const loadNextPage = useCallback(
-    async (tab: FeedType) => {
-      const slot = (prevCache => prevCache[tab])(cache);
+    async (type: FeedType, sort: FeedSort) => {
+      const key = slotKeyFor(type, sort);
+      const slot = cache[key];
       if (slot.state.status !== 'ready') return;
       if (!slot.state.hasMore) return;
       if (slot.state.loadingMore) return;
@@ -98,11 +111,11 @@ export default function FeedClient() {
       const currentCursor = slot.nextCursor;
 
       setCache((prev) => {
-        const current = prev[tab];
+        const current = prev[key];
         if (current.state.status !== 'ready') return prev;
         return {
           ...prev,
-          [tab]: {
+          [key]: {
             ...current,
             state: { ...current.state, loadingMore: true, loadMoreError: undefined },
           },
@@ -111,16 +124,17 @@ export default function FeedClient() {
 
       try {
         const page = await getFeed({
-          type: tab,
+          type,
+          sort,
           cursor: currentCursor,
           limit: PAGE_SIZE,
         });
         setCache((prev) => {
-          const current = prev[tab];
+          const current = prev[key];
           if (current.state.status !== 'ready') return prev;
           return {
             ...prev,
-            [tab]: {
+            [key]: {
               state: {
                 status: 'ready',
                 posts: [...current.state.posts, ...page.items],
@@ -133,11 +147,11 @@ export default function FeedClient() {
         });
       } catch {
         setCache((prev) => {
-          const current = prev[tab];
+          const current = prev[key];
           if (current.state.status !== 'ready') return prev;
           return {
             ...prev,
-            [tab]: {
+            [key]: {
               ...current,
               state: {
                 ...current.state,
@@ -156,10 +170,11 @@ export default function FeedClient() {
   useEffect(() => {
     if (activeTab === 'for_you') return; // 'Para ti' ahora son rails — no hay cursor.
     if (activeTab === 'map') return; // El mapa maneja su propio fetch por bbox.
-    if (startedTabsRef.current.has(activeTab)) return;
-    startedTabsRef.current.add(activeTab);
-    void loadFirstPage(activeTab);
-  }, [activeTab, loadFirstPage]);
+    const key = slotKeyFor(activeTab, followingSort);
+    if (startedSlotsRef.current.has(key)) return;
+    startedSlotsRef.current.add(key);
+    void loadFirstPage(activeTab, followingSort);
+  }, [activeTab, followingSort, loadFirstPage]);
 
   const handleToggleLike = useCallback(
     async (postId: string, next: boolean) => {
@@ -262,42 +277,47 @@ export default function FeedClient() {
       ) : (
         (() => {
           const tab: FeedType = activeTab;
+          const sort: FeedSort = followingSort;
+          const key = slotKeyFor(tab, sort);
           return (
-            <FeedList
-              state={cache[tab].state}
-              emptyTitle="Todavía no seguís a nadie"
-              emptyDescription="Seguí a críticos o amigos para ver sus reseñas acá."
-              emptyAction={{ label: 'Descubrir críticos', href: '/search' }}
-              onReachEnd={() => void loadNextPage(tab)}
-              onLoadMoreRetry={() => void loadNextPage(tab)}
-              onOpenPost={(postId) => router.push(`/reviews/${postId}`)}
-              onOpenDish={(dishId) => router.push(`/dishes/${dishId}`)}
-              onOpenAuthor={(userId) => router.push(`/u/${userId}`)}
-              onOpenRestaurant={(restaurantId) => router.push(`/restaurants/${restaurantId}`)}
-              onComment={(postId) => router.push(`/reviews/${postId}#comments`)}
-              onOpenMenu={
-                user
-                  ? (postId) => {
-                      const slot = cache[tab];
-                      const post = slot.state.status === 'ready'
-                        ? slot.state.posts.find((p) => p.id === postId)
-                        : undefined;
-                      const subject = post ? `${post.dish.name} @ ${post.dish.restaurantName}` : undefined;
-                      setReportTarget({ id: postId, subject: subject ?? '' });
-                    }
-                  : undefined
-              }
-              onShare={(postId) => {
-                if (typeof navigator !== 'undefined' && navigator.share) {
-                  void navigator.share({ url: `${location.origin}/reviews/${postId}` });
+            <div className="flex flex-col gap-4">
+              <FollowingSortToggle value={sort} onChange={setFollowingSort} />
+              <FeedList
+                state={cache[key].state}
+                emptyTitle="Todavía no seguís a nadie"
+                emptyDescription="Seguí a críticos o amigos para ver sus reseñas acá."
+                emptyAction={{ label: 'Descubrir críticos', href: '/search' }}
+                onReachEnd={() => void loadNextPage(tab, sort)}
+                onLoadMoreRetry={() => void loadNextPage(tab, sort)}
+                onOpenPost={(postId) => router.push(`/reviews/${postId}`)}
+                onOpenDish={(dishId) => router.push(`/dishes/${dishId}`)}
+                onOpenAuthor={(userId) => router.push(`/u/${userId}`)}
+                onOpenRestaurant={(restaurantId) => router.push(`/restaurants/${restaurantId}`)}
+                onComment={(postId) => router.push(`/reviews/${postId}#comments`)}
+                onOpenMenu={
+                  user
+                    ? (postId) => {
+                        const slot = cache[key];
+                        const post = slot.state.status === 'ready'
+                          ? slot.state.posts.find((p) => p.id === postId)
+                          : undefined;
+                        const subject = post ? `${post.dish.name} @ ${post.dish.restaurantName}` : undefined;
+                        setReportTarget({ id: postId, subject: subject ?? '' });
+                      }
+                    : undefined
                 }
-              }}
-              onToggleLike={(id, next) => void handleToggleLike(id, next)}
-              onToggleSave={(id, next) => void handleToggleSave(id, next)}
-              onToggleWantToTry={
-                user ? (dishId, next) => void handleToggleWantToTry(dishId, next) : undefined
-              }
-            />
+                onShare={(postId) => {
+                  if (typeof navigator !== 'undefined' && navigator.share) {
+                    void navigator.share({ url: `${location.origin}/reviews/${postId}` });
+                  }
+                }}
+                onToggleLike={(id, next) => void handleToggleLike(id, next)}
+                onToggleSave={(id, next) => void handleToggleSave(id, next)}
+                onToggleWantToTry={
+                  user ? (dishId, next) => void handleToggleWantToTry(dishId, next) : undefined
+                }
+              />
+            </div>
           );
         })()
       )}
@@ -305,9 +325,50 @@ export default function FeedClient() {
   );
 }
 
-function mapPosts(cache: TabCache, fn: (post: ReviewPost) => ReviewPost): TabCache {
-  const next: TabCache = { ...cache };
-  (Object.keys(cache) as FeedType[]).forEach((key) => {
+interface FollowingSortToggleProps {
+  value: FeedSort;
+  onChange: (next: FeedSort) => void;
+}
+
+function FollowingSortToggle({ value, onChange }: FollowingSortToggleProps) {
+  const items: ReadonlyArray<{ value: FeedSort; label: string }> = [
+    { value: 'recent', label: 'Recientes' },
+    { value: 'top', label: 'Mejor puntuadas' },
+  ];
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Orden del feed"
+      className="inline-flex items-center gap-1 self-start rounded-full border border-border-default bg-surface-card p-1 shadow-sm"
+    >
+      {items.map((opt) => {
+        const active = opt.value === value;
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={() => onChange(opt.value)}
+            className={cn(
+              'inline-flex h-8 items-center rounded-full px-3 font-sans text-xs font-medium transition-colors',
+              'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+              active
+                ? 'bg-[color:var(--color-azafran)] text-white'
+                : 'text-text-secondary hover:bg-surface-subtle',
+            )}
+          >
+            {opt.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function mapPosts(cache: SlotCache, fn: (post: ReviewPost) => ReviewPost): SlotCache {
+  const next: SlotCache = { ...cache };
+  (Object.keys(cache) as SlotKey[]).forEach((key) => {
     const slot = cache[key];
     if (slot.state.status === 'ready') {
       next[key] = {

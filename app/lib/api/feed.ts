@@ -3,6 +3,7 @@ import { isSocialMockEnabled, mockDelay } from './_mocks';
 import { mockFeed } from './_mocks/feed';
 import type {
   CursorPage,
+  FeedSort,
   FeedType,
   PortionSize,
   PriceTier,
@@ -12,6 +13,7 @@ import type {
 
 export interface GetFeedParams {
   type: FeedType;
+  sort?: FeedSort;
   cursor?: string | null;
   limit?: number;
 }
@@ -125,13 +127,14 @@ export function toReviewPost(dto: FeedItemDTO): ReviewPost {
   };
 }
 
-export async function getFeed({ type, cursor, limit = 20 }: GetFeedParams): Promise<CursorPage<ReviewPost>> {
+export async function getFeed({ type, sort, cursor, limit = 20 }: GetFeedParams): Promise<CursorPage<ReviewPost>> {
   if (isSocialMockEnabled()) {
     await mockDelay();
     return mockFeed({ type, cursor });
   }
 
   const params = new URLSearchParams({ type, limit: String(limit) });
+  if (sort) params.set('sort', sort);
   if (cursor) params.set('cursor', cursor);
   const raw = await fetchApi<FeedPageDTO>(`/api/feed?${params.toString()}`);
   return {
