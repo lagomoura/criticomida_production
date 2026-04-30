@@ -6,6 +6,7 @@ import type {
   DishDetail,
   DishDiaryStats,
   DishPhoto,
+  DishTimeline,
   RelatedDishItem,
   ReviewPost,
 } from '@/app/lib/types/social';
@@ -23,6 +24,8 @@ import RestaurantContextCard from './RestaurantContextCard';
 import RelatedDishesCarousel from './RelatedDishesCarousel';
 import DishPhotoMosaic from './DishPhotoMosaic';
 import DishReviewsTab from './DishReviewsTab';
+import DishEvolutionTimeline from './DishEvolutionTimeline';
+import FirstDiscoverersBlock from './FirstDiscoverersBlock';
 import PublishReviewModal from '@/app/restaurants/[id]/components/PublishReviewModal';
 
 interface DishPageClientProps {
@@ -33,6 +36,7 @@ interface DishPageClientProps {
   related: RelatedDishItem[];
   initialReviews: ReviewPost[];
   initialReviewsCursor: string | null;
+  timeline: DishTimeline;
 }
 
 export default function DishPageClient({
@@ -43,6 +47,7 @@ export default function DishPageClient({
   related,
   initialReviews,
   initialReviewsCursor,
+  timeline,
 }: DishPageClientProps) {
   const { user } = useAuthContext();
   const [showPublish, setShowPublish] = useState(false);
@@ -110,6 +115,13 @@ export default function DishPageClient({
               reviewCount={dish.reviewCount}
             />
             <PillarsSummary pillars={aggregates.pillars} />
+            <DishEvolutionTimeline timeline={timeline} dishName={dish.name} />
+            {dish.firstDiscoverers && dish.firstDiscoverers.length > 0 && (
+              <FirstDiscoverersBlock
+                discoverers={dish.firstDiscoverers}
+                dishName={dish.name}
+              />
+            )}
             <TasteProfile aggregates={aggregates} />
             <DishDiaryPulse diary={diary} dishName={dish.name} />
             <RestaurantContextCard dish={dish} />

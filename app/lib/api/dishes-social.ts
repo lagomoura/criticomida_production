@@ -14,7 +14,10 @@ import type {
   DishAggregates,
   DishDetail,
   DishDiaryStats,
+  DishFirstDiscoverer,
   DishPhotosPage,
+  DishTimeline,
+  DishTimelineBucket,
   RelatedDishItem,
   ReviewPost,
 } from '@/app/lib/types/social';
@@ -44,6 +47,32 @@ interface DishSocialDetailDTO {
   editorial_source: string | null;
   created_by_display_name: string | null;
   want_to_try?: boolean;
+  first_discoverers?: FirstDiscovererDTO[];
+}
+
+interface FirstDiscovererDTO {
+  rank: 1 | 2 | 3;
+  user_id: string;
+  handle: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+  discovered_at: string;
+  review_id: string;
+}
+
+interface DishTimelineBucketDTO {
+  period: string;
+  review_count: number;
+  avg_rating: number | string;
+  presentation_avg: number | null;
+  value_prop_avg: number | null;
+  execution_avg: number | null;
+  delta_rating: number | string | null;
+}
+
+interface DishTimelineDTO {
+  granularity: 'quarter' | 'month';
+  buckets: DishTimelineBucketDTO[];
 }
 
 interface DishPillarBreakdownDTO {
@@ -147,6 +176,39 @@ function toDishDetail(dto: DishSocialDetailDTO): DishDetail {
     editorialSource: dto.editorial_source,
     createdByDisplayName: dto.created_by_display_name,
     wantToTry: dto.want_to_try ?? false,
+    firstDiscoverers: (dto.first_discoverers ?? []).map(
+      (d): DishFirstDiscoverer => ({
+        rank: d.rank,
+        userId: d.user_id,
+        handle: d.handle,
+        displayName: d.display_name,
+        avatarUrl: d.avatar_url,
+        discoveredAt: d.discovered_at,
+        reviewId: d.review_id,
+      }),
+    ),
+  };
+}
+
+function toDishTimeline(dto: DishTimelineDTO): DishTimeline {
+  return {
+    granularity: dto.granularity,
+    buckets: dto.buckets.map(
+      (b): DishTimelineBucket => ({
+        period: b.period,
+        reviewCount: b.review_count,
+        avgRating: typeof b.avg_rating === 'number' ? b.avg_rating : Number(b.avg_rating),
+        presentationAvg: b.presentation_avg,
+        valuePropAvg: b.value_prop_avg,
+        executionAvg: b.execution_avg,
+        deltaRating:
+          b.delta_rating == null
+            ? null
+            : typeof b.delta_rating === 'number'
+              ? b.delta_rating
+              : Number(b.delta_rating),
+      }),
+    ),
   };
 }
 
@@ -305,6 +367,22 @@ export async function getDishDiaryStats(dishId: string): Promise<DishDiaryStats>
     `/api/social/dishes/${encodeURIComponent(dishId)}/diary-stats`,
   );
   return toDiaryStats(dto);
+}
+
+export async function getDishTimeline(
+  dishId: string,
+  opts?: { granularity?: 'quarter' | 'month' },
+): Promise<DishTimeline> {
+  if (isSocialMockEnabled()) {
+    await mockDelay();
+    // Mock vacío hasta que se implemente — la UI muestra el estado vacío.
+    return { granularity: opts?.granularity ?? 'quarter', buckets: [] };
+  }
+  const granularity = opts?.granularity ?? 'quarter';
+  const dto = await fetchApi<DishTimelineDTO>(
+    `/api/social/dishes/${encodeURIComponent(dishId)}/timeline?granularity=${granularity}`,
+  );
+  return toDishTimeline(dto);
 }
 
 export async function getRelatedDishes(

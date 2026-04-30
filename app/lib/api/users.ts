@@ -2,7 +2,12 @@ import { fetchApi } from './client';
 import { isSocialMockEnabled, mockDelay } from './_mocks';
 import { mockGetUserProfile, mockGetUserPosts } from './_mocks/users';
 import { toReviewPost, type FeedItemDTO } from './feed';
-import type { CursorPage, PublicUserProfile, ReviewPost } from '@/app/lib/types/social';
+import type {
+  CursorPage,
+  MasteryLevel,
+  PublicUserProfile,
+  ReviewPost,
+} from '@/app/lib/types/social';
 import type { UpdateProfileRequest, User } from '@/app/lib/types/user';
 
 /**
@@ -14,12 +19,19 @@ interface CategoryStatDTO {
   review_count: number;
   avg_rating: number;
   score: number;
+  mastery_level?: MasteryLevel | null;
+}
+
+interface FeaturedTitleDTO {
+  category: string;
+  level: MasteryLevel;
 }
 
 interface ReputationDTO {
   verified_review_count: number;
   restaurants_visited: number;
   top_categories: CategoryStatDTO[];
+  featured_title?: FeaturedTitleDTO | null;
 }
 
 interface PublicUserResponseDTO {
@@ -52,7 +64,14 @@ function toPublicUserProfile(dto: PublicUserResponseDTO): PublicUserProfile {
             reviewCount: c.review_count,
             avgRating: c.avg_rating,
             score: c.score,
+            masteryLevel: c.mastery_level ?? null,
           })),
+          featuredTitle: dto.reputation.featured_title
+            ? {
+                category: dto.reputation.featured_title.category,
+                level: dto.reputation.featured_title.level,
+              }
+            : null,
         }
       : undefined,
     // `is_self` and `following` come resolved from the backend when the caller

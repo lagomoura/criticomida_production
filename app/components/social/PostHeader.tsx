@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import Avatar from '@/app/components/ui/Avatar';
+import DiscoveryBadge from '@/app/components/ui/DiscoveryBadge';
 import Tooltip from '@/app/components/ui/Tooltip';
 import { formatRelativeTime } from '@/app/lib/utils/time';
 import type { AuthorSummary } from '@/app/lib/types/social';
@@ -13,6 +14,8 @@ export interface PostHeaderProps {
   /** Cuando true, muestra el sello "Reseña experta" pegado al nombre del
    * autor — la review tiene los 3 pilares técnicos completados. */
   verified?: boolean;
+  /** Posición del autor entre los primeros 3 reseñadores del plato. */
+  discoveryRank?: 1 | 2 | 3 | null;
 }
 
 export default function PostHeader({
@@ -21,15 +24,19 @@ export default function PostHeader({
   onOpenAuthor,
   onOpenMenu,
   verified = false,
+  discoveryRank = null,
 }: PostHeaderProps) {
   const authorLabel = author.handle ? `@${author.handle}` : author.displayName;
 
   const AuthorBlock = (
     <span className="flex min-w-0 flex-col leading-tight">
-      <span className="flex min-w-0 items-center gap-1.5">
+      <span className="flex min-w-0 flex-wrap items-center gap-1.5">
         <span className="truncate font-sans text-sm font-medium text-text-primary">
           {author.displayName}
         </span>
+        {discoveryRank && (
+          <DiscoveryBadge rank={discoveryRank} variant="compact" />
+        )}
         {verified && (
           <Tooltip
             multiline

@@ -95,6 +95,7 @@ export default function PostCard({
           onOpenAuthor={onOpenAuthor}
           onOpenMenu={onOpenMenu ? () => onOpenMenu(post.id) : undefined}
           verified={verified}
+          discoveryRank={post.discoveryRank ?? null}
         />
       </div>
 

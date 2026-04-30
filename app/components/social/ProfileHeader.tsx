@@ -2,9 +2,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRightFromBracket, faUtensils } from '@fortawesome/free-solid-svg-icons';
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
+import MasteryBadge from '@/app/components/ui/MasteryBadge';
 import Tooltip from '@/app/components/ui/Tooltip';
 import FollowButton from './FollowButton';
-import type { CategoryStat, PublicUserProfile } from '@/app/lib/types/social';
+import type {
+  CategoryStat,
+  FeaturedTitle,
+  MasteryLevel,
+  PublicUserProfile,
+} from '@/app/lib/types/social';
 
 export interface ProfileHeaderProps {
   profile: PublicUserProfile;
@@ -54,6 +60,14 @@ export default function ProfileHeader({
             )}
             {profile.location && <span>{profile.location}</span>}
           </div>
+          {profile.reputation?.featuredTitle && (
+            <div className="mt-2.5">
+              <FeaturedTitleBadge
+                featured={profile.reputation.featuredTitle}
+                categories={profile.reputation.topCategories}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -187,46 +201,143 @@ function Stat({
   return <div>{content}</div>;
 }
 
+// Orden visual de los grupos: maestros primero, sin clasificar al final.
+const _LEVEL_ORDER: Array<MasteryLevel | null> = [
+  'master',
+  'sommelier',
+  'apprentice',
+  null,
+];
+
 function SpecialtySection({ categories }: { categories: CategoryStat[] }) {
+  // Agrupar por nivel para evitar repetir el mismo badge N veces cuando el
+  // usuario tiene maestría del mismo rango en varias cocinas.
+  const groups = new Map<MasteryLevel | null, CategoryStat[]>();
+  for (const cat of categories) {
+    const key = cat.masteryLevel ?? null;
+    const arr = groups.get(key);
+    if (arr) arr.push(cat);
+    else groups.set(key, [cat]);
+  }
+  const visibleGroups = _LEVEL_ORDER.flatMap((level) => {
+    const items = groups.get(level);
+    return items && items.length > 0 ? [{ level, items }] : [];
+  });
+
   return (
     <div className="flex flex-col gap-2">
       <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-text-muted">
         Especialidad
       </p>
-      <div className="flex flex-wrap items-center gap-2">
-        {categories.map((cat) => (
-          <Tooltip
-            key={cat.name}
-            multiline
-            label={
-              <>
-                <strong className="font-semibold">{cat.name}.</strong>{' '}
-                {cat.reviewCount} reseña{cat.reviewCount === 1 ? '' : 's'} con
-                rating promedio{' '}
-                <span className="font-semibold tabular-nums">
-                  {cat.avgRating.toFixed(1)}
-                </span>
-                . Una de las categorías donde más muestra criterio.
-              </>
-            }
+      <div className="flex flex-col gap-2">
+        {visibleGroups.map(({ level, items }) => (
+          <div
+            key={level ?? 'unranked'}
+            className="flex flex-wrap items-center gap-2"
           >
-            <span
-              tabIndex={0}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--color-azafran)]/30 bg-[color:var(--color-azafran)]/8 px-3 py-1 font-sans text-xs font-medium text-text-primary"
-            >
-              <FontAwesomeIcon
-                icon={faUtensils}
-                className="text-[10px] text-[color:var(--color-azafran)]"
-                aria-hidden
-              />
-              <span>{cat.name}</span>
-              <span className="font-display text-xs font-semibold text-[color:var(--color-azafran)] tabular-nums">
-                {cat.avgRating.toFixed(1)}
-              </span>
-            </span>
-          </Tooltip>
+            {level && (
+              <MasteryBadge level={level} variant="compact" className="shrink-0" />
+            )}
+            {items.map((cat) => (
+              <CategoryChip key={cat.name} cat={cat} />
+            ))}
+          </div>
         ))}
       </div>
     </div>
+  );
+}
+
+function FeaturedTitleBadge({
+  featured,
+  categories,
+}: {
+  featured: FeaturedTitle;
+  categories: CategoryStat[];
+}) {
+  // Buscamos los stats reales de la categoría featured para personalizar el
+  // tooltip. Si no aparece (defensivo: por construcción del backend siempre
+  // está en top_categories), caemos al badge sin tooltip enriquecido.
+  const cat = categories.find((c) => c.name === featured.category);
+  if (!cat) {
+    return <MasteryBadge level={featured.level} category={featured.category} />;
+  }
+
+  return (
+    <Tooltip
+      multiline
+      label={
+        <>
+          <strong className="font-semibold">{specialtyHeadline(cat)}</strong>{' '}
+          Promedio{' '}
+          <span className="font-semibold tabular-nums">
+            {cat.avgRating.toFixed(1)}
+          </span>{' '}
+          — {specialtyTone(cat.avgRating)}
+        </>
+      }
+    >
+      <span tabIndex={0} className="inline-block cursor-help">
+        <MasteryBadge level={featured.level} category={featured.category} />
+      </span>
+    </Tooltip>
+  );
+}
+
+function specialtyHeadline(cat: CategoryStat): string {
+  const { name, masteryLevel, reviewCount: n } = cat;
+  const reviewsWord = n === 1 ? 'reseña' : 'reseñas';
+  switch (masteryLevel) {
+    case 'master':
+      return `Autoridad en ${name}: ${n} ${reviewsWord} detrás de cada opinión.`;
+    case 'sommelier':
+      return `Voz reconocida en ${name}, con ${n} ${reviewsWord} de oficio.`;
+    case 'apprentice':
+      return `Está dejando huella en ${name}: ${n} ${reviewsWord} y subiendo.`;
+    default:
+      return n >= 5
+        ? `Curiosea ${name} con ${n} pasadas y criterio en formación.`
+        : `Asoma la nariz a ${name} con ${n} ${reviewsWord}.`;
+  }
+}
+
+function specialtyTone(avg: number): string {
+  if (avg >= 4.5) return 'y aun así premia con generosidad — paladar muy exigente.';
+  if (avg >= 4.0) return 'paladar selectivo, le cuesta poner cinco.';
+  if (avg >= 3.5) return 'paladar equilibrado, ni perdona ni regala.';
+  if (avg >= 3.0) return 'paladar honesto, no regala estrellas.';
+  return 'paladar implacable, marca con dureza.';
+}
+
+function CategoryChip({ cat }: { cat: CategoryStat }) {
+  return (
+    <Tooltip
+      multiline
+      label={
+        <>
+          <strong className="font-semibold">{specialtyHeadline(cat)}</strong>{' '}
+          Promedio{' '}
+          <span className="font-semibold tabular-nums">
+            {cat.avgRating.toFixed(1)}
+          </span>{' '}
+          — {specialtyTone(cat.avgRating)}
+        </>
+      }
+    >
+      <span
+        tabIndex={0}
+        className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--color-azafran)]/30 bg-[color:var(--color-azafran)]/8 px-3 py-1 font-sans text-xs font-medium text-text-primary"
+      >
+        <FontAwesomeIcon
+          icon={faUtensils}
+          className="text-[10px] text-[color:var(--color-azafran)]"
+          aria-hidden
+        />
+        <span>{cat.name}</span>
+        <span className="font-display text-xs font-semibold text-[color:var(--color-azafran)] tabular-nums">
+          {cat.avgRating.toFixed(1)}
+        </span>
+      </span>
+    </Tooltip>
   );
 }

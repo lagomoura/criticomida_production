@@ -77,6 +77,9 @@ export interface ReviewPost {
    * (presentación + costo/beneficio + ejecución). Habilita el sello
    * "Verificada por experto" en la UI. */
   verifiedByExpert?: boolean;
+  /** Posición del autor entre los primeros 3 reseñadores del plato.
+   * 1 = cronista fundador. null cuando no está en el podio. */
+  discoveryRank?: 1 | 2 | 3 | null;
 }
 
 export interface Comment {
@@ -162,6 +165,8 @@ export interface DishDetail {
   editorialSource?: string | null;
   createdByDisplayName?: string | null;
   wantToTry?: boolean;
+  /** Top 3 primeros reseñadores del plato — vacío en platos sin reseñas. */
+  firstDiscoverers?: DishFirstDiscoverer[];
 }
 
 export interface DishProsConsItem {
@@ -333,12 +338,21 @@ export interface WantToTryPage {
   nextCursor: string | null;
 }
 
+export type MasteryLevel = 'apprentice' | 'sommelier' | 'master';
+
 export interface CategoryStat {
   name: string;
   reviewCount: number;
   avgRating: number;
   /** Score interno usado por el backend para rankear (no se renderiza). */
   score: number;
+  /** Nivel de maestría en esta categoría (escalonado). null si aún no califica. */
+  masteryLevel?: MasteryLevel | null;
+}
+
+export interface FeaturedTitle {
+  category: string;
+  level: MasteryLevel;
 }
 
 export interface UserReputation {
@@ -348,6 +362,8 @@ export interface UserReputation {
   restaurantsVisited: number;
   /** Top categorías donde el usuario muestra criterio (ya rankeadas). */
   topCategories: CategoryStat[];
+  /** Título más alto alcanzado (chip junto al nombre). null si ninguno. */
+  featuredTitle?: FeaturedTitle | null;
 }
 
 export interface PublicUserProfile {
@@ -367,4 +383,34 @@ export interface PublicUserProfile {
     isSelf: boolean;
     following: boolean;
   };
+}
+
+// --- Cronistas fundadores y timeline del plato ---
+
+export interface DishFirstDiscoverer {
+  rank: 1 | 2 | 3;
+  userId: string;
+  handle?: string | null;
+  displayName?: string | null;
+  avatarUrl?: string | null;
+  /** ISO timestamp de cuándo subió la reseña. */
+  discoveredAt: string;
+  reviewId: string;
+}
+
+export interface DishTimelineBucket {
+  /** "2025-Q1" o "2025-03" según granularidad. */
+  period: string;
+  reviewCount: number;
+  avgRating: number;
+  presentationAvg?: number | null;
+  valuePropAvg?: number | null;
+  executionAvg?: number | null;
+  /** Diferencia con el bucket anterior (en estrellas). null en el primer bucket. */
+  deltaRating?: number | null;
+}
+
+export interface DishTimeline {
+  granularity: 'quarter' | 'month';
+  buckets: DishTimelineBucket[];
 }

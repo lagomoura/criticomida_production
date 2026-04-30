@@ -5,6 +5,7 @@ import {
   getDishAggregates,
   getDishPhotos,
   getDishDiaryStats,
+  getDishTimeline,
   getRelatedDishes,
   getDishReviews,
 } from '@/app/lib/api/dishes-social';
@@ -56,14 +57,21 @@ export default async function DishDetailPage({ params }: PageProps) {
     throw err;
   }
 
-  const [aggregatesResult, photosResult, diaryResult, relatedResult, reviewsResult] =
-    await Promise.allSettled([
-      getDishAggregates(id),
-      getDishPhotos(id, { limit: 24 }),
-      getDishDiaryStats(id),
-      getRelatedDishes(id, { limit: 6 }),
-      getDishReviews(id),
-    ]);
+  const [
+    aggregatesResult,
+    photosResult,
+    diaryResult,
+    relatedResult,
+    reviewsResult,
+    timelineResult,
+  ] = await Promise.allSettled([
+    getDishAggregates(id),
+    getDishPhotos(id, { limit: 24 }),
+    getDishDiaryStats(id),
+    getRelatedDishes(id, { limit: 6 }),
+    getDishReviews(id),
+    getDishTimeline(id),
+  ]);
 
   const aggregates =
     aggregatesResult.status === 'fulfilled'
@@ -96,6 +104,10 @@ export default async function DishDetailPage({ params }: PageProps) {
   const related = relatedResult.status === 'fulfilled' ? relatedResult.value : [];
   const reviews =
     reviewsResult.status === 'fulfilled' ? reviewsResult.value : { items: [], nextCursor: null };
+  const timeline =
+    timelineResult.status === 'fulfilled'
+      ? timelineResult.value
+      : { granularity: 'quarter' as const, buckets: [] };
 
   return (
     <main id="main-content" className="cc-container px-4 pb-16 sm:px-6 lg:px-8">
@@ -108,6 +120,7 @@ export default async function DishDetailPage({ params }: PageProps) {
         related={related}
         initialReviews={reviews.items}
         initialReviewsCursor={reviews.nextCursor}
+        timeline={timeline}
       />
     </main>
   );
