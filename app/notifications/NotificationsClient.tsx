@@ -28,6 +28,16 @@ export default function NotificationsClient() {
       if (notification.unread) {
         void markRead(notification.id);
       }
+      // Para claims, ir al restaurant: el owner aprobado ve directo el detail
+      // (donde ahora es el verified owner) y ahí accede al panel; el rechazado
+      // o revocado vuelve también al restaurant para entender el contexto.
+      if (
+        notification.kind.startsWith('claim_') &&
+        notification.target?.restaurantId
+      ) {
+        router.push(`/restaurants/${notification.target.restaurantId}`);
+        return;
+      }
       if (notification.target?.postId) {
         router.push(`/reviews/${notification.target.postId}`);
       } else if (notification.target?.userId) {

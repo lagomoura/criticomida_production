@@ -92,7 +92,13 @@ export interface Comment {
   canReport?: boolean;
 }
 
-export type NotificationKind = 'like' | 'comment' | 'follow';
+export type NotificationKind =
+  | 'like'
+  | 'comment'
+  | 'follow'
+  | 'claim_approved'
+  | 'claim_rejected'
+  | 'claim_revoked';
 
 export interface SocialNotification {
   id: string;
@@ -103,6 +109,7 @@ export interface SocialNotification {
   target?: {
     postId?: string | null;
     userId?: string | null;
+    restaurantId?: string | null;
   };
   /** Message already resolved by backend or formatter. */
   text: string;

@@ -26,6 +26,7 @@ interface NotificationDTO {
   };
   target_review_id: string | null;
   target_user_id: string | null;
+  target_restaurant_id: string | null;
   text: string;
 }
 
@@ -49,6 +50,7 @@ function toSocialNotification(dto: NotificationDTO): SocialNotification {
     target: {
       postId: dto.target_review_id,
       userId: dto.target_user_id,
+      restaurantId: dto.target_restaurant_id,
     },
     text: dto.text,
   };

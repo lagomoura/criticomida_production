@@ -18,8 +18,10 @@ export async function uploadDishCoverImage(file: File, dishId: string): Promise<
 }
 
 /**
- * Sube una imagen y la asocia al gallery del restaurant. El owner luego la
- * registra como foto oficial vía /api/restaurants/{slug}/official-photos.
+ * Sube una foto oficial del restaurant. Usa entity_type=restaurant_official_photo
+ * para que NO aparezca en la galería pública (que filtra por restaurant_gallery);
+ * solo se renderiza prioritaria en el hero a través de la tabla
+ * restaurant_official_photos.
  */
 export async function uploadRestaurantImage(
   file: File,
@@ -27,7 +29,7 @@ export async function uploadRestaurantImage(
 ): Promise<string> {
   const form = new FormData();
   form.append('file', file);
-  form.append('entity_type', 'restaurant_gallery');
+  form.append('entity_type', 'restaurant_official_photo');
   form.append('entity_id', restaurantId);
   const result = await fetchApi<{ url: string }>('/api/images/upload', {
     method: 'POST',

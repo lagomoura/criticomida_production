@@ -1,5 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faComment, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import {
+  faHeart,
+  faComment,
+  faUserPlus,
+  faCircleCheck,
+  faCircleXmark,
+  faShieldHalved,
+} from '@fortawesome/free-solid-svg-icons';
 import Avatar from '@/app/components/ui/Avatar';
 import { formatRelativeTime } from '@/app/lib/utils/time';
 import { cn } from '@/app/lib/utils/cn';
@@ -14,18 +21,27 @@ const kindIcon: Record<NotificationKind, typeof faHeart> = {
   like: faHeart,
   comment: faComment,
   follow: faUserPlus,
+  claim_approved: faCircleCheck,
+  claim_rejected: faCircleXmark,
+  claim_revoked: faShieldHalved,
 };
 
 const kindTint: Record<NotificationKind, string> = {
   like: 'text-[var(--state-like-on)]',
   comment: 'text-action-primary',
   follow: 'text-[var(--state-follow-on)]',
+  claim_approved: 'text-emerald-600',
+  claim_rejected: 'text-red-600',
+  claim_revoked: 'text-amber-600',
 };
 
 const kindKicker: Record<NotificationKind, string> = {
   like: 'Like',
   comment: 'Comentario',
   follow: 'Nuevo seguidor',
+  claim_approved: 'Reclamo aprobado',
+  claim_rejected: 'Reclamo rechazado',
+  claim_revoked: 'Verificación revocada',
 };
 
 export default function NotificationItem({ notification, onOpen }: NotificationItemProps) {
