@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import AuthModal, { type AuthTab } from './AuthModal';
 import TopNav from './TopNav';
 import BottomNav from './BottomNav';
+import EmailVerificationBanner from '@/app/components/auth/EmailVerificationBanner';
 import { useNotifications } from '@/app/lib/contexts/NotificationContext';
 
 /**
@@ -25,6 +26,7 @@ export default function NavShell() {
 
   return (
     <>
+      <EmailVerificationBanner />
       <TopNav onOpenAuthModal={() => openAuthModal('login')} unreadCount={unreadCount} />
       <BottomNav onOpenAuthModal={() => openAuthModal('login')} unreadCount={unreadCount} />
       <AuthModal open={modalOpen} onClose={closeAuthModal} initialTab={initialTab} />

@@ -11,6 +11,9 @@ export interface User {
   role: UserRole;
   created_at: string;
   updated_at: string;
+  /** Si el user ya confirmó el link enviado al registro (migración 028).
+   *  El frontend usa este flag para mostrar/ocultar el banner. */
+  email_verified?: boolean;
 }
 
 export interface UpdateProfileRequest {

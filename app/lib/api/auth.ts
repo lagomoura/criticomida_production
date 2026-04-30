@@ -35,3 +35,16 @@ export async function refreshToken(): Promise<TokenResponse> {
 export async function getCurrentUser(): Promise<User> {
   return fetchApi<User>('/api/auth/me');
 }
+
+export async function resendVerificationEmail(): Promise<void> {
+  await fetchApi<void>('/api/auth/resend-verification', {
+    method: 'POST',
+  });
+}
+
+export async function verifyEmail(token: string): Promise<User> {
+  return fetchApi<User>(`/api/auth/verify-email/${encodeURIComponent(token)}`, {
+    method: 'POST',
+    skipAuth: true,
+  });
+}
