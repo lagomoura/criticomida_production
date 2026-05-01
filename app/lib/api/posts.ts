@@ -8,6 +8,7 @@ import type { Comment, CursorPage, ReviewPost } from '@/app/lib/types/social';
 interface CommentDTO {
   id: string;
   review_id: string;
+  parent_comment_id: string | null;
   created_at: string;
   updated_at: string;
   author: {
@@ -17,6 +18,9 @@ interface CommentDTO {
     avatar_url: string | null;
   };
   body: string;
+  replies_count: number;
+  likes_count: number;
+  viewer_liked: boolean;
   can_delete: boolean;
   can_edit: boolean;
   can_report: boolean;
@@ -27,10 +31,17 @@ interface CommentsPageDTO {
   next_cursor: string | null;
 }
 
+interface CommentLikeActionDTO {
+  comment_id: string;
+  liked: boolean;
+  likes_count: number;
+}
+
 function toComment(dto: CommentDTO): Comment {
   return {
     id: dto.id,
     reviewId: dto.review_id,
+    parentCommentId: dto.parent_comment_id,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
     author: {
@@ -40,6 +51,9 @@ function toComment(dto: CommentDTO): Comment {
       avatarUrl: dto.author.avatar_url,
     },
     text: dto.body,
+    repliesCount: dto.replies_count ?? 0,
+    likesCount: dto.likes_count ?? 0,
+    viewerLiked: dto.viewer_liked ?? false,
     canDelete: dto.can_delete,
     canEdit: dto.can_edit,
     canReport: dto.can_report,
@@ -102,10 +116,14 @@ export async function updateComment(commentId: string, text: string): Promise<Co
     return {
       id: commentId,
       reviewId: '',
+      parentCommentId: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       author: { id: '', displayName: '' },
       text,
+      repliesCount: 0,
+      likesCount: 0,
+      viewerLiked: false,
       canDelete: true,
       canEdit: true,
       canReport: false,
@@ -129,4 +147,82 @@ export async function deleteComment(commentId: string): Promise<void> {
   await fetchApi(`/api/comments/${encodeURIComponent(commentId)}`, {
     method: 'DELETE',
   });
+}
+
+export async function getReplies(
+  commentId: string,
+  cursor?: string | null,
+): Promise<CursorPage<Comment>> {
+  if (isSocialMockEnabled()) {
+    await mockDelay();
+    return { items: [], nextCursor: null };
+  }
+  const params = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+  const raw = await fetchApi<CommentsPageDTO>(
+    `/api/comments/${encodeURIComponent(commentId)}/replies${params}`,
+  );
+  return {
+    items: raw.items.map(toComment),
+    nextCursor: raw.next_cursor,
+  };
+}
+
+export async function createReply(
+  parentCommentId: string,
+  text: string,
+): Promise<Comment> {
+  if (isSocialMockEnabled()) {
+    await mockDelay(400);
+    return {
+      id: `reply-${Date.now()}`,
+      reviewId: '',
+      parentCommentId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      author: { id: 'mock', displayName: 'mock' },
+      text,
+      repliesCount: 0,
+      likesCount: 0,
+      viewerLiked: false,
+      canDelete: true,
+      canEdit: true,
+      canReport: false,
+    };
+  }
+  const raw = await fetchApi<CommentDTO>(
+    `/api/comments/${encodeURIComponent(parentCommentId)}/replies`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ body: text }),
+    },
+  );
+  return toComment(raw);
+}
+
+export async function likeComment(
+  commentId: string,
+): Promise<{ likesCount: number; viewerLiked: boolean }> {
+  if (isSocialMockEnabled()) {
+    await mockDelay(150);
+    return { likesCount: 1, viewerLiked: true };
+  }
+  const raw = await fetchApi<CommentLikeActionDTO>(
+    `/api/comments/${encodeURIComponent(commentId)}/like`,
+    { method: 'POST' },
+  );
+  return { likesCount: raw.likes_count, viewerLiked: raw.liked };
+}
+
+export async function unlikeComment(
+  commentId: string,
+): Promise<{ likesCount: number; viewerLiked: boolean }> {
+  if (isSocialMockEnabled()) {
+    await mockDelay(150);
+    return { likesCount: 0, viewerLiked: false };
+  }
+  const raw = await fetchApi<CommentLikeActionDTO>(
+    `/api/comments/${encodeURIComponent(commentId)}/like`,
+    { method: 'DELETE' },
+  );
+  return { likesCount: raw.likes_count, viewerLiked: raw.liked };
 }

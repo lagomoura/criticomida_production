@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faHeart,
   faComment,
+  faReply,
   faUserPlus,
   faCircleCheck,
   faCircleXmark,
@@ -24,6 +25,8 @@ const kindIcon: Record<NotificationKind, typeof faHeart> = {
   claim_approved: faCircleCheck,
   claim_rejected: faCircleXmark,
   claim_revoked: faShieldHalved,
+  comment_like: faHeart,
+  comment_reply: faReply,
 };
 
 const kindTint: Record<NotificationKind, string> = {
@@ -33,6 +36,8 @@ const kindTint: Record<NotificationKind, string> = {
   claim_approved: 'text-emerald-600',
   claim_rejected: 'text-red-600',
   claim_revoked: 'text-amber-600',
+  comment_like: 'text-[var(--state-like-on)]',
+  comment_reply: 'text-action-primary',
 };
 
 const kindKicker: Record<NotificationKind, string> = {
@@ -42,6 +47,8 @@ const kindKicker: Record<NotificationKind, string> = {
   claim_approved: 'Reclamo aprobado',
   claim_rejected: 'Reclamo rechazado',
   claim_revoked: 'Verificación revocada',
+  comment_like: 'Like en comentario',
+  comment_reply: 'Respuesta',
 };
 
 export default function NotificationItem({ notification, onOpen }: NotificationItemProps) {

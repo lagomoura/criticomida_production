@@ -15,10 +15,15 @@ import {
   getPost,
   getComments,
   createComment,
-  updateComment,
+  createReply,
   deleteComment,
+  getReplies,
+  likeComment,
+  unlikeComment,
+  updateComment,
 } from '@/app/lib/api/posts';
 import { ApiError } from '@/app/lib/api/client';
+import { useToast } from '@/app/components/ui/Toast';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { usePostsInteraction } from '@/app/lib/hooks/usePostsInteraction';
 import type { Comment } from '@/app/lib/types/social';
@@ -39,6 +44,9 @@ export default function ReviewDetailClient({ postId }: Props) {
   const [composerValue, setComposerValue] = useState('');
   const [composerLoading, setComposerLoading] = useState(false);
   const [composerError, setComposerError] = useState<string | undefined>();
+  const [repliesByParent, setRepliesByParent] = useState<Record<string, Comment[]>>({});
+  const [repliesExpanded, setRepliesExpanded] = useState<Record<string, boolean>>({});
+  const [repliesLoading, setRepliesLoading] = useState<Record<string, boolean>>({});
   const [reportTarget, setReportTarget] = useState<
     | { kind: 'review'; id: string; subject: string }
     | { kind: 'comment'; id: string; subject: string }
@@ -52,6 +60,7 @@ export default function ReviewDetailClient({ postId }: Props) {
 
   const { user } = useAuthContext();
   const router = useRouter();
+  const toast = useToast();
 
   const load = useCallback(async () => {
     setViewState({ status: 'loading' });
@@ -88,7 +97,17 @@ export default function ReviewDetailClient({ postId }: Props) {
   const handleEditComment = useCallback(
     async (commentId: string, nextText: string) => {
       const updated = await updateComment(commentId, nextText);
-      setComments((prev) => prev.map((c) => (c.id === commentId ? updated : c)));
+      if (updated.parentCommentId) {
+        const parentId = updated.parentCommentId;
+        setRepliesByParent((prev) => ({
+          ...prev,
+          [parentId]: (prev[parentId] ?? []).map((r) =>
+            r.id === commentId ? updated : r,
+          ),
+        }));
+      } else {
+        setComments((prev) => prev.map((c) => (c.id === commentId ? updated : c)));
+      }
     },
     [],
   );
@@ -96,7 +115,34 @@ export default function ReviewDetailClient({ postId }: Props) {
   const handleDeleteComment = useCallback(
     async (commentId: string) => {
       await deleteComment(commentId);
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      // Detect whether this is a top-level comment or a reply by scanning state.
+      let parentOfDeletedReply: string | null = null;
+      setComments((prev) => {
+        const next = prev.filter((c) => c.id !== commentId);
+        if (next.length === prev.length) return prev;
+        return next;
+      });
+      setRepliesByParent((prev) => {
+        const next: Record<string, Comment[]> = {};
+        for (const [parentId, list] of Object.entries(prev)) {
+          const filtered = list.filter((r) => r.id !== commentId);
+          if (filtered.length !== list.length) {
+            parentOfDeletedReply = parentId;
+          }
+          next[parentId] = filtered;
+        }
+        return next;
+      });
+      if (parentOfDeletedReply) {
+        const parentId: string = parentOfDeletedReply;
+        setComments((prev) =>
+          prev.map((c) =>
+            c.id === parentId
+              ? { ...c, repliesCount: Math.max(0, c.repliesCount - 1) }
+              : c,
+          ),
+        );
+      }
       setPosts((prev) =>
         prev.map((p) =>
           p.id === postId
@@ -109,6 +155,121 @@ export default function ReviewDetailClient({ postId }: Props) {
       );
     },
     [postId, setPosts],
+  );
+
+  const applyLikeUpdate = useCallback(
+    (
+      commentId: string,
+      patch: { likesCount: number; viewerLiked: boolean },
+    ) => {
+      setComments((prev) =>
+        prev.map((c) => (c.id === commentId ? { ...c, ...patch } : c)),
+      );
+      setRepliesByParent((prev) => {
+        const next: Record<string, Comment[]> = {};
+        for (const [parentId, list] of Object.entries(prev)) {
+          next[parentId] = list.map((r) =>
+            r.id === commentId ? { ...r, ...patch } : r,
+          );
+        }
+        return next;
+      });
+    },
+    [],
+  );
+
+  const findCommentById = useCallback(
+    (commentId: string): Comment | undefined => {
+      const top = comments.find((c) => c.id === commentId);
+      if (top) return top;
+      for (const list of Object.values(repliesByParent)) {
+        const hit = list.find((r) => r.id === commentId);
+        if (hit) return hit;
+      }
+      return undefined;
+    },
+    [comments, repliesByParent],
+  );
+
+  const handleToggleCommentLike = useCallback(
+    async (commentId: string, next: boolean) => {
+      const current = findCommentById(commentId);
+      if (!current) return;
+      const optimistic = {
+        likesCount: Math.max(0, current.likesCount + (next ? 1 : -1)),
+        viewerLiked: next,
+      };
+      applyLikeUpdate(commentId, optimistic);
+      try {
+        const result = next ? await likeComment(commentId) : await unlikeComment(commentId);
+        applyLikeUpdate(commentId, result);
+      } catch {
+        applyLikeUpdate(commentId, {
+          likesCount: current.likesCount,
+          viewerLiked: current.viewerLiked,
+        });
+        toast.error(
+          next ? 'No se pudo dar like' : 'No se pudo quitar el like',
+          'Probá de nuevo en un momento.',
+        );
+      }
+    },
+    [applyLikeUpdate, findCommentById, toast],
+  );
+
+  const handleSubmitReply = useCallback(
+    async (parentCommentId: string, text: string) => {
+      const created = await createReply(parentCommentId, text);
+      setRepliesByParent((prev) => ({
+        ...prev,
+        [parentCommentId]: [...(prev[parentCommentId] ?? []), created],
+      }));
+      setRepliesExpanded((prev) => ({ ...prev, [parentCommentId]: true }));
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === parentCommentId
+            ? { ...c, repliesCount: c.repliesCount + 1 }
+            : c,
+        ),
+      );
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === postId
+            ? { ...p, stats: { ...p.stats, comments: p.stats.comments + 1 } }
+            : p,
+        ),
+      );
+    },
+    [postId, setPosts],
+  );
+
+  const handleToggleReplies = useCallback(
+    async (parentCommentId: string) => {
+      const isExpanded = repliesExpanded[parentCommentId] === true;
+      if (isExpanded) {
+        setRepliesExpanded((prev) => ({ ...prev, [parentCommentId]: false }));
+        return;
+      }
+      const alreadyLoaded = repliesByParent[parentCommentId] !== undefined;
+      if (alreadyLoaded) {
+        setRepliesExpanded((prev) => ({ ...prev, [parentCommentId]: true }));
+        return;
+      }
+      setRepliesLoading((prev) => ({ ...prev, [parentCommentId]: true }));
+      try {
+        const page = await getReplies(parentCommentId);
+        setRepliesByParent((prev) => ({
+          ...prev,
+          [parentCommentId]: page.items,
+        }));
+        setRepliesExpanded((prev) => ({ ...prev, [parentCommentId]: true }));
+      } catch {
+        toast.error('No se pudieron cargar las respuestas', 'Probá de nuevo en un momento.');
+      } finally {
+        setRepliesLoading((prev) => ({ ...prev, [parentCommentId]: false }));
+      }
+    },
+    [repliesByParent, repliesExpanded, toast],
   );
 
   const handleReportComment = useCallback(
@@ -267,6 +428,12 @@ export default function ReviewDetailClient({ postId }: Props) {
                   onSaveEdit={user ? handleEditComment : undefined}
                   onDelete={user ? handleDeleteComment : undefined}
                   onReport={user ? handleReportComment : undefined}
+                  onToggleLike={user ? handleToggleCommentLike : undefined}
+                  onSubmitReply={user ? handleSubmitReply : undefined}
+                  onToggleReplies={handleToggleReplies}
+                  replies={repliesByParent[c.id]}
+                  repliesExpanded={repliesExpanded[c.id] === true}
+                  repliesLoading={repliesLoading[c.id] === true}
                 />
               </li>
             ))}

@@ -89,10 +89,16 @@ export interface ReviewPost {
 export interface Comment {
   id: string;
   reviewId: string;
+  /** null cuando es un comentario top-level. */
+  parentCommentId: string | null;
   createdAt: string;
   updatedAt: string;
   author: AuthorSummary;
   text: string;
+  /** Cantidad de respuestas activas (0 si es una reply). */
+  repliesCount: number;
+  likesCount: number;
+  viewerLiked: boolean;
   canDelete?: boolean;
   canEdit?: boolean;
   canReport?: boolean;
@@ -104,7 +110,9 @@ export type NotificationKind =
   | 'follow'
   | 'claim_approved'
   | 'claim_rejected'
-  | 'claim_revoked';
+  | 'claim_revoked'
+  | 'comment_like'
+  | 'comment_reply';
 
 export interface SocialNotification {
   id: string;

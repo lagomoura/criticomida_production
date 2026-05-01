@@ -2,9 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
+import {
+  faEllipsisVertical,
+  faHeart,
+  faReply,
+} from '@fortawesome/free-solid-svg-icons';
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
+import IconButton from '@/app/components/ui/IconButton';
 import Textarea from '@/app/components/ui/Textarea';
 import { formatRelativeTime } from '@/app/lib/utils/time';
 import type { Comment } from '@/app/lib/types/social';
@@ -20,6 +25,16 @@ export interface CommentItemProps {
   onDelete?: (commentId: string) => Promise<void>;
   /** Trigger the report modal in the parent. */
   onReport?: (commentId: string) => void;
+  /** Toggle a like (optimistic; parent rolls back on failure). */
+  onToggleLike?: (commentId: string, next: boolean) => Promise<void>;
+  /** Submit a reply to this top-level comment. Throws on failure. */
+  onSubmitReply?: (parentCommentId: string, nextText: string) => Promise<void>;
+  /** Toggle visibility / lazy-load replies for this top-level comment. */
+  onToggleReplies?: (parentCommentId: string) => Promise<void>;
+  /** Replies passed by the parent when expanded; undefined collapses the section. */
+  replies?: Comment[];
+  repliesLoading?: boolean;
+  repliesExpanded?: boolean;
 }
 
 export default function CommentItem({
@@ -28,6 +43,12 @@ export default function CommentItem({
   onSaveEdit,
   onDelete,
   onReport,
+  onToggleLike,
+  onSubmitReply,
+  onToggleReplies,
+  replies,
+  repliesLoading = false,
+  repliesExpanded = false,
 }: CommentItemProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPlacement, setMenuPlacement] = useState<'bottom' | 'top'>('bottom');
@@ -35,12 +56,19 @@ export default function CommentItem({
   const [draft, setDraft] = useState(comment.text);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | undefined>();
+  const [replying, setReplying] = useState(false);
+  const [replyDraft, setReplyDraft] = useState('');
+  const [replySubmitting, setReplySubmitting] = useState(false);
+  const [replyError, setReplyError] = useState<string | undefined>();
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
+  const isReply = comment.parentCommentId !== null;
   const canEdit = Boolean(onSaveEdit && comment.canEdit);
   const canDelete = Boolean(onDelete && comment.canDelete);
   const canReport = Boolean(onReport && comment.canReport);
+  const canReply = !isReply && Boolean(onSubmitReply);
+  const canToggleReplies = !isReply && comment.repliesCount > 0 && Boolean(onToggleReplies);
   const showMenuButton = canEdit || canDelete || canReport;
   const wasEdited = comment.updatedAt && comment.updatedAt !== comment.createdAt;
 
@@ -122,6 +150,47 @@ export default function CommentItem({
     onReport?.(comment.id);
   }
 
+  function startReply() {
+    setReplyDraft('');
+    setReplyError(undefined);
+    setReplying(true);
+  }
+
+  function cancelReply() {
+    setReplying(false);
+    setReplyError(undefined);
+    setReplyDraft('');
+  }
+
+  async function submitReply() {
+    if (!onSubmitReply) return;
+    const next = replyDraft.trim();
+    if (!next) return;
+    setReplySubmitting(true);
+    setReplyError(undefined);
+    try {
+      await onSubmitReply(comment.id, next);
+      setReplying(false);
+      setReplyDraft('');
+    } catch (err) {
+      setReplyError(
+        err instanceof Error ? err.message : 'No se pudo publicar la respuesta.',
+      );
+    } finally {
+      setReplySubmitting(false);
+    }
+  }
+
+  function handleToggleLike() {
+    if (!onToggleLike) return;
+    void onToggleLike(comment.id, !comment.viewerLiked);
+  }
+
+  function handleToggleReplies() {
+    if (!onToggleReplies) return;
+    void onToggleReplies(comment.id);
+  }
+
   return (
     <article className="flex items-start gap-3">
       {onOpenAuthor ? (
@@ -186,6 +255,100 @@ export default function CommentItem({
           <p className="mt-0.5 whitespace-pre-wrap font-sans text-[15px] leading-relaxed text-text-primary">
             {comment.text}
           </p>
+        )}
+
+        {!editing && (onToggleLike || canReply || canToggleReplies) && (
+          <div className="mt-1 flex flex-wrap items-center gap-1 -ml-2">
+            {onToggleLike && (
+              <IconButton
+                intent="like"
+                selected={comment.viewerLiked}
+                count={comment.likesCount}
+                ariaLabel={comment.viewerLiked ? 'Quitar like' : 'Dar like'}
+                icon={<FontAwesomeIcon icon={faHeart} className="h-3.5 w-3.5" />}
+                onClick={handleToggleLike}
+                className="min-h-[36px] min-w-[36px]"
+              />
+            )}
+            {canReply && (
+              <button
+                type="button"
+                onClick={startReply}
+                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-2.5 font-sans text-xs font-medium text-text-muted transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+              >
+                <FontAwesomeIcon icon={faReply} className="h-3 w-3" aria-hidden />
+                Responder
+              </button>
+            )}
+            {canToggleReplies && (
+              <button
+                type="button"
+                onClick={handleToggleReplies}
+                disabled={repliesLoading}
+                aria-expanded={repliesExpanded}
+                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-2.5 font-sans text-xs font-medium text-[color:var(--mainPink)] transition-colors hover:bg-surface-subtle disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+              >
+                {repliesExpanded
+                  ? 'Ocultar respuestas'
+                  : repliesLoading
+                  ? 'Cargando…'
+                  : `Ver ${comment.repliesCount} ${
+                      comment.repliesCount === 1 ? 'respuesta' : 'respuestas'
+                    }`}
+              </button>
+            )}
+          </div>
+        )}
+
+        {replying && canReply && (
+          <div className="mt-2 flex flex-col gap-2">
+            <Textarea
+              label={`Responder a ${comment.author.displayName}`}
+              hideLabel
+              placeholder={`Responder a @${
+                comment.author.handle ?? comment.author.displayName
+              }…`}
+              value={replyDraft}
+              onChange={(e) => setReplyDraft(e.target.value)}
+              disabled={replySubmitting}
+              error={replyError}
+              maxLength={COMMENT_MAX_LENGTH}
+              valueLength={replyDraft.length}
+              rows={2}
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" size="sm" onClick={cancelReply} disabled={replySubmitting}>
+                Cancelar
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => void submitReply()}
+                loading={replySubmitting}
+                disabled={replySubmitting || !replyDraft.trim()}
+              >
+                Responder
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {repliesExpanded && replies && replies.length > 0 && (
+          <ul className="mt-3 flex list-none flex-col gap-4 border-l-2 border-border-default pl-4">
+            {replies.map((r) => (
+              <li key={r.id}>
+                <CommentItem
+                  comment={r}
+                  onOpenAuthor={onOpenAuthor}
+                  onSaveEdit={onSaveEdit}
+                  onDelete={onDelete}
+                  onReport={onReport}
+                  onToggleLike={onToggleLike}
+                />
+              </li>
+            ))}
+          </ul>
         )}
       </div>
       {showMenuButton && !editing && (
