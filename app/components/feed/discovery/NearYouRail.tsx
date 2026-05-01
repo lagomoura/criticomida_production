@@ -21,14 +21,15 @@ interface NearYouRailProps {
 }
 
 /**
- * 'Cerca tuyo' — platos rankeados por Geek Score dentro de un radio.
- * Si el endpoint devuelve 0 resultados, el rail no se renderiza (el orquestador
- * decide si caer al fallback).
+ * 'Cerca tuyo' — platos rankeados por un score compuesto que combina cercanía
+ * (escalonado, máximo dentro de 5 km), ejecución técnica de los pilares
+ * (peso más alto) y recencia de las reseñas. Si el endpoint devuelve 0
+ * resultados, el rail no se renderiza.
  */
 export default function NearYouRail({
   lat,
   lng,
-  radiusKm = 3,
+  radiusKm = 15,
   enableWishlist,
 }: NearYouRailProps) {
   const toast = useToast();
@@ -43,7 +44,7 @@ export default function NearYouRail({
       lat,
       lng,
       radiusKm,
-      sort: 'geek_score',
+      sort: 'nearby_smart',
       limit: 8,
     })
       .then((page) => {
@@ -89,7 +90,7 @@ export default function NearYouRail({
     <Rail
       kicker="Cerca tuyo"
       title="A pasos de donde estás"
-      subtitle={`En un radio de ${radiusKm} km, rankeado por Geek Score.`}
+      subtitle={`En un radio de ${radiusKm} km — combinamos cocina, distancia y novedad.`}
     >
       {items === null ? (
         <RailSkeleton />

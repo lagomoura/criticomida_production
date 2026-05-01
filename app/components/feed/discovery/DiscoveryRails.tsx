@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationCrosshairs } from '@fortawesome/free-solid-svg-icons';
 import Button from '@/app/components/ui/Button';
 import { useUserLocation } from '@/app/lib/hooks/useUserLocation';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
+import { useToast } from '@/app/components/ui/Toast';
 import NearYouRail from './NearYouRail';
 import BestExecutionRail from './BestExecutionRail';
 import DishDuelRail from './DishDuelRail';
@@ -13,8 +15,8 @@ import TrendingRail from './TrendingRail';
 /**
  * 'Para ti' del feed: rails curados.
  *
- * - Si el usuario activó la geolocalización: NearYou + BestExecution (radio 5km)
- *   + DishDuel (radio 5km) + Trending (ciudad detectada o nacional).
+ * - Si el usuario activó la geolocalización: NearYou (smart, radio 15km) +
+ *   BestExecution (radio 5km) + DishDuel (radio 5km) + Trending (por ciudad).
  * - Si no: CTA para activar + BestExecution (sin radio) + DishDuel + Trending.
  *
  * Cada rail decide individualmente si auto-oculta cuando devuelve 0 resultados,
@@ -23,10 +25,24 @@ import TrendingRail from './TrendingRail';
 export default function DiscoveryRails() {
   const { user } = useAuthContext();
   const { location, status, request } = useUserLocation();
+  const toast = useToast();
 
   const enableWishlist = Boolean(user);
   const lat = location?.latitude;
   const lng = location?.longitude;
+
+  // Aviso al usuario cuando recién concede el permiso, así entiende por qué
+  // los rails se reordenan con la cercanía sin que él haya hecho refresh.
+  const prevStatusRef = useRef(status);
+  useEffect(() => {
+    if (prevStatusRef.current !== 'granted' && status === 'granted') {
+      toast.success(
+        'Mostrando lo cercano',
+        'Reordenamos tus rails con tu ubicación.',
+      );
+    }
+    prevStatusRef.current = status;
+  }, [status, toast]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -42,7 +58,7 @@ export default function DiscoveryRails() {
         <NearYouRail
           lat={lat}
           lng={lng}
-          radiusKm={3}
+          radiusKm={15}
           enableWishlist={enableWishlist}
         />
       )}

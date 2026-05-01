@@ -297,7 +297,8 @@ export type DiscoverySort =
   | 'execution'
   | 'value_prop'
   | 'presentation'
-  | 'distance';
+  | 'distance'
+  | 'nearby_smart';
 
 export interface DiscoveryPillarStats {
   presentationAvg: number | null;
