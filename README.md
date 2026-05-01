@@ -32,6 +32,8 @@ npm run dev
 
 Abrí [http://localhost:3000](http://localhost:3000).
 
+El **backend** (FastAPI) debe quedar corriendo en `http://localhost:8002` para que el frontend pueda hacer llamadas API.
+
 ## Comandos útiles
 
 ```bash
@@ -58,6 +60,8 @@ La URL pública del Postgres de Railway se saca desde **Railway → Postgres ser
 
 - **[docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md)** — tabla completa de variables de entorno, qué credenciales viven dónde, cómo se hacen los deploys.
 - **[CLAUDE.md](CLAUDE.md)** — guía rápida para agentes y para vos cuando volvés al repo después de un rato.
+- **[docs/DER.md](docs/DER.md)** — DER (Mermaid): entidades, relaciones y notas de modelado.
+- **[docs/casos_uso.md](docs/casos_uso.md)** — flujogramas (Mermaid) de casos de uso principales.
 - **[docs/brand-identity-v2.md](docs/brand-identity-v2.md)** — paleta y tipografía vigentes.
 - **[docs/criticomida-social-product-spec-v1.md](docs/criticomida-social-product-spec-v1.md)** — spec del producto social.
 
