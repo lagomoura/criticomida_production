@@ -14,6 +14,7 @@ const COMMENTS_BY_POST: Record<string, Comment[]> = {
       id: 'cmt-001',
       reviewId: 'rev-001',
       createdAt: ago(60 * 5),
+      updatedAt: ago(60 * 5),
       author: { id: 'user-juli', displayName: 'Juli Mendes', handle: 'julipicacomida' },
       text: '¿Cuánto picante? Soy ñoña con el chile.',
       canReport: true,
@@ -22,14 +23,17 @@ const COMMENTS_BY_POST: Record<string, Comment[]> = {
       id: 'cmt-002',
       reviewId: 'rev-001',
       createdAt: ago(60 * 3),
+      updatedAt: ago(60 * 3),
       author: { id: 'user-mica', displayName: 'Mica Fernández', handle: 'micacomelona' },
       text: 'Picante tolerable, se siente pero no tapa el sabor del tare. Si aguantás un curry medio, lo disfrutás.',
       canDelete: true,
+      canEdit: true,
     },
     {
       id: 'cmt-003',
       reviewId: 'rev-001',
       createdAt: ago(60 * 1),
+      updatedAt: ago(60 * 1),
       author: { id: 'user-dani', displayName: 'Daniel López', handle: 'danicome' },
       text: 'Me sumo a probarlo el sábado.',
       canReport: true,
@@ -40,6 +44,7 @@ const COMMENTS_BY_POST: Record<string, Comment[]> = {
       id: 'cmt-010',
       reviewId: 'rev-004',
       createdAt: ago(60 * 60 * 6),
+      updatedAt: ago(60 * 60 * 6),
       author: { id: 'user-lucia', displayName: 'Lucía Romero', handle: 'lucia_r' },
       text: 'Güerrin sigue siendo Güerrin. La fugazzeta también vale la pena.',
       canReport: true,
@@ -48,6 +53,7 @@ const COMMENTS_BY_POST: Record<string, Comment[]> = {
       id: 'cmt-011',
       reviewId: 'rev-004',
       createdAt: ago(60 * 60 * 5),
+      updatedAt: ago(60 * 60 * 5),
       author: { id: 'user-caro', displayName: 'Carolina R.', handle: null },
       text: 'La cola del lunes al mediodía es un despropósito pero sí, vale.',
       canReport: true,
@@ -60,6 +66,7 @@ const GENERIC_COMMENTS: Comment[] = [
     id: 'cmt-generic-01',
     reviewId: '__placeholder__',
     createdAt: ago(60 * 30),
+    updatedAt: ago(60 * 30),
     author: { id: 'user-ana', displayName: 'Ana Paula', handle: 'anapaulacome' },
     text: 'Me lo anoto para la semana que viene.',
     canReport: true,
@@ -68,6 +75,7 @@ const GENERIC_COMMENTS: Comment[] = [
     id: 'cmt-generic-02',
     reviewId: '__placeholder__',
     createdAt: ago(60 * 15),
+    updatedAt: ago(60 * 15),
     author: { id: 'user-tomi', displayName: 'Tomás Echeverría', handle: 'tomiplatos' },
     text: 'Buen dato, gracias.',
     canReport: true,
@@ -92,10 +100,12 @@ export function mockGetComments(postId: string): CursorPage<Comment> {
 let nextCommentSeq = 1;
 
 export function mockCreateComment(postId: string, text: string): Comment {
+  const now = new Date().toISOString();
   return {
     id: `cmt-local-${Date.now()}-${nextCommentSeq++}`,
     reviewId: postId,
-    createdAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
     author: {
       id: 'user-self-mock',
       displayName: 'Vos',
@@ -104,5 +114,6 @@ export function mockCreateComment(postId: string, text: string): Comment {
     },
     text,
     canDelete: true,
+    canEdit: true,
   };
 }

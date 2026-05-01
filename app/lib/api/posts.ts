@@ -9,6 +9,7 @@ interface CommentDTO {
   id: string;
   review_id: string;
   created_at: string;
+  updated_at: string;
   author: {
     id: string;
     display_name: string;
@@ -17,6 +18,7 @@ interface CommentDTO {
   };
   body: string;
   can_delete: boolean;
+  can_edit: boolean;
   can_report: boolean;
 }
 
@@ -30,6 +32,7 @@ function toComment(dto: CommentDTO): Comment {
     id: dto.id,
     reviewId: dto.review_id,
     createdAt: dto.created_at,
+    updatedAt: dto.updated_at,
     author: {
       id: dto.author.id,
       displayName: dto.author.display_name,
@@ -38,6 +41,7 @@ function toComment(dto: CommentDTO): Comment {
     },
     text: dto.body,
     canDelete: dto.can_delete,
+    canEdit: dto.can_edit,
     canReport: dto.can_report,
   };
 }
@@ -86,6 +90,31 @@ export async function createComment(postId: string, text: string): Promise<Comme
     `/api/reviews/${encodeURIComponent(postId)}/comments`,
     {
       method: 'POST',
+      body: JSON.stringify({ body: text }),
+    },
+  );
+  return toComment(raw);
+}
+
+export async function updateComment(commentId: string, text: string): Promise<Comment> {
+  if (isSocialMockEnabled()) {
+    await mockDelay(300);
+    return {
+      id: commentId,
+      reviewId: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      author: { id: '', displayName: '' },
+      text,
+      canDelete: true,
+      canEdit: true,
+      canReport: false,
+    };
+  }
+  const raw = await fetchApi<CommentDTO>(
+    `/api/comments/${encodeURIComponent(commentId)}`,
+    {
+      method: 'PATCH',
       body: JSON.stringify({ body: text }),
     },
   );

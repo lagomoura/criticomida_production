@@ -11,7 +11,13 @@ import CommentItem from '@/app/components/social/CommentItem';
 import CommentComposer from '@/app/components/social/CommentComposer';
 import ReportModal from '@/app/components/social/ReportModal';
 import OwnerResponseBlock from '@/app/components/social/OwnerResponseBlock';
-import { getPost, getComments, createComment } from '@/app/lib/api/posts';
+import {
+  getPost,
+  getComments,
+  createComment,
+  updateComment,
+  deleteComment,
+} from '@/app/lib/api/posts';
 import { ApiError } from '@/app/lib/api/client';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { usePostsInteraction } from '@/app/lib/hooks/usePostsInteraction';
@@ -78,6 +84,47 @@ export default function ReviewDetailClient({ postId }: Props) {
       void navigator.share({ url: `${location.origin}/reviews/${id}` });
     }
   }, []);
+
+  const handleEditComment = useCallback(
+    async (commentId: string, nextText: string) => {
+      const updated = await updateComment(commentId, nextText);
+      setComments((prev) => prev.map((c) => (c.id === commentId ? updated : c)));
+    },
+    [],
+  );
+
+  const handleDeleteComment = useCallback(
+    async (commentId: string) => {
+      await deleteComment(commentId);
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === postId
+            ? {
+                ...p,
+                stats: { ...p.stats, comments: Math.max(0, p.stats.comments - 1) },
+              }
+            : p,
+        ),
+      );
+    },
+    [postId, setPosts],
+  );
+
+  const handleReportComment = useCallback(
+    (commentId: string) => {
+      const target = comments.find((c) => c.id === commentId);
+      if (!target) return;
+      const excerpt =
+        target.text.length > 80 ? target.text.slice(0, 80) + '…' : target.text;
+      setReportTarget({
+        kind: 'comment',
+        id: commentId,
+        subject: `${target.author.displayName}: ${excerpt}`,
+      });
+    },
+    [comments],
+  );
 
   const handleSubmitComment = useCallback(async () => {
     const text = composerValue.trim();
@@ -217,19 +264,9 @@ export default function ReviewDetailClient({ postId }: Props) {
                 <CommentItem
                   comment={c}
                   onOpenAuthor={(id) => router.push(`/u/${id}`)}
-                  onOpenMenu={
-                    user && c.canReport
-                      ? (commentId) => {
-                          const excerpt =
-                            c.text.length > 80 ? c.text.slice(0, 80) + '…' : c.text;
-                          setReportTarget({
-                            kind: 'comment',
-                            id: commentId,
-                            subject: `${c.author.displayName}: ${excerpt}`,
-                          });
-                        }
-                      : undefined
-                  }
+                  onSaveEdit={user ? handleEditComment : undefined}
+                  onDelete={user ? handleDeleteComment : undefined}
+                  onReport={user ? handleReportComment : undefined}
                 />
               </li>
             ))}

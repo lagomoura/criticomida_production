@@ -86,9 +86,11 @@ export interface Comment {
   id: string;
   reviewId: string;
   createdAt: string;
+  updatedAt: string;
   author: AuthorSummary;
   text: string;
   canDelete?: boolean;
+  canEdit?: boolean;
   canReport?: boolean;
 }
 
