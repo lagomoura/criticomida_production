@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faChevronDown } from '@fortawesome/free-solid-svg-icons';
@@ -19,6 +19,7 @@ import DishAutocomplete, {
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { createPost, type ComposeRestaurant } from '@/app/lib/api/compose';
 import { getDishDetail } from '@/app/lib/api/dishes-social';
+import { uploadReviewPhoto } from '@/app/lib/api/reviews';
 import { ApiError } from '@/app/lib/api/client';
 import { useToast } from '@/app/components/ui/Toast';
 import { cn } from '@/app/lib/utils/cn';
@@ -70,6 +71,12 @@ export default function ComposeClient() {
   const [prosInput, setProsInput] = useState('');
   const [consInput, setConsInput] = useState('');
   const [tagsInput, setTagsInput] = useState('');
+
+  // Fotos del plato. Se suben al backend recién al submit y se mandan como URLs
+  // dentro de extras.images para que el backend cree los dish_review_images.
+  const [photos, setPhotos] = useState<{ id: number; file: File; preview: string }[]>([]);
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const photoIdRef = useRef(0);
 
   // Technical pillars (1=poor / 2=neutral / 3=excellent) — siempre visibles.
   const [pillars, setPillars] = useState<TechnicalPillarsValue>({
@@ -128,6 +135,34 @@ export default function ComposeClient() {
     score !== null &&
     text.trim().length >= MIN_TEXT;
 
+  function handlePhotoAdd(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    const entries = files.map((file) => ({
+      id: ++photoIdRef.current,
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setPhotos((p) => [...p, ...entries]);
+    e.target.value = '';
+  }
+
+  function removePhoto(id: number) {
+    setPhotos((p) => {
+      const removed = p.find((x) => x.id === id);
+      if (removed) URL.revokeObjectURL(removed.preview);
+      return p.filter((x) => x.id !== id);
+    });
+  }
+
+  // Limpieza de blob URLs en unmount.
+  useEffect(() => {
+    return () => {
+      photos.forEach((p) => URL.revokeObjectURL(p.preview));
+    };
+    // Sólo en unmount: el cleanup del array vivo lo hace removePhoto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const buildExtras = useCallback((): ReviewExtras | undefined => {
     const extras: ReviewExtras = {};
     if (portionSize) extras.portionSize = portionSize;
@@ -165,6 +200,32 @@ export default function ComposeClient() {
       };
 
       try {
+        // Subimos primero las fotos (necesitamos un entity_id; al no haber
+        // todavía dish_id usamos el del usuario — el endpoint sólo lo guarda
+        // en la tabla `images` como side-effect; lo que importa es la URL).
+        let imageUrls: string[] = [];
+        if (photos.length > 0) {
+          imageUrls = await Promise.all(
+            photos.map((p, i) => uploadReviewPhoto(user.id, p.file, i)),
+          );
+        }
+
+        const baseExtras = buildExtras();
+        const extrasWithImages: ReviewExtras | undefined =
+          imageUrls.length > 0
+            ? {
+                ...(baseExtras ?? {}),
+                images: imageUrls.map((url, i) => ({
+                  url,
+                  altText:
+                    imageUrls.length > 1
+                      ? `Foto ${i + 1} de ${dish.name.trim()}`
+                      : `Foto de ${dish.name.trim()}`,
+                  displayOrder: i,
+                })),
+              }
+            : baseExtras;
+
         const post = await createPost({
           dishName: dish.name.trim(),
           dishId: dish.id,
@@ -172,7 +233,7 @@ export default function ComposeClient() {
           category: category.trim() || null,
           score,
           text: text.trim(),
-          extras: buildExtras(),
+          extras: extrasWithImages,
           author: {
             id: user.id,
             displayName: user.display_name || user.email,
@@ -192,7 +253,7 @@ export default function ComposeClient() {
         setSubmitting(false);
       }
     },
-    [canSubmit, user, score, place, dish, category, text, buildExtras, router, toast],
+    [canSubmit, user, score, place, dish, category, text, buildExtras, photos, router, toast],
   );
 
   const handleAddChip = (value: string, list: string[], setList: (v: string[]) => void, clear: () => void) => {
@@ -329,6 +390,53 @@ export default function ComposeClient() {
             helpText={text.trim().length < MIN_TEXT ? `Al menos ${MIN_TEXT} caracteres.` : undefined}
             disabled={submitting}
           />
+
+          <div className="flex flex-col gap-1.5">
+            <label className="font-sans text-sm font-medium text-text-secondary">
+              Fotos del plato
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {photos.map((photo) => (
+                <div key={photo.id} className="relative h-20 w-20 shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photo.preview}
+                    alt=""
+                    className="h-full w-full rounded-xl object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(photo.id)}
+                    disabled={submitting}
+                    aria-label="Eliminar foto"
+                    className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-action-danger text-xs text-text-inverse shadow-[var(--shadow-base)] hover:opacity-90 disabled:opacity-40"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                disabled={submitting}
+                className="group flex h-20 w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border-default bg-surface-card text-text-muted transition-all hover:border-action-primary hover:text-action-primary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <span className="text-xl leading-none">+</span>
+                <span className="text-[10px] font-medium">Foto</span>
+              </button>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                onChange={handlePhotoAdd}
+              />
+            </div>
+            <p className="font-sans text-xs text-text-muted">
+              Sumá una o varias fotos del plato. Se suben cuando publiques la reseña.
+            </p>
+          </div>
 
           {/* Extras: sección expandible con metadata opcional */}
           <section className="rounded-2xl border border-border-default bg-surface-card">

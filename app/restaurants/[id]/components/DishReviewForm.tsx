@@ -1,18 +1,36 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { createReview, uploadReviewPhoto } from '@/app/lib/api/reviews';
+import { createReview, updateReview, uploadReviewPhoto } from '@/app/lib/api/reviews';
 import { ApiError } from '@/app/lib/api/client';
-import { PortionSize, DishReview } from '@/app/lib/types';
+import { PortionSize, DishReview, PillarScore } from '@/app/lib/types';
 import StarRating from './StarRating';
 import TechnicalPillars, { type TechnicalPillarsValue } from './TechnicalPillars';
+
+/** Subset de DishReview necesario para pre-llenar el form en modo edición. */
+export interface DishReviewFormInitial {
+  rating: number;
+  note: string;
+  date_tasted: string;
+  time_tasted: string | null;
+  portion_size: PortionSize | null;
+  would_order_again: boolean | null;
+  visited_with: string | null;
+  is_anonymous: boolean;
+  presentation: PillarScore | null;
+  value_prop: PillarScore | null;
+  execution: PillarScore | null;
+  pros_cons: { type: 'pro' | 'con'; text: string }[];
+  tags: { tag: string }[];
+  images: { id: string; url: string; alt_text: string | null }[];
+}
 
 interface DishReviewFormProps {
   /**
    * Plato a reseñar. Pasá `dishId` cuando el plato ya existe; pasá
    * `resolveDishId` cuando el plato todavía no existe — se invoca al submit
    * y debe crear el plato y devolver su id (lo usa PublishReviewModal).
-   * Tiene que pasarse exactamente uno de los dos.
+   * Tiene que pasarse exactamente uno de los dos en modo create.
    */
   dishId?: string;
   resolveDishId?: () => Promise<string>;
@@ -20,6 +38,11 @@ interface DishReviewFormProps {
   onSuccess: (review: DishReview) => void;
   onCancel: () => void;
   cancelLabel?: string;
+  /** Default 'create'. En 'edit' se requiere `reviewId` + `initial`. */
+  mode?: 'create' | 'edit';
+  reviewId?: string;
+  initial?: DishReviewFormInitial;
+  submitLabel?: string;
 }
 
 interface ProConEntry {
@@ -36,28 +59,76 @@ interface PhotoEntry {
   preview: string;
 }
 
-export default function DishReviewForm({ dishId, resolveDishId, dishName, onSuccess, onCancel, cancelLabel = 'Cancelar' }: DishReviewFormProps) {
-  const [rating, setRating] = useState(5);
+interface ExistingImage {
+  id: string;
+  url: string;
+  alt_text: string | null;
+}
+
+function toProConEntries(items: { text: string }[]): ProConEntry[] {
+  if (items.length === 0) return [{ id: nextId(), text: '' }];
+  return items.map(({ text }) => ({ id: nextId(), text }));
+}
+
+/** "HH:MM:SS" o "HH:MM" → "HH:MM" para input[type=time]. */
+function trimTime(value: string | null): string {
+  if (!value) return '';
+  const parts = value.split(':');
+  return parts.length >= 2 ? `${parts[0]}:${parts[1]}` : '';
+}
+
+export default function DishReviewForm({
+  dishId,
+  resolveDishId,
+  dishName,
+  onSuccess,
+  onCancel,
+  cancelLabel = 'Cancelar',
+  mode = 'create',
+  reviewId,
+  initial,
+  submitLabel,
+}: DishReviewFormProps) {
+  const isEdit = mode === 'edit';
+
+  const [rating, setRating] = useState(initial?.rating ?? 5);
   const [pillars, setPillars] = useState<TechnicalPillarsValue>({
-    presentation: null,
-    value_prop: null,
-    execution: null,
+    presentation: initial?.presentation ?? null,
+    value_prop: initial?.value_prop ?? null,
+    execution: initial?.execution ?? null,
   });
-  const [note, setNote] = useState('');
-  const [wouldOrderAgain, setWouldOrderAgain] = useState<boolean | null>(null);
-  const [portionSize, setPortionSize] = useState<PortionSize | ''>('');
-  const [dateTasted, setDateTasted] = useState(new Date().toISOString().slice(0, 10));
-  const [timeTasted, setTimeTasted] = useState('');
-  const [visitedWith, setVisitedWith] = useState('');
-  const [pros, setPros] = useState<ProConEntry[]>([{ id: nextId(), text: '' }]);
-  const [cons, setCons] = useState<ProConEntry[]>([{ id: nextId(), text: '' }]);
-  const [tags, setTags] = useState('');
+  const [note, setNote] = useState(initial?.note ?? '');
+  const [wouldOrderAgain, setWouldOrderAgain] = useState<boolean | null>(
+    initial?.would_order_again ?? null,
+  );
+  const [portionSize, setPortionSize] = useState<PortionSize | ''>(
+    initial?.portion_size ?? '',
+  );
+  const [dateTasted, setDateTasted] = useState(
+    initial?.date_tasted ?? new Date().toISOString().slice(0, 10),
+  );
+  const [timeTasted, setTimeTasted] = useState(trimTime(initial?.time_tasted ?? null));
+  const [visitedWith, setVisitedWith] = useState(initial?.visited_with ?? '');
+  const initialPros = initial?.pros_cons.filter((x) => x.type === 'pro') ?? [];
+  const initialCons = initial?.pros_cons.filter((x) => x.type === 'con') ?? [];
+  const [pros, setPros] = useState<ProConEntry[]>(toProConEntries(initialPros));
+  const [cons, setCons] = useState<ProConEntry[]>(toProConEntries(initialCons));
+  const [tags, setTags] = useState(
+    initial?.tags.map((t) => t.tag).join(', ') ?? '',
+  );
+  const [existingImages, setExistingImages] = useState<ExistingImage[]>(
+    initial?.images ?? [],
+  );
   const [photos, setPhotos] = useState<PhotoEntry[]>([]);
-  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(initial?.is_anonymous ?? false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // File picker programático (evita quirks de <label>+input nesteado).
   const photoInputRef = useRef<HTMLInputElement | null>(null);
+
+  function removeExistingImage(id: string) {
+    setExistingImages((imgs) => imgs.filter((x) => x.id !== id));
+  }
 
   function addPro() { setPros(p => [...p, { id: nextId(), text: '' }]); }
   function removePro(id: number) { setPros(p => p.filter(x => x.id !== id)); }
@@ -95,7 +166,54 @@ export default function DishReviewForm({ dishId, resolveDishId, dishName, onSucc
     const consFiltered = cons.map(c => c.text.trim()).filter(Boolean);
     const tagsFiltered = tags.split(',').map(t => t.trim()).filter(Boolean);
 
+    const trimmedDishName = dishName.trim();
+    const altFor = (index: number, total: number) =>
+      total > 1 ? `Foto ${index + 1} de ${trimmedDishName}` : `Foto de ${trimmedDishName}`;
+
     try {
+      if (isEdit) {
+        if (!reviewId) throw new Error('Falta el id de la reseña a editar.');
+
+        // Upload sólo las nuevas; las existentes ya tienen URL.
+        const newUrls = await Promise.all(
+          photos.map((photo, i) => uploadReviewPhoto(reviewId, photo.file, i)),
+        );
+
+        const keptExisting: { url: string; alt_text?: string }[] = existingImages.map((img) => ({
+          url: img.url,
+          alt_text: img.alt_text ?? undefined,
+        }));
+        const newOnes: { url: string; alt_text?: string }[] = newUrls.map((url) => ({ url }));
+        const total = keptExisting.length + newOnes.length;
+        const allImages = [...keptExisting, ...newOnes].map((img, i) => ({
+          url: img.url,
+          alt_text: img.alt_text ?? altFor(i, total),
+          display_order: i,
+        }));
+
+        const review = await updateReview(reviewId, {
+          rating,
+          note,
+          date_tasted: dateTasted,
+          time_tasted: timeTasted || undefined,
+          would_order_again: wouldOrderAgain ?? undefined,
+          portion_size: portionSize || undefined,
+          visited_with: visitedWith.trim() || undefined,
+          is_anonymous: isAnonymous,
+          presentation: pillars.presentation ?? undefined,
+          value_prop: pillars.value_prop ?? undefined,
+          execution: pillars.execution ?? undefined,
+          pros_cons: [
+            ...prosFiltered.map(text => ({ type: 'pro' as const, text })),
+            ...consFiltered.map(text => ({ type: 'con' as const, text })),
+          ],
+          tags: tagsFiltered.map(tag => ({ tag })),
+          images: allImages,
+        });
+        onSuccess(review);
+        return;
+      }
+
       const resolvedDishId = dishId ?? (await resolveDishId?.());
       if (!resolvedDishId) {
         throw new Error('Falta el plato para reseñar.');
@@ -104,12 +222,6 @@ export default function DishReviewForm({ dishId, resolveDishId, dishName, onSucc
       const imageUrls = await Promise.all(
         photos.map((photo, i) => uploadReviewPhoto(resolvedDishId, photo.file, i))
       );
-
-      const trimmedDishName = dishName.trim();
-      const altFor = (index: number) =>
-        imageUrls.length > 1
-          ? `Foto ${index + 1} de ${trimmedDishName}`
-          : `Foto de ${trimmedDishName}`;
 
       const review = await createReview(resolvedDishId, {
         rating,
@@ -128,14 +240,18 @@ export default function DishReviewForm({ dishId, resolveDishId, dishName, onSucc
           ...consFiltered.map(text => ({ type: 'con' as const, text })),
         ],
         tags: tagsFiltered.map(tag => ({ tag })),
-        images: imageUrls.map((url, i) => ({ url, alt_text: altFor(i), display_order: i })),
+        images: imageUrls.map((url, i) => ({
+          url,
+          alt_text: altFor(i, imageUrls.length),
+          display_order: i,
+        })),
       });
       onSuccess(review);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(typeof err.detail === 'string' ? err.detail : 'No se pudo enviar la reseña.');
       } else {
-        setError('No se pudo enviar la reseña. Intentá de nuevo.');
+        setError(isEdit ? 'No se pudo guardar la reseña. Intentá de nuevo.' : 'No se pudo enviar la reseña. Intentá de nuevo.');
       }
     } finally {
       setSubmitting(false);
@@ -265,6 +381,25 @@ export default function DishReviewForm({ dishId, resolveDishId, dishName, onSucc
           <div>
             <SubLabel>Fotos</SubLabel>
             <div className="flex flex-wrap gap-2">
+              {existingImages.map((img) => (
+                <div key={img.id} className="relative h-16 w-16 shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={img.url}
+                    alt={img.alt_text ?? ''}
+                    className="h-full w-full rounded-xl object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeExistingImage(img.id)}
+                    disabled={submitting}
+                    aria-label="Eliminar foto"
+                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-color-paprika text-[10px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
               {photos.map((photo) => (
                 <div key={photo.id} className="relative h-16 w-16 shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -399,7 +534,9 @@ export default function DishReviewForm({ dishId, resolveDishId, dishName, onSucc
             disabled={submitting}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-action-primary px-6 py-2.5 font-sans text-sm font-semibold text-text-inverse shadow-[var(--shadow-base)] transition-all hover:bg-action-primary-hover hover:shadow-[var(--shadow-media)] active:translate-y-[1px] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {submitting ? 'Enviando…' : 'Publicar reseña'}
+            {submitting
+              ? (isEdit ? 'Guardando…' : 'Enviando…')
+              : (submitLabel ?? (isEdit ? 'Guardar cambios' : 'Publicar reseña'))}
           </button>
         </div>
       </div>

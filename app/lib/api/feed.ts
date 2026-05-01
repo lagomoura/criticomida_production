@@ -59,9 +59,13 @@ interface FeedExtrasDTO {
   cons: string[];
   tags: string[];
   date_tasted: string | null;
+  time_tasted: string | null;
   visited_with: string | null;
   is_anonymous: boolean | null;
   price_tier: PriceTier | null;
+  presentation: 1 | 2 | 3 | null;
+  value_prop: 1 | 2 | 3 | null;
+  execution: 1 | 2 | 3 | null;
 }
 
 export interface FeedItemDTO {
@@ -93,9 +97,13 @@ export function toReviewPost(dto: FeedItemDTO): ReviewPost {
         cons: dto.extras.cons,
         tags: dto.extras.tags,
         dateTasted: dto.extras.date_tasted,
+        timeTasted: dto.extras.time_tasted,
         visitedWith: dto.extras.visited_with,
         isAnonymous: dto.extras.is_anonymous,
         priceTier: dto.extras.price_tier,
+        presentation: dto.extras.presentation,
+        valueProp: dto.extras.value_prop,
+        execution: dto.extras.execution,
       }
     : null;
 

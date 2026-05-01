@@ -64,6 +64,7 @@ interface PostCreateDTO {
     presentation?: 1 | 2 | 3 | null;
     value_prop?: 1 | 2 | 3 | null;
     execution?: 1 | 2 | 3 | null;
+    images?: { url: string; alt_text?: string | null; display_order?: number }[];
   };
 }
 
@@ -107,6 +108,11 @@ function toPostCreateDTO(input: CreatePostInput): PostCreateDTO {
       presentation: extras.presentation ?? null,
       value_prop: extras.valueProp ?? null,
       execution: extras.execution ?? null,
+      images: (extras.images ?? []).map((img, i) => ({
+        url: img.url,
+        alt_text: img.altText ?? null,
+        display_order: img.displayOrder ?? i,
+      })),
     };
   }
   return dto;

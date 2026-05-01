@@ -101,6 +101,10 @@ export interface UpdateReviewRequest {
   presentation?: PillarScore;
   value_prop?: PillarScore;
   execution?: PillarScore;
+  /** When omitted, leave existing rows alone. When [], clear them. */
+  pros_cons?: { type: DishReviewProsConsType; text: string }[];
+  tags?: { tag: string }[];
+  images?: { url: string; alt_text?: string; display_order?: number }[];
 }
 
 /** Internal view-model used by restaurant detail sub-components. */

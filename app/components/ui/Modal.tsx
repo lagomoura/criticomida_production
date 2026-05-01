@@ -126,13 +126,19 @@ export default function Modal({
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
         className={cn(
-          'relative z-10 w-full overscroll-contain rounded-2xl border border-border-default bg-surface-card p-6',
+          'relative z-10 flex w-full flex-col overscroll-contain rounded-2xl border border-border-default bg-surface-card',
+          'max-h-[calc(100dvh-2rem)]',
           'shadow-[var(--shadow-floating)] motion-safe:animate-[modal-in_240ms_var(--ease-spoon)]',
           sizeClass[size],
           className,
         )}
       >
-        <div className={cn('mb-4 flex items-start gap-3', hideTitle && 'sr-only')}>
+        <div
+          className={cn(
+            'flex shrink-0 items-start gap-3 px-6 pt-6 pb-4',
+            hideTitle && 'sr-only',
+          )}
+        >
           <div className="flex-1">
             <h2
               id={titleId}
@@ -164,9 +170,20 @@ export default function Modal({
           )}
         </div>
 
-        <div>{children}</div>
+        <div
+          className={cn(
+            'min-h-0 flex-1 overflow-y-auto px-6 pb-6',
+            hideTitle && 'pt-6',
+          )}
+        >
+          {children}
+        </div>
 
-        {footer && <div className="mt-5 flex flex-wrap items-center justify-end gap-2">{footer}</div>}
+        {footer && (
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border-subtle px-6 py-4">
+            {footer}
+          </div>
+        )}
       </div>
 
       <style>{`

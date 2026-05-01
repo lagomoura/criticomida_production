@@ -38,6 +38,8 @@ export interface ReviewExtras {
   tags?: string[];
   /** ISO date (yyyy-mm-dd). */
   dateTasted?: string | null;
+  /** "HH:MM:SS" o "HH:MM". */
+  timeTasted?: string | null;
   visitedWith?: string | null;
   isAnonymous?: boolean | null;
   priceTier?: PriceTier | null;
@@ -45,6 +47,8 @@ export interface ReviewExtras {
   presentation?: 1 | 2 | 3 | null;
   valueProp?: 1 | 2 | 3 | null;
   execution?: 1 | 2 | 3 | null;
+  /** Fotos del plato adjuntas a la reseña (se guardan en dish_review_images). */
+  images?: { url: string; altText?: string | null; displayOrder?: number }[];
 }
 
 export interface PostStats {
