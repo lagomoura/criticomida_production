@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faTriangleExclamation, faImage } from '@fortawesome/free-solid-svg-icons';
 import Button from '@/app/components/ui/Button';
 import Skeleton from '@/app/components/ui/Skeleton';
 import PostCard from '@/app/components/social/PostCard';
@@ -52,6 +52,7 @@ export default function ReviewDetailClient({ postId }: Props) {
     | { kind: 'comment'; id: string; subject: string }
     | null
   >(null);
+  const [sharingCard, setSharingCard] = useState(false);
 
   // Single-item list of posts — `usePostsInteraction` handles like/save with
   // API round-trip + rollback on failure.
@@ -93,6 +94,51 @@ export default function ReviewDetailClient({ postId }: Props) {
       void navigator.share({ url: `${location.origin}/reviews/${id}` });
     }
   }, []);
+
+  const handleShareCard = useCallback(
+    async (id: string) => {
+      setSharingCard(true);
+      try {
+        const res = await fetch(`/api/og/review/${encodeURIComponent(id)}`);
+        if (!res.ok) throw new Error('og-failed');
+        const blob = await res.blob();
+        const file = new File([blob], `criticomida-${id}.png`, {
+          type: 'image/png',
+        });
+        const dishLabel = post?.dish.name ?? 'Reseña en CritiComida';
+        if (
+          typeof navigator !== 'undefined' &&
+          typeof navigator.canShare === 'function' &&
+          navigator.canShare({ files: [file] })
+        ) {
+          await navigator.share({ files: [file], title: dishLabel });
+        } else {
+          // Fallback (desktop / browsers sin share-files): descarga directa.
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = file.name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        }
+      } catch (err) {
+        // AbortError = el usuario canceló desde el sheet del SO. No es error.
+        if (
+          !(err instanceof DOMException && err.name === 'AbortError')
+        ) {
+          toast.error(
+            'No pudimos generar la tarjeta',
+            'Probá de nuevo en un momento.',
+          );
+        }
+      } finally {
+        setSharingCard(false);
+      }
+    },
+    [post, toast],
+  );
 
   const handleEditComment = useCallback(
     async (commentId: string, nextText: string) => {
@@ -375,6 +421,11 @@ export default function ReviewDetailClient({ postId }: Props) {
         }
       />
 
+      <ShareAsCardCTA
+        loading={sharingCard}
+        onClick={() => void handleShareCard(post.id)}
+      />
+
       {reportTarget && (
         <ReportModal
           open
@@ -474,6 +525,37 @@ function LoadingView() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+interface ShareAsCardCTAProps {
+  loading: boolean;
+  onClick: () => void;
+}
+
+function ShareAsCardCTA({ loading, onClick }: ShareAsCardCTAProps) {
+  return (
+    <div className="flex flex-col items-stretch gap-2 rounded-2xl border border-[var(--color-azafran-pale)] bg-[var(--color-crema)] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <div className="flex flex-col gap-1">
+        <h3 className="font-display text-base font-semibold text-text-primary">
+          Compartila como tarjeta para Stories
+        </h3>
+        <p className="font-sans text-sm text-text-muted">
+          Generamos una imagen vertical con tu reseña, lista para subir a
+          Instagram, WhatsApp o donde quieras.
+        </p>
+      </div>
+      <Button
+        variant="primary"
+        size="md"
+        loading={loading}
+        leftIcon={<FontAwesomeIcon icon={faImage} className="h-4 w-4" />}
+        onClick={onClick}
+        className="shrink-0"
+      >
+        Crear tarjeta
+      </Button>
     </div>
   );
 }
