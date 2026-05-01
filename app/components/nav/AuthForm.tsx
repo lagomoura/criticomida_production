@@ -130,6 +130,12 @@ export default function AuthForm({
           <Button type="submit" variant="primary" size="lg" loading={submitting}>
             {submitting ? 'Entrando…' : 'Entrar'}
           </Button>
+          <a
+            href="/forgot-password"
+            className="self-center font-sans text-xs text-text-muted no-underline hover:underline"
+          >
+            ¿Olvidaste tu contraseña?
+          </a>
         </form>
       ) : (
         <form className="flex flex-col gap-4" onSubmit={handleRegister} noValidate>
