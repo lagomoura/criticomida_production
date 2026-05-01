@@ -90,7 +90,7 @@ Core types in `app/lib/types/`:
 
 ### Styling
 
-Tailwind CSS 4 with custom CSS variables defined in `globals.css`:
-- `--mainPink: #ef7998` — primary brand color
-- `.cc-container` — standard page width container (max 72rem, centered)
-- Font: Source Sans 3 (weights 400/600/700/800)
+Tailwind CSS 4 con variables CSS en `app/globals.css` y marca **v2** (ver `docs/brand-identity-v2.md`):
+- Paleta **Especiería** (Azafrán/Páprika/Albahaca/Canela/Crema/Carbón) vía tokens `--color-*`
+- `.cc-container` — ancho estándar de página (max 72rem, centrado)
+- Tipografías: **DM Sans** (`--font-sans`) + **Cormorant Garamond** (`--font-display`) cargadas en `app/layout.tsx`
