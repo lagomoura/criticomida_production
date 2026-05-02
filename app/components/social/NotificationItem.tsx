@@ -7,6 +7,7 @@ import {
   faCircleCheck,
   faCircleXmark,
   faShieldHalved,
+  faAt,
 } from '@fortawesome/free-solid-svg-icons';
 import Avatar from '@/app/components/ui/Avatar';
 import { formatRelativeTime } from '@/app/lib/utils/time';
@@ -27,6 +28,7 @@ const kindIcon: Record<NotificationKind, typeof faHeart> = {
   claim_revoked: faShieldHalved,
   comment_like: faHeart,
   comment_reply: faReply,
+  mention: faAt,
 };
 
 const kindTint: Record<NotificationKind, string> = {
@@ -38,9 +40,10 @@ const kindTint: Record<NotificationKind, string> = {
   claim_revoked: 'text-amber-600',
   comment_like: 'text-[var(--state-like-on)]',
   comment_reply: 'text-action-primary',
+  mention: 'text-action-primary',
 };
 
-const kindKicker: Record<NotificationKind, string> = {
+const staticKicker: Record<Exclude<NotificationKind, 'mention'>, string> = {
   like: 'Like',
   comment: 'Comentario',
   follow: 'Nuevo seguidor',
@@ -50,6 +53,13 @@ const kindKicker: Record<NotificationKind, string> = {
   comment_like: 'Like en comentario',
   comment_reply: 'Respuesta',
 };
+
+function kickerFor(notification: { kind: NotificationKind; target?: { commentId?: string | null } }): string {
+  if (notification.kind === 'mention') {
+    return notification.target?.commentId ? 'Mención en comentario' : 'Mención en reseña';
+  }
+  return staticKicker[notification.kind];
+}
 
 export default function NotificationItem({ notification, onOpen }: NotificationItemProps) {
   const Wrapper = onOpen ? 'button' : 'div';
@@ -91,7 +101,7 @@ export default function NotificationItem({ notification, onOpen }: NotificationI
             kindTint[notification.kind],
           )}
         >
-          {kindKicker[notification.kind]}
+          {kickerFor(notification)}
         </p>
         <p className="mt-0.5 m-0 font-sans text-sm text-text-primary">
           <span className="font-medium">{notification.actor.displayName}</span>{' '}

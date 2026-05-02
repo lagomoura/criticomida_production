@@ -3,13 +3,15 @@
 import { FormEvent } from 'react';
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
-import Textarea from '@/app/components/ui/Textarea';
+import MentionTextarea from '@/app/components/social/MentionTextarea';
 
 export interface CommentComposerProps {
+  viewerId?: string | null;
   viewerName: string;
   viewerAvatarUrl?: string | null;
   value: string;
   onChange: (next: string) => void;
+  onMentionsChange?: (ids: string[]) => void;
   onSubmit: () => void;
   disabled?: boolean;
   loading?: boolean;
@@ -19,10 +21,12 @@ export interface CommentComposerProps {
 }
 
 export default function CommentComposer({
+  viewerId = null,
   viewerName,
   viewerAvatarUrl,
   value,
   onChange,
+  onMentionsChange,
   onSubmit,
   disabled = false,
   loading = false,
@@ -42,12 +46,14 @@ export default function CommentComposer({
     <form onSubmit={handleSubmit} className="flex items-start gap-3">
       <Avatar src={viewerAvatarUrl} name={viewerName} size="sm" />
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <Textarea
+        <MentionTextarea
           label={placeholder}
           hideLabel
           placeholder={placeholder}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={onChange}
+          onMentionsChange={onMentionsChange}
+          currentUserId={viewerId}
           disabled={disabled || loading}
           error={error}
           maxLength={maxLength}

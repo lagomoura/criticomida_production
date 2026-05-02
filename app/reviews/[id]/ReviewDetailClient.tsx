@@ -42,6 +42,7 @@ export default function ReviewDetailClient({ postId }: Props) {
   const [viewState, setViewState] = useState<ViewState>({ status: 'loading' });
   const [comments, setComments] = useState<Comment[]>([]);
   const [composerValue, setComposerValue] = useState('');
+  const [composerMentions, setComposerMentions] = useState<string[]>([]);
   const [composerLoading, setComposerLoading] = useState(false);
   const [composerError, setComposerError] = useState<string | undefined>();
   const [repliesByParent, setRepliesByParent] = useState<Record<string, Comment[]>>({});
@@ -141,8 +142,8 @@ export default function ReviewDetailClient({ postId }: Props) {
   );
 
   const handleEditComment = useCallback(
-    async (commentId: string, nextText: string) => {
-      const updated = await updateComment(commentId, nextText);
+    async (commentId: string, nextText: string, mentionedUserIds: string[]) => {
+      const updated = await updateComment(commentId, nextText, mentionedUserIds);
       if (updated.parentCommentId) {
         const parentId = updated.parentCommentId;
         setRepliesByParent((prev) => ({
@@ -264,8 +265,8 @@ export default function ReviewDetailClient({ postId }: Props) {
   );
 
   const handleSubmitReply = useCallback(
-    async (parentCommentId: string, text: string) => {
-      const created = await createReply(parentCommentId, text);
+    async (parentCommentId: string, text: string, mentionedUserIds: string[]) => {
+      const created = await createReply(parentCommentId, text, mentionedUserIds);
       setRepliesByParent((prev) => ({
         ...prev,
         [parentCommentId]: [...(prev[parentCommentId] ?? []), created],
@@ -339,7 +340,7 @@ export default function ReviewDetailClient({ postId }: Props) {
     setComposerLoading(true);
     setComposerError(undefined);
     try {
-      const created = await createComment(postId, text);
+      const created = await createComment(postId, text, composerMentions);
       setComments((prev) => [...prev, created]);
       setPosts((prev) =>
         prev.map((p) =>
@@ -349,6 +350,7 @@ export default function ReviewDetailClient({ postId }: Props) {
         ),
       );
       setComposerValue('');
+      setComposerMentions([]);
     } catch (err) {
       const message =
         err instanceof ApiError && typeof err.detail === 'string'
@@ -358,7 +360,7 @@ export default function ReviewDetailClient({ postId }: Props) {
     } finally {
       setComposerLoading(false);
     }
-  }, [composerValue, postId, setPosts]);
+  }, [composerValue, composerMentions, postId, setPosts]);
 
   if (viewState.status === 'loading') return <LoadingView />;
 
@@ -451,10 +453,12 @@ export default function ReviewDetailClient({ postId }: Props) {
 
         {user ? (
           <CommentComposer
+            viewerId={user.id}
             viewerName={user.display_name || user.email}
             viewerAvatarUrl={user.avatar_url}
             value={composerValue}
             onChange={setComposerValue}
+            onMentionsChange={setComposerMentions}
             onSubmit={() => void handleSubmitComment()}
             loading={composerLoading}
             error={composerError}
@@ -475,6 +479,7 @@ export default function ReviewDetailClient({ postId }: Props) {
               <li key={c.id}>
                 <CommentItem
                   comment={c}
+                  viewerId={user?.id ?? null}
                   onOpenAuthor={(id) => router.push(`/u/${id}`)}
                   onSaveEdit={user ? handleEditComment : undefined}
                   onDelete={user ? handleDeleteComment : undefined}

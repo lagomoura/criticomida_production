@@ -87,6 +87,7 @@ export interface CreateReviewRequest {
   pros_cons?: { type: DishReviewProsConsType; text: string }[];
   tags?: { tag: string }[];
   images?: { url: string; alt_text?: string; display_order?: number }[];
+  mentioned_user_ids?: string[];
 }
 
 export interface UpdateReviewRequest {
@@ -105,6 +106,7 @@ export interface UpdateReviewRequest {
   pros_cons?: { type: DishReviewProsConsType; text: string }[];
   tags?: { tag: string }[];
   images?: { url: string; alt_text?: string; display_order?: number }[];
+  mentioned_user_ids?: string[];
 }
 
 /** Internal view-model used by restaurant detail sub-components. */

@@ -1,10 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import MentionText from '@/app/components/social/MentionText';
 import { cn } from '@/app/lib/utils/cn';
+import type { MentionRef } from '@/app/lib/types/social';
 
 export interface PostBodyProps {
   text: string;
+  /** Menciones resueltas por backend (opcional, v2). */
+  mentions?: MentionRef[];
   /** When set, the "Ver más" toggle is hidden and text is always shown in full. */
   alwaysExpanded?: boolean;
   /** Set false in feed mode: no inline expand toggle (clicking the card opens detail). */
@@ -19,6 +23,7 @@ export interface PostBodyProps {
  */
 export default function PostBody({
   text,
+  mentions,
   alwaysExpanded = false,
   showExpandToggle = true,
   className,
@@ -39,7 +44,7 @@ export default function PostBody({
             'first-letter:float-left first-letter:mr-2 first-letter:mt-1 first-letter:font-display first-letter:text-[3.25rem] first-letter:font-medium first-letter:italic first-letter:leading-[0.85] first-letter:text-action-primary',
         )}
       >
-        {text}
+        <MentionText text={text} mentions={mentions} />
       </p>
       {canToggle && (
         <button

@@ -10,7 +10,8 @@ import {
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
 import IconButton from '@/app/components/ui/IconButton';
-import Textarea from '@/app/components/ui/Textarea';
+import MentionTextarea from '@/app/components/social/MentionTextarea';
+import MentionText from '@/app/components/social/MentionText';
 import { formatRelativeTime } from '@/app/lib/utils/time';
 import type { Comment } from '@/app/lib/types/social';
 
@@ -18,9 +19,15 @@ const COMMENT_MAX_LENGTH = 500;
 
 export interface CommentItemProps {
   comment: Comment;
+  /** ID del usuario logueado, para filtrar self-mentions en edit/reply. */
+  viewerId?: string | null;
   onOpenAuthor?: (userId: string) => void;
   /** Save edited body. Throws on failure so the row can show an inline error. */
-  onSaveEdit?: (commentId: string, nextText: string) => Promise<void>;
+  onSaveEdit?: (
+    commentId: string,
+    nextText: string,
+    mentionedUserIds: string[],
+  ) => Promise<void>;
   /** Delete the comment. Throws on failure. */
   onDelete?: (commentId: string) => Promise<void>;
   /** Trigger the report modal in the parent. */
@@ -28,7 +35,11 @@ export interface CommentItemProps {
   /** Toggle a like (optimistic; parent rolls back on failure). */
   onToggleLike?: (commentId: string, next: boolean) => Promise<void>;
   /** Submit a reply to this top-level comment. Throws on failure. */
-  onSubmitReply?: (parentCommentId: string, nextText: string) => Promise<void>;
+  onSubmitReply?: (
+    parentCommentId: string,
+    nextText: string,
+    mentionedUserIds: string[],
+  ) => Promise<void>;
   /** Toggle visibility / lazy-load replies for this top-level comment. */
   onToggleReplies?: (parentCommentId: string) => Promise<void>;
   /** Replies passed by the parent when expanded; undefined collapses the section. */
@@ -39,6 +50,7 @@ export interface CommentItemProps {
 
 export default function CommentItem({
   comment,
+  viewerId = null,
   onOpenAuthor,
   onSaveEdit,
   onDelete,
@@ -54,10 +66,12 @@ export default function CommentItem({
   const [menuPlacement, setMenuPlacement] = useState<'bottom' | 'top'>('bottom');
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(comment.text);
+  const [editMentions, setEditMentions] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [replying, setReplying] = useState(false);
   const [replyDraft, setReplyDraft] = useState('');
+  const [replyMentions, setReplyMentions] = useState<string[]>([]);
   const [replySubmitting, setReplySubmitting] = useState(false);
   const [replyError, setReplyError] = useState<string | undefined>();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -125,7 +139,7 @@ export default function CommentItem({
     setSaving(true);
     setError(undefined);
     try {
-      await onSaveEdit(comment.id, next);
+      await onSaveEdit(comment.id, next, editMentions);
       setEditing(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo guardar el cambio.');
@@ -152,6 +166,7 @@ export default function CommentItem({
 
   function startReply() {
     setReplyDraft('');
+    setReplyMentions([]);
     setReplyError(undefined);
     setReplying(true);
   }
@@ -160,6 +175,7 @@ export default function CommentItem({
     setReplying(false);
     setReplyError(undefined);
     setReplyDraft('');
+    setReplyMentions([]);
   }
 
   async function submitReply() {
@@ -169,9 +185,10 @@ export default function CommentItem({
     setReplySubmitting(true);
     setReplyError(undefined);
     try {
-      await onSubmitReply(comment.id, next);
+      await onSubmitReply(comment.id, next, replyMentions);
       setReplying(false);
       setReplyDraft('');
+      setReplyMentions([]);
     } catch (err) {
       setReplyError(
         err instanceof Error ? err.message : 'No se pudo publicar la respuesta.',
@@ -224,11 +241,13 @@ export default function CommentItem({
         </div>
         {editing ? (
           <div className="mt-1.5 flex flex-col gap-2">
-            <Textarea
+            <MentionTextarea
               label="Editar comentario"
               hideLabel
               value={draft}
-              onChange={(e) => setDraft(e.target.value)}
+              onChange={setDraft}
+              onMentionsChange={setEditMentions}
+              currentUserId={viewerId}
               disabled={saving}
               error={error}
               maxLength={COMMENT_MAX_LENGTH}
@@ -253,7 +272,7 @@ export default function CommentItem({
           </div>
         ) : (
           <p className="mt-0.5 whitespace-pre-wrap font-sans text-[15px] leading-relaxed text-text-primary">
-            {comment.text}
+            <MentionText text={comment.text} mentions={comment.mentions} />
           </p>
         )}
 
@@ -302,14 +321,16 @@ export default function CommentItem({
 
         {replying && canReply && (
           <div className="mt-2 flex flex-col gap-2">
-            <Textarea
+            <MentionTextarea
               label={`Responder a ${comment.author.displayName}`}
               hideLabel
               placeholder={`Responder a @${
                 comment.author.handle ?? comment.author.displayName
               }…`}
               value={replyDraft}
-              onChange={(e) => setReplyDraft(e.target.value)}
+              onChange={setReplyDraft}
+              onMentionsChange={setReplyMentions}
+              currentUserId={viewerId}
               disabled={replySubmitting}
               error={replyError}
               maxLength={COMMENT_MAX_LENGTH}
@@ -340,6 +361,7 @@ export default function CommentItem({
               <li key={r.id}>
                 <CommentItem
                   comment={r}
+                  viewerId={viewerId}
                   onOpenAuthor={onOpenAuthor}
                   onSaveEdit={onSaveEdit}
                   onDelete={onDelete}

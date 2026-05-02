@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import Button from '@/app/components/ui/Button';
 import Input from '@/app/components/ui/Input';
-import Textarea from '@/app/components/ui/Textarea';
+import MentionTextarea from '@/app/components/social/MentionTextarea';
 import Select from '@/app/components/ui/Select';
 import Skeleton from '@/app/components/ui/Skeleton';
 import Chip from '@/app/components/ui/Chip';
@@ -56,6 +56,7 @@ export default function ComposeClient() {
   const [category, setCategory] = useState<string>('');
   const [scoreStr, setScoreStr] = useState('4.0');
   const [text, setText] = useState('');
+  const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
 
   // Extras ("Más detalles")
   const [extrasOpen, setExtrasOpen] = useState(false);
@@ -234,6 +235,7 @@ export default function ComposeClient() {
           score,
           text: text.trim(),
           extras: extrasWithImages,
+          mentionedUserIds,
           author: {
             id: user.id,
             displayName: user.display_name || user.email,
@@ -253,7 +255,7 @@ export default function ComposeClient() {
         setSubmitting(false);
       }
     },
-    [canSubmit, user, score, place, dish, category, text, buildExtras, photos, router, toast],
+    [canSubmit, user, score, place, dish, category, text, mentionedUserIds, buildExtras, photos, router, toast],
   );
 
   const handleAddChip = (value: string, list: string[], setList: (v: string[]) => void, clear: () => void) => {
@@ -377,14 +379,16 @@ export default function ComposeClient() {
           />
 
 
-          <Textarea
+          <MentionTextarea
             label="Reseña"
             name="text"
             placeholder="¿Cómo estuvo? Detalles que importan: textura, punto, porción, precio…"
             required
             rows={6}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={setText}
+            onMentionsChange={setMentionedUserIds}
+            currentUserId={user?.id ?? null}
             maxLength={MAX_TEXT}
             valueLength={text.length}
             helpText={text.trim().length < MIN_TEXT ? `Al menos ${MIN_TEXT} caracteres.` : undefined}

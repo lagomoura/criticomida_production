@@ -84,6 +84,14 @@ export interface ReviewPost {
   /** Posición del autor entre los primeros 3 reseñadores del plato.
    * 1 = cronista fundador. null cuando no está en el podio. */
   discoveryRank?: 1 | 2 | 3 | null;
+  /** Resueltas por backend (v2). Permite render estable aunque cambie el handle. */
+  mentions?: MentionRef[];
+}
+
+export interface MentionRef {
+  userId: string;
+  handle: string;
+  displayName: string;
 }
 
 export interface Comment {
@@ -102,6 +110,8 @@ export interface Comment {
   canDelete?: boolean;
   canEdit?: boolean;
   canReport?: boolean;
+  /** Resueltas por backend (v2). Permite render estable aunque cambie el handle. */
+  mentions?: MentionRef[];
 }
 
 export type NotificationKind =
@@ -112,7 +122,8 @@ export type NotificationKind =
   | 'claim_rejected'
   | 'claim_revoked'
   | 'comment_like'
-  | 'comment_reply';
+  | 'comment_reply'
+  | 'mention';
 
 export interface SocialNotification {
   id: string;
@@ -124,6 +135,7 @@ export interface SocialNotification {
     postId?: string | null;
     userId?: string | null;
     restaurantId?: string | null;
+    commentId?: string | null;
   };
   /** Message already resolved by backend or formatter. */
   text: string;

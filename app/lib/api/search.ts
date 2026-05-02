@@ -101,3 +101,27 @@ export async function searchAll(query: string): Promise<SearchResults> {
     users: raw.users.map(toUserResult),
   };
 }
+
+/**
+ * Busca usuarios para el picker de @menciones. Filtra los que no tienen
+ * `handle` (no son menciónables) y limita el resultado.
+ */
+export async function searchUsers(
+  query: string,
+  limit = 5,
+): Promise<UserSearchResult[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+  if (isSocialMockEnabled()) {
+    await mockDelay(150);
+    return mockSearchUsers(trimmed)
+      .filter((u) => Boolean(u.handle))
+      .slice(0, limit);
+  }
+  const params = new URLSearchParams({ q: trimmed });
+  const raw = await fetchApi<SearchResponseDTO>(`/api/search?${params.toString()}`);
+  return raw.users
+    .map(toUserResult)
+    .filter((u) => Boolean(u.handle))
+    .slice(0, limit);
+}

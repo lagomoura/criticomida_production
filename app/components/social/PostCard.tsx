@@ -113,6 +113,7 @@ export default function PostCard({
       <div className={cn('relative z-10', overlayEnabled && 'pointer-events-none')}>
         <PostBody
           text={post.text}
+          mentions={post.mentions}
           alwaysExpanded={expanded}
           showExpandToggle={!overlayEnabled}
         />

@@ -29,6 +29,8 @@ export interface CreatePostInput {
   score: number;
   text: string;
   extras?: ReviewExtras;
+  /** IDs de los usuarios @arrobados en el cuerpo de la review. */
+  mentionedUserIds?: string[];
   /** Used only in mock mode. */
   author: AuthorSummary;
 }
@@ -51,6 +53,7 @@ interface PostCreateDTO {
   category?: string | null;
   score: number;
   text: string;
+  mentioned_user_ids?: string[];
   extras?: {
     portion_size?: 'small' | 'medium' | 'large' | null;
     would_order_again?: boolean | null;
@@ -76,6 +79,9 @@ function toPostCreateDTO(input: CreatePostInput): PostCreateDTO {
     text: input.text,
   };
   if (input.dishId) dto.dish_id = input.dishId;
+  if (input.mentionedUserIds && input.mentionedUserIds.length > 0) {
+    dto.mentioned_user_ids = input.mentionedUserIds;
+  }
 
   if (input.restaurant) {
     dto.restaurant = {

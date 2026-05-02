@@ -24,6 +24,7 @@ interface CommentDTO {
   can_delete: boolean;
   can_edit: boolean;
   can_report: boolean;
+  mentions?: { user_id: string; handle: string; display_name: string }[];
 }
 
 interface CommentsPageDTO {
@@ -57,6 +58,11 @@ function toComment(dto: CommentDTO): Comment {
     canDelete: dto.can_delete,
     canEdit: dto.can_edit,
     canReport: dto.can_report,
+    mentions: dto.mentions?.map((m) => ({
+      userId: m.user_id,
+      handle: m.handle,
+      displayName: m.display_name,
+    })),
   };
 }
 
@@ -95,7 +101,11 @@ export async function getComments(
   };
 }
 
-export async function createComment(postId: string, text: string): Promise<Comment> {
+export async function createComment(
+  postId: string,
+  text: string,
+  mentionedUserIds: string[] = [],
+): Promise<Comment> {
   if (isSocialMockEnabled()) {
     await mockDelay(400);
     return mockCreateComment(postId, text);
@@ -104,13 +114,17 @@ export async function createComment(postId: string, text: string): Promise<Comme
     `/api/reviews/${encodeURIComponent(postId)}/comments`,
     {
       method: 'POST',
-      body: JSON.stringify({ body: text }),
+      body: JSON.stringify({ body: text, mentioned_user_ids: mentionedUserIds }),
     },
   );
   return toComment(raw);
 }
 
-export async function updateComment(commentId: string, text: string): Promise<Comment> {
+export async function updateComment(
+  commentId: string,
+  text: string,
+  mentionedUserIds: string[] = [],
+): Promise<Comment> {
   if (isSocialMockEnabled()) {
     await mockDelay(300);
     return {
@@ -133,7 +147,7 @@ export async function updateComment(commentId: string, text: string): Promise<Co
     `/api/comments/${encodeURIComponent(commentId)}`,
     {
       method: 'PATCH',
-      body: JSON.stringify({ body: text }),
+      body: JSON.stringify({ body: text, mentioned_user_ids: mentionedUserIds }),
     },
   );
   return toComment(raw);
@@ -170,6 +184,7 @@ export async function getReplies(
 export async function createReply(
   parentCommentId: string,
   text: string,
+  mentionedUserIds: string[] = [],
 ): Promise<Comment> {
   if (isSocialMockEnabled()) {
     await mockDelay(400);
@@ -193,7 +208,7 @@ export async function createReply(
     `/api/comments/${encodeURIComponent(parentCommentId)}/replies`,
     {
       method: 'POST',
-      body: JSON.stringify({ body: text }),
+      body: JSON.stringify({ body: text, mentioned_user_ids: mentionedUserIds }),
     },
   );
   return toComment(raw);

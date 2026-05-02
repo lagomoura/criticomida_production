@@ -4,6 +4,8 @@ import React, { useRef, useState } from 'react';
 import { createReview, updateReview, uploadReviewPhoto } from '@/app/lib/api/reviews';
 import { ApiError } from '@/app/lib/api/client';
 import { PortionSize, DishReview, PillarScore } from '@/app/lib/types';
+import { useAuthContext } from '@/app/lib/contexts/AuthContext';
+import MentionTextarea from '@/app/components/social/MentionTextarea';
 import StarRating from './StarRating';
 import TechnicalPillars, { type TechnicalPillarsValue } from './TechnicalPillars';
 
@@ -98,6 +100,8 @@ export default function DishReviewForm({
     execution: initial?.execution ?? null,
   });
   const [note, setNote] = useState(initial?.note ?? '');
+  const [noteMentions, setNoteMentions] = useState<string[]>([]);
+  const { user } = useAuthContext();
   const [wouldOrderAgain, setWouldOrderAgain] = useState<boolean | null>(
     initial?.would_order_again ?? null,
   );
@@ -209,6 +213,7 @@ export default function DishReviewForm({
           ],
           tags: tagsFiltered.map(tag => ({ tag })),
           images: allImages,
+          mentioned_user_ids: noteMentions,
         });
         onSuccess(review);
         return;
@@ -245,6 +250,7 @@ export default function DishReviewForm({
           alt_text: altFor(i, imageUrls.length),
           display_order: i,
         })),
+        mentioned_user_ids: noteMentions,
       });
       onSuccess(review);
     } catch (err) {
@@ -315,13 +321,17 @@ export default function DishReviewForm({
         <div className="flex flex-col gap-3">
           <div className="flex flex-1 flex-col">
             <SubLabel htmlFor="review-note">Notas</SubLabel>
-            <textarea
+            <MentionTextarea
               id="review-note"
-              className={inputBase + ' flex-1 resize-none'}
+              label="Notas"
+              hideLabel
+              textareaClassName={inputBase + ' flex-1 resize-none'}
               rows={4}
               placeholder="¿Qué te pareció el plato?"
               value={note}
-              onChange={e => setNote(e.target.value)}
+              onChange={setNote}
+              onMentionsChange={setNoteMentions}
+              currentUserId={user?.id ?? null}
               disabled={submitting}
             />
           </div>
