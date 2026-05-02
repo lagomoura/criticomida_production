@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faGem, faPlus, faUtensils } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 import Tooltip from '@/app/components/ui/Tooltip';
 import type { MapRestaurantPin } from '@/app/lib/types/discovery';
@@ -22,18 +23,19 @@ interface Props {
  * Sin foto disponible: fallback a un círculo azafrán pálido con utensilios.
  */
 export default function RestaurantMapPin({ pin, selected = false }: Props) {
+  const t = useTranslations('discovery.map');
   if (pin.isEmpty) {
     return <EmptyPin name={pin.name} selected={selected} />;
   }
 
   const score = Math.round(pin.topGeekScore);
   const cover = pin.goldenDish?.coverImageUrl ?? null;
-  const dishName = pin.goldenDish?.name ?? 'plato destacado';
+  const dishName = pin.goldenDish?.name ?? t('pinDefaultDish');
 
   return (
     <div
       role="button"
-      aria-label={`${pin.name} — Geek Score ${score} basado en ${dishName}`}
+      aria-label={t('pinAriaLabelDish', { name: pin.name, score, dish: dishName })}
       className={cn(
         'group relative flex cursor-pointer flex-col items-center transition-transform',
         'motion-safe:[transition-timing-function:var(--ease-standard)] motion-safe:duration-150',
@@ -96,21 +98,21 @@ export default function RestaurantMapPin({ pin, selected = false }: Props) {
 }
 
 function ChefHalo() {
+  const t = useTranslations('discovery.map');
   return (
     <Tooltip
       portal
       multiline
       label={
         <>
-          <strong className="font-semibold">Chef Badge.</strong>{' '}
-          Tiene al menos un plato con ejecución técnica destacada (promedio ≥
-          2.7 sobre 3 según múltiples reseñas). Aval del oficio en la cocina.
+          <strong className="font-semibold">{t('chefBadge')}.</strong>{' '}
+          {t('chefBadgeDescription')}
         </>
       }
     >
       <span
         tabIndex={0}
-        aria-label="Chef Badge"
+        aria-label={t('chefBadge')}
         className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-azafran)] text-white shadow-md ring-2 ring-surface-card"
       >
         <FontAwesomeIcon icon={faStar} className="text-[11px]" aria-hidden />
@@ -120,21 +122,21 @@ function ChefHalo() {
 }
 
 function GemHalo() {
+  const t = useTranslations('discovery.map');
   return (
     <Tooltip
       portal
       multiline
       label={
         <>
-          <strong className="font-semibold">Gem Badge.</strong>{' '}
-          Tiene un plato con costo/beneficio sobresaliente: pagás justo por lo
-          que recibís según varios usuarios. La pepita escondida del local.
+          <strong className="font-semibold">{t('gemBadge')}.</strong>{' '}
+          {t('gemBadgeDescription')}
         </>
       }
     >
       <span
         tabIndex={0}
-        aria-label="Gem Badge"
+        aria-label={t('gemBadge')}
         className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-albahaca)] text-white shadow-md ring-2 ring-surface-card"
       >
         <FontAwesomeIcon icon={faGem} className="text-[11px]" aria-hidden />
@@ -154,10 +156,11 @@ interface EmptyPinProps {
  * a ser el primero en reseñar.
  */
 function EmptyPin({ name, selected }: EmptyPinProps) {
+  const t = useTranslations('discovery.map');
   return (
     <div
       role="button"
-      aria-label={`${name} — sin reviews aún, sé el primero`}
+      aria-label={t('emptyPinAria', { name })}
       className={cn(
         'group relative flex cursor-pointer flex-col items-center transition-transform',
         'motion-safe:duration-150',

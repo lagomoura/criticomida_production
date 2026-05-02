@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUtensils, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import type { ReviewPost } from '@/app/lib/types/social';
 import PostCard from '@/app/components/social/PostCard';
 import EmptyState from '@/app/components/ui/EmptyState';
@@ -55,6 +56,7 @@ export default function FeedList({
   ...cardHandlers
 }: FeedListProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const t = useTranslations('feed');
 
   const isReady = state.status === 'ready';
   const hasMore = isReady && state.hasMore;
@@ -100,7 +102,7 @@ export default function FeedList({
         />
         <p className="mb-3 font-sans text-sm text-text-secondary">{state.message}</p>
         <Button variant="outline" size="sm" onClick={state.onRetry}>
-          Intentar de nuevo
+          {t('tryAgain')}
         </Button>
       </div>
     );
@@ -143,7 +145,7 @@ export default function FeedList({
           <p className="mb-2 font-sans text-sm text-text-secondary">{state.loadMoreError}</p>
           {onLoadMoreRetry && (
             <Button variant="outline" size="sm" onClick={onLoadMoreRetry}>
-              Intentar de nuevo
+              {t('tryAgain')}
             </Button>
           )}
         </div>
@@ -151,7 +153,7 @@ export default function FeedList({
 
       {!hasMore && !state.loadMoreError && state.posts.length >= 6 && (
         <p className="py-4 text-center font-display italic text-sm text-text-muted">
-          Llegaste al final del feed.
+          {t('endOfFeed')}
         </p>
       )}
     </div>

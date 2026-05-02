@@ -1,3 +1,5 @@
+'use client';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faHeart,
@@ -8,6 +10,7 @@ import {
   faCircleXmark,
   faShieldHalved,
 } from '@fortawesome/free-solid-svg-icons';
+import { useLocale, useTranslations } from 'next-intl';
 import Avatar from '@/app/components/ui/Avatar';
 import { formatRelativeTime } from '@/app/lib/utils/time';
 import { cn } from '@/app/lib/utils/cn';
@@ -40,18 +43,10 @@ const kindTint: Record<NotificationKind, string> = {
   comment_reply: 'text-action-primary',
 };
 
-const kindKicker: Record<NotificationKind, string> = {
-  like: 'Like',
-  comment: 'Comentario',
-  follow: 'Nuevo seguidor',
-  claim_approved: 'Reclamo aprobado',
-  claim_rejected: 'Reclamo rechazado',
-  claim_revoked: 'Verificación revocada',
-  comment_like: 'Like en comentario',
-  comment_reply: 'Respuesta',
-};
-
 export default function NotificationItem({ notification, onOpen }: NotificationItemProps) {
+  const tKicker = useTranslations('social.notifications.kicker');
+  const tNotif = useTranslations('social.notifications');
+  const locale = useLocale();
   const Wrapper = onOpen ? 'button' : 'div';
   const wrapperProps = onOpen
     ? {
@@ -91,7 +86,7 @@ export default function NotificationItem({ notification, onOpen }: NotificationI
             kindTint[notification.kind],
           )}
         >
-          {kindKicker[notification.kind]}
+          {tKicker(notification.kind)}
         </p>
         <p className="mt-0.5 m-0 font-sans text-sm text-text-primary">
           <span className="font-medium">{notification.actor.displayName}</span>{' '}
@@ -101,11 +96,11 @@ export default function NotificationItem({ notification, onOpen }: NotificationI
           dateTime={notification.createdAt}
           className="mt-0.5 block font-sans text-xs text-text-muted"
         >
-          {formatRelativeTime(notification.createdAt)}
+          {formatRelativeTime(notification.createdAt, locale)}
         </time>
       </div>
       {notification.unread && (
-        <span aria-label="Sin leer" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-action-highlight" />
+        <span aria-label={tNotif('unread')} className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-action-highlight" />
       )}
     </Wrapper>
   );

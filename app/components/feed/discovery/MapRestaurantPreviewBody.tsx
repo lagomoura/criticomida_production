@@ -9,6 +9,7 @@ import {
   faLocationDot,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 import Tooltip from '@/app/components/ui/Tooltip';
 import type { MapDishHighlight, MapRestaurantPin } from '@/app/lib/types/discovery';
@@ -28,6 +29,7 @@ interface Props {
  * click y rompe la navegación. La navegación misma desmonta el mapa.
  */
 export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
+  const t = useTranslations('discovery.map');
   const cuisineLabel = formatCuisine(pin.cuisineTypes, pin.categoryName);
   return (
     <div className="relative w-[22rem] max-w-[80vw] overflow-x-hidden pb-1.5 font-sans text-text-primary">
@@ -35,7 +37,7 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
         <button
           type="button"
           onClick={onClose}
-          aria-label="Cerrar"
+          aria-label={t('previewCloseAria')}
           className={cn(
             'absolute right-1 top-1 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full',
             'bg-surface-card/95 text-text-secondary shadow-[0_2px_6px_-1px_rgba(0,0,0,0.25)] backdrop-blur',
@@ -64,18 +66,17 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
                 multiline
                 label={
                   <>
-                    <strong className="font-semibold">Chef Badge.</strong>{' '}
-                    Plato con ejecución técnica destacada (promedio ≥ 2.7 sobre 3
-                    según múltiples reseñas). Aval del oficio en la cocina.
+                    <strong className="font-semibold">{t('previewChefBadgeTooltipTitle')}</strong>{' '}
+                    {t('previewChefBadgeTooltipBody')}
                   </>
                 }
               >
                 <span
                   tabIndex={0}
-                  aria-label="Chef Badge — ejecución técnica destacada"
+                  aria-label={t('previewChefBadgeAria')}
                   className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-azafran)] px-2 py-0.5 text-[10px] font-semibold text-white shadow"
                 >
-                  <FontAwesomeIcon icon={faStar} className="text-[9px]" aria-hidden /> Chef
+                  <FontAwesomeIcon icon={faStar} className="text-[9px]" aria-hidden /> {t('previewChefBadgeChip')}
                 </span>
               </Tooltip>
             )}
@@ -85,18 +86,17 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
                 multiline
                 label={
                   <>
-                    <strong className="font-semibold">Gem Badge.</strong>{' '}
-                    Plato con costo/beneficio sobresaliente: pagás justo por lo
-                    que recibís según varios usuarios. La pepita escondida del local.
+                    <strong className="font-semibold">{t('previewGemBadgeTooltipTitle')}</strong>{' '}
+                    {t('previewGemBadgeTooltipBody')}
                   </>
                 }
               >
                 <span
                   tabIndex={0}
-                  aria-label="Gem Badge — relación costo/beneficio sobresaliente"
+                  aria-label={t('previewGemBadgeAria')}
                   className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-albahaca)] px-2 py-0.5 text-[10px] font-semibold text-white shadow"
                 >
-                  <FontAwesomeIcon icon={faGem} className="text-[9px]" aria-hidden /> Ganga
+                  <FontAwesomeIcon icon={faGem} className="text-[9px]" aria-hidden /> {t('previewGemBadgeChip')}
                 </span>
               </Tooltip>
             )}
@@ -121,16 +121,14 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
           multiline
           label={
             <>
-              <strong className="font-semibold">Geek Score {Math.round(pin.topGeekScore)}/100.</strong>{' '}
-              Combinación bayesiana de ejecución técnica (45%), costo/beneficio
-              (25%), presentación (15%) y estrellas (15%) del mejor plato del local.
-              Cuanto más alto, mejor pondera entre los críticos.
+              <strong className="font-semibold">{t('previewGeekScoreTooltipTitle', { score: Math.round(pin.topGeekScore) })}</strong>{' '}
+              {t('previewGeekScoreTooltip')}
             </>
           }
         >
           <span
             tabIndex={0}
-            aria-label={`Geek Score ${Math.round(pin.topGeekScore)} de 100`}
+            aria-label={t('previewGeekScoreAria', { score: Math.round(pin.topGeekScore) })}
             className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--color-azafran)]/12 px-2 py-0.5 font-display text-sm font-semibold leading-none text-[color:var(--color-azafran)] tabular-nums"
           >
             <span aria-hidden className="text-[11px]">✦</span>
@@ -138,30 +136,30 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
           </span>
         </Tooltip>
         <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-          Geek Score
+          {t('previewGeekScoreLabel')}
         </span>
       </div>
 
       {(pin.hasChefBadge || pin.hasGemBadge) && (
         <div className="mt-2.5 rounded-lg border border-[color:var(--color-azafran)]/25 bg-[color:var(--color-azafran-pale)]/50 p-2">
           <div className="mb-1 font-sans text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-            Sellos del local
+            {t('previewBadgesHeading')}
           </div>
           <div className="flex flex-col gap-1.5">
             {pin.hasChefBadge && (
               <BadgeRow
                 tone="azafran"
                 icon={faStar}
-                title="Chef Badge"
-                description="Ejecución técnica destacada — al menos un plato con promedio ≥ 2.7 sobre 3, validado por varias reseñas. Aval del oficio."
+                title={t('chefBadge')}
+                description={t('previewChefBadgeRowDescription')}
               />
             )}
             {pin.hasGemBadge && (
               <BadgeRow
                 tone="albahaca"
                 icon={faGem}
-                title="Gem Badge"
-                description="Costo/beneficio sobresaliente — pagás justo por lo que recibís. Pepita escondida del local según varios críticos."
+                title={t('gemBadge')}
+                description={t('previewGemBadgeRowDescription')}
               />
             )}
           </div>
@@ -174,10 +172,12 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
           {pin.computedRating.toFixed(1)}
         </span>
         {pin.reviewCount > 0 && (
-          <span>· {pin.reviewCount} {pin.reviewCount === 1 ? 'reseña' : 'reseñas'}</span>
+          <span>· {pin.reviewCount === 1
+            ? t('previewReviewSingular', { count: pin.reviewCount })
+            : t('previewReviewPlural', { count: pin.reviewCount })}</span>
         )}
         {pin.priceLevel !== null && (
-          <span title={`Nivel de precio ${pin.priceLevel}/4`}>
+          <span title={t('previewPriceTitle', { level: pin.priceLevel })}>
             ·{' '}
             <span className="font-semibold text-text-primary">
               {'$'.repeat(Math.max(1, Math.min(4, pin.priceLevel)))}
@@ -203,16 +203,18 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
 
       <div className="mt-3 grid gap-1.5">
         <DishHighlightRow
-          label="Plato estrella"
+          label={t('previewStarLabel')}
           labelIcon={faStar}
           dish={pin.goldenDish}
           pillar="execution"
+          noDataLabel={t('previewNoData')}
         />
         <DishHighlightRow
-          label="Mejor C/B"
+          label={t('previewBestValueLabel')}
           labelIcon={faGem}
           dish={pin.bestValueDish}
           pillar="value"
+          noDataLabel={t('previewNoData')}
         />
       </div>
 
@@ -225,7 +227,7 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
             'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
           )}
         >
-          Ver ficha completa
+          {t('previewViewFullCard')}
         </a>
       </div>
     </div>
@@ -272,9 +274,10 @@ interface DishHighlightRowProps {
   labelIcon: typeof faStar;
   dish: MapDishHighlight | null;
   pillar: 'execution' | 'value';
+  noDataLabel: string;
 }
 
-function DishHighlightRow({ label, labelIcon, dish, pillar }: DishHighlightRowProps) {
+function DishHighlightRow({ label, labelIcon, dish, pillar, noDataLabel }: DishHighlightRowProps) {
   const inner = (
     <>
       {dish?.coverImageUrl ? (
@@ -292,7 +295,7 @@ function DishHighlightRow({ label, labelIcon, dish, pillar }: DishHighlightRowPr
           {label}
         </div>
         <div className="truncate text-[13px] font-semibold leading-tight">
-          {dish?.name ?? <span className="text-text-muted">Sin datos suficientes</span>}
+          {dish?.name ?? <span className="text-text-muted">{noDataLabel}</span>}
         </div>
       </div>
       {dish && (

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { getDishDuel } from '@/app/lib/api/discovery';
 import { getCategories } from '@/app/lib/api/categories';
 import {
@@ -36,6 +37,8 @@ export default function DishDuelRail({
   enableWishlist,
 }: DishDuelRailProps) {
   const toast = useToast();
+  const t = useTranslations('discovery.duel');
+  const tErr = useTranslations('discovery.wishlistError');
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [items, setItems] = useState<DiscoveryDishItem[] | null>(null);
@@ -103,12 +106,12 @@ export default function DishDuelRail({
           ) ?? prev,
         );
         toast.error(
-          next ? 'No se pudo agregar a tu lista' : 'No se pudo quitar de tu lista',
-          'Probá de nuevo en un momento.',
+          next ? tErr('addFailed') : tErr('removeFailed'),
+          tErr('tryAgain'),
         );
       }
     },
-    [toast],
+    [toast, tErr],
   );
 
   if (error) return null;
@@ -116,13 +119,13 @@ export default function DishDuelRail({
 
   return (
     <Rail
-      kicker="Duelo de platos"
-      title="Mano a mano por costo/beneficio"
-      subtitle="Los dos mejores de la categoría según el pilar de costo/beneficio."
+      kicker={t('kicker')}
+      title={t('title')}
+      subtitle={t('subtitle')}
       action={
         categories.length > 0 ? (
           <select
-            aria-label="Categoría del duelo"
+            aria-label={t('categoryLabel')}
             value={activeCategory ?? ''}
             onChange={(e) => setActiveCategory(e.target.value)}
             className="rounded-full border border-border-default bg-white px-3 py-1.5 font-sans text-xs"
@@ -144,7 +147,7 @@ export default function DishDuelRail({
             <div key={dish.dishId} className="relative">
               {idx === 0 && (
                 <span className="absolute -top-2 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-white shadow">
-                  Ganador costo/beneficio
+                  {t('winner')}
                 </span>
               )}
               <DishDiscoveryCard

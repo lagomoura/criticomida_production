@@ -2,6 +2,7 @@
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faGem, faFire, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 import type { MapSort } from '@/app/lib/types/discovery';
 
@@ -14,12 +15,6 @@ interface Props {
   onChefOnlyChange: (next: boolean) => void;
 }
 
-const SORT_OPTIONS: ReadonlyArray<{ value: MapSort; label: string; icon: typeof faStar }> = [
-  { value: 'geek_score', label: 'Mejor cocina', icon: faStar },
-  { value: 'value_prop', label: 'Mejor C/B', icon: faGem },
-  { value: 'trending', label: 'Trending 48h', icon: faFire },
-];
-
 export default function MapLayerChips({
   sort,
   onSortChange,
@@ -28,10 +23,16 @@ export default function MapLayerChips({
   chefOnly,
   onChefOnlyChange,
 }: Props) {
+  const t = useTranslations('discovery.map');
+  const SORT_OPTIONS: ReadonlyArray<{ value: MapSort; label: string; icon: typeof faStar }> = [
+    { value: 'geek_score', label: t('sortGeekScore'), icon: faStar },
+    { value: 'value_prop', label: t('sortValueProp'), icon: faGem },
+    { value: 'trending', label: t('sortTrending'), icon: faFire },
+  ];
   return (
     <div
       role="toolbar"
-      aria-label="Capas del mapa"
+      aria-label={t('toolbarLabel')}
       className="pointer-events-auto absolute left-3 top-3 z-10 flex max-w-[calc(100%-1.5rem)] flex-wrap items-center gap-1.5"
     >
       {SORT_OPTIONS.map((opt) => {
@@ -64,10 +65,10 @@ export default function MapLayerChips({
             ? 'border-[color:var(--color-azafran)] bg-[color:var(--color-azafran)] text-white'
             : 'border-border-default bg-surface-card/95 text-text-primary hover:bg-surface-subtle',
         )}
-        title="Solo restaurantes con plato Chef Badge (ejecución técnica destacada)"
+        title={t('chefOnlyTitle')}
       >
         <span aria-hidden>👨‍🍳</span>
-        Solo Chef
+        {t('chefOnlyLabel')}
       </button>
       <button
         type="button"
@@ -83,12 +84,12 @@ export default function MapLayerChips({
         )}
         title={
           chefOnly
-            ? 'Los locales sin reviews no pueden tener Chef Badge'
-            : 'Mostrar locales sin reviews — sé el primero'
+            ? t('includeEmptyDisabled')
+            : t('includeEmptyEnabled')
         }
       >
         <FontAwesomeIcon icon={faPlus} className="text-[10px]" aria-hidden />
-        Sin reviews
+        {t('includeEmptyLabel')}
       </button>
     </div>
   );

@@ -19,6 +19,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "@vis.gl/react-google-maps": "^1.5.4",
     "next": "15.3.8",
+    "next-intl": "^4.11.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

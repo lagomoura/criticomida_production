@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent } from 'react';
+import { useTranslations } from 'next-intl';
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
 import Textarea from '@/app/components/ui/Textarea';
@@ -28,8 +29,10 @@ export default function CommentComposer({
   loading = false,
   error,
   maxLength = 500,
-  placeholder = 'Escribí un comentario…',
+  placeholder,
 }: CommentComposerProps) {
+  const t = useTranslations('social.commentComposer');
+  const effectivePlaceholder = placeholder ?? t('placeholder');
   const canSubmit = value.trim().length > 0 && !disabled && !loading;
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -43,9 +46,9 @@ export default function CommentComposer({
       <Avatar src={viewerAvatarUrl} name={viewerName} size="sm" />
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <Textarea
-          label={placeholder}
+          label={effectivePlaceholder}
           hideLabel
-          placeholder={placeholder}
+          placeholder={effectivePlaceholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled || loading}
@@ -56,7 +59,7 @@ export default function CommentComposer({
         />
         <div className="flex justify-end">
           <Button type="submit" variant="primary" size="sm" loading={loading} disabled={!canSubmit}>
-            Publicar
+            {t('submit')}
           </Button>
         </div>
       </div>

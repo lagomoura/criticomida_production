@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface RestaurantCardProps {
   name: string;
@@ -29,6 +30,7 @@ export default function RestaurantCard({
   const [imgSrc, setImgSrc] = useState(image);
   const rating = Number(ratingProp);
   const topRadius = showInfo ? 'rounded-t-2xl' : 'rounded-2xl';
+  const t = useTranslations('restaurantCard');
 
   return (
     <div className={showInfo ? 'gallery-card' : 'gallery-link'}>
@@ -61,7 +63,7 @@ export default function RestaurantCard({
             'shadow-[0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-sm'
           }
         >
-          {reviewCount} reseñas
+          {t('reviewCount', { count: reviewCount })}
         </div>
         {hasReservation && (
           <div
@@ -71,7 +73,7 @@ export default function RestaurantCard({
               'shadow-[0_4px_12px_rgba(0,0,0,0.2)]'
             }
           >
-            Reserva online
+            {t('onlineReservation')}
           </div>
         )}
       </div>

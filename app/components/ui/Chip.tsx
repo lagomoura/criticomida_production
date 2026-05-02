@@ -1,4 +1,7 @@
+'use client';
+
 import type { ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 
 export interface ChipProps {
@@ -10,19 +13,16 @@ export interface ChipProps {
   className?: string;
 }
 
-/**
- * Compact label used for tags, category filters and active-filter indicators.
- * - If `onClick` is set, the chip becomes a button (toggles `selected` by convention).
- * - If `onRemove` is set, renders a trailing close affordance with its own a11y label.
- */
 export default function Chip({
   children,
   selected = false,
   onClick,
   onRemove,
-  removeLabel = 'Quitar',
+  removeLabel,
   className,
 }: ChipProps) {
+  const t = useTranslations('chip');
+  const resolvedRemoveLabel = removeLabel ?? t('remove');
   const base = cn(
     'inline-flex h-7 items-center gap-1 rounded-full border px-3 font-sans text-xs transition-colors',
     selected
@@ -37,7 +37,7 @@ export default function Chip({
       {onRemove && (
         <button
           type="button"
-          aria-label={removeLabel}
+          aria-label={resolvedRemoveLabel}
           onClick={(e) => {
             e.stopPropagation();
             onRemove();

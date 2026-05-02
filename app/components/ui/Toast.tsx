@@ -17,6 +17,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 
 export type ToastVariant = 'success' | 'error' | 'info';
@@ -176,6 +177,7 @@ function ToastCard({
   entry: ToastEntry;
   onDismiss: (id: number) => void;
 }) {
+  const t = useTranslations('toast');
   const cfg = variantConfig[entry.variant];
   return (
     <div
@@ -209,7 +211,7 @@ function ToastCard({
         <button
           type="button"
           onClick={() => onDismiss(entry.id)}
-          aria-label="Cerrar notificación"
+          aria-label={t('dismiss')}
           className="-mr-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle hover:text-text-primary focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
           <FontAwesomeIcon icon={faXmark} aria-hidden className="text-xs" />

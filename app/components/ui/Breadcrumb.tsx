@@ -1,5 +1,8 @@
-import Link from 'next/link';
+'use client';
+
+import { Link } from '@/app/lib/i18n/navigation';
 import { Fragment } from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 
 export interface BreadcrumbItem {
@@ -16,6 +19,7 @@ export interface BreadcrumbProps {
 }
 
 export default function Breadcrumb({ items, tone = 'on-light', className }: BreadcrumbProps) {
+  const t = useTranslations('breadcrumb');
   if (items.length === 0) return null;
 
   const baseColor = tone === 'on-dark' ? 'text-white/80' : 'text-text-muted';
@@ -23,7 +27,7 @@ export default function Breadcrumb({ items, tone = 'on-light', className }: Brea
   const currentColor = tone === 'on-dark' ? 'text-white' : 'text-text-primary';
 
   return (
-    <nav aria-label="Migas de pan" className={cn('font-display text-sm italic', baseColor, className)}>
+    <nav aria-label={t('ariaLabel')} className={cn('font-display text-sm italic', baseColor, className)}>
       <ol className="flex flex-wrap items-center gap-1.5 m-0 p-0 list-none">
         {items.map((item, idx) => {
           const isLast = idx === items.length - 1;

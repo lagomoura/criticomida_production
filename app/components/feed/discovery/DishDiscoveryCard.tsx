@@ -1,9 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/app/lib/i18n/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import WantToTryButton from '@/app/components/dishes/WantToTryButton';
 import type { DiscoveryDishItem } from '@/app/lib/types/social';
 
@@ -26,6 +27,7 @@ export default function DishDiscoveryCard({
   dish,
   onToggleWantToTry,
 }: DishDiscoveryCardProps) {
+  const t = useTranslations('discovery.card');
   return (
     <article className="flex w-72 shrink-0 flex-col gap-3 rounded-2xl border border-border-subtle bg-surface-card p-3 shadow-sm">
       <Link
@@ -42,11 +44,11 @@ export default function DishDiscoveryCard({
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center font-sans text-xs text-text-muted">
-            sin foto
+            {t('noPhoto')}
           </div>
         )}
         <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-[var(--color-azafran)] px-2 py-1 font-sans text-[0.7rem] font-semibold uppercase tracking-wider text-white shadow">
-          {Math.round(dish.geekScore)} <span className="opacity-80">geek</span>
+          {Math.round(dish.geekScore)} <span className="opacity-80">{t('geekChip')}</span>
         </span>
       </Link>
 
@@ -71,7 +73,7 @@ export default function DishDiscoveryCard({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-3 font-sans text-xs text-text-muted">
           <span>★ {dish.computedRating.toFixed(1)}</span>
-          <span>{dish.reviewCount} reseñas</span>
+          <span>{t('reviews', { count: dish.reviewCount })}</span>
           {dish.distanceKm !== null && (
             <span className="inline-flex items-center gap-1">
               <FontAwesomeIcon

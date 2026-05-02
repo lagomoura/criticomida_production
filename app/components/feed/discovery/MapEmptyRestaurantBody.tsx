@@ -6,6 +6,7 @@ import {
   faPlus,
   faSeedling,
 } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 import type { MapRestaurantPin } from '@/app/lib/types/discovery';
 
@@ -20,12 +21,13 @@ interface Props {
  * mostrar; el foco es el llamado a la acción.
  */
 export default function MapEmptyRestaurantBody({ pin }: Props) {
+  const t = useTranslations('discovery.map');
   const cuisineLabel = formatCuisine(pin.cuisineTypes, pin.categoryName);
   return (
     <div className="w-[18rem] max-w-[78vw] overflow-x-hidden pb-1.5 font-sans text-text-primary">
       <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-albahaca-pale)] px-2 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--color-albahaca)]">
         <FontAwesomeIcon icon={faSeedling} className="text-[10px]" aria-hidden />
-        Sin reviews aún
+        {t('noReviewsKicker')}
       </div>
 
       <h3 className="m-0 line-clamp-1 font-display text-lg font-medium leading-tight">{pin.name}</h3>
@@ -44,7 +46,7 @@ export default function MapEmptyRestaurantBody({ pin }: Props) {
       )}
 
       <p className="mt-3 m-0 font-sans text-xs text-text-muted">
-        Cargá el primer plato y dejá tu reseña — sumás <span className="font-semibold text-text-primary">+2x reputation</span>.
+        {t('addFirstDish')} <span className="font-semibold text-text-primary">{t('reputationBoost')}</span>.
       </p>
 
       <div className="mt-3 flex justify-end">
@@ -57,7 +59,7 @@ export default function MapEmptyRestaurantBody({ pin }: Props) {
           )}
         >
           <FontAwesomeIcon icon={faPlus} className="text-[10px]" aria-hidden />
-          Sé el primero
+          {t('beFirstCta')}
         </a>
       </div>
     </div>

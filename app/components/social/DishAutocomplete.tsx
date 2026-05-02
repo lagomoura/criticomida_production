@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUtensils, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import { fetchApi } from '@/app/lib/api/client';
 import { suggestSimilarDishes, type DishSuggestion } from '@/app/lib/api/dishes';
 import { cn } from '@/app/lib/utils/cn';
@@ -33,8 +34,10 @@ export default function DishAutocomplete({
   value,
   onChange,
   disabled = false,
-  placeholder = 'Plato (ej. Pizza de muzzarella)',
+  placeholder,
 }: DishAutocompleteProps) {
+  const t = useTranslations('social.dishAutocomplete');
+  const effectivePlaceholder = placeholder ?? t('placeholder');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Array<{ id: string; name: string }>>([]);
   const [loading, setLoading] = useState(false);
@@ -205,7 +208,7 @@ export default function DishAutocomplete({
   return (
     <div ref={containerRef} className="relative flex flex-col gap-1.5">
       <label className="font-sans text-sm font-medium text-text-secondary">
-        Plato
+        {t('label')}
         <span aria-hidden className="ml-0.5 text-action-danger">*</span>
       </label>
       <div className="relative">
@@ -224,7 +227,7 @@ export default function DishAutocomplete({
               void runSearch(query);
             }
           }}
-          placeholder={restaurantPlaceId ? placeholder : 'Primero elegí un restaurante'}
+          placeholder={restaurantPlaceId ? effectivePlaceholder : t('pickRestaurantFirst')}
           disabled={isDisabled}
           autoComplete="off"
           aria-expanded={open}
@@ -242,7 +245,7 @@ export default function DishAutocomplete({
         {value && (
           <button
             type="button"
-            aria-label="Limpiar selección"
+            aria-label={t('clearSelection')}
             onClick={clearSelection}
             disabled={disabled}
             className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
@@ -254,11 +257,11 @@ export default function DishAutocomplete({
 
       {value && value.id === null && (
         <p className="font-sans text-xs text-text-muted">
-          Se va a crear un plato nuevo para este restaurante.
+          {t('willCreateNew')}
         </p>
       )}
       {value && value.id !== null && (
-        <p className="font-sans text-xs text-text-muted">Elegiste un plato existente.</p>
+        <p className="font-sans text-xs text-text-muted">{t('pickedExisting')}</p>
       )}
 
       {open && !value && (results.length > 0 || query.trim().length >= 2) && (
@@ -305,8 +308,8 @@ export default function DishAutocomplete({
                 <FontAwesomeIcon icon={faPlus} className="h-3 w-3" aria-hidden />
                 <span className="truncate">
                   {checkingSimilar
-                    ? 'Buscando platos parecidos…'
-                    : `Crear plato nuevo: “${query.trim()}”`}
+                    ? t('checkingSimilar')
+                    : t('createNewLabel', { name: query.trim() })}
                 </span>
               </button>
             </li>
@@ -316,7 +319,7 @@ export default function DishAutocomplete({
 
       {open && !loading && results.length === 0 && query.trim().length < 2 && (
         <p className="absolute inset-x-0 top-full z-20 mt-1 rounded-xl border border-border-default bg-surface-card px-3 py-2 font-sans text-xs text-text-muted shadow-lg">
-          Empezá a tipear el nombre del plato (≥2 caracteres).
+          {t('minTwoChars')}
         </p>
       )}
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { discoverDishes } from '@/app/lib/api/discovery';
 import {
   addToWantToTry,
@@ -27,6 +28,8 @@ export default function BestExecutionRail({
   enableWishlist,
 }: BestExecutionRailProps) {
   const toast = useToast();
+  const t = useTranslations('discovery.bestExecution');
+  const tErr = useTranslations('discovery.wishlistError');
   const [items, setItems] = useState<DiscoveryDishItem[] | null>(null);
   const [error, setError] = useState(false);
 
@@ -69,12 +72,12 @@ export default function BestExecutionRail({
           ) ?? prev,
         );
         toast.error(
-          next ? 'No se pudo agregar a tu lista' : 'No se pudo quitar de tu lista',
-          'Probá de nuevo en un momento.',
+          next ? tErr('addFailed') : tErr('removeFailed'),
+          tErr('tryAgain'),
         );
       }
     },
-    [toast],
+    [toast, tErr],
   );
 
   if (error) return null;
@@ -82,13 +85,13 @@ export default function BestExecutionRail({
 
   const subtitle =
     lat !== undefined && lng !== undefined
-      ? `Platos donde la cocina pesa más que la presentación, cerca tuyo.`
-      : 'Platos donde la cocina pesa más que la presentación.';
+      ? t('subtitleNear')
+      : t('subtitleGlobal');
 
   return (
     <Rail
-      kicker="Pilar técnico"
-      title="Mejor ejecución técnica"
+      kicker={t('kicker')}
+      title={t('title')}
       subtitle={subtitle}
     >
       {items === null ? (

@@ -9,6 +9,7 @@ import {
   faChevronUp,
   faUtensils,
 } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 import type { MapRestaurantPin, MapSort } from '@/app/lib/types/discovery';
 
@@ -17,12 +18,6 @@ interface Props {
   sort: MapSort;
   onSelect?: (pin: MapRestaurantPin) => void;
 }
-
-const SORT_LABEL: Record<MapSort, string> = {
-  geek_score: 'Top 3 cocina',
-  value_prop: 'Top 3 C/B',
-  trending: 'Top 3 trending',
-};
 
 function pinScore(pin: MapRestaurantPin, sort: MapSort): number {
   if (sort === 'value_prop') return pin.bestValueDish?.valuePropAvg ?? 0;
@@ -42,7 +37,13 @@ function pinDishCover(pin: MapRestaurantPin, sort: MapSort): string | null {
 }
 
 export default function MapTop3Overlay({ pins, sort, onSelect }: Props) {
+  const t = useTranslations('discovery.map');
   const [collapsed, setCollapsed] = useState(false);
+  const SORT_LABEL: Record<MapSort, string> = {
+    geek_score: t('top3HeadingGeek'),
+    value_prop: t('top3HeadingValue'),
+    trending: t('top3HeadingTrending'),
+  };
 
   const top3 = useMemo(() => {
     return [...pins]

@@ -2,12 +2,14 @@
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import { useTheme } from '../lib/contexts/ThemeContext';
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const t = useTranslations('themeToggle');
 
-  const label = theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+  const label = theme === 'dark' ? t('switchToLight') : t('switchToDark');
 
   return (
     <button

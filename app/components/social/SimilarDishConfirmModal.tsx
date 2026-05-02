@@ -2,6 +2,7 @@
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUtensils, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import Modal from '@/app/components/ui/Modal';
 import Button from '@/app/components/ui/Button';
 import type { DishSuggestion } from '@/app/lib/api/dishes';
@@ -14,12 +15,6 @@ export interface SimilarDishConfirmModalProps {
   onCancel: () => void;
 }
 
-/**
- * Pre-create dedup gate. Triggered when the user is about to create a dish
- * whose normalized name (lower + unaccent + collapsed spaces) is similar to
- * something already in this restaurant. Forces a deliberate choice before
- * splitting reviews across two near-identical dish rows.
- */
 export default function SimilarDishConfirmModal({
   attemptedName,
   suggestions,
@@ -27,21 +22,22 @@ export default function SimilarDishConfirmModal({
   onCreateNew,
   onCancel,
 }: SimilarDishConfirmModalProps) {
+  const t = useTranslations('social.similarDish');
   const exact = suggestions.find((s) => s.isExactNormalized);
   const description = exact
-    ? `Ya existe "${exact.name}" — la versión normalizada coincide con lo que escribiste. Si es el mismo plato, sumá tu reseña ahí.`
-    : 'Encontramos platos parecidos en este restaurante. Si es el mismo, sumá tu reseña ahí — así los puntajes se promedian en lugar de dividirse.';
+    ? t('descriptionExact', { name: exact.name })
+    : t('descriptionGeneric');
 
   return (
     <Modal
       open
       onClose={onCancel}
-      title="¿Es el mismo plato?"
+      title={t('title')}
       description={description}
       size="md"
     >
       <p className="m-0 mb-3 font-sans text-sm text-text-secondary">
-        Estás por crear: <strong className="font-medium text-text-primary">&ldquo;{attemptedName}&rdquo;</strong>
+        {t('youAreCreating')} <strong className="font-medium text-text-primary">&ldquo;{attemptedName}&rdquo;</strong>
       </p>
 
       <ul className="m-0 flex list-none flex-col gap-2 p-0">
@@ -62,10 +58,10 @@ export default function SimilarDishConfirmModal({
               </span>
               <span className="shrink-0 font-sans text-xs text-text-muted tabular-nums">
                 {s.reviewCount === 0
-                  ? 'sin reseñas'
+                  ? t('noReviews')
                   : s.reviewCount === 1
-                    ? '1 reseña'
-                    : `${s.reviewCount} reseñas`}
+                    ? t('oneReview')
+                    : t('manyReviews', { count: s.reviewCount })}
               </span>
             </button>
           </li>
@@ -74,11 +70,11 @@ export default function SimilarDishConfirmModal({
 
       <div className="mt-5 flex flex-wrap items-center justify-end gap-2">
         <Button type="button" variant="ghost" size="md" onClick={onCancel}>
-          Volver a editar
+          {t('backToEdit')}
         </Button>
         <Button type="button" variant="secondary" size="md" onClick={onCreateNew}>
           <FontAwesomeIcon icon={faPlus} className="mr-1.5 h-3 w-3" aria-hidden />
-          No, crear plato nuevo
+          {t('createNew')}
         </Button>
       </div>
     </Modal>

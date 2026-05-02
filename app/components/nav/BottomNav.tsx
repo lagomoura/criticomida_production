@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { Link } from '@/app/lib/i18n/navigation';
+import { usePathname, useRouter } from '@/app/lib/i18n/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
@@ -11,6 +11,7 @@ import {
   faPenToSquare,
   faRightToBracket,
 } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import Avatar from '@/app/components/ui/Avatar';
 import Badge from '@/app/components/ui/Badge';
@@ -25,6 +26,7 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
   const { user, isLoading } = useAuthContext();
   const pathname = usePathname();
   const router = useRouter();
+  const t = useTranslations('nav');
 
   const isActive = (pattern: string) => {
     if (pattern === '/') return pathname === '/';
@@ -50,22 +52,21 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
 
   return (
     <nav
-      aria-label="Navegación inferior"
+      aria-label={t('bottomNavigation')}
       className={cn(
         'fixed inset-x-0 bottom-0 z-40 border-t border-border-default bg-surface-page/95 backdrop-blur md:hidden',
       )}
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <ul className="grid grid-cols-5 items-center" role="list">
-        <BottomItem href="/" icon={faHouse} label="Inicio" active={isActive('/')} />
-        <BottomItem href="/search" icon={faMagnifyingGlass} label="Buscar" active={isActive('/search')} />
+        <BottomItem href="/" icon={faHouse} label={t('home')} active={isActive('/')} />
+        <BottomItem href="/search" icon={faMagnifyingGlass} label={t('search')} active={isActive('/search')} />
 
-        {/* Publicar — slot central destacado */}
         <li className="flex flex-col items-center justify-center gap-0.5">
           <button
             type="button"
             onClick={handleCompose}
-            aria-label="Publicar una reseña"
+            aria-label={t('publishReview')}
             className={cn(
               '-mt-3 inline-flex h-12 w-12 items-center justify-center rounded-full transition-transform',
               'bg-action-primary text-text-inverse shadow-[var(--shadow-elevated)]',
@@ -75,12 +76,12 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
           >
             <FontAwesomeIcon icon={faPenToSquare} aria-hidden className="h-4 w-4" />
           </button>
-          <span className="font-sans text-[10px] text-text-muted">Publicar</span>
+          <span className="font-sans text-[10px] text-text-muted">{t('publish')}</span>
         </li>
 
         <BottomButton
           icon={faBell}
-          label="Notificaciones"
+          label={t('notifications')}
           active={isActive('/notifications')}
           badge={unreadCount > 0 ? unreadCount : undefined}
           onClick={handleNotifications}
@@ -90,7 +91,7 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
           <li>
             <Link
               href={`/u/${user.id}`}
-              aria-label="Mi perfil"
+              aria-label={t('myProfile')}
               aria-current={isActive(`/u/${user.id}`) ? 'page' : undefined}
               className={cn(
                 'relative flex min-h-[56px] flex-col items-center justify-center gap-0.5 font-sans text-[10px]',
@@ -98,12 +99,12 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
               )}
             >
               <Avatar src={user.avatar_url} name={user.display_name || user.email} size="xs" />
-              <span>Perfil</span>
+              <span>{t('profile')}</span>
               <ActiveDot active={isActive(`/u/${user.id}`)} />
             </Link>
           </li>
         ) : (
-          <BottomButton icon={faRightToBracket} label="Entrar" active={false} onClick={handleProfile} />
+          <BottomButton icon={faRightToBracket} label={t('enter')} active={false} onClick={handleProfile} />
         )}
       </ul>
     </nav>

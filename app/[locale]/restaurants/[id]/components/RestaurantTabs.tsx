@@ -1,0 +1,162 @@
+'use client';
+
+import { useRouter, usePathname } from '@/app/lib/i18n/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
+
+const TAB_KEYS = ['resumen', 'platos', 'resenas', 'fotos', 'info'] as const;
+type TabKeyTuple = typeof TAB_KEYS;
+
+export type TabKey = TabKeyTuple[number];
+
+interface RestaurantTabsProps {
+  children: Partial<Record<TabKey, ReactNode>>;
+  counts?: Partial<Record<TabKey, number>>;
+}
+
+const VALID_KEYS = new Set<TabKey>(TAB_KEYS);
+
+export default function RestaurantTabs({ children, counts }: RestaurantTabsProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const t = useTranslations('restaurant.tabs');
+  const queryTab = searchParams.get('tab') as TabKey | null;
+
+  const TABS = useMemo(() => [
+    { key: 'resumen' as const, label: t('summary') },
+    { key: 'platos' as const, label: t('dishes') },
+    { key: 'resenas' as const, label: t('reviews') },
+    { key: 'fotos' as const, label: t('photos') },
+    { key: 'info' as const, label: t('info') },
+  ], [t]);
+
+  const initialTab: TabKey =
+    queryTab && VALID_KEYS.has(queryTab) ? queryTab : 'resumen';
+
+  const [activeTab, setActiveTab] = useState<TabKey>(initialTab);
+
+  useEffect(() => {
+    if (queryTab && VALID_KEYS.has(queryTab) && queryTab !== activeTab) {
+      setActiveTab(queryTab);
+    }
+  }, [queryTab, activeTab]);
+
+  // Tabs are kept in the DOM via the `hidden` attribute (good for SEO and
+  // instant switching) but Google Maps and other size-aware widgets render
+  // with width:0 inside a hidden container and don't recompute when shown.
+  // Dispatching a resize event nudges them to recalculate after the tab
+  // becomes visible.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const id = window.requestAnimationFrame(() => {
+      window.dispatchEvent(new Event('resize'));
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [activeTab]);
+
+  const handleSelect = useCallback(
+    (next: TabKey) => {
+      setActiveTab(next);
+      const params = new URLSearchParams(searchParams.toString());
+      if (next === 'resumen') params.delete('tab');
+      else params.set('tab', next);
+      const qs = params.toString();
+      router.replace(`${pathname}${qs ? `?${qs}` : ''}`, { scroll: false });
+    },
+    [router, pathname, searchParams],
+  );
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    const idx = TABS.findIndex((t) => t.key === activeTab);
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      handleSelect(TABS[(idx + 1) % TABS.length].key);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      handleSelect(TABS[(idx - 1 + TABS.length) % TABS.length].key);
+    }
+  }
+
+  return (
+    <div className="mt-2">
+      <div
+        className="sticky top-14 z-20 -mx-4 mb-6 border-y border-border-default bg-surface-page/90 px-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+        role="tablist"
+        aria-label={t('label')}
+        onKeyDown={handleKeyDown}
+      >
+        <nav className="cc-container relative -mx-4 flex gap-1 overflow-x-auto px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+          {TABS.map((tab) => {
+            const isActive = tab.key === activeTab;
+            const count = counts?.[tab.key];
+            return (
+              <button
+                key={tab.key}
+                role="tab"
+                type="button"
+                aria-selected={isActive}
+                aria-controls={`panel-${tab.key}`}
+                id={`tab-${tab.key}`}
+                tabIndex={isActive ? 0 : -1}
+                onClick={() => handleSelect(tab.key)}
+                className={`group relative shrink-0 px-4 py-3 font-sans text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'text-action-primary'
+                    : 'text-text-muted hover:text-text-primary'
+                }`}
+              >
+                {tab.label}
+                {typeof count === 'number' && count > 0 && (
+                  <span
+                    className={`ml-1.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full px-1.5 font-sans text-[0.7rem] font-semibold tabular-nums transition-colors ${
+                      isActive
+                        ? 'bg-action-primary text-text-inverse'
+                        : 'bg-surface-subtle text-text-secondary group-hover:bg-border-subtle'
+                    }`}
+                  >
+                    {count}
+                  </span>
+                )}
+                <span
+                  aria-hidden
+                  className={`pointer-events-none absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-action-primary origin-left transition-transform duration-[var(--duration-standard)] ${
+                    isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-50'
+                  }`}
+                  style={{ transitionTimingFunction: 'var(--ease-spoon)' }}
+                />
+              </button>
+            );
+          })}
+          {/* Right-edge fade — hints at scrollable overflow on mobile */}
+          <span
+            aria-hidden
+            className="pointer-events-none sticky right-0 top-0 -ml-6 h-full w-6 shrink-0 bg-gradient-to-l from-surface-page to-transparent md:hidden"
+          />
+        </nav>
+      </div>
+
+      {TABS.map((tab) => {
+        const isActive = tab.key === activeTab;
+        // Only render the active tab's content. Hidden-but-mounted tabs break
+        // size-aware widgets like Google Maps (initialize at width:0 inside a
+        // display:none container and never recover). Trade-off: inactive tabs
+        // are not in the SSR HTML, but each tab has its own ?tab= URL that
+        // still server-renders the right content for crawlers.
+        if (!isActive) return null;
+        return (
+          <div
+            key={tab.key}
+            role="tabpanel"
+            id={`panel-${tab.key}`}
+            aria-labelledby={`tab-${tab.key}`}
+            className="space-y-8"
+          >
+            {children[tab.key]}
+          </div>
+        );
+      })}
+    </div>
+  );
+}

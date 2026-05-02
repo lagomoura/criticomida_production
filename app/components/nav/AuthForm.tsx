@@ -1,6 +1,8 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/app/lib/i18n/navigation';
 import Button from '@/app/components/ui/Button';
 import Input from '@/app/components/ui/Input';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
@@ -11,14 +13,9 @@ export type AuthTab = 'login' | 'register';
 
 export interface AuthFormProps {
   initialTab?: AuthTab;
-  /** Called after a successful login or register. Receives the active tab so
-   *  callers can redirect or close a modal. */
   onSuccess?: (tab: AuthTab) => void;
-  /** Render the segmented tabs to swap between login and register. Default true. */
   showTabs?: boolean;
-  /** Optional autofocus on the first input of the active form. Default true. */
   autoFocusFirst?: boolean;
-  /** Notify parent when the active tab changes (e.g., to update modal title). */
   onTabChange?: (tab: AuthTab) => void;
 }
 
@@ -31,6 +28,7 @@ export default function AuthForm({
 }: AuthFormProps) {
   const { login, register } = useAuthContext();
   const [activeTab, setActiveTab] = useState<AuthTab>(initialTab);
+  const t = useTranslations('auth');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -59,7 +57,7 @@ export default function AuthForm({
       setFormError(
         err instanceof ApiError && typeof err.detail === 'string'
           ? err.detail
-          : 'No se pudo iniciar sesión.',
+          : t('loginError'),
       );
     } finally {
       setSubmitting(false);
@@ -78,7 +76,7 @@ export default function AuthForm({
       setFormError(
         err instanceof ApiError && typeof err.detail === 'string'
           ? err.detail
-          : 'No se pudo registrar la cuenta.',
+          : t('registerError'),
       );
     } finally {
       setSubmitting(false);
@@ -90,10 +88,10 @@ export default function AuthForm({
       {showTabs && (
         <div className="mb-5 flex gap-1 rounded-lg bg-surface-subtle p-1">
           <TabButton active={activeTab === 'login'} onClick={() => handleTab('login')} disabled={submitting}>
-            Iniciar sesión
+            {t('signIn')}
           </TabButton>
           <TabButton active={activeTab === 'register'} onClick={() => handleTab('register')} disabled={submitting}>
-            Registrarse
+            {t('register')}
           </TabButton>
         </div>
       )}
@@ -103,7 +101,7 @@ export default function AuthForm({
           <Input
             key="login-email"
             autoFocus={autoFocusFirst}
-            label="Correo"
+            label={t('email')}
             type="email"
             name="email"
             autoComplete="email"
@@ -113,7 +111,7 @@ export default function AuthForm({
             disabled={submitting}
           />
           <Input
-            label="Contraseña"
+            label={t('password')}
             type="password"
             name="password"
             autoComplete="current-password"
@@ -128,21 +126,21 @@ export default function AuthForm({
             </p>
           )}
           <Button type="submit" variant="primary" size="lg" loading={submitting}>
-            {submitting ? 'Entrando…' : 'Entrar'}
+            {submitting ? t('entering') : t('enter')}
           </Button>
-          <a
+          <Link
             href="/forgot-password"
             className="self-center font-sans text-xs text-text-muted no-underline hover:underline"
           >
-            ¿Olvidaste tu contraseña?
-          </a>
+            {t('forgotPasswordLink')}
+          </Link>
         </form>
       ) : (
         <form className="flex flex-col gap-4" onSubmit={handleRegister} noValidate>
           <Input
             key="reg-name"
             autoFocus={autoFocusFirst}
-            label="Nombre de usuario"
+            label={t('displayName')}
             type="text"
             name="displayName"
             autoComplete="name"
@@ -152,7 +150,7 @@ export default function AuthForm({
             disabled={submitting}
           />
           <Input
-            label="Correo"
+            label={t('email')}
             type="email"
             name="email"
             autoComplete="email"
@@ -162,7 +160,7 @@ export default function AuthForm({
             disabled={submitting}
           />
           <Input
-            label="Contraseña"
+            label={t('password')}
             type="password"
             name="password"
             autoComplete="new-password"
@@ -177,7 +175,7 @@ export default function AuthForm({
             </p>
           )}
           <Button type="submit" variant="primary" size="lg" loading={submitting}>
-            {submitting ? 'Creando cuenta…' : 'Crear cuenta'}
+            {submitting ? t('creatingAccount') : t('createAccount')}
           </Button>
         </form>
       )}

@@ -3,6 +3,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useCallback, useEffect, useId, useRef, type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 
 type Size = 'sm' | 'md' | 'lg' | 'xl';
@@ -49,6 +50,7 @@ export default function Modal({
   const descId = useId();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
+  const tCommon = useTranslations('common');
 
   const safeClose = useCallback(() => {
     if (!busy) onClose();
@@ -114,7 +116,7 @@ export default function Modal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="presentation">
       <button
         type="button"
-        aria-label="Cerrar diálogo"
+        aria-label={tCommon('closeDialog')}
         onClick={safeClose}
         disabled={busy}
         className="absolute inset-0 cursor-default bg-black/45 backdrop-blur-sm transition-opacity disabled:cursor-not-allowed"
@@ -157,7 +159,7 @@ export default function Modal({
               type="button"
               onClick={safeClose}
               disabled={busy}
-              aria-label="Cerrar"
+              aria-label={tCommon('close')}
               className={cn(
                 'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
                 'text-text-muted transition-colors hover:bg-surface-subtle hover:text-text-primary',

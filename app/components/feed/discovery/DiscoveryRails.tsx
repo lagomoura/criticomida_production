@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationCrosshairs } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
 import { useUserLocation } from '@/app/lib/hooks/useUserLocation';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
@@ -12,44 +13,26 @@ import BestExecutionRail from './BestExecutionRail';
 import DishDuelRail from './DishDuelRail';
 import TrendingRail from './TrendingRail';
 
-/**
- * 'Para ti' del feed: rails curados.
- *
- * - Si el usuario activó la geolocalización: NearYou (smart, radio 15km) +
- *   BestExecution (radio 5km) + DishDuel (radio 5km) + Trending (por ciudad).
- * - Si no: CTA para activar + BestExecution (sin radio) + DishDuel + Trending.
- *
- * Cada rail decide individualmente si auto-oculta cuando devuelve 0 resultados,
- * así que en condiciones de pocos datos el feed colapsa de forma natural.
- */
 export default function DiscoveryRails() {
   const { user } = useAuthContext();
   const { location, status, request } = useUserLocation();
   const toast = useToast();
+  const t = useTranslations('discovery.geoCta');
 
   const enableWishlist = Boolean(user);
   const lat = location?.latitude;
   const lng = location?.longitude;
 
-  // Aviso al usuario cuando recién concede el permiso, así entiende por qué
-  // los rails se reordenan con la cercanía sin que él haya hecho refresh.
   const prevStatusRef = useRef(status);
   useEffect(() => {
     if (prevStatusRef.current !== 'granted' && status === 'granted') {
-      toast.success(
-        'Mostrando lo cercano',
-        'Reordenamos tus rails con tu ubicación.',
-      );
+      toast.success(t('toastTitle'), t('toastBody'));
     }
     prevStatusRef.current = status;
-  }, [status, toast]);
+  }, [status, toast, t]);
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Geo gate. No bloqueamos los rails siguientes — el usuario puede
-          igualmente consumir BestExecution sin radio + Trending por ciudad.
-          Mientras `status === 'checking'` (Permissions API en vuelo) no
-          mostramos nada para evitar flash en cada refresh. */}
       {status !== 'granted' && status !== 'checking' && (
         <GeoCTA status={status} onRequest={request} />
       )}
@@ -88,20 +71,16 @@ interface GeoCTAProps {
 }
 
 function GeoCTA({ status, onRequest }: GeoCTAProps) {
+  const t = useTranslations('discovery.geoCta');
   if (status === 'unsupported') {
-    // Sin permiso disponible, no mostramos CTA — el resto del feed funciona.
     return null;
   }
 
   const headline =
-    status === 'denied'
-      ? 'Activá tu ubicación desde el navegador'
-      : 'Mostrame platos cerca tuyo';
+    status === 'denied' ? t('headlineDenied') : t('headlineRequest');
 
   const body =
-    status === 'denied'
-      ? 'La rechazaste antes. Tenés que habilitarla manualmente desde la barra del navegador.'
-      : 'Para que te recomendemos qué pedir según donde estás, sin enviarla a nadie más.';
+    status === 'denied' ? t('bodyDenied') : t('bodyRequest');
 
   return (
     <section className="flex flex-col items-start gap-3 rounded-2xl border border-[var(--color-azafran-pale)] bg-[var(--color-crema)] p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -125,7 +104,7 @@ function GeoCTA({ status, onRequest }: GeoCTAProps) {
           loading={status === 'requesting'}
           onClick={onRequest}
         >
-          Activar ubicación
+          {t('activate')}
         </Button>
       )}
     </section>

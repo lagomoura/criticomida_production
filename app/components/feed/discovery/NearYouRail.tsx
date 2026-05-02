@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { discoverDishes } from '@/app/lib/api/discovery';
 import {
   addToWantToTry,
@@ -33,6 +34,8 @@ export default function NearYouRail({
   enableWishlist,
 }: NearYouRailProps) {
   const toast = useToast();
+  const t = useTranslations('discovery.nearYou');
+  const tErr = useTranslations('discovery.wishlistError');
   const [items, setItems] = useState<DiscoveryDishItem[] | null>(null);
   const [error, setError] = useState(false);
 
@@ -75,12 +78,12 @@ export default function NearYouRail({
           ) ?? prev,
         );
         toast.error(
-          next ? 'No se pudo agregar a tu lista' : 'No se pudo quitar de tu lista',
-          'Probá de nuevo en un momento.',
+          next ? tErr('addFailed') : tErr('removeFailed'),
+          tErr('tryAgain'),
         );
       }
     },
-    [toast],
+    [toast, tErr],
   );
 
   if (error) return null;
@@ -88,9 +91,9 @@ export default function NearYouRail({
 
   return (
     <Rail
-      kicker="Cerca tuyo"
-      title="A pasos de donde estás"
-      subtitle={`En un radio de ${radiusKm} km — combinamos cocina, distancia y novedad.`}
+      kicker={t('kicker')}
+      title={t('title')}
+      subtitle={t('subtitle', { km: radiusKm })}
     >
       {items === null ? (
         <RailSkeleton />

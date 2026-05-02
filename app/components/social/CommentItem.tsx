@@ -7,6 +7,7 @@ import {
   faHeart,
   faReply,
 } from '@fortawesome/free-solid-svg-icons';
+import { useLocale, useTranslations } from 'next-intl';
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
 import IconButton from '@/app/components/ui/IconButton';
@@ -62,6 +63,10 @@ export default function CommentItem({
   const [replyError, setReplyError] = useState<string | undefined>();
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const t = useTranslations('social.comment');
+  const tPost = useTranslations('social.post');
+  const tActions = useTranslations('social.postActions');
+  const locale = useLocale();
 
   const isReply = comment.parentCommentId !== null;
   const canEdit = Boolean(onSaveEdit && comment.canEdit);
@@ -128,7 +133,7 @@ export default function CommentItem({
       await onSaveEdit(comment.id, next);
       setEditing(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar el cambio.');
+      setError(err instanceof Error ? err.message : t('saveError'));
     } finally {
       setSaving(false);
     }
@@ -137,7 +142,7 @@ export default function CommentItem({
   async function handleDelete() {
     if (!onDelete) return;
     setMenuOpen(false);
-    if (!confirm('¿Eliminar este comentario? Esta acción no se puede deshacer.')) return;
+    if (!confirm(t('deleteConfirm'))) return;
     try {
       await onDelete(comment.id);
     } catch {
@@ -174,7 +179,7 @@ export default function CommentItem({
       setReplyDraft('');
     } catch (err) {
       setReplyError(
-        err instanceof Error ? err.message : 'No se pudo publicar la respuesta.',
+        err instanceof Error ? err.message : t('replyError'),
       );
     } finally {
       setReplySubmitting(false);
@@ -197,7 +202,7 @@ export default function CommentItem({
         <button
           type="button"
           onClick={() => onOpenAuthor(comment.author.id)}
-          aria-label={`Abrir perfil de ${comment.author.displayName}`}
+          aria-label={tPost('openProfileOf', { name: comment.author.displayName })}
           className="shrink-0 rounded-full focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
           <Avatar src={comment.author.avatarUrl} name={comment.author.displayName} size="sm" />
@@ -214,18 +219,18 @@ export default function CommentItem({
             dateTime={comment.createdAt}
             className="shrink-0 font-sans text-xs text-text-muted"
           >
-            {formatRelativeTime(comment.createdAt)}
+            {formatRelativeTime(comment.createdAt, locale)}
           </time>
           {wasEdited && !editing && (
-            <span className="shrink-0 font-sans text-xs text-text-muted" aria-label="Comentario editado">
-              · editado
+            <span className="shrink-0 font-sans text-xs text-text-muted" aria-label={t('editedAria')}>
+              · {t('edited')}
             </span>
           )}
         </div>
         {editing ? (
           <div className="mt-1.5 flex flex-col gap-2">
             <Textarea
-              label="Editar comentario"
+              label={t('editLabel')}
               hideLabel
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -238,7 +243,7 @@ export default function CommentItem({
             />
             <div className="flex justify-end gap-2">
               <Button variant="ghost" size="sm" onClick={cancelEdit} disabled={saving}>
-                Cancelar
+                {t('cancel')}
               </Button>
               <Button
                 variant="primary"
@@ -247,7 +252,7 @@ export default function CommentItem({
                 loading={saving}
                 disabled={saving || !draft.trim() || draft.trim() === comment.text.trim()}
               >
-                Guardar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -264,7 +269,7 @@ export default function CommentItem({
                 intent="like"
                 selected={comment.viewerLiked}
                 count={comment.likesCount}
-                ariaLabel={comment.viewerLiked ? 'Quitar like' : 'Dar like'}
+                ariaLabel={comment.viewerLiked ? tActions('unlike') : tActions('like')}
                 icon={<FontAwesomeIcon icon={faHeart} className="h-3.5 w-3.5" />}
                 onClick={handleToggleLike}
                 className="min-h-[36px] min-w-[36px]"
@@ -277,7 +282,7 @@ export default function CommentItem({
                 className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-2.5 font-sans text-xs font-medium text-text-muted transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
               >
                 <FontAwesomeIcon icon={faReply} className="h-3 w-3" aria-hidden />
-                Responder
+                {t('reply')}
               </button>
             )}
             {canToggleReplies && (
@@ -289,12 +294,12 @@ export default function CommentItem({
                 className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-2.5 font-sans text-xs font-medium text-[color:var(--mainPink)] transition-colors hover:bg-surface-subtle disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
               >
                 {repliesExpanded
-                  ? 'Ocultar respuestas'
+                  ? t('hideReplies')
                   : repliesLoading
-                  ? 'Cargando…'
-                  : `Ver ${comment.repliesCount} ${
-                      comment.repliesCount === 1 ? 'respuesta' : 'respuestas'
-                    }`}
+                  ? t('loading')
+                  : comment.repliesCount === 1
+                  ? t('viewReplyOne', { count: comment.repliesCount })
+                  : t('viewReplyMany', { count: comment.repliesCount })}
               </button>
             )}
           </div>
@@ -303,11 +308,11 @@ export default function CommentItem({
         {replying && canReply && (
           <div className="mt-2 flex flex-col gap-2">
             <Textarea
-              label={`Responder a ${comment.author.displayName}`}
+              label={t('replyTo', { name: comment.author.displayName })}
               hideLabel
-              placeholder={`Responder a @${
-                comment.author.handle ?? comment.author.displayName
-              }…`}
+              placeholder={t('replyPlaceholder', {
+                handle: comment.author.handle ?? comment.author.displayName,
+              })}
               value={replyDraft}
               onChange={(e) => setReplyDraft(e.target.value)}
               disabled={replySubmitting}
@@ -319,7 +324,7 @@ export default function CommentItem({
             />
             <div className="flex justify-end gap-2">
               <Button variant="ghost" size="sm" onClick={cancelReply} disabled={replySubmitting}>
-                Cancelar
+                {t('cancel')}
               </Button>
               <Button
                 variant="primary"
@@ -328,7 +333,7 @@ export default function CommentItem({
                 loading={replySubmitting}
                 disabled={replySubmitting || !replyDraft.trim()}
               >
-                Responder
+                {t('reply')}
               </Button>
             </div>
           </div>
@@ -357,7 +362,7 @@ export default function CommentItem({
             ref={triggerRef}
             type="button"
             onClick={() => (menuOpen ? setMenuOpen(false) : openMenu())}
-            aria-label="Más opciones"
+            aria-label={tPost('moreOptions')}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
@@ -378,7 +383,7 @@ export default function CommentItem({
                   onClick={startEdit}
                   className="block w-full px-3 py-2 text-left font-sans text-sm text-text-primary transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:bg-surface-subtle"
                 >
-                  Editar
+                  {t('edit')}
                 </button>
               )}
               {canDelete && (
@@ -388,7 +393,7 @@ export default function CommentItem({
                   onClick={() => void handleDelete()}
                   className="block w-full px-3 py-2 text-left font-sans text-sm text-action-danger transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:bg-surface-subtle"
                 >
-                  Eliminar
+                  {t('delete')}
                 </button>
               )}
               {canReport && (
@@ -398,7 +403,7 @@ export default function CommentItem({
                   onClick={handleReport}
                   className="block w-full px-3 py-2 text-left font-sans text-sm text-text-primary transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:bg-surface-subtle"
                 >
-                  Reportar
+                  {t('report')}
                 </button>
               )}
             </div>

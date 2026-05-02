@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
 import { ApiError } from '@/app/lib/api/client';
 import { getRestaurant } from '@/app/lib/api/restaurants';
@@ -31,6 +32,8 @@ export default function OwnerResponseBlock({
 }: Props) {
   const { user, isLoading: authLoading } = useAuthContext();
   const [mode, setMode] = useState<Mode>({ kind: 'loading' });
+  const t = useTranslations('social.ownerResponse');
+  const locale = useLocale();
 
   useEffect(() => {
     if (authLoading) return;
@@ -74,9 +77,9 @@ export default function OwnerResponseBlock({
           error:
             err instanceof ApiError
               ? err.status === 403
-                ? 'Solo el dueño verificado puede responder.'
-                : 'No se pudo guardar la respuesta.'
-              : 'No se pudo guardar la respuesta.',
+                ? t('errorForbidden')
+                : t('errorGeneric')
+              : t('errorGeneric'),
         });
       }
     }
@@ -99,14 +102,14 @@ export default function OwnerResponseBlock({
           className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-700"
         >
           <span aria-hidden>✓</span>
-          Respuesta del restaurante
+          {t('header')}
         </p>
         <textarea
           value={mode.draft}
           onChange={(e) => setMode({ ...mode, draft: e.target.value })}
           rows={4}
           maxLength={2000}
-          placeholder="Respondé a este comensal (mínimo 3 caracteres)…"
+          placeholder={t('placeholder')}
           className="w-full rounded-md border border-emerald-300 bg-white px-3 py-2 font-sans text-sm"
         />
         {mode.error && (
@@ -114,7 +117,7 @@ export default function OwnerResponseBlock({
         )}
         <div className="mt-2 flex items-center justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={handleCancel}>
-            Cancelar
+            {t('cancel')}
           </Button>
           <Button
             variant="primary"
@@ -123,7 +126,7 @@ export default function OwnerResponseBlock({
             loading={mode.saving}
             onClick={() => void handleSave()}
           >
-            Guardar respuesta
+            {t('save')}
           </Button>
         </div>
       </section>
@@ -135,7 +138,7 @@ export default function OwnerResponseBlock({
 
   async function handleDelete() {
     if (!response) return;
-    if (!confirm('¿Eliminar la respuesta del restaurante?')) return;
+    if (!confirm(t('deleteConfirm'))) return;
     try {
       await deleteOwnerResponse(reviewId);
       setMode({ kind: 'view', response: null, canEdit: true });
@@ -149,7 +152,7 @@ export default function OwnerResponseBlock({
     return (
       <section className="rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/30 p-4 text-center">
         <p className="font-sans text-xs uppercase tracking-wider text-emerald-700">
-          Sos el dueño verificado
+          {t('verifiedOwnerKicker')}
         </p>
         <Button
           variant="outline"
@@ -159,7 +162,7 @@ export default function OwnerResponseBlock({
             setMode({ kind: 'edit', draft: '', saving: false })
           }
         >
-          Responder esta reseña
+          {t('respondAction')}
         </Button>
       </section>
     );
@@ -176,7 +179,7 @@ export default function OwnerResponseBlock({
           className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-700"
         >
           <span aria-hidden>✓</span>
-          Respuesta del restaurante
+          {t('header')}
         </p>
         {canEdit && (
           <div className="flex gap-2">
@@ -191,14 +194,14 @@ export default function OwnerResponseBlock({
               }
               className="text-xs font-semibold text-emerald-700 hover:underline"
             >
-              Editar
+              {t('edit')}
             </button>
             <button
               type="button"
               onClick={() => void handleDelete()}
               className="text-xs font-semibold text-red-600 hover:underline"
             >
-              Eliminar
+              {t('delete')}
             </button>
           </div>
         )}
@@ -207,7 +210,7 @@ export default function OwnerResponseBlock({
         {response.body}
       </p>
       <p className="mt-2 font-sans text-xs text-text-muted">
-        {new Date(response.updated_at).toLocaleDateString('es-AR', {
+        {new Date(response.updated_at).toLocaleDateString(locale, {
           day: 'numeric',
           month: 'short',
           year: 'numeric',

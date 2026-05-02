@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 import type { DishSummary } from '@/app/lib/types/social';
 
@@ -9,16 +12,6 @@ export interface DishDecisionBlockProps {
   className?: string;
 }
 
-/**
- * El bloque "héroe" del PostCard — el "qué pedir". Estructurado como cabeza
- * editorial:
- *   EL PEDIDO            (kicker en sans uppercase, micro)
- *   {nombre del plato}   (Cormorant 500, grande)
- *   {restaurant} · {cat} (DM Sans, sutil)
- *   ────────             (regla decorativa que separa del cuerpo del post)
- *
- * Score pill flota a la derecha — alineada visualmente con el nombre del plato.
- */
 export default function DishDecisionBlock({
   dish,
   score,
@@ -26,10 +19,12 @@ export default function DishDecisionBlock({
   onOpenRestaurant,
   className,
 }: DishDecisionBlockProps) {
+  const t = useTranslations('social.dishDecision');
+  const tPost = useTranslations('social.post');
   return (
     <div className={cn('flex flex-col gap-2', className)}>
       <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-text-muted">
-        El pedido
+        {t('kicker')}
       </p>
 
       <div className="flex items-start justify-between gap-3">
@@ -48,7 +43,7 @@ export default function DishDecisionBlock({
             </h3>
           )}
           <p className="mt-1.5 truncate font-sans text-[13px] text-text-muted">
-            <span className="text-text-muted/70">en </span>
+            <span className="text-text-muted/70">{t('atRestaurant')}</span>
             {onOpenRestaurant ? (
               <button
                 type="button"
@@ -70,10 +65,9 @@ export default function DishDecisionBlock({
             )}
           </p>
         </div>
-        <ScoreBadge score={score} />
+        <ScoreBadge score={score} ariaLabel={tPost('scoreLabel', { score: score.toFixed(1) })} />
       </div>
 
-      {/* Regla decorativa: cierra el bloque "héroe" como un titular de revista */}
       <div
         aria-hidden
         className="mt-1 h-px w-12 bg-[color:var(--color-azafran)]/45"
@@ -82,12 +76,11 @@ export default function DishDecisionBlock({
   );
 }
 
-function ScoreBadge({ score }: { score: number }) {
-  // Score ≥4.5 surfaces albahaca (positive highlight); the rest keeps warm carbon.
+function ScoreBadge({ score, ariaLabel }: { score: number; ariaLabel: string }) {
   const tone = score >= 4.5 ? 'text-action-secondary' : 'text-text-primary';
   return (
     <span
-      aria-label={`Puntaje ${score.toFixed(1)} de 5`}
+      aria-label={ariaLabel}
       className={cn(
         'shrink-0 rounded-full border border-border-default bg-surface-card px-3 py-1 font-display text-xl font-medium leading-none tabular-nums',
         tone,

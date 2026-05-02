@@ -1,0 +1,410 @@
+# Chatbot CritiComida — funcionalidades vigentes
+
+Este documento es la **memoria viva del chatbot**. Cada vez que se
+agrega, modifica o retira una capacidad del chatbot, esta página tiene
+que actualizarse en el mismo PR. No es un changelog: describe el
+estado actual, no la historia.
+
+> Los servicios de IA subyacentes (Gemini embeddings, Gemini Vision,
+> Claude tool use, perfil de gustos, etc.) viven en
+> [`ia_services.md`](./ia_services.md). Acá nos enfocamos en el
+> **producto** — qué hace el chatbot desde la perspectiva del usuario.
+
+---
+
+## Última actualización
+
+- **Fecha**: 2026-05-02
+- **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
+  Fase 2 (Ghostwriter), Fase 3 (Business).
+- **Pendiente / no cubierto**: ver [Roadmap conocido](#roadmap-conocido).
+
+---
+
+## Arquitectura en una pantalla
+
+Tres agentes que comparten el mismo motor (`AgentLoop` →
+`backend/app/services/chat/agent_loop.py`). Cada agente tiene su
+**system prompt** propio, su **toolbelt** propio, y puede correr sobre
+un **modelo distinto**:
+
+| Agente        | Audiencia       | Modelo por defecto             | Surface UI                                         |
+|---------------|-----------------|--------------------------------|----------------------------------------------------|
+| `sommelier`   | Usuario común   | `claude-haiku-4-5`             | Drawer global (botón flotante en toda la app)      |
+| `ghostwriter` | Usuario común   | `claude-haiku-4-5`             | Panel inline en el formulario de reseñas + drawer  |
+| `business`    | Owner verificado| `claude-sonnet-4-6`            | Sección embebida en `/restaurants/{slug}/owner`    |
+
+Toda conversación se persiste en `chat_conversations` + `chat_messages`
+(incluyendo tool calls + tool results) por usuario. El usuario puede
+borrar su historial; un `DELETE /api/chat/conversations/{id}` también
+sirve para "olvidame".
+
+El usuario logueado lleva además un **perfil de gustos** estructurado
+(`user_taste_profiles`) que se inyecta en el system prompt del Sommelier
+y del Ghostwriter — saludos personalizados, atender alergias declaradas,
+sesgos del pilar dominante. Detalles en [`ia_services.md`](./ia_services.md).
+
+---
+
+## 1) Sommelier — usuario crítico (B2C)
+
+**Punto de entrada**: botón flotante (`ChatLauncher`) visible en todas
+las páginas. Abre un drawer/sheet que en mobile ocupa 90vh y en desktop
+es un panel derecho de ~440px.
+
+### Qué puede hacer hoy
+
+| Capacidad | Tool subyacente | Notas |
+|-----------|-----------------|-------|
+| Saludo personalizado por `display_name` | — | Auto cuando hay sesión iniciada. |
+| Buscar platos con filtros estructurados | `search_dishes` | Barrio (substring de `location_name`), ciudad, bbox geográfico, mínimos por pilar (1-3), categoría, `max_price_tier`. |
+| Re-rankear semánticamente con un "mood" | `search_dishes(semantic_query)` | El LLM extrae filtros duros, KNN sobre embeddings dentro del subset. Cae a ranking estructurado si Gemini no está configurado. |
+| Mostrar detalle de un plato (top reseñas + pros/cons) | `get_dish_detail` | Para profundizar antes de decidir. |
+| Guardar plato en deseados | `add_to_wishlist` | Reusa `WantToTryDish`; idempotente. Requiere login. |
+| Abrir el mapa con bbox/centro/dishes pinned | `open_in_map` | Devuelve struct para que la UI haga deeplink a `/mapa`. |
+| Crear ruta de platos (compartible) | `create_dish_route` | Crea `dish_lists` + `dish_list_items` con slug único. Por defecto `is_public=true`. URL pública en `/listas/{slug}` con metadata OG para WhatsApp/Twitter. |
+| Pedir reserva en un restaurante | `request_reservation` | Si el restaurante tiene owner verificado: row en `reservation_requests` + notification + email. Si no: hand-off al `reservation_url` partner. |
+| Anotar alergias / horarios declarados | `update_taste_profile` | Sólo cuando el usuario lo dice explícito. Allergias **nunca** se infieren. |
+
+### Cards visuales
+
+Cuando el bot llama una tool, la UI renderiza:
+
+- `search_dishes` → grilla de `DishCard` con CTAs "Guardar", "Ver en mapa", "Sumar a ruta".
+- `open_in_map` → `MapEmbed` con CTA al mapa.
+- `create_dish_route` → `RouteCard` con link público y "Copiar link".
+- Otros tools → confirmaciones cortas (texto del bot describe el resultado).
+
+### Lo que el Sommelier NO hace todavía
+
+- No genera reseñas escritas (eso es Ghostwriter).
+- No abre la cámara para subir foto (sólo links a fotos existentes en la DB).
+- No hace cross-restaurant comparisons profundas (eso es Business).
+- No se acuerda de items del wishlist en futuras conversaciones más
+  allá de lo que el `taste_profile` infiere.
+
+---
+
+## 2) Ghostwriter — usuario crítico (B2C)
+
+**Punto de entrada principal**: botón "Pedir asistencia al Ghostwriter"
+en el formulario de creación / edición de reseñas
+(`DishReviewForm.tsx`). Reusa la primera foto que el usuario haya
+subido al post; si no hay, expone un input file inline. La foto subida
+desde el panel del Ghostwriter se inserta automáticamente al post
+(dedupe por `name+size+lastModified`).
+
+> El Ghostwriter también puede invocarse desde el chat global cuando
+> el usuario adjunta un photo URL. Por ahora ese flujo está disponible
+> via tool (`suggest_tags_from_photo`) pero no tiene UI dedicada en el
+> drawer; la entrada principal sigue siendo el formulario de reseña.
+
+### Qué puede hacer hoy
+
+| Capacidad | Tool subyacente | Notas |
+|-----------|-----------------|-------|
+| Detectar tags visuales del plato | `suggest_tags_from_photo` | Gemini Vision (`gemini-2.5-flash`). Devuelve hasta 6 tags lowercase sin "#". |
+| Identificar ingredientes visibles | mismo | Hasta 6 ingredientes únicos (sin enumerar variantes del mismo). |
+| Sugerir un *plating style* | mismo | Enum: `minimalist|family-style|deconstructed|rustic|classic`. |
+| Sugerir una frase editorial corta | mismo | 1-2 frases, ≤200 caracteres, tono CritiComida (sin "delicioso", "espectacular"). |
+| Sugerir 0-2 pros y 0-2 cons | mismo | Bullets puntuales ≤60 caracteres c/u. |
+| Distinguir tags inéditos vs ya en draft | endpoint `/assist` | El backend devuelve `new_tags` filtrando contra el `draft_text` del usuario. |
+| Tolerar respuesta truncada de Gemini | parser custom | Si `finishReason=MAX_TOKENS`, reconstruimos JSON parcial cerrando comillas/brackets. |
+
+### Comportamiento UX
+
+- El usuario clickea cada chip que adopta. Los chips usados quedan
+  tachados (no se duplican); los `new_tags` se resaltan en azafrán.
+- Pegar el blurb al campo `note` se hace con un click ("Pegar al texto"
+  agrega doble salto de línea si ya había contenido).
+- "Probar otra foto" → reabre el file picker y agrega esa foto al post
+  también (siempre y cuando no esté duplicada).
+
+### Lo que el Ghostwriter NO hace todavía
+
+- No firma puntajes (estrellas, pilares) por la persona — sólo asiste.
+- No edita texto existente del usuario; sólo concatena.
+- No corre sobre videos ni reels.
+- No tiene catálogo curado de tags (los nuevos se persisten tal cual).
+
+---
+
+## 3) Business — owner verificado (B2B)
+
+**Punto de entrada**: bloque "Pregúntale a CritiComida" embebido en
+`/restaurants/{slug}/owner`. Sólo aparece si el viewer es el
+`claimed_by_user_id` (validado server-side en cada llamada). Abre el
+mismo `ChatDrawer` con `agent="business"` y `restaurantScopeId`
+preconfigurado.
+
+> Defense in depth: cada tool del Business re-valida que el `dish_id`
+> recibido pertenezca al restaurante en scope. Un owner no puede
+> filtrar a un competidor manipulando los argumentos del tool.
+
+### Qué puede hacer hoy
+
+| Capacidad | Tool subyacente | Notas |
+|-----------|-----------------|-------|
+| Resolver platos por nombre | `search_dishes` | Mismo motor que el Sommelier, pero scopeado. |
+| Ver detalle de un plato propio | `get_dish_detail` | Top reseñas + pros/cons. |
+| Diagnosticar caída de un pilar | `analyze_dish_pillar_drop` | Compara avg de N días vs prior window. Trae snippets de hasta 5 reseñas recientes con keywords negativos relacionadas al pilar (presentación, ejecución, costo/beneficio). |
+| Benchmark contra competencia local | `benchmark_dish` | Cohort dentro de un radio (default 2 km, max 25 km). Re-rankea por similitud semántica vía `dish_embeddings`. Devuelve percentil del rating del dish + lista de comparables ordenados por proximidad semántica. |
+| Listar reseñas pendientes de respuesta | `list_pending_reviews` | Reseñas del restaurante sin `DishReviewOwnerResponse`. |
+| Recibir notificaciones de reservas | tabla `reservation_requests` + tipo `notification.kind='reservation_requested'` + email Resend | Disparado cuando un usuario llama `request_reservation` desde el Sommelier. |
+
+### Reglas editoriales del agente Business
+
+Forzadas vía system prompt:
+
+- Reportar deltas con signo y muestra explícita ("2.6 → 2.1, -0.5; 9 reseñas en 30 días").
+- Advertir cuando la muestra es chica (`< 3` reseñas).
+- Citar fragmentos textuales de reseñas sin inventar.
+- **Nunca** sugerir cambiar precios, recetas o staff. El bot
+  diagnostica; el owner decide.
+- Si el owner pide cosas del Sommelier (recomendar lugares para
+  comer), explicar y derivar.
+
+### Lo que Business NO hace todavía
+
+- No responde reseñas por el owner (sólo las lista).
+- No genera respuestas sugeridas.
+- No expone series temporales completas (sólo dos windows: actual + prior).
+- No analiza menú entero ni cohort de platos del propio restaurante.
+- No conecta con datos de reservas históricas / no predice no-shows.
+- No calcula proyecciones de ingreso ni elasticidad de precios.
+
+---
+
+## Casos de uso end-to-end
+
+Los flujogramas usan [Mermaid](https://mermaid.js.org/) — GitHub,
+GitLab y VS Code los renderizan nativamente.
+
+### CU-CHAT-1 — Sommelier: ganga 3/3 en barrio para una cita
+
+> *"Buscame una ganga 3/3 en Palermo con presentación increíble para
+> una cita."*
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant FE as ChatDrawer
+    participant API as /api/chat/stream
+    participant LLM as Claude Haiku
+    participant T as search_dishes
+    participant DB as Postgres + pgvector
+    U->>FE: Escribe el pedido
+    FE->>API: SSE POST (message, agent=sommelier)
+    API->>LLM: system + history + tools
+    LLM-->>API: tool_use search_dishes(<br/>neighborhood=Palermo,<br/>min_value_prop=3,<br/>min_presentation>=2,<br/>semantic_query="cita romántica")
+    API->>T: ejecuta
+    T->>DB: WHERE filtros + KNN re-rank
+    DB-->>T: 3 dishes
+    T-->>API: JSON con cards
+    API-->>FE: SSE tool_call_result + card
+    API->>LLM: tool_result en messages
+    LLM-->>API: 2-3 frases editoriales
+    API-->>FE: SSE text_delta + done
+    FE->>U: Render texto + 3 DishCard interactivas
+```
+
+**Resultado UX**: el usuario ve 3 cards con CTAs "Guardar / Mapa /
+Sumar a ruta / Reservar" y un texto editorial corto del bot
+contextualizando por qué esos platos.
+
+### CU-CHAT-2 — Sommelier: armar y compartir una ruta
+
+> *"Armame una ruta de 3 platos ganadores en el centro para el
+> domingo."*
+
+```mermaid
+flowchart LR
+    A[Usuario pide ruta] --> B[search_dishes<br/>neighborhood=Centro]
+    B --> C[3 dish_ids]
+    C --> D[create_dish_route<br/>name, dish_ids, is_public=true]
+    D --> E[INSERT dish_lists<br/>+ dish_list_items]
+    E --> F[Devolver slug + public_url]
+    F --> G[FE renderiza RouteCard<br/>con botón Copiar link]
+    G --> H[/listas/{slug}<br/>página pública SSR/]
+```
+
+**Resultado UX**: card en el chat con la ruta + URL pública
+compartible que abre una página con metadata OG (WhatsApp / Twitter
+muestran preview correcto).
+
+### CU-CHAT-3 — Sommelier: pedir reserva con notificación al owner
+
+> *"Reservame una mesa para 4 personas mañana 21:00 en Eretz."*
+
+```mermaid
+flowchart TD
+    A[request_reservation<br/>restaurant_id, party_size,<br/>requested_for] --> B{¿restaurant<br/>tiene owner verificado?}
+    B -- No --> C[Devolver reservation_url<br/>partner deeplink]
+    C --> D[FE muestra CTA al partner]
+    B -- Sí --> E[INSERT reservation_requests<br/>status=pending]
+    E --> F[INSERT notifications<br/>kind=reservation_requested]
+    F --> G[Resend email al owner<br/>fire-and-forget]
+    G --> H[FE muestra confirmación<br/>el owner fue avisado]
+```
+
+**Notas de privacidad**: el row guarda `owner_user_id` en snapshot; si
+el owner pierde el claim después, el request queda trazable.
+
+### CU-CHAT-4 — Sommelier: declarar alergia (única vía)
+
+> *"Soy celíaco, tenelo en cuenta para próximas sugerencias."*
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant LLM
+    participant Tool as update_taste_profile
+    participant DB
+    U->>LLM: Declara alergia explícitamente
+    LLM->>Tool: { allergies: ["gluten"] }
+    Tool->>DB: UPSERT user_taste_profiles<br/>(preserva allergies previas)
+    Tool-->>LLM: saved=true
+    LLM->>U: Confirma + acuerda evitar gluten
+    Note over LLM,DB: Próxima conversación:<br/>el system prompt incluye<br/>"Restricciones declaradas: gluten"
+```
+
+**Regla dura**: el LLM nunca puede setear alergias por inferencia.
+Sólo cuando el usuario lo dice con palabras claras.
+
+### CU-CHAT-5 — Ghostwriter: foto compartida con el post
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant Form as DishReviewForm
+    participant GW as GhostwriterAssist
+    participant API as /assist/upload
+    participant Vision as Gemini Vision
+    U->>Form: Sube foto al post
+    U->>GW: Click "Pedir asistencia"
+    GW->>GW: defaultPhoto = photos[0].file
+    GW->>API: multipart (photo, dish_id, draft_text)
+    API->>Vision: generateContent multimodal
+    Vision-->>API: tags + ingredients + blurb + pros + cons
+    API-->>GW: AssistResponse con new_tags filtrados vs draft
+    GW->>U: Render chips clicables
+    U->>GW: Click chip "saffron"
+    GW->>Form: onAddTag('saffron')
+    Form->>Form: setTags("...,saffron")
+    U->>GW: Click "Pegar al texto" del blurb
+    GW->>Form: onApplyBlurb(text)
+    Form->>Form: setNote(prev + "\n\n" + text)
+```
+
+**Caso inverso** (foto se sube desde el panel del Ghostwriter): la
+foto se mirror-ea al state del post via `onPhotoUploaded`, con dedupe
+por `name+size+lastModified`.
+
+### CU-CHAT-6 — Business: diagnóstico de pilar
+
+> *"¿Por qué bajó el puntaje de presentación del Risotto este mes?"*
+
+```mermaid
+flowchart TD
+    A[Owner abre dashboard] --> B[BusinessChatLauncher<br/>scope=restaurant_id]
+    B --> C[ChatDrawer agent=business]
+    C --> D[Owner pregunta sobre Risotto]
+    D --> E[search_dishes name=risotto<br/>scope filter en backend]
+    E --> F[dish_id resuelto]
+    F --> G[analyze_dish_pillar_drop<br/>dish_id, pillar=presentation]
+    G --> H[avg últimos 30d vs prior 30d]
+    G --> I[5 reviews recientes con<br/>keywords negativos pillar]
+    H --> J[Bot responde:<br/>delta + cita textual snippets]
+    I --> J
+```
+
+**Defense in depth**: el tool `analyze_dish_pillar_drop` re-valida que
+`dish.restaurant_id == restaurant_scope_id`. Imposible que el owner
+analice un dish ajeno aunque el LLM intente.
+
+### CU-CHAT-7 — Business: benchmark contra competencia
+
+> *"¿Cómo rinde mi hamburguesa frente a la competencia a 2 km?"*
+
+```mermaid
+flowchart LR
+    A[benchmark_dish<br/>dish_id, radius_km=2] --> B[anchor lat/lng]
+    B --> C[Cohort SQL:<br/>dishes en cuadrado<br/>haversine ≤ radius]
+    C --> D{¿hay anchor_emb?}
+    D -- Sí --> E[KNN cosine<br/>contra cohort]
+    D -- No --> F[Ordenar por distancia física]
+    E --> G[Percentil del rating<br/>del anchor en cohort]
+    F --> G
+    G --> H[Devolver peers ordenados<br/>+ percentile]
+```
+
+**Resultado UX**: el bot dice "estás en el percentil 35: 65% de los
+platos comparables están mejor rankeados" y lista 3-8 dishes vecinos.
+
+---
+
+## Persistencia y privacidad
+
+- Conversaciones se guardan por `conversation_id` (uuid). Anonimas
+  permitidas (sin `user_id`); en ese caso no hay perfil de gustos ni
+  recall entre sesiones.
+- Cada usuario puede listar (`GET /api/chat/conversations/me`) y
+  borrar (`DELETE /api/chat/conversations/{id}`) sus chats.
+- El `taste_profile` se construye sólo a partir de las reseñas que el
+  usuario publicó. El usuario puede consultarlo y borrarlo (TODO: UI
+  dedicada — hoy sólo via API).
+- Las **alergias** sólo se persisten cuando el usuario las declara
+  explícitamente (tool `update_taste_profile`). Nunca se infieren.
+- En modo Business **no** se inyecta el perfil de gustos del owner —
+  el agente sólo ve datos de su restaurante.
+
+---
+
+## Cómo agregar una mejora
+
+Cuando hagas un cambio que toque el chatbot, **actualizá este
+documento en el mismo PR**. Pasos:
+
+1. Identificá a qué agente afecta (Sommelier / Ghostwriter / Business)
+   o si es del **núcleo** (todos los agentes).
+2. Si agregás un tool nuevo:
+   - Sumá una fila en la tabla "Qué puede hacer hoy" del agente
+     correspondiente.
+   - Agregá el `pending` label en `app/components/chat/MessageList.tsx`
+     y los 3 archivos `messages/{es,en,pt}.json`.
+   - Si emite una card visual, listalo en "Cards visuales".
+3. Si retirás un tool, movélo a "Lo que NO hace" o eliminá la fila si
+   ya no aplica.
+4. Si cambias el modelo o las reglas del system prompt, actualizá la
+   tabla "Arquitectura en una pantalla" o la sección de reglas
+   correspondiente.
+5. Si agregás un nuevo agente, replicá la estructura de "Qué puede
+   hacer hoy / Cards / Lo que NO hace".
+6. Actualizá la fecha de "Última actualización" arriba.
+
+---
+
+## Roadmap conocido
+
+Capacidades pedidas durante el diseño que **todavía no están
+implementadas** y vale tenerlas listadas para no duplicar trabajo:
+
+- **Sommelier**: integración de booking real con Resy/TheFork via API
+  (hoy: solo deeplink + notificación al owner).
+- **Sommelier**: recall persistente de items del wishlist en futuras
+  conversaciones ("¿Te animaste con el risotto que guardaste?").
+- **Ghostwriter**: catálogo curado de tags + sugerencia que prefiere
+  tags ya existentes sobre tags inéditos.
+- **Ghostwriter**: análisis de video/reels (hoy solo imagen).
+- **Business**: respuestas sugeridas a reseñas pendientes.
+- **Business**: series temporales de pilares (gráfico, no solo dos
+  windows).
+- **Business**: comparación entre platos del propio menú.
+- **Business**: predicción de no-shows / proyecciones.
+- **Núcleo**: panel de "Conversaciones recientes" en el drawer (hoy
+  cada apertura empieza una sesión nueva si no se pasa
+  `conversation_id`).
+- **Núcleo**: analytics de tokens y latencia visibles para admin.
+
+Cualquiera de estos que se implemente, mover a la sección activa del
+agente correspondiente y borrar de acá.

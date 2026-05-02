@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
 import Textarea from '@/app/components/ui/Textarea';
 import { createReport } from '@/app/lib/api/reports';
@@ -13,7 +14,6 @@ export interface ReportModalProps {
   open: boolean;
   entityType: ReportEntityType;
   entityId: string;
-  /** Optional one-line context for the moderator — e.g. "Pizza @ Güerrin". */
   subject?: string;
   onClose: () => void;
   onSuccess?: () => void;
@@ -27,6 +27,8 @@ export default function ReportModal({
   onClose,
   onSuccess,
 }: ReportModalProps) {
+  const t = useTranslations('social.report');
+  const tCommon = useTranslations('common');
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,28 +51,34 @@ export default function ReportModal({
     };
   }, [open, submitting, onClose]);
 
+  const labelFor = (kind: ReportEntityType): string => {
+    if (kind === 'review') return t('kindReview');
+    if (kind === 'comment') return t('kindComment');
+    return t('kindUser');
+  };
+
   const handleSubmit = useCallback(async () => {
     if (reason.trim().length < 3) {
-      setError('Contanos un poco más para ayudar a moderación.');
+      setError(t('minLengthError'));
       return;
     }
     setSubmitting(true);
     setError(null);
     try {
       await createReport({ entityType, entityId, reason: reason.trim() });
-      setSentMessage('Reporte enviado. Gracias.');
+      setSentMessage(t('successMessage'));
       onSuccess?.();
       window.setTimeout(() => onClose(), 900);
     } catch (err) {
       setError(
         err instanceof ApiError && typeof err.detail === 'string'
           ? err.detail
-          : 'No pudimos enviar el reporte. Probá de nuevo.',
+          : t('errorMessage'),
       );
     } finally {
       setSubmitting(false);
     }
-  }, [reason, entityType, entityId, onClose, onSuccess]);
+  }, [reason, entityType, entityId, onClose, onSuccess, t]);
 
   if (!open) return null;
 
@@ -78,7 +86,7 @@ export default function ReportModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
-        aria-label="Cerrar"
+        aria-label={tCommon('close')}
         onClick={() => !submitting && onClose()}
         className="absolute inset-0 cursor-default bg-black/45 backdrop-blur-sm"
       />
@@ -90,12 +98,12 @@ export default function ReportModal({
       >
         <div className="mb-4 flex items-center justify-between gap-2">
           <h2 id="report-modal-title" className="font-display text-2xl font-medium text-text-primary">
-            Reportar {labelFor(entityType)}
+            {t('title', { kind: labelFor(entityType) })}
           </h2>
           <button
             type="button"
             onClick={() => !submitting && onClose()}
-            aria-label="Cerrar"
+            aria-label={tCommon('close')}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
           >
             <FontAwesomeIcon icon={faXmark} aria-hidden />
@@ -109,8 +117,8 @@ export default function ReportModal({
         )}
 
         <Textarea
-          label="¿Qué pasa con este contenido?"
-          placeholder="Spam, contenido ofensivo, información falsa…"
+          label={t('label')}
+          placeholder={t('placeholder')}
           rows={4}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
@@ -139,7 +147,7 @@ export default function ReportModal({
             onClick={() => !submitting && onClose()}
             disabled={submitting}
           >
-            Cancelar
+            {t('cancel')}
           </Button>
           <Button
             type="button"
@@ -149,16 +157,10 @@ export default function ReportModal({
             loading={submitting}
             disabled={sentMessage !== null}
           >
-            Enviar reporte
+            {t('submit')}
           </Button>
         </div>
       </div>
     </div>
   );
-}
-
-function labelFor(kind: ReportEntityType): string {
-  if (kind === 'review') return 'reseña';
-  if (kind === 'comment') return 'comentario';
-  return 'usuario';
 }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import MapBboxFetcher from './MapBboxFetcher';
 import MapClusteredPins from './MapClusteredPins';
 import MapLayerChips from './MapLayerChips';
@@ -20,6 +21,7 @@ const DEFAULT_ZOOM = 13;
 const MAP_ID = 'cc_discovery_map';
 
 export default function MapDiscoveryView() {
+  const t = useTranslations('discovery.map');
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const [pins, setPins] = useState<MapRestaurantPin[]>([]);
   const [truncated, setTruncated] = useState(false);
@@ -55,7 +57,7 @@ export default function MapDiscoveryView() {
   if (!apiKey) {
     return (
       <div className="rounded-xl border border-border-default bg-surface-subtle p-6 text-center font-sans text-sm text-text-muted">
-        Falta configurar <code>NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> para mostrar el mapa.
+        {t('missingKey')}
       </div>
     );
   }
@@ -109,7 +111,7 @@ export default function MapDiscoveryView() {
           className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-2 rounded-full border border-border-default bg-surface-card px-3 py-1.5 font-sans text-xs text-text-muted shadow"
         >
           <FontAwesomeIcon icon={faSpinner} spin aria-hidden />
-          Buscando…
+          {t('searching')}
         </div>
       )}
 
@@ -117,7 +119,7 @@ export default function MapDiscoveryView() {
         <div className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 justify-center px-4">
           <div className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-border-default bg-surface-card/95 px-4 py-2 font-sans text-sm text-text-muted shadow backdrop-blur">
             <FontAwesomeIcon icon={faMapLocationDot} aria-hidden />
-            No hay platos reseñados en esta zona. Movete para explorar.
+            {t('emptyZone')}
           </div>
         </div>
       )}
@@ -131,7 +133,7 @@ export default function MapDiscoveryView() {
               onClick={handleRetry}
               className="rounded-md bg-action-primary px-3 py-1 font-sans text-xs font-medium text-text-inverse hover:bg-action-primary-hover"
             >
-              Reintentar
+              {t('retry')}
             </button>
           </div>
         </div>
@@ -140,7 +142,7 @@ export default function MapDiscoveryView() {
       {truncated && !loading && pins.length > 0 && (
         <div className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2">
           <div className="pointer-events-auto rounded-full bg-surface-card/95 px-3 py-1 font-sans text-[11px] text-text-muted shadow backdrop-blur">
-            Hacé zoom para ver todos los locales
+            {t('zoomToSeeAll')}
           </div>
         </div>
       )}

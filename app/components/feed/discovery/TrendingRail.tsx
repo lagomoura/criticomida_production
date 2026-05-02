@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/app/lib/i18n/navigation';
 import {
   getTrendingCities,
   getTrendingDishes,
@@ -20,6 +21,7 @@ interface TrendingRailProps {
  * Si no hay ciudades o falla, el rail no se renderiza.
  */
 export default function TrendingRail({ defaultCity }: TrendingRailProps) {
+  const t = useTranslations('discovery.trending');
   const [cities, setCities] = useState<string[]>([]);
   const [activeCity, setActiveCity] = useState<string | null>(defaultCity ?? null);
   const [items, setItems] = useState<TrendingDish[] | null>(null);
@@ -66,15 +68,17 @@ export default function TrendingRail({ defaultCity }: TrendingRailProps) {
 
   return (
     <Rail
-      kicker="Tendencias de nicho"
-      title="Lo más comentado de la semana"
+      kicker={t('kicker')}
+      title={t('title')}
       subtitle={
-        activeCity ? `En ${activeCity}, últimos 7 días.` : 'Últimos 7 días.'
+        activeCity
+          ? t('subtitleCity', { city: activeCity })
+          : t('subtitleGlobal')
       }
       action={
         cities.length > 1 ? (
           <select
-            aria-label="Ciudad"
+            aria-label={t('cityLabel')}
             value={activeCity ?? ''}
             onChange={(e) => setActiveCity(e.target.value)}
             className="rounded-full border border-border-default bg-white px-3 py-1.5 font-sans text-xs"
@@ -102,6 +106,7 @@ export default function TrendingRail({ defaultCity }: TrendingRailProps) {
 }
 
 function TrendingMiniCard({ dish, rank }: { dish: TrendingDish; rank: number }) {
+  const t = useTranslations('discovery.trending');
   return (
     <Link
       href={`/dishes/${dish.dishId}`}
@@ -119,7 +124,7 @@ function TrendingMiniCard({ dish, rank }: { dish: TrendingDish; rank: number }) 
         </span>
         <div className="mt-1 flex flex-wrap gap-x-2 font-sans text-[0.7rem] text-text-muted">
           <span>★ {dish.averageScore.toFixed(1)}</span>
-          <span>{dish.reviewsRecent} reseñas/sem</span>
+          <span>{t('reviewsPerWeek', { count: dish.reviewsRecent })}</span>
           <span>{dish.likesRecent} ❤</span>
         </div>
       </div>

@@ -2,11 +2,34 @@
 
 import { useEffect } from 'react';
 
-/**
- * Root-level error UI. Must not import ./globals.css: a separate CSS graph
- * for this file often desyncs in dev (GET .../global-error.js 404) and breaks
- * hydration when the main layout CSS fails to load.
- */
+const STRINGS: Record<string, { title: string; message: string; retry: string }> = {
+  es: {
+    title: 'Error en la aplicación',
+    message: 'No pudimos cargar la página. Probá de nuevo en unos segundos.',
+    retry: 'Reintentar',
+  },
+  en: {
+    title: 'Application error',
+    message: "We couldn't load the page. Try again in a few seconds.",
+    retry: 'Retry',
+  },
+  pt: {
+    title: 'Erro no aplicativo',
+    message: 'Não conseguimos carregar a página. Tente novamente em alguns segundos.',
+    retry: 'Tentar novamente',
+  },
+};
+
+function pickLocale(): keyof typeof STRINGS {
+  if (typeof document === 'undefined') return 'es';
+  const cookieMatch = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/);
+  const fromCookie = cookieMatch?.[1];
+  if (fromCookie && fromCookie in STRINGS) return fromCookie as keyof typeof STRINGS;
+  const path = window.location.pathname.split('/')[1];
+  if (path && path in STRINGS) return path as keyof typeof STRINGS;
+  return 'es';
+}
+
 export default function GlobalErrorPage({
   error,
   reset,
@@ -18,8 +41,11 @@ export default function GlobalErrorPage({
     console.error(error);
   }, [error]);
 
+  const lang = pickLocale();
+  const s = STRINGS[lang];
+
   return (
-    <html lang="es">
+    <html lang={lang}>
       <body
         style={{
           margin: 0,
@@ -49,7 +75,7 @@ export default function GlobalErrorPage({
               color: '#212529',
             }}
           >
-            Error en la aplicación
+            {s.title}
           </h1>
           <p
             style={{
@@ -58,7 +84,7 @@ export default function GlobalErrorPage({
               color: '#495057',
             }}
           >
-            No pudimos cargar la página. Probá de nuevo en unos segundos.
+            {s.message}
           </p>
           <button
             type="button"
@@ -75,7 +101,7 @@ export default function GlobalErrorPage({
               cursor: 'pointer',
             }}
           >
-            Reintentar
+            {s.retry}
           </button>
         </main>
       </body>

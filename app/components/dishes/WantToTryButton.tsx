@@ -2,6 +2,7 @@
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBookmark, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
 
 export interface WantToTryButtonProps {
@@ -36,6 +37,7 @@ export default function WantToTryButton({
   onToggle,
   className,
 }: WantToTryButtonProps) {
+  const t = useTranslations('wantToTryButton');
   return (
     <Button
       variant={active ? 'secondary' : 'outline'}
@@ -57,7 +59,7 @@ export default function WantToTryButton({
       }
       className={className}
     >
-      {active ? 'En tu lista' : 'Quiero probarlo'}
+      {active ? t('active') : t('inactive')}
     </Button>
   );
 }

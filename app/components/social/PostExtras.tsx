@@ -1,3 +1,5 @@
+'use client';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
@@ -7,6 +9,7 @@ import {
   faUserGroup,
   faDollarSign,
 } from '@fortawesome/free-solid-svg-icons';
+import { useLocale, useTranslations } from 'next-intl';
 import Chip from '@/app/components/ui/Chip';
 import type { ReviewExtras, PortionSize } from '@/app/lib/types/social';
 
@@ -15,17 +18,16 @@ export interface PostExtrasProps {
   className?: string;
 }
 
-const PORTION_LABEL: Record<PortionSize, string> = {
-  small: 'Porción chica',
-  medium: 'Porción justa',
-  large: 'Porción grande',
-};
-
-/**
- * Rich review metadata rendered in the expanded (detail) PostCard. Only shown
- * for fields that have values — nothing appears when extras is empty.
- */
 export default function PostExtras({ extras, className }: PostExtrasProps) {
+  const t = useTranslations('social.postExtras');
+  const locale = useLocale();
+
+  const portionLabel: Record<PortionSize, string> = {
+    small: t('portionSmall'),
+    medium: t('portionMedium'),
+    large: t('portionLarge'),
+  };
+
   const hasMeta =
     extras.portionSize ||
     extras.wouldOrderAgain !== undefined ||
@@ -43,20 +45,20 @@ export default function PostExtras({ extras, className }: PostExtrasProps) {
       {hasMeta && (
         <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 font-sans text-sm text-text-secondary">
           {extras.portionSize && (
-            <MetaItem icon={faUtensils}>{PORTION_LABEL[extras.portionSize]}</MetaItem>
+            <MetaItem icon={faUtensils}>{portionLabel[extras.portionSize]}</MetaItem>
           )}
           {extras.wouldOrderAgain !== undefined && extras.wouldOrderAgain !== null && (
             <MetaItem
               icon={extras.wouldOrderAgain ? faCheck : faXmark}
               tone={extras.wouldOrderAgain ? 'positive' : 'negative'}
             >
-              {extras.wouldOrderAgain ? 'Lo pediría de nuevo' : 'No lo pediría de nuevo'}
+              {extras.wouldOrderAgain ? t('wouldOrderAgain') : t('wouldNotOrderAgain')}
             </MetaItem>
           )}
           {extras.priceTier && <MetaItem icon={faDollarSign}>{extras.priceTier}</MetaItem>}
           {extras.dateTasted && (
             <MetaItem icon={faCalendar}>
-              <time dateTime={extras.dateTasted}>{formatTastedDate(extras.dateTasted)}</time>
+              <time dateTime={extras.dateTasted}>{formatTastedDate(extras.dateTasted, locale)}</time>
             </MetaItem>
           )}
           {extras.visitedWith && <MetaItem icon={faUserGroup}>{extras.visitedWith}</MetaItem>}
@@ -66,10 +68,10 @@ export default function PostExtras({ extras, className }: PostExtrasProps) {
       {hasProsCons && (
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {extras.pros && extras.pros.length > 0 && (
-            <ProsConsList items={extras.pros} tone="positive" label="Lo bueno" icon={faCheck} />
+            <ProsConsList items={extras.pros} tone="positive" label={t('pros')} icon={faCheck} />
           )}
           {extras.cons && extras.cons.length > 0 && (
-            <ProsConsList items={extras.cons} tone="negative" label="Lo malo" icon={faXmark} />
+            <ProsConsList items={extras.cons} tone="negative" label={t('cons')} icon={faXmark} />
           )}
         </div>
       )}
@@ -140,10 +142,10 @@ function ProsConsList({
   );
 }
 
-function formatTastedDate(iso: string): string {
+function formatTastedDate(iso: string, locale: string): string {
   try {
     const date = new Date(iso + 'T00:00:00');
-    return new Intl.DateTimeFormat('es', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+    return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
   } catch {
     return iso;
   }

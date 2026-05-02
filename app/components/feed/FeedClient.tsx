@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from '@/app/lib/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import Tabs from '@/app/components/ui/Tabs';
 import FeedList, { type FeedState } from './FeedList';
 import FeedWelcome from './FeedWelcome';
@@ -71,6 +72,9 @@ export default function FeedClient() {
   const { user, isLoading: isAuthLoading } = useAuthContext();
   const router = useRouter();
   const toast = useToast();
+  const t = useTranslations('feed');
+  const tErrs = useTranslations('feed.actionErrors');
+  const tEmpty = useTranslations('feed.followingEmpty');
 
   const loadFirstPage = useCallback(async (type: FeedType, sort: FeedSort) => {
     const key = slotKeyFor(type, sort);
@@ -98,14 +102,14 @@ export default function FeedClient() {
         [key]: {
           state: {
             status: 'error',
-            message: 'No pudimos cargar el feed. Probá de nuevo en un momento.',
+            message: t('loadError'),
             onRetry: () => void loadFirstPage(type, sort),
           },
           nextCursor: null,
         },
       }));
     }
-  }, []);
+  }, [t]);
 
   const loadNextPage = useCallback(
     async (type: FeedType, sort: FeedSort) => {
@@ -164,15 +168,14 @@ export default function FeedClient() {
               state: {
                 ...current.state,
                 loadingMore: false,
-                loadMoreError:
-                  'No pudimos cargar más reseñas. Probá de nuevo en un momento.',
+                loadMoreError: t('loadMoreError'),
               },
             },
           };
         });
       }
     },
-    [cache],
+    [cache, t],
   );
 
   useEffect(() => {
@@ -226,12 +229,12 @@ export default function FeedClient() {
       } catch {
         setCache((prev) => mapPosts(prev, (post) => (post.id === postId ? applyLike(post, !next) : post)));
         toast.error(
-          next ? 'No se pudo dar like' : 'No se pudo quitar el like',
-          'Probá de nuevo en un momento.',
+          next ? tErrs('likeFailed') : tErrs('unlikeFailed'),
+          tErrs('tryAgain'),
         );
       }
     },
-    [toast],
+    [toast, tErrs],
   );
 
   const handleToggleSave = useCallback(
@@ -243,17 +246,16 @@ export default function FeedClient() {
       } catch {
         setCache((prev) => mapPosts(prev, (post) => (post.id === postId ? applySave(post, !next) : post)));
         toast.error(
-          next ? 'No se pudo guardar' : 'No se pudo quitar de guardados',
-          'Probá de nuevo en un momento.',
+          next ? tErrs('saveFailed') : tErrs('unsaveFailed'),
+          tErrs('tryAgain'),
         );
       }
     },
-    [toast],
+    [toast, tErrs],
   );
 
   const handleToggleWantToTry = useCallback(
     async (dishId: string, next: boolean) => {
-      // Toggle a TODAS las posts del mismo plato (puede aparecer en varios tabs).
       setCache((prev) =>
         mapPosts(prev, (post) =>
           post.dish.id === dishId ? applyWantToTry(post, next) : post,
@@ -269,30 +271,30 @@ export default function FeedClient() {
           ),
         );
         toast.error(
-          next ? 'No se pudo agregar a tu lista' : 'No se pudo quitar de tu lista',
-          'Probá de nuevo en un momento.',
+          next ? tErrs('addToListFailed') : tErrs('removeFromListFailed'),
+          tErrs('tryAgain'),
         );
       }
     },
-    [toast],
+    [toast, tErrs],
   );
 
-  const tabs = [
-    { value: 'for_you', label: 'Para ti' },
-    { value: 'following', label: 'Siguiendo' },
-    { value: 'map', label: 'Mapa' },
-  ];
+  const tabs = useMemo(() => [
+    { value: 'for_you', label: t('tabForYou') },
+    { value: 'following', label: t('tabFollowing') },
+    { value: 'map', label: t('tabMap') },
+  ], [t]);
 
   return (
     <section className="cc-container flex flex-col gap-6 py-6">
       <FeedWelcome />
       <header className="flex flex-col gap-2">
-        <h1 className="sr-only">Feed</h1>
+        <h1 className="sr-only">{t('heading')}</h1>
         <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-text-muted">
-          El feed
+          {t('kicker')}
         </p>
         <Tabs
-          ariaLabel="Tipo de feed"
+          ariaLabel={t('feedType')}
           value={activeTab}
           items={tabs}
           onChange={(next) => {
@@ -318,7 +320,7 @@ export default function FeedClient() {
           className="flex flex-col gap-4"
           aria-busy="true"
           aria-live="polite"
-          aria-label="Cargando feed"
+          aria-label={t('loading')}
         >
           {Array.from({ length: 3 }).map((_, i) => (
             <PostCardSkeleton key={i} />
@@ -338,9 +340,9 @@ export default function FeedClient() {
               <FollowingSortToggle value={sort} onChange={setFollowingSort} />
               <FeedList
                 state={cache[key].state}
-                emptyTitle="Todavía no seguís a nadie"
-                emptyDescription="Seguí a críticos o amigos para ver sus reseñas acá."
-                emptyAction={{ label: 'Descubrir críticos', href: '/search' }}
+                emptyTitle={tEmpty('title')}
+                emptyDescription={tEmpty('description')}
+                emptyAction={{ label: tEmpty('action'), href: '/search' }}
                 onReachEnd={() => void loadNextPage(tab, sort)}
                 onLoadMoreRetry={() => void loadNextPage(tab, sort)}
                 onOpenPost={(postId) => router.push(`/reviews/${postId}`)}
@@ -385,14 +387,15 @@ interface FollowingSortToggleProps {
 }
 
 function FollowingSortToggle({ value, onChange }: FollowingSortToggleProps) {
+  const t = useTranslations('feed');
   const items: ReadonlyArray<{ value: FeedSort; label: string }> = [
-    { value: 'recent', label: 'Recientes' },
-    { value: 'top', label: 'Mejor puntuadas' },
+    { value: 'recent', label: t('sortRecent') },
+    { value: 'top', label: t('sortTop') },
   ];
   return (
     <div
       role="radiogroup"
-      aria-label="Orden del feed"
+      aria-label={t('sortLabel')}
       className="inline-flex items-center gap-1 self-start rounded-full border border-border-default bg-surface-card p-1 shadow-sm"
     >
       {items.map((opt) => {

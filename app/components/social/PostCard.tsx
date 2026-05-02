@@ -1,4 +1,7 @@
-import Link from 'next/link';
+'use client';
+
+import { Link } from '@/app/lib/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 import type { ReviewPost } from '@/app/lib/types/social';
 import PostHeader from './PostHeader';
@@ -41,6 +44,7 @@ export default function PostCard({
   onOpenMenu,
   className,
 }: PostCardProps) {
+  const t = useTranslations('social.post');
   if (post.status === 'removed') {
     return (
       <article
@@ -49,7 +53,7 @@ export default function PostCard({
           className,
         )}
       >
-        Esta reseña ya no está disponible.
+        {t('removed')}
       </article>
     );
   }
@@ -75,7 +79,7 @@ export default function PostCard({
       {overlayEnabled && (
         <Link
           href={`/reviews/${post.id}`}
-          aria-label={`Abrir reseña de ${post.dish.name}`}
+          aria-label={t('openReview', { dishName: post.dish.name })}
           className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
           onClick={(e) => {
             // Let Link do its thing but also notify the parent for analytics / prefetch coordination.

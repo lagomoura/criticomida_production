@@ -7,6 +7,7 @@ import {
   faBookmark,
   faShareNodes,
 } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import IconButton from '@/app/components/ui/IconButton';
 import type { PostStats, PostViewerState } from '@/app/lib/types/social';
 
@@ -20,10 +21,6 @@ export interface PostActionsProps {
   onShare?: (postId: string) => void;
 }
 
-/**
- * Action bar under a post. Parents own the optimistic state — this component
- * only calls back with the intended next value.
- */
 export default function PostActions({
   postId,
   stats,
@@ -33,20 +30,21 @@ export default function PostActions({
   onComment,
   onShare,
 }: PostActionsProps) {
+  const t = useTranslations('social.postActions');
   return (
     <div className="flex items-center gap-1">
       <IconButton
         intent="like"
         selected={viewerState.liked}
         count={stats.likes}
-        ariaLabel={viewerState.liked ? 'Quitar like' : 'Dar like'}
+        ariaLabel={viewerState.liked ? t('unlike') : t('like')}
         icon={<FontAwesomeIcon icon={faHeart} className="h-4 w-4" />}
         onClick={() => onToggleLike?.(postId, !viewerState.liked)}
       />
       <IconButton
         intent="neutral"
         count={stats.comments}
-        ariaLabel="Comentar"
+        ariaLabel={t('comment')}
         icon={<FontAwesomeIcon icon={faComment} className="h-4 w-4" />}
         onClick={() => onComment?.(postId)}
       />
@@ -54,13 +52,13 @@ export default function PostActions({
         intent="save"
         selected={viewerState.saved}
         count={stats.saves}
-        ariaLabel={viewerState.saved ? 'Quitar de guardados' : 'Guardar'}
+        ariaLabel={viewerState.saved ? t('unsave') : t('save')}
         icon={<FontAwesomeIcon icon={faBookmark} className="h-4 w-4" />}
         onClick={() => onToggleSave?.(postId, !viewerState.saved)}
       />
       <IconButton
         intent="neutral"
-        ariaLabel="Compartir"
+        ariaLabel={t('share')}
         icon={<FontAwesomeIcon icon={faShareNodes} className="h-4 w-4" />}
         onClick={() => onShare?.(postId)}
         className="ml-auto"

@@ -1,31 +1,17 @@
+'use client';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSeedling, faWineGlass, faCrown } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import type { MasteryLevel } from '@/app/lib/types/social';
 import { cn } from '@/app/lib/utils/cn';
 
 export interface MasteryBadgeProps {
   level: MasteryLevel;
-  /** 'compact' = solo título ("Sommelier"). 'full' = "Sommelier de Pizza".
-   *  En compact, `category` no se renderiza y puede omitirse. */
   variant?: 'compact' | 'full';
   category?: string;
   className?: string;
 }
-
-const COPY: Record<MasteryLevel, { title: string; tooltip: string }> = {
-  apprentice: {
-    title: 'Aprendiz',
-    tooltip: 'Aprendiz · 3+ reseñas con buen criterio en esta categoría.',
-  },
-  sommelier: {
-    title: 'Sommelier',
-    tooltip: 'Sommelier · 10+ reseñas y promedio sólido. Voz reconocida en la categoría.',
-  },
-  master: {
-    title: 'Maestro',
-    tooltip: 'Maestro · 25+ reseñas con promedio alto. Autoridad indiscutida en la categoría.',
-  },
-};
 
 const ICON: Record<MasteryLevel, typeof faSeedling> = {
   apprentice: faSeedling,
@@ -33,7 +19,6 @@ const ICON: Record<MasteryLevel, typeof faSeedling> = {
   master: faCrown,
 };
 
-/** Estilo escalonado: aprendiz suave (canela), sommelier azafrán, maestro azafrán fuerte. */
 const STYLE: Record<MasteryLevel, string> = {
   apprentice:
     'border-[color:var(--color-canela)]/35 bg-[color:var(--color-canela)]/10 text-[color:var(--color-canela)]',
@@ -49,17 +34,27 @@ export default function MasteryBadge({
   variant = 'full',
   className,
 }: MasteryBadgeProps) {
-  const { title, tooltip } = COPY[level];
+  const t = useTranslations('mastery');
+  const titleByLevel: Record<MasteryLevel, string> = {
+    apprentice: t('apprenticeTitle'),
+    sommelier: t('sommelierTitle'),
+    master: t('masterTitle'),
+  };
+  const tooltipByLevel: Record<MasteryLevel, string> = {
+    apprentice: t('apprenticeTooltip'),
+    sommelier: t('sommelierTooltip'),
+    master: t('masterTooltip'),
+  };
+  const title = titleByLevel[level];
+  const tooltip = tooltipByLevel[level];
   const label =
-    variant === 'compact' || !category ? title : `${title} de ${category}`;
-  // Sin `title` HTML: si el caller quiere un tooltip visible, envuelve con
-  // <Tooltip>. Mantener el title nativo se duplicaba con el tooltip externo
-  // del FeaturedTitleBadge en hover lento. La descripción queda en aria-label
-  // para que screen readers la lean.
+    variant === 'compact' || !category
+      ? title
+      : t('ofCategory', { title, category });
   return (
     <span
       role="img"
-      aria-label={`${label}. ${tooltip}`}
+      aria-label={t('ariaLabel', { label, tooltip })}
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-sans text-[11px] font-semibold uppercase tracking-[0.08em]',
         STYLE[level],

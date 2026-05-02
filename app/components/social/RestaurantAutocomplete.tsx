@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass, faLocationDot, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 
 /**
@@ -39,13 +40,23 @@ export interface RestaurantAutocompleteProps {
  */
 export default function RestaurantAutocomplete(props: RestaurantAutocompleteProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  if (!apiKey) {
-    return (
-      <div className="rounded-md border border-action-danger bg-action-danger/10 px-3 py-2 font-sans text-sm text-action-danger">
-        Falta configurar NEXT_PUBLIC_GOOGLE_MAPS_API_KEY.
-      </div>
-    );
-  }
+  return apiKey ? (
+    <APIProviderWrapper apiKey={apiKey} {...props} />
+  ) : (
+    <MissingKeyWarning />
+  );
+}
+
+function MissingKeyWarning() {
+  const t = useTranslations('social.restaurantAutocomplete');
+  return (
+    <div className="rounded-md border border-action-danger bg-action-danger/10 px-3 py-2 font-sans text-sm text-action-danger">
+      {t('missingApiKey')}
+    </div>
+  );
+}
+
+function APIProviderWrapper({ apiKey, ...props }: RestaurantAutocompleteProps & { apiKey: string }) {
   return (
     <APIProvider apiKey={apiKey} libraries={['places']}>
       <AutocompleteInner {...props} />
@@ -56,11 +67,14 @@ export default function RestaurantAutocomplete(props: RestaurantAutocompleteProp
 function AutocompleteInner({
   value,
   onChange,
-  label = 'Restaurante',
-  placeholder = 'Buscá tu restaurante…',
+  label,
+  placeholder,
   disabled = false,
   country = 'ar',
 }: RestaurantAutocompleteProps) {
+  const t = useTranslations('social.restaurantAutocomplete');
+  const effectiveLabel = label ?? t('label');
+  const effectivePlaceholder = placeholder ?? t('placeholder');
   const placesLib = useMapsLibrary('places');
   const [autocompleteService, setAutocompleteService] =
     useState<google.maps.places.AutocompleteService | null>(null);
@@ -128,13 +142,13 @@ function AutocompleteInner({
             setOpen(true);
             setActiveIndex(-1);
           } else {
-            setFetchError('No pudimos buscar ahora. Probá de nuevo.');
+            setFetchError(t('searchError'));
             setPredictions([]);
           }
         },
       );
     },
-    [autocompleteService, sessionToken, country],
+    [autocompleteService, sessionToken, country, t],
   );
 
   const onInput = useCallback(
@@ -170,7 +184,7 @@ function AutocompleteInner({
         },
         (place, status) => {
           if (status !== google.maps.places.PlacesServiceStatus.OK || !place) {
-            setFetchError('No pudimos cargar los detalles del lugar.');
+            setFetchError(t('detailsError'));
             return;
           }
           const city = extractCity(place.address_components);
@@ -194,7 +208,7 @@ function AutocompleteInner({
         },
       );
     },
-    [placesService, sessionToken, placesLib, onChange],
+    [placesService, sessionToken, placesLib, onChange, t],
   );
 
   const clearSelection = useCallback(() => {
@@ -227,7 +241,7 @@ function AutocompleteInner({
   return (
     <div ref={containerRef} className="relative flex flex-col gap-1.5">
       <label className="font-sans text-sm font-medium text-text-secondary">
-        {label}
+        {effectiveLabel}
         <span aria-hidden className="ml-0.5 text-action-danger">*</span>
       </label>
       <div className="relative">
@@ -244,7 +258,7 @@ function AutocompleteInner({
           onFocus={() => {
             if (predictions.length > 0) setOpen(true);
           }}
-          placeholder={placeholder}
+          placeholder={effectivePlaceholder}
           disabled={disabled || !autocompleteService}
           autoComplete="off"
           aria-expanded={open}
@@ -262,7 +276,7 @@ function AutocompleteInner({
         {value && (
           <button
             type="button"
-            aria-label="Limpiar selección"
+            aria-label={t('clearSelection')}
             onClick={clearSelection}
             disabled={disabled}
             className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
@@ -320,7 +334,7 @@ function AutocompleteInner({
 
       {open && !loading && predictions.length === 0 && query.trim().length >= 2 && !value && (
         <p className="absolute inset-x-0 top-full z-20 mt-1 rounded-xl border border-border-default bg-surface-card px-3 py-2 font-sans text-sm text-text-muted shadow-lg">
-          Sin resultados.
+          {t('noResults')}
         </p>
       )}
     </div>
