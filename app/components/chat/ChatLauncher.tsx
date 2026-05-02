@@ -2,20 +2,26 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { cn } from '@/app/lib/utils/cn';
 import ChatDrawer from './ChatDrawer';
 
 /**
- * Floating button that opens the chat drawer.
- *
- * Visible on every breakpoint (the previous widget hid on mobile, but
- * the new drawer becomes a fullscreen sheet on small viewports).
+ * Floating button that opens the global Sommelier chat. Hidden on
+ * routes that ship their own scoped launcher (the owner dashboard
+ * has the Business chat embedded — showing both at once is confusing
+ * because the floating one looks like just another button and users
+ * end up chatting with the wrong agent).
  */
 export default function ChatLauncher() {
   const t = useTranslations('chat');
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  // /es/restaurants/{slug}/owner, /en/restaurants/{slug}/owner, etc.
+  const isOwnerPanel = /\/restaurants\/[^/]+\/owner(?:\/|$)/.test(pathname || '');
+  if (isOwnerPanel) return null;
 
   return (
     <>

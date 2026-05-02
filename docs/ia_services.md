@@ -26,8 +26,8 @@ es un changelog; describe el estado actual.
 
 | Proveedor | Modelo / endpoint | Uso | Variable |
 |-----------|-------------------|-----|----------|
-| Anthropic (vía `litellm`) | `claude-haiku-4-5` | Sommelier + Ghostwriter — tool loops baratos y rápidos | `CHAT_MODEL` o `CHAT_MODEL_B2C` |
-| Anthropic (vía `litellm`) | `claude-sonnet-4-6` | Business — razonamiento sobre reseñas, citas textuales | `CHAT_MODEL_B2B` |
+| Anthropic (vía `litellm`) | `claude-haiku-4-5` (default sugerido) | Sommelier + Ghostwriter — tool loops baratos y rápidos | `CHAT_MODEL` o `CHAT_MODEL_B2C` |
+| Anthropic (vía `litellm`) | `claude-sonnet-4-6` (opt-in) | Business — razonamiento sobre reseñas, citas textuales | `CHAT_MODEL_B2B` (cae a `CHAT_MODEL` si no se setea) |
 | Google Gemini | `gemini-embedding-2` (768 dims con MRL) | Embeddings de reseñas y dishes para búsqueda semántica | `GEMINI_API_KEY` + `EMBEDDINGS_MODEL` |
 | Google Gemini | `gemini-2.5-flash` | Visión multimodal para Ghostwriter | mismo `GEMINI_API_KEY` |
 | Resend | `/emails` | Notificación email a owner cuando se pide reserva | `RESEND_API_KEY` |

@@ -17,6 +17,10 @@ estado actual, no la historia.
 - **Fecha**: 2026-05-02
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
+- **Cambios recientes**:
+  - Bypass de admin en el gate del Business chat para soporte / moderación.
+  - El launcher flotante global se oculta dentro de `/restaurants/{slug}/owner` para evitar confusión con el bloque embebido del Business.
+  - Tool `rank_my_dishes` agregada al Business — rankea el menú propio por rating, volumen o pilar.
 - **Pendiente / no cubierto**: ver [Roadmap conocido](#roadmap-conocido).
 
 ---
@@ -132,14 +136,19 @@ desde el panel del Ghostwriter se inserta automáticamente al post
 ## 3) Business — owner verificado (B2B)
 
 **Punto de entrada**: bloque "Pregúntale a CritiComida" embebido en
-`/restaurants/{slug}/owner`. Sólo aparece si el viewer es el
-`claimed_by_user_id` (validado server-side en cada llamada). Abre el
-mismo `ChatDrawer` con `agent="business"` y `restaurantScopeId`
-preconfigurado.
+`/restaurants/{slug}/owner`. El gate del endpoint usa
+`assert_verified_owner` (`backend/app/services/claim_service.py`), que
+acepta dos perfiles:
+
+1. `claimed_by_user_id == current_user.id` (el dueño real).
+2. `current_user.role == UserRole.admin` (soporte / moderación,
+   bypass deliberado para debug). El panel del owner ya muestra el
+   banner *"Estás viendo este panel como admin"* en este caso.
 
 > Defense in depth: cada tool del Business re-valida que el `dish_id`
-> recibido pertenezca al restaurante en scope. Un owner no puede
-> filtrar a un competidor manipulando los argumentos del tool.
+> recibido pertenezca al `restaurant_scope_id`. Ni un owner ni un
+> admin pueden filtrar a un competidor manipulando los argumentos
+> del tool.
 
 ### Qué puede hacer hoy
 
@@ -147,6 +156,7 @@ preconfigurado.
 |-----------|-----------------|-------|
 | Resolver platos por nombre | `search_dishes` | Mismo motor que el Sommelier, pero scopeado. |
 | Ver detalle de un plato propio | `get_dish_detail` | Top reseñas + pros/cons. |
+| Rankear los platos del menú propio | `rank_my_dishes` | Sort por `rating`, `review_count`, o promedio de un pilar. Filtro `min_review_count` (default 1) para no coronar dishes con una sola reseña. |
 | Diagnosticar caída de un pilar | `analyze_dish_pillar_drop` | Compara avg de N días vs prior window. Trae snippets de hasta 5 reseñas recientes con keywords negativos relacionadas al pilar (presentación, ejecución, costo/beneficio). |
 | Benchmark contra competencia local | `benchmark_dish` | Cohort dentro de un radio (default 2 km, max 25 km). Re-rankea por similitud semántica vía `dish_embeddings`. Devuelve percentil del rating del dish + lista de comparables ordenados por proximidad semántica. |
 | Listar reseñas pendientes de respuesta | `list_pending_reviews` | Reseñas del restaurante sin `DishReviewOwnerResponse`. |
@@ -399,7 +409,6 @@ implementadas** y vale tenerlas listadas para no duplicar trabajo:
 - **Business**: respuestas sugeridas a reseñas pendientes.
 - **Business**: series temporales de pilares (gráfico, no solo dos
   windows).
-- **Business**: comparación entre platos del propio menú.
 - **Business**: predicción de no-shows / proyecciones.
 - **Núcleo**: panel de "Conversaciones recientes" en el drawer (hoy
   cada apertura empieza una sesión nueva si no se pasa
