@@ -23,6 +23,7 @@ estado actual, no la historia.
   - Tool `rank_my_dishes` agregada al Business — rankea el menú propio por rating, volumen o pilar.
   - Sentiment automático en reseñas (Gemini Flash). El dashboard del owner muestra badge y filtros por sentimiento.
   - Refactor del toolbelt del Business: los antiguos `list_pending_reviews` quedaron unificados en un solo `list_reviews(responded_status?, sentiment?, sort?, limit?)`. Patrón paramétrico — un tool componible cubre cualquier pregunta sobre las reseñas sin sumar uno nuevo por caso de uso.
+  - **Contrato defensivo de tools**: `analyze_dish_pillar_drop` y `benchmark_dish` ahora aceptan `dish_name` además de `dish_id`. Resuelven el nombre internamente con scope al restaurante; ante múltiples matches devuelven `candidates` para que el agente desambigüe; ante cero matches devuelven `menu_peek` con los platos reales del restaurante para que ofrezca alternativas. El agente nunca debería pedirle un ID al owner — y aunque el LLM intente, el tool no se lo permite.
 - **Pendiente / no cubierto**: ver [Roadmap conocido](#roadmap-conocido).
 
 ---
@@ -159,8 +160,8 @@ acepta dos perfiles:
 | Resolver platos por nombre | `search_dishes` | Mismo motor que el Sommelier, pero scopeado. |
 | Ver detalle de un plato propio | `get_dish_detail` | Top reseñas + pros/cons. |
 | Rankear los platos del menú propio | `rank_my_dishes` | Sort por `rating`, `review_count`, o promedio de un pilar. Filtro `min_review_count` (default 1) para no coronar dishes con una sola reseña. |
-| Diagnosticar caída de un pilar | `analyze_dish_pillar_drop` | Compara avg de N días vs prior window. Trae snippets de hasta 5 reseñas recientes con keywords negativos relacionadas al pilar (presentación, ejecución, costo/beneficio). |
-| Benchmark contra competencia local | `benchmark_dish` | Cohort dentro de un radio (default 2 km, max 25 km). Re-rankea por similitud semántica vía `dish_embeddings`. Devuelve percentil del rating del dish + lista de comparables ordenados por proximidad semántica. |
+| Diagnosticar caída de un pilar | `analyze_dish_pillar_drop` | Compara avg de N días vs prior window. Trae snippets de hasta 5 reseñas recientes con keywords negativos relacionadas al pilar (presentación, ejecución, costo/beneficio). Acepta `dish_name` (texto libre del owner) además de `dish_id` — resuelve el nombre internamente y, si hay múltiples matches o ninguno, devuelve candidatos / `menu_peek` para que el agente disambigüe sin pedirle el ID al humano. |
+| Benchmark contra competencia local | `benchmark_dish` | Cohort dentro de un radio (default 2 km, max 25 km). Re-rankea por similitud semántica vía `dish_embeddings`. Devuelve percentil del rating del dish + lista de comparables ordenados por proximidad semántica. Mismo contrato amistoso: acepta `dish_name` o `dish_id`. |
 | Listar reseñas (cualquier corte) | `list_reviews` | Tool único componible. Filtros: `responded_status` (`any`/`pending`/`responded`), `sentiment` (`any`/`positive`/`neutral`/`negative`), `sort` (`recent`/`oldest`/`most_negative`). Cubre "qué me falta responder", "última positiva", "más negativas", "qué decían las negativas que ya contesté", etc. — sin necesidad de un tool por pregunta. |
 | Recibir notificaciones de reservas | tabla `reservation_requests` + tipo `notification.kind='reservation_requested'` + email Resend | Disparado cuando un usuario llama `request_reservation` desde el Sommelier. |
 
@@ -352,6 +353,32 @@ flowchart LR
 
 **Resultado UX**: el bot dice "estás en el percentil 35: 65% de los
 platos comparables están mejor rankeados" y lista 3-8 dishes vecinos.
+
+---
+
+## Defensa contra hand-backs (regresar la pelota al usuario)
+
+Los LLMs a veces "se rinden" y le piden al humano datos técnicos
+(`dish_id`, "el nombre exacto", etc.) en lugar de resolver con tools.
+Tres capas combinadas para no depender solo del prompt:
+
+1. **Contrato defensivo del tool**. Tools que necesitan un ID interno
+   aceptan *también* el input amistoso (`dish_name` además de
+   `dish_id`) y resuelven internamente. Tres respuestas estructuradas:
+   match único (ejecuta), `needs_disambiguation: true` con
+   `candidates`, o `error: "no_match"` con `menu_peek` real del
+   restaurante. Helper compartido en
+   `backend/app/services/chat/tools/business.py::_resolve_dish_in_scope`.
+2. **Regla #0 del system prompt**. Cada agente arranca su prompt con
+   "NUNCA pidas IDs al humano" más la receta para cada respuesta del
+   tool. El prompt es backup del tool, no fuente única de verdad.
+3. **Audit en producción**. Script
+   `python -m app.scripts.audit_chat_handoffs --since 7d` cuenta
+   cuántos turnos del assistant terminan sin llamar ningún tool y
+   contienen frases de hand-back ("necesito saber", "indicame el
+   ID"). Wirear a cron diario con `--threshold 0.05` para que falle
+   cuando el rate sube. Es el indicador de que aparece un flow nuevo
+   sin las dos primeras capas aplicadas.
 
 ---
 
