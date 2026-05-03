@@ -197,8 +197,8 @@ function pendingLabelFor(toolName: string, t: ToolsTranslator): string {
       return t('pending.analyze_dish_pillar_drop');
     case 'benchmark_dish':
       return t('pending.benchmark_dish');
-    case 'list_pending_reviews':
-      return t('pending.list_pending_reviews');
+    case 'list_reviews':
+      return t('pending.list_reviews');
     case 'rank_my_dishes':
       return t('pending.rank_my_dishes');
     case 'suggest_tags_from_photo':

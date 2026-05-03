@@ -1,3 +1,4 @@
+
 # Servicios de IA en CritiComida — funcionalidades vigentes
 
 Este documento es la **memoria viva de los servicios de IA** del
@@ -16,7 +17,7 @@ es un changelog; describe el estado actual.
 - **Fecha**: 2026-05-02
 - **Servicios activos**: agent loop multi-tool, embeddings de
   catálogo, búsqueda híbrida (filtros + KNN), perfil de gustos,
-  visión de plato, motor editorial.
+  visión de plato, motor editorial, sentiment de reseñas.
 - **Pendiente / no cubierto**: ver
   [Roadmap conocido](#roadmap-conocido).
 
@@ -30,6 +31,7 @@ es un changelog; describe el estado actual.
 | Anthropic (vía `litellm`) | `claude-sonnet-4-6` (opt-in) | Business — razonamiento sobre reseñas, citas textuales | `CHAT_MODEL_B2B` (cae a `CHAT_MODEL` si no se setea) |
 | Google Gemini | `gemini-embedding-2` (768 dims con MRL) | Embeddings de reseñas y dishes para búsqueda semántica | `GEMINI_API_KEY` + `EMBEDDINGS_MODEL` |
 | Google Gemini | `gemini-2.5-flash` | Visión multimodal para Ghostwriter | mismo `GEMINI_API_KEY` |
+| Google Gemini | `gemini-2.5-flash` | Sentiment de reseñas (clasifica el texto en positive/neutral/negative + score) | mismo `GEMINI_API_KEY` |
 | Resend | `/emails` | Notificación email a owner cuando se pide reserva | `RESEND_API_KEY` |
 
 Si una key no está configurada, el servicio que la usa **degrada
@@ -37,7 +39,9 @@ graciosamente** en vez de romper:
 
 - Sin `GEMINI_API_KEY` → search semántico cae a ranking estructurado;
   Ghostwriter devuelve arrays vacíos pero no falla; embeddings se
-  saltan en backfill.
+  saltan en backfill; el sentiment queda `null` y el dashboard del
+  owner no rompe — los filtros por sentimiento simplemente no
+  matchean reviews sin clasificar.
 - Sin `CHAT_API_KEY` (Anthropic) → el endpoint de chat devuelve un
   error 502 explícito al frontend (sin esto el bot no tiene cómo
   responder).
@@ -173,6 +177,47 @@ acción del usuario (claim approve, reservation request).
 **Consumidores**: tool `request_reservation` (Sommelier), claim flow
 (no relacionado con chatbot pero usa el mismo servicio).
 
+### G. Sentiment de reseñas — Gemini `gemini-2.5-flash`
+
+`backend/app/services/sentiment_service.py`. Clasifica el texto de cada
+`DishReview` (no las del crítico) en una etiqueta y un score numérico
+para que el owner pueda triagear cuáles responder primero. Reusa el
+mismo cliente HTTP / patrón JSON-mode del Ghostwriter (sección C).
+
+Funciones expuestas:
+
+- `analyze_review_text(text, rating)` — pura: devuelve
+  `SentimentResult(label, score)` o `None` si Gemini no está
+  configurado o la llamada falla. Llamada por el hot path y por el
+  backfill.
+- `analyze_and_persist_review(db, review_id)` — carga la review,
+  clasifica y escribe `sentiment_label`, `sentiment_score`,
+  `sentiment_analyzed_at`. Caller commitea.
+- `schedule_analyze_review(review_id)` — fire-and-forget invocable
+  desde un router. Abre **su propia** sesión (`async_session()`) en
+  vez de captar la del request, así el job sobrevive al cierre de la
+  request y nunca observa una sesión cerrada.
+
+Schema reforzado por Gemini (`response_mime_type=application/json`):
+`{label: enum[positive,neutral,negative], score: number ∈ [-1,1]}`.
+El servicio reconcilia label vs score si llegan inconsistentes (raro
+pero observado): si el modelo dice "positive" con score < -0.15, se
+fuerza a "negative" y viceversa.
+
+Visibilidad: el campo es **interno**. Sólo se serializa en
+`OwnerReviewItem` (dashboard del owner) y en la salida del tool
+`list_reviews` (chatbot Business). `DishReviewResponse`
+(público) no lo expone.
+
+Script one-shot: `python -m app.scripts.backfill_sentiment`. Acepta
+`--reanalyze` para re-clasificar todo el corpus después de un cambio
+material de prompt.
+
+**Consumidores**:
+
+- Owner dashboard — `GET /api/restaurants/{slug}/owner/reviews?sentiment=negative` y `?sort=sentiment_asc` (más negativas primero).
+- Tool `list_reviews` (Business) — filtros componibles `responded_status` + `sentiment` + `sort` para que cualquier pregunta sobre reseñas resuelva con una sola llamada.
+
 ---
 
 ## Casos de uso end-to-end
@@ -304,6 +349,37 @@ sequenceDiagram
   Business).
 - Tools que fallan no rompen la sesión: el error se inyecta como
   `tool_result.is_error=true` y el modelo decide cómo recuperarse.
+
+### CU-IA-6 — Sentiment async al crear/editar una reseña
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant API as FastAPI router
+    participant DB as Postgres
+    participant Gemini as Gemini Flash (sentiment)
+    User->>API: POST /api/dishes/{id}/reviews (o PUT con note nuevo)
+    API->>DB: INSERT/UPDATE dish_review
+    API-->>User: 201 / 200 OK
+    par fire-and-forget (sesión propia)
+        API->>API: schedule_analyze_review(review_id)
+        API->>DB: SELECT review.note + rating
+        API->>Gemini: generateContent (system + note + rating, JSON schema)
+        Gemini-->>API: {label, score}
+        API->>DB: UPDATE dish_reviews SET sentiment_label, sentiment_score, sentiment_analyzed_at
+    end
+```
+
+**Notas**:
+
+- `schedule_analyze_review` abre `async_session()` propia: la sesión
+  del request ya está cerrada cuando el task corre, así que no se
+  puede reusar como sí hace `schedule_reembed_review`.
+- En PUT, sólo se schedulea cuando `note` cambió (un edit de rating
+  o tags no toca el sentimiento). El servicio igual es idempotente.
+- Si Gemini falla o `GEMINI_API_KEY` no está, los campos quedan
+  `null`. El próximo edit del usuario o el script de backfill cubren
+  el reintento — no hay queue con retries todavía.
 
 ### CU-IA-5 — Diagnóstico de pilar (Business)
 

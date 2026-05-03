@@ -68,6 +68,8 @@ export async function deleteOfficialPhoto(
 
 // ----- Dashboard del owner -----
 
+export type SentimentLabel = 'positive' | 'neutral' | 'negative';
+
 export interface OwnerReviewItem {
   id: string;
   dish_id: string;
@@ -79,6 +81,8 @@ export interface OwnerReviewItem {
   is_anonymous: boolean;
   date_tasted: string;
   has_owner_response: boolean;
+  sentiment_label: SentimentLabel | null;
+  sentiment_score: number | null;
 }
 
 export interface OwnerReviewsListResponse {
@@ -87,10 +91,20 @@ export interface OwnerReviewsListResponse {
   pending_count: number;
 }
 
+export interface ListOwnerReviewsOptions {
+  sentiment?: SentimentLabel;
+  sort?: 'sentiment_asc';
+}
+
 export async function listOwnerReviews(
   slug: string,
+  opts: ListOwnerReviewsOptions = {},
 ): Promise<OwnerReviewsListResponse> {
+  const params = new URLSearchParams();
+  if (opts.sentiment) params.set('sentiment', opts.sentiment);
+  if (opts.sort) params.set('sort', opts.sort);
+  const qs = params.toString();
   return fetchApi<OwnerReviewsListResponse>(
-    `/api/restaurants/${slug}/owner/reviews`,
+    `/api/restaurants/${slug}/owner/reviews${qs ? `?${qs}` : ''}`,
   );
 }

@@ -16,6 +16,7 @@ import {
   listOfficialPhotos,
   listOwnerReviews,
   type OwnerReviewItem,
+  type SentimentLabel,
 } from '@/app/lib/api/owner-content';
 import type { OfficialPhoto } from '@/app/lib/types/owner-content';
 import BusinessChatLauncher from '@/app/components/chat/BusinessChatLauncher';
@@ -35,6 +36,19 @@ type GateState =
 
 const PHOTO_CAP = 5;
 
+const SENTIMENT_FILTERS: { key: SentimentLabel | null; tKey: string }[] = [
+  { key: null, tKey: 'sentimentFilterAll' },
+  { key: 'positive', tKey: 'sentimentFilterPositive' },
+  { key: 'neutral', tKey: 'sentimentFilterNeutral' },
+  { key: 'negative', tKey: 'sentimentFilterNegative' },
+];
+
+const SENTIMENT_BADGE_CLASSES: Record<SentimentLabel, string> = {
+  positive: 'bg-emerald-100 text-emerald-700',
+  neutral: 'bg-neutral-200 text-neutral-700',
+  negative: 'bg-rose-100 text-rose-700',
+};
+
 export default function OwnerDashboardClient({
   restaurantSlug,
   restaurantId,
@@ -51,23 +65,38 @@ export default function OwnerDashboardClient({
   const [photos, setPhotos] = useState<OfficialPhoto[]>([]);
   const [reviews, setReviews] = useState<OwnerReviewItem[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
+  const [sentimentFilter, setSentimentFilter] = useState<SentimentLabel | null>(
+    null,
+  );
+  const [sortByNegativeFirst, setSortByNegativeFirst] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const loadAll = useCallback(async () => {
+  const loadReviews = useCallback(async () => {
     try {
-      const [photosResp, reviewsResp] = await Promise.all([
-        listOfficialPhotos(restaurantSlug),
-        listOwnerReviews(restaurantSlug),
-      ]);
-      setPhotos(photosResp.items);
+      const reviewsResp = await listOwnerReviews(restaurantSlug, {
+        sentiment: sentimentFilter ?? undefined,
+        sort: sortByNegativeFirst ? 'sentiment_asc' : undefined,
+      });
       setReviews(reviewsResp.items);
       setPendingCount(reviewsResp.pending_count);
     } catch {
       // Silent — el render decide qué mostrar.
     }
-  }, [restaurantSlug]);
+  }, [restaurantSlug, sentimentFilter, sortByNegativeFirst]);
+
+  const loadAll = useCallback(async () => {
+    try {
+      const [photosResp] = await Promise.all([
+        listOfficialPhotos(restaurantSlug),
+        loadReviews(),
+      ]);
+      setPhotos(photosResp.items);
+    } catch {
+      // Silent — el render decide qué mostrar.
+    }
+  }, [restaurantSlug, loadReviews]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -95,7 +124,16 @@ export default function OwnerDashboardClient({
     return () => {
       cancelled = true;
     };
-  }, [authLoading, user, restaurantSlug, loadAll]);
+    // loadAll is recreated when sentimentFilter changes; we only want
+    // the auth-gate effect to run on identity/slug changes, so we
+    // intentionally exclude loadAll here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, user, restaurantSlug]);
+
+  useEffect(() => {
+    if (gate.kind !== 'authorized') return;
+    void loadReviews();
+  }, [gate.kind, loadReviews]);
 
   const handleUpload = useCallback(
     async (file: File) => {
@@ -285,9 +323,45 @@ export default function OwnerDashboardClient({
             </span>
           )}
         </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <div role="group" aria-label={t('sentimentFilterLabel')} className="flex flex-wrap gap-1.5">
+            {SENTIMENT_FILTERS.map(({ key, tKey }) => {
+              const active = sentimentFilter === key;
+              return (
+                <button
+                  key={tKey}
+                  type="button"
+                  onClick={() => setSentimentFilter(key)}
+                  aria-pressed={active}
+                  className={`rounded-full px-3 py-1 font-sans text-xs font-semibold transition ${
+                    active
+                      ? 'bg-[var(--color-canela)] text-white'
+                      : 'bg-surface-subtle text-text-secondary hover:bg-surface-card'
+                  }`}
+                >
+                  {t(tKey)}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            onClick={() => setSortByNegativeFirst((v) => !v)}
+            aria-pressed={sortByNegativeFirst}
+            className={`ml-auto rounded-full px-3 py-1 font-sans text-xs font-semibold transition ${
+              sortByNegativeFirst
+                ? 'bg-rose-600 text-white'
+                : 'bg-surface-subtle text-text-secondary hover:bg-surface-card'
+            }`}
+          >
+            {t('sentimentSortNegativeFirst')}
+          </button>
+        </div>
+
         {reviews.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border-default p-6 text-center font-sans text-sm text-text-muted">
-            {t('noReviews')}
+            {sentimentFilter !== null ? t('noReviewsForFilter') : t('noReviews')}
           </p>
         ) : (
           <ul className="flex list-none flex-col gap-2 p-0">
@@ -304,15 +378,24 @@ export default function OwnerDashboardClient({
                         ★ {review.rating.toFixed(1)}
                       </span>
                     </span>
-                    {review.has_owner_response ? (
-                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
-                        {t('responded')}
-                      </span>
-                    ) : (
-                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
-                        {t('notResponded')}
-                      </span>
-                    )}
+                    <div className="flex flex-wrap items-center justify-end gap-1.5">
+                      {review.sentiment_label && (
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-semibold ${SENTIMENT_BADGE_CLASSES[review.sentiment_label]}`}
+                        >
+                          {t(`sentiment_${review.sentiment_label}`)}
+                        </span>
+                      )}
+                      {review.has_owner_response ? (
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                          {t('responded')}
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                          {t('notResponded')}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <p className="line-clamp-2 font-sans text-sm text-text-secondary">
                     {review.note}
