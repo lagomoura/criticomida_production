@@ -5,6 +5,7 @@ import { Link } from '@/app/lib/i18n/navigation';
 import { useRouter } from '@/app/lib/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
+import Input from '@/app/components/ui/Input';
 import { resetPassword } from '@/app/lib/api/auth';
 import { ApiError } from '@/app/lib/api/client';
 
@@ -62,39 +63,25 @@ export default function ResetPasswordClient({ token }: Props) {
             {t('subtitle')}
           </p>
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <label className="flex flex-col gap-1">
-              <span className="font-sans text-sm font-semibold">
-                {t('newPassword')}
-              </span>
-              <input
-                type="password"
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="rounded-md border border-border-default bg-surface-default px-3 py-2 font-sans text-sm"
-              />
-              <span className="font-sans text-xs text-text-muted">
-                {t('minChars')}
-              </span>
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="font-sans text-sm font-semibold">
-                {t('repeatPassword')}
-              </span>
-              <input
-                type="password"
-                required
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                className="rounded-md border border-border-default bg-surface-default px-3 py-2 font-sans text-sm"
-              />
-              {confirm && password !== confirm && (
-                <span className="font-sans text-xs text-action-danger">
-                  {t('noMatch')}
-                </span>
-              )}
-            </label>
+            <Input
+              label={t('newPassword')}
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              helpText={t('minChars')}
+            />
+            <Input
+              label={t('repeatPassword')}
+              type="password"
+              autoComplete="new-password"
+              required
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              error={confirm.length > 0 && password !== confirm ? t('noMatch') : undefined}
+            />
 
             {state.kind === 'error' && (
               <p className="rounded-md bg-action-danger/10 px-3 py-2 font-sans text-sm text-action-danger">

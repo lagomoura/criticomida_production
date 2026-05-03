@@ -12,7 +12,9 @@
     "sending": "Enviando…",
     "underConstruction": "En construcción",
     "backToHomeArrow": "← Volver al inicio",
-    "backArrow": "← Volver"
+    "backArrow": "← Volver",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña"
   },
   "wantToTryButton": {
     "active": "En tu lista",
