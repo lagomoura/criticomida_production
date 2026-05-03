@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from '@/app/lib/i18n/navigation';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/app/lib/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
@@ -13,14 +14,17 @@ import { uploadRestaurantImage } from '@/app/lib/api/images';
 import {
   addOfficialPhoto,
   deleteOfficialPhoto,
+  getOwnerNotificationPreference,
   listOfficialPhotos,
   listOwnerReviews,
+  updateOwnerNotificationPreference,
   type OwnerReviewItem,
   type SentimentLabel,
 } from '@/app/lib/api/owner-content';
 import type { OfficialPhoto } from '@/app/lib/types/owner-content';
 import BusinessChatLauncher from '@/app/components/chat/BusinessChatLauncher';
 import ReviewEmojiChips from './ReviewEmojiChips';
+import OwnerReviewModal from './OwnerReviewModal';
 
 interface Props {
   restaurantSlug: string;
@@ -58,8 +62,10 @@ export default function OwnerDashboardClient({
 }: Props) {
   const { user, isLoading: authLoading } = useAuthContext();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations('ownerDashboard');
   const locale = useLocale();
+  const reviewIdParam = searchParams.get('review');
 
   const [gate, setGate] = useState<GateState>({ kind: 'checking' });
   const [isAdminViewer, setIsAdminViewer] = useState(false);
@@ -73,6 +79,12 @@ export default function OwnerDashboardClient({
   const [photoBusy, setPhotoBusy] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // Default ON — coincide con el backend cuando no hay fila persistida.
+  // Si el GET falla (red o backend viejo), igual el toggle queda accionable
+  // y el PUT mostrará un error explícito.
+  const [notifyOnReview, setNotifyOnReview] = useState<boolean>(true);
+  const [notifySaving, setNotifySaving] = useState(false);
+  const [notifyError, setNotifyError] = useState<string | null>(null);
 
   const loadReviews = useCallback(async () => {
     try {
@@ -89,15 +101,78 @@ export default function OwnerDashboardClient({
 
   const loadAll = useCallback(async () => {
     try {
-      const [photosResp] = await Promise.all([
+      const [photosResp, prefResp] = await Promise.all([
         listOfficialPhotos(restaurantSlug),
+        getOwnerNotificationPreference(restaurantSlug).catch(() => null),
         loadReviews(),
       ]);
       setPhotos(photosResp.items);
+      if (prefResp) setNotifyOnReview(prefResp.notify_on_review);
     } catch {
       // Silent — el render decide qué mostrar.
     }
   }, [restaurantSlug, loadReviews]);
+
+  const modalReview = useMemo<OwnerReviewItem | null>(
+    () =>
+      reviewIdParam
+        ? reviews.find((r) => r.id === reviewIdParam) ?? null
+        : null,
+    [reviewIdParam, reviews],
+  );
+
+  const openReviewModal = useCallback(
+    (reviewId: string) => {
+      router.replace(
+        `/restaurants/${restaurantSlug}/owner?review=${reviewId}`,
+        { scroll: false },
+      );
+    },
+    [router, restaurantSlug],
+  );
+
+  const closeReviewModal = useCallback(() => {
+    router.replace(`/restaurants/${restaurantSlug}/owner`, { scroll: false });
+  }, [router, restaurantSlug]);
+
+  // Si la notificación trae un reviewId que no está en el listado actual
+  // (porque hay un filtro de sentimiento aplicado), limpiamos el filtro
+  // para que la card aparezca y el modal pueda abrirse.
+  useEffect(() => {
+    if (
+      reviewIdParam &&
+      reviews.length > 0 &&
+      !reviews.some((r) => r.id === reviewIdParam) &&
+      sentimentFilter !== null
+    ) {
+      setSentimentFilter(null);
+    }
+  }, [reviewIdParam, reviews, sentimentFilter]);
+
+  const handleToggleNotify = useCallback(
+    async (next: boolean) => {
+      if (notifySaving) return;
+      const previous = notifyOnReview;
+      setNotifyOnReview(next);
+      setNotifySaving(true);
+      setNotifyError(null);
+      try {
+        const updated = await updateOwnerNotificationPreference(
+          restaurantSlug,
+          { notify_on_review: next },
+        );
+        setNotifyOnReview(updated.notify_on_review);
+      } catch (err) {
+        setNotifyOnReview(previous);
+        setNotifyError(
+          err instanceof ApiError ? err.message : t('notifications.saveError'),
+        );
+      } finally {
+        setNotifySaving(false);
+      }
+    },
+    [notifyOnReview, notifySaving, restaurantSlug, t],
+  );
 
   useEffect(() => {
     if (authLoading) return;
@@ -252,6 +327,47 @@ export default function OwnerDashboardClient({
         restaurantName={restaurantName}
       />
 
+      <section className="flex flex-col gap-3 rounded-2xl border border-border-default bg-surface-card p-4">
+        <h2 className="font-display text-xl font-medium">
+          {t('notifications.heading')}
+        </h2>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col gap-0.5">
+            <p className="font-sans text-sm font-medium text-text-primary">
+              {t('notifications.reviewToggleLabel')}
+            </p>
+            <p className="font-sans text-xs text-text-muted">
+              {t('notifications.reviewToggleHint')}
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={notifyOnReview}
+            aria-label={t('notifications.reviewToggleLabel')}
+            disabled={notifySaving}
+            onClick={() => void handleToggleNotify(!notifyOnReview)}
+            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition disabled:opacity-50 ${
+              notifyOnReview
+                ? 'bg-[var(--color-canela)]'
+                : 'bg-neutral-300'
+            }`}
+          >
+            <span
+              aria-hidden
+              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${
+                notifyOnReview ? 'translate-x-5' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+        </div>
+        {notifyError && (
+          <p className="rounded-md bg-action-danger/10 px-3 py-2 font-sans text-xs text-action-danger">
+            {notifyError}
+          </p>
+        )}
+      </section>
+
       <section className="flex flex-col gap-3">
         <div className="flex items-baseline justify-between">
           <h2 className="font-display text-2xl font-medium">{t('officialPhotos')}</h2>
@@ -368,9 +484,10 @@ export default function OwnerDashboardClient({
           <ul className="flex list-none flex-col gap-2 p-0">
             {reviews.map((review) => (
               <li key={review.id}>
-                <Link
-                  href={`/reviews/${review.id}`}
-                  className="flex flex-col gap-1 rounded-2xl border border-border-default bg-surface-card p-4 no-underline transition hover:border-[var(--color-canela)]"
+                <button
+                  type="button"
+                  onClick={() => openReviewModal(review.id)}
+                  className="flex w-full flex-col gap-1 rounded-2xl border border-border-default bg-surface-card p-4 text-left transition hover:border-[var(--color-canela)] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="font-display text-base text-text-primary">
@@ -410,12 +527,20 @@ export default function OwnerDashboardClient({
                         : review.user_display_name}{' '}
                     · {new Date(review.date_tasted).toLocaleDateString(locale)}
                   </p>
-                </Link>
+                </button>
               </li>
             ))}
           </ul>
         )}
       </section>
+
+      {modalReview && (
+        <OwnerReviewModal
+          review={modalReview}
+          onClose={closeReviewModal}
+          onResponseSaved={() => void loadReviews()}
+        />
+      )}
 
       <section className="flex flex-col gap-3 rounded-2xl border border-dashed border-[var(--color-crema-darker)] bg-surface-subtle p-4">
         <h2 className="font-display text-lg">{t('moreChangesHeading')}</h2>

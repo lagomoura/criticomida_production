@@ -112,7 +112,9 @@ export type NotificationKind =
   | 'claim_rejected'
   | 'claim_revoked'
   | 'comment_like'
-  | 'comment_reply';
+  | 'comment_reply'
+  | 'reservation_requested'
+  | 'review_on_owned_restaurant';
 
 export interface SocialNotification {
   id: string;
@@ -124,6 +126,7 @@ export interface SocialNotification {
     postId?: string | null;
     userId?: string | null;
     restaurantId?: string | null;
+    restaurantSlug?: string | null;
   };
   /** Message already resolved by backend or formatter. */
   text: string;

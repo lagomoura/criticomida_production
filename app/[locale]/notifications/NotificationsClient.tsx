@@ -29,6 +29,16 @@ export default function NotificationsClient() {
         void markRead(notification.id);
       }
       if (
+        notification.kind === 'review_on_owned_restaurant' &&
+        notification.target?.restaurantSlug &&
+        notification.target?.postId
+      ) {
+        router.push(
+          `/restaurants/${notification.target.restaurantSlug}/owner?review=${notification.target.postId}`,
+        );
+        return;
+      }
+      if (
         notification.kind.startsWith('claim_') &&
         notification.target?.restaurantId
       ) {

@@ -123,3 +123,30 @@ export async function listOwnerReviews(
     `/api/restaurants/${slug}/owner/reviews${qs ? `?${qs}` : ''}`,
   );
 }
+
+// ----- Preferencias de notificación del owner -----
+
+export interface OwnerNotificationPreference {
+  notify_on_review: boolean;
+}
+
+export async function getOwnerNotificationPreference(
+  slug: string,
+): Promise<OwnerNotificationPreference> {
+  return fetchApi<OwnerNotificationPreference>(
+    `/api/restaurants/${slug}/owner/notification-preferences`,
+  );
+}
+
+export async function updateOwnerNotificationPreference(
+  slug: string,
+  body: OwnerNotificationPreference,
+): Promise<OwnerNotificationPreference> {
+  return fetchApi<OwnerNotificationPreference>(
+    `/api/restaurants/${slug}/owner/notification-preferences`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    },
+  );
+}

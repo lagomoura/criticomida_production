@@ -337,6 +337,23 @@
       "genderNonBinaryShort": "Non-binary",
       "ageRange": "Age range: {range}"
     },
+    "notifications": {
+      "heading": "Notifications",
+      "reviewToggleLabel": "Notify me when someone leaves a review",
+      "reviewToggleHint": "You'll get an email and an in-app alert.",
+      "saveError": "We couldn't save the change. Try again."
+    },
+    "reviewModal": {
+      "closeAction": "Close",
+      "loadError": "We couldn't load the review.",
+      "respondHeading": "Reply to this review",
+      "yourResponseHeading": "Your reply",
+      "responsePlaceholder": "Write your reply as the owner…",
+      "respondAction": "Publish reply",
+      "updateAction": "Update reply",
+      "savingAction": "Saving…",
+      "saveError": "We couldn't save the reply. Try again."
+    },
     "moreChangesHeading": "More profile changes",
     "moreChangesDescription": "For now the panel only manages photos and responses. If you want to update the reservation URL or report an error in the place's data, contact support and we'll help.",
     "backToPublic": "← Back to public profile"
@@ -591,7 +608,9 @@
         "claim_rejected": "Claim rejected",
         "claim_revoked": "Verification revoked",
         "comment_like": "Comment liked",
-        "comment_reply": "Reply"
+        "comment_reply": "Reply",
+        "reservation_requested": "New reservation request",
+        "review_on_owned_restaurant": "New review at your restaurant"
       },
       "unread": "Unread"
     }

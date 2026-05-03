@@ -337,6 +337,23 @@
       "genderNonBinaryShort": "No binarie",
       "ageRange": "Rango etario: {range}"
     },
+    "notifications": {
+      "heading": "Notificaciones",
+      "reviewToggleLabel": "Avisarme cuando alguien deje una reseña",
+      "reviewToggleHint": "Te llega un email y aparece en tu campanita.",
+      "saveError": "No pudimos guardar el cambio. Probá de nuevo."
+    },
+    "reviewModal": {
+      "closeAction": "Cerrar",
+      "loadError": "No pudimos cargar la reseña.",
+      "respondHeading": "Responder esta reseña",
+      "yourResponseHeading": "Tu respuesta",
+      "responsePlaceholder": "Escribí tu respuesta como dueño…",
+      "respondAction": "Publicar respuesta",
+      "updateAction": "Actualizar respuesta",
+      "savingAction": "Guardando…",
+      "saveError": "No pudimos guardar la respuesta. Probá de nuevo."
+    },
     "moreChangesHeading": "Aplicar más cambios al perfil",
     "moreChangesDescription": "Por ahora desde el panel solo gestionás fotos y respuestas. Si querés actualizar la URL de reservas o avisar de un error en los datos del local, escribinos a soporte y te ayudamos.",
     "backToPublic": "← Volver al perfil público"
@@ -591,7 +608,9 @@
         "claim_rejected": "Reclamo rechazado",
         "claim_revoked": "Verificación revocada",
         "comment_like": "Like en comentario",
-        "comment_reply": "Respuesta"
+        "comment_reply": "Respuesta",
+        "reservation_requested": "Nueva solicitud de reserva",
+        "review_on_owned_restaurant": "Reseña nueva en tu restaurante"
       },
       "unread": "Sin leer"
     }
