@@ -3,8 +3,10 @@
 
 import { ImageResponse } from 'next/og';
 import { type NextRequest } from 'next/server';
+import sharp from 'sharp';
 
-export const runtime = 'edge';
+// nodejs runtime: necesitamos sharp para convertir webp → PNG (Satori no soporta webp).
+export const runtime = 'nodejs';
 
 const WIDTH = 1080;
 const HEIGHT = 1920;
@@ -46,6 +48,31 @@ function absoluteUrl(url: string, apiBase: string): string {
   if (/^https?:\/\//i.test(url)) return url;
   if (url.startsWith('/')) return `${apiBase}${url}`;
   return url;
+}
+
+const PHOTO_SIZE = 920;
+
+async function resolvePhotoSrc(
+  rawUrl: string | undefined,
+  apiBase: string,
+): Promise<string | null> {
+  if (!rawUrl) return null;
+  const absolute = absoluteUrl(rawUrl, apiBase);
+  const isWebp = /\.webp(\?|$)/i.test(rawUrl);
+  if (!isWebp) return absolute;
+
+  try {
+    const res = await fetch(absolute);
+    if (!res.ok) return null;
+    const buf = Buffer.from(await res.arrayBuffer());
+    const png = await sharp(buf)
+      .resize(PHOTO_SIZE, PHOTO_SIZE, { fit: 'cover' })
+      .png()
+      .toBuffer();
+    return `data:image/png;base64,${png.toString('base64')}`;
+  } catch {
+    return null;
+  }
 }
 
 function Star({ filled }: { filled: boolean }) {
@@ -226,14 +253,7 @@ export async function GET(
     });
   }
 
-  // Satori sólo soporta JPG/PNG/GIF — los .webp del backend caen al fallback
-  // hasta que tengamos un proxy de conversión. Para no romper la card en esos
-  // casos, mostramos el fallback estético en lugar de un hueco.
-  const rawMedia = review.media[0]?.url;
-  const photoUrl =
-    rawMedia && !/\.webp(\?|$)/i.test(rawMedia)
-      ? absoluteUrl(rawMedia, apiBase)
-      : null;
+  const photoUrl = await resolvePhotoSrc(review.media[0]?.url, apiBase);
   const stars = Math.max(0, Math.min(5, Math.round(review.score)));
   const handle = review.extras?.is_anonymous
     ? null

@@ -99,7 +99,9 @@ export default function ReviewDetailClient({ postId }: Props) {
     async (id: string) => {
       setSharingCard(true);
       try {
-        const res = await fetch(`/api/og/review/${encodeURIComponent(id)}`);
+        const res = await fetch(`/api/og/review/${encodeURIComponent(id)}`, {
+          cache: 'no-store',
+        });
         if (!res.ok) throw new Error('og-failed');
         const blob = await res.blob();
         const file = new File([blob], `criticomida-${id}.png`, {
