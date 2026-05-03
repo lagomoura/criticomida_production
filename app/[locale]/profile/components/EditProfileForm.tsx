@@ -4,10 +4,16 @@ import { FormEvent, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
 import Input from '@/app/components/ui/Input';
+import Select from '@/app/components/ui/Select';
 import Textarea from '@/app/components/ui/Textarea';
 import { updateProfile } from '@/app/lib/api/users';
 import { ApiError } from '@/app/lib/api/client';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
+import type { Gender } from '@/app/lib/types/user';
+
+const GENDER_OPTIONS: Gender[] = ['female', 'male', 'non_binary', 'prefer_not_to_say'];
+
+const TODAY_ISO = () => new Date().toISOString().slice(0, 10);
 
 export default function EditProfileForm() {
   const { user, refreshUser } = useAuthContext();
@@ -18,6 +24,8 @@ export default function EditProfileForm() {
   const [handle, setHandle] = useState(user?.handle ?? '');
   const [bio, setBio] = useState(user?.bio ?? '');
   const [location, setLocation] = useState(user?.location ?? '');
+  const [gender, setGender] = useState<Gender | ''>(user?.gender ?? '');
+  const [birthDate, setBirthDate] = useState(user?.birth_date ?? '');
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +48,8 @@ export default function EditProfileForm() {
         handle: handle.trim() ? handle.trim() : null,
         bio: bio.trim() ? bio.trim() : null,
         location: location.trim() ? location.trim() : null,
+        gender: gender === '' ? null : gender,
+        birth_date: birthDate || null,
       });
       await refreshUser();
       setSuccess(true);
@@ -115,6 +125,29 @@ export default function EditProfileForm() {
             maxLength={500}
             valueLength={bio.length}
             rows={3}
+            disabled={submitting}
+          />
+          <Select
+            label={t('gender')}
+            helpText={t('genderHelp')}
+            value={gender}
+            onChange={(e) => setGender(e.target.value as Gender | '')}
+            disabled={submitting}
+          >
+            <option value="">{t('genderOptions.empty')}</option>
+            {GENDER_OPTIONS.map((g) => (
+              <option key={g} value={g}>
+                {t(`genderOptions.${g}`)}
+              </option>
+            ))}
+          </Select>
+          <Input
+            label={t('birthDate')}
+            helpText={t('birthDateHelp')}
+            type="date"
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+            max={TODAY_ISO()}
             disabled={submitting}
           />
           {error && (

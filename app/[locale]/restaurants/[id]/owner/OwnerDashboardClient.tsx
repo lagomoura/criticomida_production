@@ -20,6 +20,7 @@ import {
 } from '@/app/lib/api/owner-content';
 import type { OfficialPhoto } from '@/app/lib/types/owner-content';
 import BusinessChatLauncher from '@/app/components/chat/BusinessChatLauncher';
+import ReviewEmojiChips from './ReviewEmojiChips';
 
 interface Props {
   restaurantSlug: string;
@@ -397,6 +398,7 @@ export default function OwnerDashboardClient({
                       )}
                     </div>
                   </div>
+                  <ReviewEmojiChips review={review} />
                   <p className="line-clamp-2 font-sans text-sm text-text-secondary">
                     {review.note}
                   </p>

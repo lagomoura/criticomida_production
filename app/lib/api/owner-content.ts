@@ -69,6 +69,9 @@ export async function deleteOfficialPhoto(
 // ----- Dashboard del owner -----
 
 export type SentimentLabel = 'positive' | 'neutral' | 'negative';
+export type PortionSize = 'small' | 'medium' | 'large';
+export type AuthorRole = 'admin' | 'critic' | 'user';
+export type AuthorGender = 'female' | 'male' | 'non_binary' | 'prefer_not_to_say';
 
 export interface OwnerReviewItem {
   id: string;
@@ -83,6 +86,18 @@ export interface OwnerReviewItem {
   has_owner_response: boolean;
   sentiment_label: SentimentLabel | null;
   sentiment_score: number | null;
+  /** Pilares técnicos 1-3 (1=débil, 2=ok, 3=destacado). */
+  presentation: number | null;
+  execution: number | null;
+  value_prop: number | null;
+  portion_size: PortionSize | null;
+  would_order_again: boolean | null;
+  /** Demografía del autor — null cuando is_anonymous=true o el user
+   *  no completó el campo en su perfil. age_range es un bucket
+   *  derivado en el backend; la fecha exacta nunca llega al frontend. */
+  author_role: AuthorRole | null;
+  author_gender: AuthorGender | null;
+  author_age_range: string | null;
 }
 
 export interface OwnerReviewsListResponse {
