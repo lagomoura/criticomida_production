@@ -1,5 +1,34 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+type FastAPIValidationItem = {
+  type?: string;
+  loc?: (string | number)[];
+  msg?: string;
+};
+
+function formatErrorDetail(raw: unknown, fallback: string): string {
+  if (typeof raw === 'string' && raw.trim()) return raw;
+  if (Array.isArray(raw)) {
+    const messages = raw
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (item && typeof item === 'object') {
+          const it = item as FastAPIValidationItem;
+          const msg = (it.msg ?? '').trim();
+          const field =
+            Array.isArray(it.loc) && it.loc.length > 1
+              ? String(it.loc[it.loc.length - 1])
+              : '';
+          return field && msg ? `${field}: ${msg}` : msg;
+        }
+        return '';
+      })
+      .filter(Boolean);
+    if (messages.length) return messages.join('; ');
+  }
+  return fallback;
+}
+
 export class ApiError extends Error {
   status: number;
   detail: string;
@@ -87,7 +116,7 @@ export async function fetchApi<T>(
     let detail = res.statusText;
     try {
       const body = await res.json();
-      detail = body.detail || detail;
+      detail = formatErrorDetail(body?.detail, detail);
     } catch {
       // response body is not JSON
     }
