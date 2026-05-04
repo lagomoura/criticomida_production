@@ -14,10 +14,17 @@ estado actual, no la historia.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-02
+- **Fecha**: 2026-05-04
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Contrato lingüístico estricto en `list_reviews`**. Las tablas
+    de sinónimos (`_RESPONDED_SYNONYMS`, `_SENTIMENT_SYNONYMS`,
+    `_SORT_SYNONYMS`) y el silent fallback con `notes` se reemplazaron
+    por un modelo Pydantic con enums (`backend/app/services/chat/tools/_schemas.py`).
+    El LLM hace la traducción NL → enum en cualquier idioma; valores
+    inválidos disparan `{"error": ..., "details": [...]}` y el agent
+    loop reintenta. Ver [Contrato de tools — escalabilidad lingüística](#contrato-de-tools--escalabilidad-lingüística).
   - Bypass de admin en el gate del Business chat para soporte / moderación.
   - El launcher flotante global se oculta dentro de `/restaurants/{slug}/owner` para evitar confusión con el bloque embebido del Business.
   - Tool `rank_my_dishes` agregada al Business — rankea el menú propio por rating, volumen o pilar.
@@ -379,6 +386,48 @@ Tres capas combinadas para no depender solo del prompt:
    ID"). Wirear a cron diario con `--threshold 0.05` para que falle
    cuando el rate sube. Es el indicador de que aparece un flow nuevo
    sin las dos primeras capas aplicadas.
+
+---
+
+## Contrato de tools — escalabilidad lingüística
+
+Los tools del chatbot soportan owners que hablan español, inglés y
+portugués (más cualquier idioma que el LLM entienda). Para que el
+contrato escale sin mantenimiento por idioma, **los tools definen
+semántica, no vocabulario**:
+
+- Cada parámetro categórico se define como **enum estricto** vía un
+  modelo Pydantic en `backend/app/services/chat/tools/_schemas.py`.
+  El JSONSchema que viaja a Anthropic incluye `enum: [...]` y
+  `additionalProperties: false`.
+- La descripción del parámetro está en español neutro y describe
+  *qué significa* cada valor, no qué palabras lo invocan.
+- La traducción `"todavía no respondí"` / `"haven't replied"` /
+  `"ainda não"` → `responded_status='pending'` es trabajo del LLM,
+  que ya es nativamente políglota. **No hay tablas de sinónimos en
+  los tools.**
+- Si el LLM pasa un valor fuera del enum, Anthropic lo rechaza
+  server-side; si llega igual, `model_validate` levanta
+  `ValidationError` y el handler retorna `{"error": ..., "details":
+  [...]}`. El agent loop reenvía eso al modelo, que corrige y
+  reintenta en el mismo turno. **Cero fallback silencioso, cero
+  array `notes` que se leakea al owner.**
+
+**Caso de referencia (mayo 2026)**. Un owner preguntó *"¿qué reseñas
+todavía no respondí?"* y la respuesta del Business le mostraba el
+mensaje "la opción `responded_status='no'` no fue reconocida por el
+sistema". El bot estaba leakeando `notes` internas porque la tabla de
+sinónimos no aceptaba `'no'` y el handler hacía silent fallback. El
+fix correcto no fue agregar `'no'` a la tabla — fue eliminar la tabla
+entera y mover la traducción NL → enum al LLM, que la hace gratis en
+cualquier idioma. Patrón replicable: si te encontrás agregando una
+nueva entrada a un dict de sinónimos, la decisión está mal — borralo
+y dejá que el LLM lo resuelva.
+
+Pendiente: las preferencias del owner (`update_owner_preferences`,
+roadmap Fase 5) van a permitirle al owner fijar `language_preference`
+explícito; mientras tanto el agente responde en el idioma en que le
+hablan.
 
 ---
 
