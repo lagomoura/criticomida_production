@@ -18,6 +18,17 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Nuevo tool `summarize_reviews_period`** en el toolbelt del
+    Business (`backend/app/services/chat/tools/insights.py`). Devuelve
+    agregados pre-calculados sobre las reseñas en un rango de fechas:
+    total_reviews, rating avg + distribución, sentiment by_label +
+    score, response rate. Cada dimensión incluye **delta vs el período
+    anterior de igual duración** (calculado automáticamente). Resuelve
+    el problema clásico de hacer que el LLM compute promedios y
+    porcentajes a mano sobre `list_reviews` — fuente común de
+    alucinación numérica. El prompt instruye a usar este tool siempre
+    que el owner pida un panorama temporal y a llamar `list_reviews`
+    *después* solo para citar reseñas puntuales.
   - **4 diálogos de referencia (few-shots)** al final de
     `business.md`: composición multi-tool con números, recovery
     silencioso de tool error, clarificación cuando hay ambigüedad
