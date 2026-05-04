@@ -58,6 +58,7 @@ interface PostCreateDTO {
     is_anonymous?: boolean | null;
     date_tasted?: string | null;
     price_tier?: '$' | '$$' | '$$$' | null;
+    price_paid?: number | null;
     pros?: string[];
     cons?: string[];
     tags?: string[];
@@ -102,6 +103,7 @@ function toPostCreateDTO(input: CreatePostInput): PostCreateDTO {
       is_anonymous: extras.isAnonymous ?? null,
       date_tasted: extras.dateTasted ?? null,
       price_tier: extras.priceTier ?? null,
+      price_paid: extras.pricePaid ?? null,
       pros: extras.pros ?? [],
       cons: extras.cons ?? [],
       tags: extras.tags ?? [],

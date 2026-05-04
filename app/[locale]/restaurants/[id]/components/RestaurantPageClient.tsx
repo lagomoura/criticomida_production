@@ -144,6 +144,7 @@ export default function RestaurantPageClient({
                 items={dishItems}
                 currentUserId={user?.id ?? null}
                 onReviewAdded={handleReviewAdded}
+                currencyCode={restaurant.currency_code ?? null}
               />
             </div>
           ),
@@ -212,6 +213,7 @@ export default function RestaurantPageClient({
             restaurantSlug={restaurant.slug}
             existingDishes={dishItems.map(({ dish }) => dish)}
             initialDish={pendingReviewDish}
+            currencyCode={restaurant.currency_code ?? null}
             onClose={() => {
               setShowPublish(false);
               setPendingReviewDish(null);

@@ -853,7 +853,11 @@
       "errorSaveRetry": "Couldn't save the review. Try again.",
       "errorSubmitRetry": "Couldn't send the review. Try again.",
       "altPhotoSingle": "Photo of {dish}",
-      "altPhotoIndexed": "Photo {index} of {dish}"
+      "altPhotoIndexed": "Photo {index} of {dish}",
+      "priceLabel": "Price paid",
+      "pricePlaceholder": "12.50",
+      "priceHelp": "Restaurant currency",
+      "priceInvalid": "Price must be a number greater than 0."
     },
     "technicalPillars": {
       "heading": "Technical pillars",
@@ -1199,6 +1203,10 @@
       "pillarPresentation": "Presentation",
       "pillarValue": "Value",
       "pillarExecution": "Execution",
+      "priceAvg": "Avg price",
+      "priceAvgTooltip": "Average of prices reported by critics in this period. Excludes reviews without a price or flagged as suspicious.",
+      "priceDeltaTooltipFlat": "Same average price as the previous bucket with data.",
+      "priceDeltaTooltipChange": "Average price change vs. the previous bucket with data: {delta}.",
       "quarterFormat": "Q{quarter} {year}"
     },
     "pillarsSummary": {

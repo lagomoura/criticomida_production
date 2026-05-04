@@ -68,11 +68,14 @@ interface DishTimelineBucketDTO {
   value_prop_avg: number | null;
   execution_avg: number | null;
   delta_rating: number | string | null;
+  price_avg: number | null;
+  delta_price_avg: number | null;
 }
 
 interface DishTimelineDTO {
   granularity: 'quarter' | 'month';
   buckets: DishTimelineBucketDTO[];
+  currency_code: string | null;
 }
 
 interface DishPillarBreakdownDTO {
@@ -193,6 +196,7 @@ function toDishDetail(dto: DishSocialDetailDTO): DishDetail {
 function toDishTimeline(dto: DishTimelineDTO): DishTimeline {
   return {
     granularity: dto.granularity,
+    currencyCode: dto.currency_code ?? null,
     buckets: dto.buckets.map(
       (b): DishTimelineBucket => ({
         period: b.period,
@@ -207,6 +211,8 @@ function toDishTimeline(dto: DishTimelineDTO): DishTimeline {
             : typeof b.delta_rating === 'number'
               ? b.delta_rating
               : Number(b.delta_rating),
+        priceAvg: b.price_avg,
+        deltaPriceAvg: b.delta_price_avg,
       }),
     ),
   };

@@ -67,6 +67,8 @@ export interface RestaurantDetail {
   reservation_url: string | null;
   reservation_provider: ReservationProvider | null;
   reservation_partner_meta: Record<string, unknown> | null;
+  /** ISO 4217 (migration 039). Null cuando todavía no se setea la moneda. */
+  currency_code?: string | null;
   // Claim flow (migration 024)
   is_claimed?: boolean;
   // True solo si el viewer actual es el verified owner del restaurant.

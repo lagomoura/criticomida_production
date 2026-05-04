@@ -43,6 +43,8 @@ export interface ReviewExtras {
   visitedWith?: string | null;
   isAnonymous?: boolean | null;
   priceTier?: PriceTier | null;
+  /** Precio numérico absoluto pagado por el plato. Null cuando no aplica. */
+  pricePaid?: number | null;
   /** Technical pillars: 1=poor / 2=neutral / 3=excellent. */
   presentation?: 1 | 2 | 3 | null;
   valueProp?: 1 | 2 | 3 | null;
@@ -433,9 +435,15 @@ export interface DishTimelineBucket {
   executionAvg?: number | null;
   /** Diferencia con el bucket anterior (en estrellas). null en el primer bucket. */
   deltaRating?: number | null;
+  /** Promedio del precio pagado en el bucket. null si ninguna reseña tenía precio. */
+  priceAvg?: number | null;
+  /** Diferencia con el último bucket que tenía precio. null en el primero con precio. */
+  deltaPriceAvg?: number | null;
 }
 
 export interface DishTimeline {
   granularity: 'quarter' | 'month';
   buckets: DishTimelineBucket[];
+  /** ISO 4217 heredado del restaurante del plato. null cuando no se conoce. */
+  currencyCode?: string | null;
 }

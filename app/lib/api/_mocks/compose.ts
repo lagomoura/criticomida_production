@@ -52,6 +52,7 @@ function normalizeExtras(extras: ReviewExtras | undefined): ReviewExtras | null 
   if (extras.visitedWith) clean.visitedWith = extras.visitedWith;
   if (extras.isAnonymous) clean.isAnonymous = extras.isAnonymous;
   if (extras.priceTier) clean.priceTier = extras.priceTier;
+  if (extras.pricePaid != null) clean.pricePaid = extras.pricePaid;
   return Object.keys(clean).length > 0 ? clean : null;
 }
 

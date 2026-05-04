@@ -853,7 +853,11 @@
       "errorSaveRetry": "Não foi possível salvar a resenha. Tente novamente.",
       "errorSubmitRetry": "Não foi possível enviar a resenha. Tente novamente.",
       "altPhotoSingle": "Foto de {dish}",
-      "altPhotoIndexed": "Foto {index} de {dish}"
+      "altPhotoIndexed": "Foto {index} de {dish}",
+      "priceLabel": "Preço pago",
+      "pricePlaceholder": "45,00",
+      "priceHelp": "Moeda do restaurante",
+      "priceInvalid": "O preço deve ser um número maior que 0."
     },
     "technicalPillars": {
       "heading": "Pilares técnicos",
@@ -1199,6 +1203,10 @@
       "pillarPresentation": "Apresentação",
       "pillarValue": "Custo/Benefício",
       "pillarExecution": "Execução",
+      "priceAvg": "Preço médio",
+      "priceAvgTooltip": "Média dos preços informados pelos críticos neste período. Exclui resenhas sem preço ou marcadas como suspeitas.",
+      "priceDeltaTooltipFlat": "Mesmo preço médio do bucket anterior com dados.",
+      "priceDeltaTooltipChange": "Mudança no preço médio vs. bucket anterior com dados: {delta}.",
       "quarterFormat": "T{quarter} {year}"
     },
     "pillarsSummary": {

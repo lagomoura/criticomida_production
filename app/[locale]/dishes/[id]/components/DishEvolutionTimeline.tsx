@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowTrendUp, faArrowTrendDown, faMinus, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
+import { formatCurrency } from '@/app/lib/utils/currency';
+import { Tooltip } from '@/app/components/ui';
 import type { DishTimeline, DishTimelineBucket } from '@/app/lib/types/social';
 
 export interface DishEvolutionTimelineProps {
@@ -24,7 +26,9 @@ export default function DishEvolutionTimeline({
   dishName,
 }: DishEvolutionTimelineProps) {
   const t = useTranslations('dish.evolution');
+  const locale = useLocale();
   const { buckets } = timeline;
+  const currencyCode = timeline.currencyCode ?? null;
 
   if (buckets.length === 0) {
     const html = t.raw('emptyMessage') as string;
@@ -56,12 +60,17 @@ export default function DishEvolutionTimeline({
       >
         <Heading />
         <p className="mt-3 font-display italic text-base leading-relaxed text-text-secondary">
-          {t.rich('singleBucketMessage', {
-            period: () => <PeriodLabel period={buckets[0].period} />,
+          {t('singleBucketMessage', {
+            period: formatPeriodText(buckets[0].period, locale, t),
           })}
         </p>
         <div className="mt-4">
-          <BucketCard bucket={buckets[0]} isFirst />
+          <BucketCard
+            bucket={buckets[0]}
+            isFirst
+            currencyCode={currencyCode}
+            locale={locale}
+          />
         </div>
       </section>
     );
@@ -76,7 +85,12 @@ export default function DishEvolutionTimeline({
       <ol className="mt-5 grid grid-flow-col auto-cols-[minmax(11rem,1fr)] gap-3 overflow-x-auto pb-2 sm:grid-flow-col">
         {buckets.map((bucket, idx) => (
           <li key={bucket.period}>
-            <BucketCard bucket={bucket} isFirst={idx === 0} />
+            <BucketCard
+              bucket={bucket}
+              isFirst={idx === 0}
+              currencyCode={currencyCode}
+              locale={locale}
+            />
           </li>
         ))}
       </ol>
@@ -108,9 +122,21 @@ function Heading() {
   );
 }
 
-function BucketCard({ bucket, isFirst }: { bucket: DishTimelineBucket; isFirst: boolean }) {
+function BucketCard({
+  bucket,
+  isFirst,
+  currencyCode,
+  locale,
+}: {
+  bucket: DishTimelineBucket;
+  isFirst: boolean;
+  currencyCode: string | null;
+  locale: string;
+}) {
   const t = useTranslations('dish.evolution');
   const delta = bucket.deltaRating;
+  const priceAvg = bucket.priceAvg;
+  const priceDelta = bucket.deltaPriceAvg;
   return (
     <article className="flex h-full flex-col rounded-xl border border-border-subtle bg-surface-base p-3.5">
       <header className="flex items-baseline justify-between gap-2">
@@ -137,11 +163,57 @@ function BucketCard({ bucket, isFirst }: { bucket: DishTimelineBucket; isFirst: 
         <PillarBar label={t('pillarValue')} value={bucket.valuePropAvg} />
         <PillarBar label={t('pillarExecution')} value={bucket.executionAvg} />
       </div>
+      {priceAvg != null && (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border-subtle pt-2">
+          <div className="flex items-baseline gap-1.5">
+            <Tooltip multiline label={t('priceAvgTooltip')}>
+              <span
+                tabIndex={0}
+                className="cursor-help font-sans text-[10px] uppercase tracking-[0.08em] text-text-muted underline decoration-dotted decoration-text-muted/50 underline-offset-2"
+              >
+                {t('priceAvg')}
+              </span>
+            </Tooltip>
+            <span className="font-display text-sm font-medium tabular-nums text-text-primary">
+              {formatCurrency(priceAvg, currencyCode, locale)}
+            </span>
+          </div>
+          {priceDelta != null && (
+            <DeltaPill
+              delta={priceDelta}
+              formatValue={(d) =>
+                formatCurrency(d, currencyCode, locale, { signDisplay: 'always' })
+              }
+              tooltipFormat={(d) =>
+                t('priceDeltaTooltipChange', {
+                  delta: formatCurrency(d, currencyCode, locale, {
+                    signDisplay: 'always',
+                  }),
+                })
+              }
+              flatTooltip={t('priceDeltaTooltipFlat')}
+            />
+          )}
+        </div>
+      )}
     </article>
   );
 }
 
-function DeltaPill({ delta }: { delta: number }) {
+function DeltaPill({
+  delta,
+  formatValue,
+  tooltipFormat,
+  flatTooltip,
+}: {
+  delta: number;
+  /** Custom formatter para el label visible. Default: rating con 1 decimal. */
+  formatValue?: (delta: number) => string;
+  /** Custom formatter para el tooltip cuando hay cambio. */
+  tooltipFormat?: (delta: number) => string;
+  /** Tooltip cuando delta=0. Default: traducción `deltaTooltipFlat` (rating). */
+  flatTooltip?: string;
+}) {
   const t = useTranslations('dish.evolution');
   const sign = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
   const icon =
@@ -152,18 +224,25 @@ function DeltaPill({ delta }: { delta: number }) {
       : sign === 'down'
         ? 'text-[color:var(--color-paprika)] bg-[color:var(--color-paprika-pale)]'
         : 'text-text-muted bg-surface-subtle';
-  const label = sign === 'flat' ? t('deltaFlat') : `${delta > 0 ? '+' : ''}${delta.toFixed(1)}`;
+  const formattedValue = formatValue
+    ? formatValue(delta)
+    : `${delta > 0 ? '+' : ''}${delta.toFixed(1)}`;
+  const label = sign === 'flat' ? t('deltaFlat') : formattedValue;
+  const tooltip =
+    sign === 'flat'
+      ? (flatTooltip ?? t('deltaTooltipFlat'))
+      : (tooltipFormat
+          ? tooltipFormat(delta)
+          : t('deltaTooltipChange', {
+              delta: `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`,
+            }));
   return (
     <span
       className={cn(
         'inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 font-sans text-[10px] font-semibold tabular-nums',
         color,
       )}
-      title={
-        sign === 'flat'
-          ? t('deltaTooltipFlat')
-          : t('deltaTooltipChange', { delta: `${delta > 0 ? '+' : ''}${delta.toFixed(2)}` })
-      }
+      title={tooltip}
     >
       <FontAwesomeIcon icon={icon} className="h-2.5 w-2.5" aria-hidden />
       {label}
@@ -194,6 +273,26 @@ function PillarBar({ label, value }: { label: string; value: number | null | und
       </span>
     </div>
   );
+}
+
+function formatPeriodText(
+  period: string,
+  locale: string,
+  t: ReturnType<typeof useTranslations<'dish.evolution'>>,
+): string {
+  const quarter = /^(\d{4})-Q([1-4])$/.exec(period);
+  if (quarter) {
+    return t('quarterFormat', { quarter: quarter[2], year: quarter[1] });
+  }
+  const month = /^(\d{4})-(\d{2})$/.exec(period);
+  if (month) {
+    const date = new Date(Number(month[1]), Number(month[2]) - 1, 1);
+    return new Intl.DateTimeFormat(locale, {
+      month: 'short',
+      year: 'numeric',
+    }).format(date);
+  }
+  return period;
 }
 
 function PeriodLabel({ period }: { period: string }) {

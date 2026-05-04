@@ -24,6 +24,8 @@ interface PublishReviewModalProps {
   existingDishes: Dish[];
   /** Si se pasa, el modal abre directamente con este plato pre-seleccionado. */
   initialDish?: Dish | null;
+  /** ISO 4217 del restaurante para formatear el campo precio. */
+  currencyCode?: string | null;
   onClose: () => void;
   onSuccess: (dish: Dish, review: DishReview) => void;
 }
@@ -37,6 +39,7 @@ export default function PublishReviewModal({
   restaurantSlug,
   existingDishes,
   initialDish = null,
+  currencyCode = null,
   onClose,
   onSuccess,
 }: PublishReviewModalProps) {
@@ -315,6 +318,7 @@ export default function PublishReviewModal({
                 dishId={selection.kind === 'existing' ? selection.dish.id : undefined}
                 resolveDishId={selection.kind === 'new' ? resolveDishId : undefined}
                 dishName={dishName}
+                currencyCode={currencyCode}
                 onSuccess={handleReviewSuccess}
                 onCancel={onClose}
               />

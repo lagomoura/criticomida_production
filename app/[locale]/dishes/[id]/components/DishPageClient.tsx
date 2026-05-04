@@ -151,6 +151,7 @@ export default function DishPageClient({
         restaurantSlug={dish.restaurantSlug}
         existingDishes={[dishForModal]}
         initialDish={dishForModal}
+        currencyCode={timeline.currencyCode ?? null}
         onClose={() => setShowPublish(false)}
         onSuccess={() => {
           setShowPublish(false);

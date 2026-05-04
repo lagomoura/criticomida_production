@@ -63,6 +63,7 @@ interface FeedExtrasDTO {
   visited_with: string | null;
   is_anonymous: boolean | null;
   price_tier: PriceTier | null;
+  price_paid: number | string | null;
   presentation: 1 | 2 | 3 | null;
   value_prop: 1 | 2 | 3 | null;
   execution: 1 | 2 | 3 | null;
@@ -101,6 +102,12 @@ export function toReviewPost(dto: FeedItemDTO): ReviewPost {
         visitedWith: dto.extras.visited_with,
         isAnonymous: dto.extras.is_anonymous,
         priceTier: dto.extras.price_tier,
+        pricePaid:
+          dto.extras.price_paid == null
+            ? null
+            : typeof dto.extras.price_paid === 'number'
+              ? dto.extras.price_paid
+              : Number(dto.extras.price_paid),
         presentation: dto.extras.presentation,
         valueProp: dto.extras.value_prop,
         execution: dto.extras.execution,

@@ -15,12 +15,15 @@ interface DishChecklistProps {
   items: DishWithReviews[];
   currentUserId: string | null;
   onReviewAdded: (dishId: string, review: DishReview) => void;
+  /** ISO 4217 del restaurante. Se propaga al form inline de review. */
+  currencyCode?: string | null;
 }
 
 export default function DishChecklist({
   items,
   currentUserId,
   onReviewAdded,
+  currencyCode = null,
 }: DishChecklistProps) {
   const { user } = useAuthContext();
   const t = useTranslations('restaurant.checklist');
@@ -151,6 +154,7 @@ export default function DishChecklist({
               reviews={reviews}
               currentUserId={currentUserId}
               onReviewAdded={onReviewAdded}
+              currencyCode={currencyCode}
             />
           ))}
         </ul>

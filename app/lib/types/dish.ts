@@ -58,6 +58,9 @@ export interface DishReview {
   time_tasted: string | null;
   note: string;
   rating: number;
+  /** Precio absoluto en la moneda del restaurante. Null cuando el crítico
+   * no quiso o no pudo registrarlo (cortesía, menú degustación, reseña antigua). */
+  price_paid: number | null;
   portion_size: PortionSize | null;
   would_order_again: boolean | null;
   visited_with: string | null;
@@ -77,6 +80,8 @@ export interface CreateReviewRequest {
   time_tasted?: string;
   note: string;
   rating: number;
+  /** Numérico positivo. Omitir cuando no aplica. */
+  price_paid?: number;
   portion_size?: PortionSize;
   would_order_again?: boolean;
   visited_with?: string;
@@ -94,6 +99,8 @@ export interface UpdateReviewRequest {
   time_tasted?: string;
   note?: string;
   rating?: number;
+  /** Numérico positivo o null para limpiar. */
+  price_paid?: number | null;
   portion_size?: PortionSize;
   would_order_again?: boolean;
   visited_with?: string;

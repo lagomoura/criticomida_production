@@ -13,6 +13,8 @@ interface DishChecklistItemProps {
   reviews: DishReview[];
   currentUserId: string | null;
   onReviewAdded: (dishId: string, review: DishReview) => void;
+  /** ISO 4217 del restaurante (heredado por el form de review inline). */
+  currencyCode?: string | null;
 }
 
 export default function DishChecklistItem({
@@ -20,6 +22,7 @@ export default function DishChecklistItem({
   reviews,
   currentUserId,
   onReviewAdded,
+  currencyCode = null,
 }: DishChecklistItemProps) {
   const { user } = useAuthContext();
   const t = useTranslations('restaurant.checklistItem');
@@ -160,6 +163,7 @@ export default function DishChecklistItem({
               <DishReviewForm
                 dishId={dish.id}
                 dishName={dish.name}
+                currencyCode={currencyCode}
                 onSuccess={handleReviewSuccess}
                 onCancel={() => { setShowForm(false); }}
               />

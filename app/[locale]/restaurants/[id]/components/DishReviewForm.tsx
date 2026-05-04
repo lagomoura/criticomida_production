@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { createReview, updateReview, uploadReviewPhoto } from '@/app/lib/api/reviews';
 import { ApiError } from '@/app/lib/api/client';
 import { PortionSize, DishReview, PillarScore } from '@/app/lib/types';
+import { formatCurrencySymbol } from '@/app/lib/utils/currency';
 import StarRating from './StarRating';
 import TechnicalPillars, { type TechnicalPillarsValue } from './TechnicalPillars';
 import GhostwriterAssist from '@/app/components/ghostwriter/GhostwriterAssist';
@@ -15,6 +16,7 @@ export interface DishReviewFormInitial {
   note: string;
   date_tasted: string;
   time_tasted: string | null;
+  price_paid: number | null;
   portion_size: PortionSize | null;
   would_order_again: boolean | null;
   visited_with: string | null;
@@ -45,6 +47,10 @@ interface DishReviewFormProps {
   reviewId?: string;
   initial?: DishReviewFormInitial;
   submitLabel?: string;
+  /** ISO 4217 del restaurante (ARS, BRL, USD...). Determina el símbolo
+   * adornment del campo precio. Cuando es null/undefined se muestra `$`
+   * genérico. */
+  currencyCode?: string | null;
 }
 
 interface ProConEntry {
@@ -90,6 +96,7 @@ export default function DishReviewForm({
   reviewId,
   initial,
   submitLabel,
+  currencyCode,
 }: DishReviewFormProps) {
   const t = useTranslations('restaurant.dishReviewForm');
   const isEdit = mode === 'edit';
@@ -112,6 +119,11 @@ export default function DishReviewForm({
     initial?.date_tasted ?? new Date().toISOString().slice(0, 10),
   );
   const [timeTasted, setTimeTasted] = useState(trimTime(initial?.time_tasted ?? null));
+  // Precio: lo trabajamos como string para tolerar input parcial ("4500.")
+  // y porque inputs `type=number` controlados pueden saltar al perder foco.
+  const [priceInput, setPriceInput] = useState<string>(
+    initial?.price_paid != null ? String(initial.price_paid) : '',
+  );
   const [visitedWith, setVisitedWith] = useState(initial?.visited_with ?? '');
   const initialPros = initial?.pros_cons.filter((x) => x.type === 'pro') ?? [];
   const initialCons = initial?.pros_cons.filter((x) => x.type === 'con') ?? [];
@@ -164,6 +176,21 @@ export default function DishReviewForm({
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+
+    // Precio: si vacío → undefined (no se manda). Si tiene contenido,
+    // exigir número finito > 0 antes de tocar la red. La validación
+    // backend repite la regla; esto ahorra un round-trip.
+    const trimmedPrice = priceInput.trim();
+    let pricePaidParsed: number | undefined;
+    if (trimmedPrice !== '') {
+      const n = Number(trimmedPrice);
+      if (!Number.isFinite(n) || n <= 0) {
+        setError(t('priceInvalid'));
+        return;
+      }
+      pricePaidParsed = n;
+    }
+
     setSubmitting(true);
 
     const prosFiltered = pros.map(p => p.text.trim()).filter(Boolean);
@@ -202,6 +229,9 @@ export default function DishReviewForm({
           note,
           date_tasted: dateTasted,
           time_tasted: timeTasted || undefined,
+          // En edit, mandar `null` cuando el crítico vacía el campo borra
+          // el precio en backend (UpdateReviewRequest acepta number | null).
+          price_paid: pricePaidParsed ?? null,
           would_order_again: wouldOrderAgain ?? undefined,
           portion_size: portionSize || undefined,
           visited_with: visitedWith.trim() || undefined,
@@ -234,6 +264,7 @@ export default function DishReviewForm({
         note,
         date_tasted: dateTasted,
         time_tasted: timeTasted || undefined,
+        price_paid: pricePaidParsed,
         would_order_again: wouldOrderAgain ?? undefined,
         portion_size: portionSize || undefined,
         visited_with: visitedWith.trim() || undefined,
@@ -514,8 +545,38 @@ export default function DishReviewForm({
         }}
       />
 
-      {/* Secondary fields: portion, date, visited with, tags */}
+      {/* Secondary fields: price, portion, date, visited with, tags */}
       <div className="grid grid-cols-1 gap-3 border-t border-border-subtle pt-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <SubLabel htmlFor="review-price">{t('priceLabel')}</SubLabel>
+          <div className="relative">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 left-3 flex items-center font-sans text-sm font-semibold text-text-muted"
+            >
+              {formatCurrencySymbol(currencyCode)}
+            </span>
+            <input
+              id="review-price"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.01"
+              className={inputBase + ' pl-9'}
+              placeholder={t('pricePlaceholder')}
+              value={priceInput}
+              onChange={e => setPriceInput(e.target.value)}
+              disabled={submitting}
+              aria-describedby="review-price-help"
+            />
+          </div>
+          <p
+            id="review-price-help"
+            className="mt-1 font-sans text-[11px] text-text-muted"
+          >
+            {t('priceHelp')}
+          </p>
+        </div>
         <div>
           <SubLabel htmlFor="review-portion">{t('portionLabel')}</SubLabel>
           <select
