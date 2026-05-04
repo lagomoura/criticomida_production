@@ -18,6 +18,23 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **4 diálogos de referencia (few-shots)** al final de
+    `business.md`: composición multi-tool con números, recovery
+    silencioso de tool error, clarificación cuando hay ambigüedad
+    real, y consistencia de idioma en pt. Refuerzan el patrón vía
+    imitación, no vía reglas adicionales. Pass rate sobre el suite
+    expandido: **105/105 = 100% × 3 corridas** (sin regresión vs
+    baseline pre-few-shots).
+  - **Eval suite expandida a 35 casos / 14 categorías**
+    (`backend/tests/chat/evals/datasets/business.yaml`):
+    polyglot lookup, sentiment+responded combos, sort variations,
+    date filters, rating range, limit, dish filter, empty results,
+    anti-handback, anti-hallucination, multi-tool composition,
+    out-of-scope, language consistency. Tres mejoras al sistema
+    descubiertas y arregladas durante la expansión:
+    Pydantic enum case-insensitive (LLM emite mayúsculas a veces),
+    `get_dish_detail` con error graceful en vez de KeyError, y
+    runner case-insensitive en string equality.
   - **Switch a `gemini-3.1-flash-lite-preview` como default global**
     para Sommelier y Business. Decisión guiada por la suite de evals:
     Lite Preview pegó **24/24 = 100% pass** en tres corridas con
