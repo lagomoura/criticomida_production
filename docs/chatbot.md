@@ -18,6 +18,21 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Switch a `gemini-3.1-flash-lite-preview` como default global**
+    para Sommelier y Business. Decisión guiada por la suite de evals:
+    Lite Preview pegó **24/24 = 100% pass** en tres corridas con
+    latencia promedio 22.7s, contra 23/24 (95.8%) y 36s de Gemini 2.5
+    Flash, y contra 21/24 (87.5%) y 165s de Gemini 3.1 Pro Preview
+    (Pro pierde por gastar mucho budget en thinking y devolver tool
+    calls inconsistentes en este flow). Override por agente disponible
+    vía `CHAT_MODEL_B2C` / `CHAT_MODEL_B2B`.
+  - **Suite de evals end-to-end del agente Business**
+    (`backend/tests/chat/evals/`). 8 casos cubriendo lookup multilingüe
+    (es/en/pt), sentiment+responded combo, sort, dish filter,
+    anti-handback y language consistency. Gateada por `RUN_CHAT_EVALS=1`
+    para no quemar tokens en CI normal. Sirve como "capa 3" del patrón
+    de defensa: prompt + tool contract + suite que mide
+    objetivamente.
   - **Contrato lingüístico estricto en `list_reviews`**. Las tablas
     de sinónimos (`_RESPONDED_SYNONYMS`, `_SENTIMENT_SYNONYMS`,
     `_SORT_SYNONYMS`) y el silent fallback con `notes` se reemplazaron
@@ -42,11 +57,11 @@ Tres agentes que comparten el mismo motor (`AgentLoop` →
 **system prompt** propio, su **toolbelt** propio, y puede correr sobre
 un **modelo distinto**:
 
-| Agente        | Audiencia       | Modelo por defecto             | Surface UI                                         |
-|---------------|-----------------|--------------------------------|----------------------------------------------------|
-| `sommelier`   | Usuario común   | `claude-haiku-4-5`             | Drawer global (botón flotante en toda la app)      |
-| `ghostwriter` | Usuario común   | `claude-haiku-4-5`             | Panel inline en el formulario de reseñas + drawer  |
-| `business`    | Owner verificado| `claude-sonnet-4-6`            | Sección embebida en `/restaurants/{slug}/owner`    |
+| Agente        | Audiencia       | Modelo por defecto                  | Surface UI                                         |
+|---------------|-----------------|-------------------------------------|----------------------------------------------------|
+| `sommelier`   | Usuario común   | `gemini-3.1-flash-lite-preview`     | Drawer global (botón flotante en toda la app)      |
+| `ghostwriter` | Usuario común   | `gemini-3.1-flash-lite-preview`     | Panel inline en el formulario de reseñas + drawer  |
+| `business`    | Owner verificado| `gemini-3.1-flash-lite-preview`     | Sección embebida en `/restaurants/{slug}/owner`    |
 
 Toda conversación se persiste en `chat_conversations` + `chat_messages`
 (incluyendo tool calls + tool results) por usuario. El usuario puede
