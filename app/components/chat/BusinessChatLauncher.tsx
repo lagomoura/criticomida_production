@@ -9,6 +9,7 @@ import ChatDrawer from './ChatDrawer';
 
 interface BusinessChatLauncherProps {
   restaurantScopeId: string;
+  restaurantSlug: string;
   restaurantName: string;
 }
 
@@ -20,6 +21,7 @@ interface BusinessChatLauncherProps {
  */
 export default function BusinessChatLauncher({
   restaurantScopeId,
+  restaurantSlug,
   restaurantName,
 }: BusinessChatLauncherProps) {
   const t = useTranslations('ownerDashboard.businessChat');
@@ -76,6 +78,7 @@ export default function BusinessChatLauncher({
         onClose={() => setOpen(false)}
         agent="business"
         restaurantScopeId={restaurantScopeId}
+        restaurantSlug={restaurantSlug}
       />
     </section>
   );

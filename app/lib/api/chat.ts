@@ -81,6 +81,10 @@ export interface ChatConversationSummary {
   started_at: string;
   last_message_at: string;
   restaurant_scope_id: string | null;
+  /** ISO timestamp when the conversation was archived; ``null`` for
+   *  active rows. Only present when the listing was requested with
+   *  ``includeArchived=true``. */
+  archived_at: string | null;
 }
 
 // ── streaming events emitted by /api/chat/stream ────────────────────────
@@ -196,6 +200,13 @@ export interface ListConversationsOptions {
   agent?: ChatAgent;
   /** Restrict to conversations scoped to a specific restaurant. */
   restaurantScopeId?: string | null;
+  /**
+   * When ``true`` the backend includes archived conversations in the
+   * listing (with ``archived_at`` set). Default is ``false`` so the
+   * panel shows the active set only — the FE only opts in when the
+   * "Mostrar archivadas" toggle is on.
+   */
+  includeArchived?: boolean;
 }
 
 export async function listMyConversations(
@@ -211,6 +222,9 @@ export async function listMyConversations(
   if (opts.agent) params.set('agent', opts.agent);
   if (opts.restaurantScopeId) {
     params.set('restaurant_scope_id', opts.restaurantScopeId);
+  }
+  if (opts.includeArchived) {
+    params.set('include_archived', 'true');
   }
   return fetchApi<ChatConversationSummary[]>(
     `/api/chat/conversations/me?${params.toString()}`,
@@ -246,6 +260,38 @@ export async function archiveConversation(
 
 /** @deprecated use ``archiveConversation`` — same endpoint, accurate name. */
 export const deleteConversation = archiveConversation;
+
+/**
+ * Restore a previously archived conversation. Idempotent — calling it
+ * on a non-archived conversation is a no-op on the server side.
+ */
+export async function unarchiveConversation(
+  conversationId: string,
+): Promise<void> {
+  await fetchApi<void>(
+    `/api/chat/conversations/${conversationId}/unarchive`,
+    {
+      method: 'POST',
+    },
+  );
+}
+
+/**
+ * Permanently delete a conversation (and its messages). Distinct from
+ * ``archiveConversation``: this can't be undone and is the right
+ * primitive for GDPR / right-to-be-forgotten flows. The backend
+ * gates it to the conversation's owner or an admin.
+ */
+export async function hardDeleteConversation(
+  conversationId: string,
+): Promise<void> {
+  await fetchApi<void>(
+    `/api/chat/conversations/${conversationId}/permanent`,
+    {
+      method: 'DELETE',
+    },
+  );
+}
 
 // ── deprecated non-streaming entry — kept for parity with old callers ────
 

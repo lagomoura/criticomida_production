@@ -1,9 +1,10 @@
 'use client';
 
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Link } from '@/app/lib/i18n/navigation';
 import {
   CreateRouteResult,
   DishCardData,
@@ -22,6 +23,24 @@ interface MessageListProps {
   /** Optional handler so cards can ask the parent to open the map. */
   onShowDishOnMap?: (dish: DishCardData) => void;
   /**
+   * Slug of the restaurant whose owner panel should receive the
+   * "Responder esta reseña" deep link. When set, ``MessageList``
+   * renders a button below assistant drafts (text that follows a
+   * ``suggest_review_response`` tool call) that pre-loads the draft
+   * into ``OwnerReviewModal``. ``null`` disables the affordance —
+   * useful for the global Sommelier launcher where there's no owner
+   * context to land on.
+   */
+  draftDeepLinkSlug?: string | null;
+  /**
+   * Fired synchronously when the deep-link button is clicked, just
+   * before navigation. ``ChatDrawer`` wires this to its ``onClose``
+   * so the drawer slides off and the ``OwnerReviewModal`` becomes
+   * visible — without it the modal opens behind the still-open
+   * drawer and the owner has no idea the click did anything.
+   */
+  onDraftDeepLinkClick?: () => void;
+  /**
    * Custom empty state node. When omitted falls back to the generic
    * Sommelier hint (``chat.emptyState``). The Business agent passes
    * its own polished version because the Sommelier example doesn't
@@ -34,10 +53,24 @@ export default function MessageList({
   messages,
   isStreaming,
   onShowDishOnMap,
+  draftDeepLinkSlug = null,
+  onDraftDeepLinkClick,
   emptyState,
 }: MessageListProps) {
   const t = useTranslations('chat');
   const endRef = useRef<HTMLDivElement>(null);
+
+  // Pair each assistant draft (text bubble that follows a
+  // ``suggest_review_response`` tool call) with the review id the
+  // tool was invoked against. We compute the map once per render so
+  // ``MessageRow`` can do an O(1) lookup. Drafts without a known
+  // ``review_id`` (history rows without ``arguments`` or a malformed
+  // payload) are skipped — better to hide the button than to land
+  // the owner on a 404.
+  const draftAnchors = useMemo(
+    () => (draftDeepLinkSlug ? buildDraftAnchors(messages) : new Map()),
+    [messages, draftDeepLinkSlug],
+  );
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -58,6 +91,9 @@ export default function MessageList({
           key={msg.id}
           message={msg}
           onShowDishOnMap={onShowDishOnMap}
+          draftReviewId={draftAnchors.get(msg.id) ?? null}
+          draftDeepLinkSlug={draftDeepLinkSlug}
+          onDraftDeepLinkClick={onDraftDeepLinkClick}
         />
       ))}
       {isStreaming &&
@@ -72,11 +108,28 @@ export default function MessageList({
 interface MessageRowProps {
   message: UiMessage;
   onShowDishOnMap?: (dish: DishCardData) => void;
+  /** Review id this assistant message drafts a response for, or
+   *  ``null`` if it isn't a draft. Computed in the parent so we
+   *  don't re-scan history on every row render. */
+  draftReviewId?: string | null;
+  draftDeepLinkSlug?: string | null;
+  onDraftDeepLinkClick?: () => void;
 }
 
-function MessageRow({ message, onShowDishOnMap }: MessageRowProps) {
+function MessageRow({
+  message,
+  onShowDishOnMap,
+  draftReviewId,
+  draftDeepLinkSlug,
+  onDraftDeepLinkClick,
+}: MessageRowProps) {
   const isUser = message.role === 'user';
   const renderedTools = isUser ? [] : collapseChipDuplicates(message.tools);
+  const showDraftLink =
+    !isUser &&
+    Boolean(draftReviewId) &&
+    Boolean(draftDeepLinkSlug) &&
+    Boolean(message.content);
 
   return (
     <div className={cn('flex flex-col gap-2', isUser ? 'items-end' : 'items-start')}>
@@ -114,8 +167,174 @@ function MessageRow({ message, onShowDishOnMap }: MessageRowProps) {
           )}
         </div>
       )}
+      {showDraftLink && (
+        <DraftDeepLink
+          slug={draftDeepLinkSlug as string}
+          reviewId={draftReviewId as string}
+          draftText={extractDraftFromBlockquote(message.content)}
+          onClick={onDraftDeepLinkClick}
+        />
+      )}
     </div>
   );
+}
+
+interface DraftDeepLinkProps {
+  slug: string;
+  reviewId: string;
+  draftText: string;
+  /** Fired synchronously on click so the caller (``ChatDrawer``) can
+   *  close itself before the navigation lands. Without this the
+   *  modal opens behind the still-open drawer. */
+  onClick?: () => void;
+}
+
+/**
+ * Action that opens ``OwnerReviewModal`` with the agent's draft
+ * pre-loaded. Why a button anchor and not a plain text hint: the
+ * owner expects to ACT on a draft, not re-read it. DMMT — make the
+ * affordance unambiguous (memory ``feedback_dmmt.md``).
+ *
+ * The draft travels in the URL query string. Drafts are typically
+ * 200–600 characters; even a generous one stays well under common
+ * URL length caps. If we ever ship long-form drafts we'll switch to
+ * sessionStorage with a short id.
+ */
+function DraftDeepLink({
+  slug,
+  reviewId,
+  draftText,
+  onClick,
+}: DraftDeepLinkProps) {
+  const t = useTranslations('chat');
+  const href = `/restaurants/${slug}/owner?review=${encodeURIComponent(
+    reviewId,
+  )}&draft=${encodeURIComponent(draftText)}`;
+  return (
+    <Link
+      href={href}
+      onClick={() => onClick?.()}
+      className={cn(
+        'inline-flex w-fit items-center gap-2 rounded-full',
+        'bg-action-primary px-3.5 py-1.5 text-xs font-semibold text-text-inverse',
+        'no-underline transition-colors hover:bg-action-primary-hover',
+        'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+      )}
+    >
+      {t('respondReviewWithDraft')}
+    </Link>
+  );
+}
+
+/**
+ * Build a map from assistant-message id to the review id its draft
+ * targets.
+ *
+ * Heuristic: an assistant message is treated as a draft when (a) it
+ * has text content and (b) the most recent ``suggest_review_response``
+ * invocation in the same turn or the immediately preceding assistant
+ * turn carries a ``review_id`` argument we can extract. This matches
+ * Claude's typical loop shape — assistant turn 1 calls the tool,
+ * assistant turn 2 emits the draft text — without coupling the FE to
+ * the exact iteration count.
+ */
+function buildDraftAnchors(messages: UiMessage[]): Map<string, string> {
+  const anchors = new Map<string, string>();
+  let pendingReviewId: string | null = null;
+  for (const msg of messages) {
+    if (msg.role !== 'assistant') {
+      pendingReviewId = null;
+      continue;
+    }
+
+    const ownReviewId = extractDraftReviewId(msg.tools);
+    if (ownReviewId && msg.content) {
+      // Same-turn case: assistant emitted text + tool call together.
+      anchors.set(msg.id, ownReviewId);
+      pendingReviewId = null;
+      continue;
+    }
+
+    if (pendingReviewId && msg.content) {
+      anchors.set(msg.id, pendingReviewId);
+      pendingReviewId = null;
+      continue;
+    }
+
+    if (ownReviewId) {
+      // Tool call now, draft text in the next assistant turn.
+      pendingReviewId = ownReviewId;
+    }
+  }
+  return anchors;
+}
+
+/**
+ * Extract the actual reply text from an assistant draft message.
+ *
+ * The Business agent is instructed (see ``suggest_review_response``
+ * tool's ``format`` field) to wrap the draft in a markdown
+ * blockquote — one short intro line ("Te propongo este draft…") and
+ * then ``> ``-prefixed lines containing the proposed reply. Without
+ * this extraction, clicking "Responder esta reseña" pre-fills the
+ * owner's modal with the agent's intro phrase included, which then
+ * gets published to the customer if the owner doesn't notice.
+ *
+ * Behaviour:
+ * - If the message contains a contiguous blockquote block, return
+ *   its text with the leading ``> `` markers stripped.
+ * - If no blockquote is found (the model disobeyed the format),
+ *   fall back to the full content. Better to ship the intro than
+ *   to land on an empty modal.
+ *
+ * Blank lines INSIDE a blockquote (paragraph breaks the agent might
+ * use for multi-paragraph drafts) are preserved. The first non-quote
+ * non-blank line ends the block.
+ */
+function extractDraftFromBlockquote(messageContent: string): string {
+  const lines = messageContent.split('\n');
+  const quoted: string[] = [];
+  let inQuote = false;
+  let pendingBlank = false;
+
+  for (const line of lines) {
+    const match = line.match(/^>+\s?(.*)$/);
+    if (match) {
+      if (pendingBlank) {
+        quoted.push('');
+        pendingBlank = false;
+      }
+      quoted.push(match[1]);
+      inQuote = true;
+      continue;
+    }
+    if (!inQuote) continue;
+    if (line.trim() === '') {
+      // Could be an internal paragraph break or the gap before the
+      // closing intro paragraph. Defer the decision to the next line.
+      pendingBlank = true;
+      continue;
+    }
+    // Non-quote, non-blank: end of blockquote.
+    break;
+  }
+
+  if (quoted.length === 0) {
+    return messageContent.trim();
+  }
+  return quoted.join('\n').trim();
+}
+
+
+function extractDraftReviewId(tools: UiToolInvocation[]): string | null {
+  for (const tool of tools) {
+    if (tool.name !== 'suggest_review_response') continue;
+    const input = tool.input;
+    if (!input || typeof input !== 'object') continue;
+    const value = (input as Record<string, unknown>).review_id;
+    if (typeof value === 'string' && value.length > 0) return value;
+  }
+  return null;
 }
 
 interface ToolInvocationProps {

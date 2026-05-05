@@ -150,3 +150,35 @@ export async function updateOwnerNotificationPreference(
     },
   );
 }
+
+// ----- Preferencias del chat Business (tono / idioma / KPIs) -----
+
+export type ChatTone = 'warm' | 'professional' | 'concise' | 'match_brand';
+export type ChatLanguage = 'es' | 'en' | 'pt';
+
+export interface OwnerChatPreference {
+  tone_preference: ChatTone | null;
+  kpi_focus: string[] | null;
+  language_preference: ChatLanguage | null;
+}
+
+export async function getOwnerChatPreference(
+  slug: string,
+): Promise<OwnerChatPreference> {
+  return fetchApi<OwnerChatPreference>(
+    `/api/restaurants/${slug}/owner/chat-preferences`,
+  );
+}
+
+export async function updateOwnerChatPreference(
+  slug: string,
+  body: OwnerChatPreference,
+): Promise<OwnerChatPreference> {
+  return fetchApi<OwnerChatPreference>(
+    `/api/restaurants/${slug}/owner/chat-preferences`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    },
+  );
+}

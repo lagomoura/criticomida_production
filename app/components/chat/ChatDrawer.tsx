@@ -24,6 +24,14 @@ interface ChatDrawerProps {
   onClose: () => void;
   agent?: ChatAgent;
   restaurantScopeId?: string | null;
+  /**
+   * Restaurant slug for the Business agent. Threaded down to
+   * ``MessageList`` so it can build the "Responder esta reseña" deep
+   * link from a chat draft into the owner dashboard's review modal.
+   * Required for ``agent='business'`` flows where drafting happens;
+   * harmless when omitted (the deep-link button just won't render).
+   */
+  restaurantSlug?: string | null;
 }
 
 /**
@@ -36,6 +44,7 @@ export default function ChatDrawer({
   onClose,
   agent = 'sommelier',
   restaurantScopeId = null,
+  restaurantSlug = null,
 }: ChatDrawerProps) {
   const t = useTranslations('chat');
   const locale = useLocale();
@@ -231,10 +240,16 @@ export default function ChatDrawer({
               messages={messages}
               isStreaming={isStreaming}
               onShowDishOnMap={onShowDishOnMap}
+              draftDeepLinkSlug={
+                agent === 'business' ? restaurantSlug ?? null : null
+              }
+              onDraftDeepLinkClick={onClose}
               emptyState={
                 agent === 'business' ? (
                   <BusinessEmptyState
                     ownerName={user?.display_name ?? null}
+                    onSendStarter={(text) => void send(text)}
+                    disabled={isStreaming}
                   />
                 ) : undefined
               }
@@ -298,21 +313,64 @@ export default function ChatDrawer({
   );
 }
 
+interface BusinessEmptyStateProps {
+  ownerName: string | null;
+  /** Click handler for starter chips. The chip's question is sent
+   *  straight as a user turn — no "fill the input first" step,
+   *  because adding a step would defeat the icebreaker purpose. */
+  onSendStarter: (text: string) => void;
+  /** Disable chips while another turn is in flight. */
+  disabled?: boolean;
+}
+
 /**
- * Polished empty state for the Business agent.
+ * Empty state for the Business agent — both the warm welcome and the
+ * "icebreaker" surface.
  *
- * The Sommelier's default empty state ("Probá: 'buscame una ganga 3/3
- * en Palermo…'") doesn't apply to the owner-facing chat — the owner
- * is asking about *their* restaurant, not exploring the city. The
- * owner dashboard already lists concrete examples next to the
- * launcher button, so we deliberately keep this surface minimal:
- * brand badge + warm greeting + one short tagline. The illustration
- * step (custom SVG) is a roadmap follow-up.
+ * The four starter chips below the greeting are the entry point that
+ * actually exercises the owner's KPI preferences: clicking a chip
+ * fires a real user turn and the agent answers using whatever tone /
+ * language / KPI focus the owner pinned in the settings panel. So
+ * the copy in ``ownerSettings.kpis.hint`` ("the ones you want to see
+ * first when the agent answers a summary") cashes out HERE — not in
+ * an autonomous greeting.
+ *
+ * Mobile + desktop fit: the chips wrap into rows; we keep them
+ * concise (under ~7 words) so two fit per row on a 360-px screen.
  */
-function BusinessEmptyState({ ownerName }: { ownerName: string | null }) {
+function BusinessEmptyState({
+  ownerName,
+  onSendStarter,
+  disabled = false,
+}: BusinessEmptyStateProps) {
   const t = useTranslations('chat.businessEmpty');
+  // Keys + i18n payload kept side-by-side: each starter has a short
+  // chip label and a longer message that's actually sent. The labels
+  // stay scannable; the messages give the agent enough context.
+  const starters: { key: string; label: string; message: string }[] = [
+    {
+      key: 'pending',
+      label: t('starters.pending.label'),
+      message: t('starters.pending.message'),
+    },
+    {
+      key: 'summary',
+      label: t('starters.summary.label'),
+      message: t('starters.summary.message'),
+    },
+    {
+      key: 'negatives',
+      label: t('starters.negatives.label'),
+      message: t('starters.negatives.message'),
+    },
+    {
+      key: 'benchmark',
+      label: t('starters.benchmark.label'),
+      message: t('starters.benchmark.message'),
+    },
+  ];
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 px-6 py-10 text-center">
+    <div className="flex h-full flex-col items-center justify-center gap-5 px-6 py-10 text-center">
       <span
         className={cn(
           'flex h-20 w-20 items-center justify-center rounded-full',
@@ -328,6 +386,32 @@ function BusinessEmptyState({ ownerName }: { ownerName: string | null }) {
           {ownerName ? t('greeting', { name: ownerName }) : t('greetingAnon')}
         </h2>
         <p className="text-sm text-text-muted">{t('subtitle')}</p>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-xs uppercase tracking-wider text-text-muted">
+          {t('startersHeading')}
+        </p>
+        <ul className="flex flex-wrap justify-center gap-2">
+          {starters.map((starter) => (
+            <li key={starter.key}>
+              <button
+                type="button"
+                onClick={() => onSendStarter(starter.message)}
+                disabled={disabled}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-full',
+                  'border border-border-default bg-surface-card px-3 py-1.5',
+                  'font-sans text-xs font-medium text-text-primary',
+                  'transition-colors hover:border-action-primary hover:bg-action-primary/5',
+                  'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                  'disabled:cursor-not-allowed disabled:opacity-60',
+                )}
+              >
+                {starter.label}
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
 import {
@@ -9,18 +9,32 @@ import {
   type OwnerReviewItem,
 } from '@/app/lib/api/owner-content';
 import type { OwnerResponse } from '@/app/lib/types/owner-content';
+import { readLocalDraft, writeLocalDraft } from '@/app/lib/utils/owner-draft';
 import ReviewEmojiChips from './ReviewEmojiChips';
 
 interface Props {
   review: OwnerReviewItem;
   onClose: () => void;
   onResponseSaved?: () => void;
+  /**
+   * Optional draft to pre-fill the textarea when no response exists
+   * yet. Used by the chat deep-link ("Responder esta reseña con este
+   * draft") so the owner lands in the modal with the agent's
+   * suggestion already loaded. Ignored when a response is already
+   * persisted — we never overwrite the owner's own work.
+   *
+   * Priority order on open:
+   *   persisted response > initialDraft (explicit user action this
+   *   turn) > local draft (auto-saved earlier session) > empty.
+   */
+  initialDraft?: string;
 }
 
 export default function OwnerReviewModal({
   review,
   onClose,
   onResponseSaved,
+  initialDraft,
 }: Props) {
   const t = useTranslations('ownerDashboard');
   const tModal = useTranslations('ownerDashboard.reviewModal');
@@ -30,6 +44,14 @@ export default function OwnerReviewModal({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /**
+   * Tells the user where the prefilled body came from — only when
+   * it didn't come from a published response. Empty otherwise so
+   * we don't surprise the owner with a banner on a fresh open.
+   */
+  const [draftSource, setDraftSource] = useState<
+    'chat' | 'local' | null
+  >(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -46,11 +68,49 @@ export default function OwnerReviewModal({
       .then((r) => {
         if (cancelled) return;
         setResponse(r);
-        setBody(r?.body ?? '');
+        if (r?.body) {
+          // Published response wins over every draft source. We
+          // never silently overwrite owner work that already shipped.
+          setBody(r.body);
+          setDraftSource(null);
+          return;
+        }
+        if (initialDraft) {
+          // Explicit deep-link click this turn — agent's suggestion
+          // overrides any stale local draft. Persist immediately so
+          // a close-without-typing still leaves a recoverable draft
+          // (the dashboard's "Borrador" badge depends on it).
+          setBody(initialDraft);
+          writeLocalDraft(review.id, initialDraft);
+          setDraftSource('chat');
+          return;
+        }
+        const local = readLocalDraft(review.id);
+        if (local) {
+          setBody(local);
+          setDraftSource('local');
+          return;
+        }
+        setBody('');
+        setDraftSource(null);
       })
       .catch(() => {
         if (cancelled) return;
         setResponse(null);
+        // GET failed — still try to surface a local draft so a flaky
+        // backend doesn't make the owner retype their reply.
+        const local = readLocalDraft(review.id);
+        if (initialDraft) {
+          setBody(initialDraft);
+          writeLocalDraft(review.id, initialDraft);
+          setDraftSource('chat');
+        } else if (local) {
+          setBody(local);
+          setDraftSource('local');
+        } else {
+          setBody('');
+          setDraftSource(null);
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -58,7 +118,24 @@ export default function OwnerReviewModal({
     return () => {
       cancelled = true;
     };
-  }, [review.id]);
+  }, [review.id, initialDraft]);
+
+  const handleBodyChange = useCallback(
+    (next: string) => {
+      setBody(next);
+      // Don't auto-save while the published response is in the
+      // textarea — that text is already in the DB; mirroring it to
+      // localStorage would add a stale copy that lingers after the
+      // owner edits + saves.
+      if (response) return;
+      writeLocalDraft(review.id, next);
+      // Once the owner starts typing, the source banner has done its
+      // job. Clearing it avoids an awkward "from chat" label sitting
+      // above text the owner already rewrote.
+      if (draftSource !== null) setDraftSource(null);
+    },
+    [response, review.id, draftSource],
+  );
 
   const handleSave = async () => {
     if (body.trim().length === 0) return;
@@ -67,6 +144,10 @@ export default function OwnerReviewModal({
     try {
       const updated = await upsertOwnerResponse(review.id, body.trim());
       setResponse(updated);
+      // Response is now persisted server-side — drop the local copy
+      // so a future open shows the published text, not a stale draft.
+      writeLocalDraft(review.id, '');
+      setDraftSource(null);
       onResponseSaved?.();
     } catch {
       setError(tModal('saveError'));
@@ -134,9 +215,16 @@ export default function OwnerReviewModal({
             </div>
           ) : (
             <>
+              {draftSource && (
+                <p className="rounded-md bg-action-primary/10 px-3 py-2 font-sans text-xs text-text-primary">
+                  {draftSource === 'chat'
+                    ? tModal('draftFromChatNotice')
+                    : tModal('draftFromLocalNotice')}
+                </p>
+              )}
               <textarea
                 value={body}
-                onChange={(e) => setBody(e.target.value)}
+                onChange={(e) => handleBodyChange(e.target.value)}
                 rows={4}
                 placeholder={tModal('responsePlaceholder')}
                 className="w-full rounded-md border border-border-default bg-surface-subtle p-3 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-canela)]"

@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/app/lib/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import Button from '@/app/components/ui/Button';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { ApiError } from '@/app/lib/api/client';
@@ -22,6 +24,7 @@ import {
   type SentimentLabel,
 } from '@/app/lib/api/owner-content';
 import type { OfficialPhoto } from '@/app/lib/types/owner-content';
+import { listReviewIdsWithDraft } from '@/app/lib/utils/owner-draft';
 import BusinessChatLauncher from '@/app/components/chat/BusinessChatLauncher';
 import ReviewEmojiChips from './ReviewEmojiChips';
 import OwnerReviewModal from './OwnerReviewModal';
@@ -66,6 +69,7 @@ export default function OwnerDashboardClient({
   const t = useTranslations('ownerDashboard');
   const locale = useLocale();
   const reviewIdParam = searchParams.get('review');
+  const draftParam = searchParams.get('draft');
 
   const [gate, setGate] = useState<GateState>({ kind: 'checking' });
   const [isAdminViewer, setIsAdminViewer] = useState(false);
@@ -85,6 +89,27 @@ export default function OwnerDashboardClient({
   const [notifyOnReview, setNotifyOnReview] = useState<boolean>(true);
   const [notifySaving, setNotifySaving] = useState(false);
   const [notifyError, setNotifyError] = useState<string | null>(null);
+  /**
+   * Review ids that have an unpublished local draft. Drives the
+   * "Borrador" badge on each card so the owner knows which replies
+   * they started and never finished, without opening every modal.
+   *
+   * Refreshed on mount, on modal close, and after a successful
+   * publish (the modal clears the draft entry on save). Same-tab
+   * intra-modal edits don't update the set in real time — that's
+   * fine, the owner is looking at the textarea, not the card list.
+   */
+  const [reviewIdsWithDraft, setReviewIdsWithDraft] = useState<Set<string>>(
+    () => new Set<string>(),
+  );
+
+  const refreshDraftSet = useCallback(() => {
+    setReviewIdsWithDraft(new Set<string>(listReviewIdsWithDraft()));
+  }, []);
+
+  useEffect(() => {
+    refreshDraftSet();
+  }, [refreshDraftSet]);
 
   const loadReviews = useCallback(async () => {
     try {
@@ -133,7 +158,11 @@ export default function OwnerDashboardClient({
 
   const closeReviewModal = useCallback(() => {
     router.replace(`/restaurants/${restaurantSlug}/owner`, { scroll: false });
-  }, [router, restaurantSlug]);
+    // The owner may have typed (or cleared) a draft in the modal;
+    // re-scan localStorage so the cards reflect that without a
+    // page refresh.
+    refreshDraftSet();
+  }, [router, restaurantSlug, refreshDraftSet]);
 
   // Si la notificación trae un reviewId que no está en el listado actual
   // (porque hay un filtro de sentimiento aplicado), limpiamos el filtro
@@ -305,25 +334,39 @@ export default function OwnerDashboardClient({
 
   return (
     <div className="cc-container flex flex-col gap-8 py-8">
-      <header className="flex flex-col gap-1">
-        <p className="font-sans text-xs uppercase tracking-wider text-text-muted">
-          {t('kicker')}
-        </p>
-        <h1 className="font-display text-3xl font-medium sm:text-4xl">
-          {restaurantName}
-        </h1>
-        <p className="font-sans text-sm text-text-muted">
-          {restaurantLocation}
-        </p>
-        {isAdminViewer && (
-          <p className="mt-2 inline-flex items-center gap-2 self-start rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-            {t('adminViewerNotice')}
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <div className="flex flex-col gap-1">
+          <p className="font-sans text-xs uppercase tracking-wider text-text-muted">
+            {t('kicker')}
           </p>
-        )}
+          <h1 className="font-display text-3xl font-medium sm:text-4xl">
+            {restaurantName}
+          </h1>
+          <p className="font-sans text-sm text-text-muted">
+            {restaurantLocation}
+          </p>
+          {isAdminViewer && (
+            <p className="mt-2 inline-flex items-center gap-2 self-start rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+              {t('adminViewerNotice')}
+            </p>
+          )}
+        </div>
+        <Link
+          href={`/restaurants/${restaurantSlug}/owner/settings`}
+          className="inline-flex h-10 shrink-0 items-center gap-2 self-start rounded-full border border-border-strong bg-transparent px-4 text-sm font-semibold text-text-primary no-underline transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+        >
+          <FontAwesomeIcon
+            icon={faSliders}
+            aria-hidden
+            className="h-3.5 w-3.5"
+          />
+          <span>{t('settingsLink')}</span>
+        </Link>
       </header>
 
       <BusinessChatLauncher
         restaurantScopeId={restaurantId}
+        restaurantSlug={restaurantSlug}
         restaurantName={restaurantName}
       />
 
@@ -504,6 +547,12 @@ export default function OwnerDashboardClient({
                           {t(`sentiment_${review.sentiment_label}`)}
                         </span>
                       )}
+                      {!review.has_owner_response &&
+                        reviewIdsWithDraft.has(review.id) && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-action-primary/15 px-2 py-0.5 text-xs font-semibold text-action-primary">
+                            {t('draftBadge')}
+                          </span>
+                        )}
                       {review.has_owner_response ? (
                         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
                           {t('responded')}
@@ -538,7 +587,15 @@ export default function OwnerDashboardClient({
         <OwnerReviewModal
           review={modalReview}
           onClose={closeReviewModal}
-          onResponseSaved={() => void loadReviews()}
+          onResponseSaved={() => {
+            void loadReviews();
+            // The modal removes its localStorage entry on a
+            // successful publish — sync the badge set so the
+            // "Borrador" pill disappears even if the owner stays
+            // inside the modal afterwards.
+            refreshDraftSet();
+          }}
+          initialDraft={draftParam ?? undefined}
         />
       )}
 

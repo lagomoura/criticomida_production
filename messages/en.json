@@ -269,6 +269,7 @@
     "backToRestaurant": "← Back to restaurant",
     "claimAction": "Claim this place",
     "kicker": "Owner panel",
+    "settingsLink": "Agent preferences",
     "adminViewerNotice": "You're viewing this panel as admin (support). Actions are recorded to your account.",
     "officialPhotos": "Official photos",
     "photosIntro": "These photos take priority over the ones from Google and show up at the top of the restaurant page.",
@@ -285,6 +286,7 @@
     "noReviews": "No reviews for this restaurant yet.",
     "responded": "Replied",
     "notResponded": "Not replied",
+    "draftBadge": "Draft",
     "noReviewsForFilter": "No reviews match the chosen filter.",
     "sentimentFilterLabel": "Filter by sentiment",
     "sentimentFilterAll": "All",
@@ -354,11 +356,67 @@
       "respondAction": "Publish reply",
       "updateAction": "Update reply",
       "savingAction": "Saving…",
-      "saveError": "We couldn't save the reply. Try again."
+      "saveError": "We couldn't save the reply. Try again.",
+      "draftFromChatNotice": "Draft suggested by the agent. Edit it or post it as is.",
+      "draftFromLocalNotice": "We recovered your unpublished draft. Pick up where you left off."
     },
     "moreChangesHeading": "More profile changes",
     "moreChangesDescription": "For now the panel only manages photos and responses. If you want to update the reservation URL or report an error in the place's data, contact support and we'll help.",
     "backToPublic": "← Back to public profile"
+  },
+  "ownerSettings": {
+    "kicker": "Agent preferences",
+    "title": "Set how the Business chat talks to you",
+    "subtitle": "These settings apply to every future conversation with the chat for {name}. You can change them anytime.",
+    "loading": "Loading…",
+    "signInTitle": "Sign in",
+    "signInDescription": "This section is for verified owners.",
+    "signInAction": "Go to sign in",
+    "forbiddenTitle": "Restricted access",
+    "forbiddenDescription": "Only the verified owner of {name} can see this section.",
+    "backToRestaurant": "← Back to restaurant",
+    "backToDashboard": "← Back to dashboard",
+    "tone": {
+      "label": "Default tone",
+      "hint": "How you'd like the agent to express itself in every conversation. 'No preference' lets it adapt to context.",
+      "optionDefault": "No preference (recommended)",
+      "option_warm": "Warm",
+      "option_professional": "Professional",
+      "option_concise": "Concise",
+      "option_match_brand": "Match my own review responses"
+    },
+    "language": {
+      "label": "Fixed reply language",
+      "hint": "If you leave 'Adapt to input', the agent replies in the language you speak to it.",
+      "optionDefault": "Adapt to input (recommended)",
+      "option_es": "Spanish",
+      "option_en": "English",
+      "option_pt": "Portuguese"
+    },
+    "kpis": {
+      "label": "Priority KPIs in summaries",
+      "hint": "Pick the ones you want to see first when you ask the agent for a summary (e.g. from the 'Month summary' chip in the chat).",
+      "option_rating_avg": {
+        "label": "Average rating.",
+        "hint": "Current average and vs prior period."
+      },
+      "option_response_rate": {
+        "label": "Response rate.",
+        "hint": "Share of reviews you've already replied to."
+      },
+      "option_review_count_30d": {
+        "label": "Reviews in the last 30 days.",
+        "hint": "Count and comparison against the previous 30."
+      },
+      "option_sentiment_breakdown": {
+        "label": "Sentiment breakdown.",
+        "hint": "Positive / neutral / negative distribution."
+      }
+    },
+    "saveAction": "Save preferences",
+    "savingAction": "Saving…",
+    "savedToast": "Preferences saved.",
+    "saveError": "We couldn't save your preferences. Please try again."
   },
   "claim": {
     "alreadyClaimed": "This listing is already claimed",
@@ -1792,6 +1850,9 @@
     "ownerDashboard": {
       "title": "Restaurant dashboard · CritiComida"
     },
+    "ownerSettings": {
+      "title": "Agent preferences · CritiComida"
+    },
     "adminClaims": {
       "title": "Restaurant claims | CritiComida"
     },
@@ -1820,23 +1881,49 @@
     "newConversation": "New conversation",
     "history": "Conversation history",
     "conversationList": {
+      "headerLabel": "History",
       "loading": "Loading…",
       "error": "Couldn't load history.",
       "empty": "No conversations yet.",
       "untitled": "Untitled conversation",
       "archive": "Archive",
       "archiveConfirm": "Tap again to confirm",
-      "archiveCancel": "Cancel archive"
+      "archiveCancel": "Cancel archive",
+      "showArchivedToggle": "Show archived",
+      "archivedBadge": "Archived",
+      "restore": "Restore",
+      "hardDelete": "Delete forever",
+      "hardDeleteCancel": "Cancel delete"
     },
     "send": "Send message",
     "placeholder": "Ask anything…",
+    "respondReviewWithDraft": "Respond to this review →",
     "greetingNamed": "Hi {name}, what are you in the mood for?",
     "greetingAnon": "Tell me what you're craving and I'll suggest a dish.",
     "emptyState": "Try: \"find me a 3/3 bargain in Palermo with stunning presentation\".",
     "businessEmpty": {
       "greeting": "Hi, {name} 👋",
       "greetingAnon": "Your business assistant",
-      "subtitle": "Tell me what you want to see about your restaurant."
+      "subtitle": "Tell me what you want to see about your restaurant.",
+      "startersHeading": "Start here",
+      "starters": {
+        "pending": {
+          "label": "Unanswered reviews",
+          "message": "Which reviews haven't I replied to yet?"
+        },
+        "summary": {
+          "label": "Month summary",
+          "message": "Give me a quick summary of how the month is going."
+        },
+        "negatives": {
+          "label": "Negative reviews",
+          "message": "Show me my pending negative reviews."
+        },
+        "benchmark": {
+          "label": "Vs competition",
+          "message": "How does my rating compare to nearby competition?"
+        }
+      }
     },
     "dishCard": {
       "save": "Save",

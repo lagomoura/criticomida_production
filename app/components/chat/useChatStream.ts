@@ -107,6 +107,21 @@ interface UseChatStreamApi {
  * codepath that flips pending to false when the ``tool_call_result``
  * event arrives.
  */
+function parseToolArguments(
+  raw: string | null | undefined,
+): Record<string, unknown> | undefined {
+  if (!raw) return undefined;
+  try {
+    const parsed = JSON.parse(raw);
+    return typeof parsed === 'object' && parsed !== null
+      ? (parsed as Record<string, unknown>)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+
 function historyToUiMessages(history: ChatMessageData[]): UiMessage[] {
   const out: UiMessage[] = [];
   let lastAssistant: UiMessage | null = null;
@@ -127,6 +142,13 @@ function historyToUiMessages(history: ChatMessageData[]): UiMessage[] {
         tools: (row.tool_calls || []).map((tc) => ({
           id: tc.id,
           name: tc.name,
+          // ``arguments`` is the persisted JSON-string the LLM sent
+          // for this call. Hydrating ``input`` keeps the resume flow
+          // (history → UI) on par with the live stream where
+          // ``tool_call_start`` already provides ``input`` directly,
+          // and lets downstream renderers (e.g. the draft deep-link
+          // in ``MessageList``) read tool arguments after a refresh.
+          input: parseToolArguments(tc.arguments),
           pending: false,
         })),
       };

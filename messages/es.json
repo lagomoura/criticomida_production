@@ -269,6 +269,7 @@
     "backToRestaurant": "← Volver al restaurante",
     "claimAction": "Reclamar este local",
     "kicker": "Panel del dueño",
+    "settingsLink": "Preferencias del agente",
     "adminViewerNotice": "Estás viendo este panel como admin (soporte). Las acciones quedan registradas a tu cuenta.",
     "officialPhotos": "Fotos oficiales",
     "photosIntro": "Estas fotos tienen prioridad sobre las que vienen de Google y se muestran arriba en la página del restaurante.",
@@ -285,6 +286,7 @@
     "noReviews": "Todavía no hay reseñas para este restaurante.",
     "responded": "Respondida",
     "notResponded": "Sin responder",
+    "draftBadge": "Borrador",
     "noReviewsForFilter": "Ninguna reseña coincide con el filtro elegido.",
     "sentimentFilterLabel": "Filtrar por sentimiento",
     "sentimentFilterAll": "Todas",
@@ -354,11 +356,67 @@
       "respondAction": "Publicar respuesta",
       "updateAction": "Actualizar respuesta",
       "savingAction": "Guardando…",
-      "saveError": "No pudimos guardar la respuesta. Probá de nuevo."
+      "saveError": "No pudimos guardar la respuesta. Probá de nuevo.",
+      "draftFromChatNotice": "Borrador sugerido por el agente. Editalo o publicá tal cual.",
+      "draftFromLocalNotice": "Recuperamos el borrador que dejaste sin publicar. Continuá donde quedaste."
     },
     "moreChangesHeading": "Aplicar más cambios al perfil",
     "moreChangesDescription": "Por ahora desde el panel solo gestionás fotos y respuestas. Si querés actualizar la URL de reservas o avisar de un error en los datos del local, escribinos a soporte y te ayudamos.",
     "backToPublic": "← Volver al perfil público"
+  },
+  "ownerSettings": {
+    "kicker": "Preferencias del agente",
+    "title": "Configurá cómo te habla el chat Business",
+    "subtitle": "Estos ajustes aplican a todas las conversaciones futuras con el chat de {name}. Podés cambiarlos cuando quieras.",
+    "loading": "Cargando…",
+    "signInTitle": "Iniciá sesión",
+    "signInDescription": "Esta sección es para dueños verificados.",
+    "signInAction": "Ir a iniciar sesión",
+    "forbiddenTitle": "Acceso restringido",
+    "forbiddenDescription": "Solo el dueño verificado de {name} puede ver esta sección.",
+    "backToRestaurant": "← Volver al restaurante",
+    "backToDashboard": "← Volver al panel",
+    "tone": {
+      "label": "Tono por defecto",
+      "hint": "Cómo querés que el agente se exprese en cada conversación. 'Sin preferencia' deja que se adapte al contexto.",
+      "optionDefault": "Sin preferencia (recomendado)",
+      "option_warm": "Cálido",
+      "option_professional": "Profesional",
+      "option_concise": "Conciso",
+      "option_match_brand": "Mismo tono que mis respuestas a reseñas"
+    },
+    "language": {
+      "label": "Idioma fijo de respuesta",
+      "hint": "Si lo dejás en 'Adaptar al input', el agente responde en el idioma en que le hablás.",
+      "optionDefault": "Adaptar al input (recomendado)",
+      "option_es": "Español",
+      "option_en": "Inglés",
+      "option_pt": "Portugués"
+    },
+    "kpis": {
+      "label": "KPIs prioritarios en resúmenes",
+      "hint": "Marcá los que quieras ver primero cuando le pidas un resumen al agente (por ejemplo desde el botón 'Resumen del mes' del chat).",
+      "option_rating_avg": {
+        "label": "Rating promedio.",
+        "hint": "Promedio actual y vs período previo."
+      },
+      "option_response_rate": {
+        "label": "Tasa de respuesta.",
+        "hint": "Porcentaje de reseñas que ya respondiste."
+      },
+      "option_review_count_30d": {
+        "label": "Reseñas últimos 30 días.",
+        "hint": "Cantidad y comparativa contra los 30 anteriores."
+      },
+      "option_sentiment_breakdown": {
+        "label": "Breakdown de sentimiento.",
+        "hint": "Distribución positivas / neutras / negativas."
+      }
+    },
+    "saveAction": "Guardar preferencias",
+    "savingAction": "Guardando…",
+    "savedToast": "Preferencias guardadas.",
+    "saveError": "No pudimos guardar las preferencias. Probá de nuevo."
   },
   "claim": {
     "alreadyClaimed": "Esta ficha ya está reclamada",
@@ -1792,6 +1850,9 @@
     "ownerDashboard": {
       "title": "Panel del restaurante · CritiComida"
     },
+    "ownerSettings": {
+      "title": "Preferencias del agente · CritiComida"
+    },
     "adminClaims": {
       "title": "Reclamos de restaurantes | CritiComida"
     },
@@ -1820,23 +1881,49 @@
     "newConversation": "Nueva conversación",
     "history": "Historial de conversaciones",
     "conversationList": {
+      "headerLabel": "Historial",
       "loading": "Cargando…",
       "error": "No pude cargar el historial.",
       "empty": "Aún no hay conversaciones guardadas.",
       "untitled": "Conversación sin título",
       "archive": "Archivar",
       "archiveConfirm": "Tocá de nuevo para confirmar",
-      "archiveCancel": "Cancelar archivado"
+      "archiveCancel": "Cancelar archivado",
+      "showArchivedToggle": "Mostrar archivadas",
+      "archivedBadge": "Archivada",
+      "restore": "Restaurar",
+      "hardDelete": "Eliminar permanente",
+      "hardDeleteCancel": "Cancelar eliminación"
     },
     "send": "Enviar mensaje",
     "placeholder": "Preguntá lo que quieras…",
+    "respondReviewWithDraft": "Responder esta reseña →",
     "greetingNamed": "Hola {name}, ¿qué tenés ganas de comer hoy?",
     "greetingAnon": "Contame qué se te antoja y te sugiero un plato.",
     "emptyState": "Probá: \"buscame una ganga 3/3 en Palermo con presentación increíble\".",
     "businessEmpty": {
       "greeting": "Hola, {name} 👋",
       "greetingAnon": "Tu asistente del negocio",
-      "subtitle": "Escribí lo que querés mirar de tu restaurante."
+      "subtitle": "Escribí lo que querés mirar de tu restaurante.",
+      "startersHeading": "Para empezar",
+      "starters": {
+        "pending": {
+          "label": "Reseñas sin responder",
+          "message": "¿Qué reseñas todavía no respondí?"
+        },
+        "summary": {
+          "label": "Resumen del mes",
+          "message": "Hacé un resumen de cómo viene el mes."
+        },
+        "negatives": {
+          "label": "Reseñas negativas",
+          "message": "Mostrame las reseñas negativas que tengo pendientes."
+        },
+        "benchmark": {
+          "label": "Vs competencia",
+          "message": "¿Cómo está mi rating frente a la competencia cercana?"
+        }
+      }
     },
     "dishCard": {
       "save": "Guardar",
