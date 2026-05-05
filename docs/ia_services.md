@@ -32,6 +32,7 @@ es un changelog; describe el estado actual.
 | Google Gemini | `gemini-embedding-2` (768 dims con MRL) | Embeddings de reseñas y dishes para búsqueda semántica | `GEMINI_API_KEY` + `EMBEDDINGS_MODEL` |
 | Google Gemini | `gemini-2.5-flash` | Visión multimodal para Ghostwriter | mismo `GEMINI_API_KEY` |
 | Google Gemini | `gemini-2.5-flash` | Sentiment de reseñas (clasifica el texto en positive/neutral/negative + score) | mismo `GEMINI_API_KEY` |
+| Google Gemini | `gemini-2.5-flash` | Auto-titulado de conversaciones de chat (4-8 palabras, JSON-mode) | mismo `GEMINI_API_KEY` |
 | Resend | `/emails` | Notificación email a owner cuando se pide reserva | `RESEND_API_KEY` |
 
 Si una key no está configurada, el servicio que la usa **degrada
@@ -217,6 +218,28 @@ material de prompt.
 
 - Owner dashboard — `GET /api/restaurants/{slug}/owner/reviews?sentiment=negative` y `?sort=sentiment_asc` (más negativas primero).
 - Tool `list_reviews` (Business) — filtros componibles `responded_status` + `sentiment` + `sort` para que cualquier pregunta sobre reseñas resuelva con una sola llamada.
+
+### H. Auto-titulado de conversaciones — Gemini `gemini-2.5-flash`
+
+`backend/app/services/chat_title_service.py`. Hermano del sentiment
+service: mismo modelo, misma forma (JSON-mode + schema +
+`thinking_budget=0`), diferente trabajo. Se dispara desde
+`chat_service.stream_chat` después del primer turno del usuario,
+toma los primeros 2-4 mensajes (user + assistant) y devuelve un
+título de 4-8 palabras en el idioma del primer mensaje del usuario,
+sin signos de pregunta y sin emojis. Es **layered sobre el
+heurístico**: el primer save de `conversation.title` en stream_chat
+sigue siendo determinístico (truncado del primer user message)
+para que el panel tenga algo que mostrar de inmediato; el LLM
+swap-in ocurre 3-5 s después como background task. Trigger
+controlado por `is_first_user_message` para evitar re-titular en
+turnos posteriores.
+
+Por qué Gemini Flash y no el modelo del agente: titulado no está
+en el critical path del usuario, Flash es ~1¢ por 1k titulados,
+JSON-mode es predecible y el `thinking_budget=0` (memoria
+`feedback_gemini_thinking`) elimina la regresión histórica de
+trunc-JSON en Flash 2.5.
 
 ---
 

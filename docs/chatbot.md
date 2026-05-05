@@ -18,6 +18,78 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Auto-título de conversaciones vía Gemini Flash**
+    (`app/services/chat_title_service.py`). Hook background en
+    `chat_service.stream_chat` después del primer turno del usuario:
+    el heurístico (`_make_title_from_user_message`) sigue corriendo
+    para que el panel tenga algo que mostrar de inmediato; ~3-5 s
+    después la background task lo reemplaza con un título 4-8
+    palabras generado por Gemini 2.5 Flash en JSON-mode con
+    `thinking_budget=0` (memoria `feedback_gemini_thinking`).
+    Idioma del primer mensaje del usuario, sin signos de pregunta,
+    sin emojis. Idempotente — solo dispara en el primer turno.
+  - **Toggle 'Mostrar archivadas' + 'Restaurar' + hard-delete admin**
+    (F-CONVO 7-8). El panel de conversaciones soporta ahora un
+    switch persistido en localStorage que pide al backend
+    `include_archived=true`. Las archivadas se renderizan con
+    opacity-60 + badge "Archivada" y exponen una acción "Restaurar"
+    (POST `/conversations/{id}/unarchive`). Para admins (rol
+    `admin`) las archivadas también muestran un botón
+    "Eliminar permanente" con confirm/cancel pair, que llama
+    `DELETE /conversations/{id}/permanent` (hard-delete con audit
+    log). El endpoint chequea owner-or-admin antes de borrar.
+  - **Validador numérico post-hoc en el runner de evals**
+    (`tests/chat/evals/runner.py`). Cada caso puede pedir
+    `validate_numbers: true` y el runner extrae literales numéricos
+    de la respuesta final, los cruza contra los outputs de los tools
+    capturados en el turno, y agrega `unverified_number: …` a
+    `failures` cuando un número no tiene fuente. Tolerancia
+    configurable (default ±0.05 para ratings) y whitelist
+    `numbers_allowed` para constantes legítimas tipo "5 estrellas"
+    o "30 días". Filtros de ruido: salta enteros 0-9 y años
+    2020-2099. Coberturado por `tests/unit/test_eval_numeric_validator.py`.
+  - **CI gateado por chat-evals** (`backend/.github/workflows/chat-evals.yml`).
+    Workflow corre la suite con `RUN_CHAT_EVALS=1` cuando un PR
+    toca `app/services/chat/**`, `tests/chat/**` o el harness
+    propio. Postgres pgvector como service, Python 3.12, alembic
+    upgrade, y un step final
+    (`tests/chat/evals/check_threshold.py`) que falla el job si la
+    pass-rate cae bajo 90%. El threshold absorbe 1 flake puntual
+    sin deshabilitar el gate.
+  - **Settings panel de prefs del owner verificado**
+    (`/restaurants/{slug}/owner/settings`). Form determinístico
+    para tone / language / KPIs que reemplaza el flujo conversacional
+    cuando el owner prefiere UI predictible. Endpoints
+    `GET|PUT /api/restaurants/{slug}/owner/chat-preferences` y un
+    nuevo helper `replace_chat_preference()` que mantiene la
+    semántica "form completo, null limpia" (vs. el upsert del chat
+    que trata `None` como "no tocar"). i18n en es/en/pt.
+  - **Deep-link draft → OwnerReviewModal**. Después de que el
+    Business agent genera un draft de respuesta, MessageList
+    detecta el patrón (assistant text que sigue a un
+    `suggest_review_response` con `review_id` conocido) y emite un
+    botón "Responder esta reseña" que navega a
+    `/restaurants/{slug}/owner?review={id}&draft={text}`. El
+    OwnerDashboard lee `?draft=` y lo pasa como prop
+    `initialDraft` al `OwnerReviewModal`, que prefilla el textarea
+    cuando no hay respuesta persistida (nunca sobreescribe trabajo
+    del owner).
+  - **Regex preprocessor para `update_owner_preferences`** (capa 1
+    de defensa, `app/services/chat/preference_intent.py`). Detector
+    determinístico que corre en `chat_service.stream_chat` antes del
+    LLM: cuando el user_message contiene una frase de trigger
+    (`siempre`, `de ahora en más`, `sempre`, `from now on`, `always`,
+    …) **co-ocurriendo con un keyword de tono o idioma en la misma
+    oración**, el preprocessor llama `upsert_chat_preference()` directo
+    y le inyecta una nota efímera al system prompt para que el agente
+    confirme verbalmente sin re-llamar el tool. Resuelve el flake
+    histórico donde Gemini Flash Lite Preview confirmaba sin disparar
+    el tool y la pref nunca aterrizaba en DB. KPIs intencionalmente
+    fuera del scope (libres, riesgo de mis-extract). Defensa en 3
+    capas: regex → tool del LLM (idempotente) → audit script con rate
+    threshold. Tests unitarios en
+    `tests/unit/test_preference_intent.py` cubren positivos en es/en/pt
+    y negativos clave ("siempre quise probar…").
   - **Memoria persistente del owner (Fase 5)**. Tabla
     `owner_chat_preferences` (separada de `owner_notification_preferences`,
     distinto producto) con `(user_id, restaurant_id)` UNIQUE y campos
@@ -32,10 +104,11 @@ estado actual, no la historia.
     `suggest_review_response` con `tone='match_brand'` ahora resuelve
     contra `tone_preference` real (antes caía a professional con nota
     F5). Few-shot 7 enseña el patrón de persistencia y la diferencia
-    con pedidos one-off ("esta vez…"). Limitación conocida: con
-    Gemini 3.1 Flash Lite Preview el agente a veces confirma
-    verbalmente sin disparar el tool — se mitigaría con un toggle UI
-    complementario o con un modelo más adherente (roadmap).
+    con pedidos one-off ("esta vez…"). Limitación histórica: con
+    Gemini 3.1 Flash Lite Preview el agente a veces confirmaba
+    verbalmente sin disparar el tool — mitigada por el regex
+    preprocessor de capa 1 (ver bullet nuevo arriba). Toggle UI
+    complementario sigue en roadmap como tercera vía determinística.
   - **Reglas anti-alucinación 8-10** en `business.md` + 5 casos eval
     nuevos (precios, nombres de reviewers, ventas, hora del día,
     contexto externo). Cierra Fase 6 del plan de calidad. Las reglas
