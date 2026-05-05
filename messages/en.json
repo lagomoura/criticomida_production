@@ -1818,6 +1818,15 @@
     "close": "Close chat",
     "clear": "Start over",
     "newConversation": "New conversation",
+    "history": "Conversation history",
+    "conversationList": {
+      "loading": "Loading…",
+      "error": "Couldn't load history.",
+      "empty": "No conversations yet.",
+      "untitled": "Untitled conversation",
+      "archive": "Archive",
+      "archiveConfirm": "Tap again to confirm"
+    },
     "send": "Send message",
     "placeholder": "Ask anything…",
     "greetingNamed": "Hi {name}, what are you in the mood for?",

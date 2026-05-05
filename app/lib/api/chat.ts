@@ -190,11 +190,30 @@ function parseSseFrame(frame: string): StreamEvent | null {
 
 // ── conversations CRUD ────────────────────────────────────────────────────
 
+export interface ListConversationsOptions {
+  limit?: number;
+  /** Restrict to conversations of one agent (e.g. ``business``). */
+  agent?: ChatAgent;
+  /** Restrict to conversations scoped to a specific restaurant. */
+  restaurantScopeId?: string | null;
+}
+
 export async function listMyConversations(
-  limit = 20,
+  options: ListConversationsOptions | number = {},
 ): Promise<ChatConversationSummary[]> {
+  // Backwards compat: callers used to pass a bare ``limit`` number.
+  // We accept that shape too and translate it into the new options
+  // object — keeps existing call sites working without an audit.
+  const opts: ListConversationsOptions =
+    typeof options === 'number' ? { limit: options } : options;
+  const params = new URLSearchParams();
+  params.set('limit', String(opts.limit ?? 20));
+  if (opts.agent) params.set('agent', opts.agent);
+  if (opts.restaurantScopeId) {
+    params.set('restaurant_scope_id', opts.restaurantScopeId);
+  }
   return fetchApi<ChatConversationSummary[]>(
-    `/api/chat/conversations/me?limit=${limit}`,
+    `/api/chat/conversations/me?${params.toString()}`,
   );
 }
 
@@ -207,11 +226,26 @@ export async function listConversationMessages(
   );
 }
 
-export async function deleteConversation(conversationId: string): Promise<void> {
+/**
+ * Archive a conversation (soft-delete on the server).
+ *
+ * The backend route is still ``DELETE /api/chat/conversations/{id}``
+ * for backwards compatibility, but the implementation marks
+ * ``archived_at`` instead of removing rows. The conversation stays in
+ * the DB and can be recovered if needed; ``listMyConversations`` skips
+ * archived rows by default. ``deleteConversation`` is kept as a
+ * deprecated alias to avoid breaking older call sites.
+ */
+export async function archiveConversation(
+  conversationId: string,
+): Promise<void> {
   await fetchApi<void>(`/api/chat/conversations/${conversationId}`, {
     method: 'DELETE',
   });
 }
+
+/** @deprecated use ``archiveConversation`` — same endpoint, accurate name. */
+export const deleteConversation = archiveConversation;
 
 // ── deprecated non-streaming entry — kept for parity with old callers ────
 

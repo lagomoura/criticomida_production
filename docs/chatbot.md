@@ -593,22 +593,17 @@ implementadas** y vale tenerlas listadas para no duplicar trabajo:
 - **Business**: series temporales de pilares (gráfico, no solo dos
   windows).
 - **Business**: predicción de no-shows / proyecciones.
-- **Núcleo**: panel de "Conversaciones recientes" en el drawer.
-  Estado actual: el último `conversationId` se persiste por (agent,
-  scope) en localStorage, así que un F5 retoma la última conversación
-  abierta. **Falta** el panel que liste TODAS las conversaciones del
-  owner en ese restaurante para poder volver a una vieja. Sub-fases
-  planificadas (F-CONVO.1-6): endpoint con filtros agent+scope,
-  componente ConversationList (side-panel desktop / dropdown mobile),
-  wire al ChatDrawer cambiando la semántica del localStorage de
-  "última activa" a "última abierta", auto-título de conversaciones
-  (primer user message truncado o LLM-generated), y **soft-delete**
-  (columna `deleted_at` en `chat_conversations`, botón "Archivar"
-  separado del "+Nueva", listMyConversations excluye archivadas por
-  default). Importante: hoy el botón "Nueva conversación"
-  (faPenToSquare) **no borra** la convo del DB — solo limpia el
-  pointer local; el dato sigue intacto y accesible una vez que el
-  panel exista.
+- **Núcleo (✓ completado)**: panel de "Conversaciones recientes" en
+  el drawer (F-CONVO.1-6). Botón faClockRotateLeft en el header
+  abre la lista; click en una convo carga su historial vía
+  `loadConversation()` y persiste el id en localStorage. Auto-título
+  derivado del primer user message (heurística trunca, ver
+  `_make_title_from_user_message` — F-CONVO.4). Cada item tiene
+  botón faBoxArchive (tap doble = confirmar) que invoca
+  `archiveConversation()` → soft-delete server side
+  (`archived_at` set, fila preservada). Si archivás la conversación
+  activa, el chat se resetea limpiamente. Hard-delete (GDPR) queda
+  como endpoint admin separado, follow-up.
 - **Núcleo**: analytics de tokens y latencia visibles para admin.
 - **Evals**: validador post-hoc numérico en el runner. Hoy las reglas
   anti-alucinación viven en el prompt + casos eval específicos

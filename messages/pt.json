@@ -1818,6 +1818,15 @@
     "close": "Fechar chat",
     "clear": "Começar de novo",
     "newConversation": "Nova conversa",
+    "history": "Histórico de conversas",
+    "conversationList": {
+      "loading": "Carregando…",
+      "error": "Não consegui carregar o histórico.",
+      "empty": "Ainda não há conversas salvas.",
+      "untitled": "Conversa sem título",
+      "archive": "Arquivar",
+      "archiveConfirm": "Toque de novo para confirmar"
+    },
     "send": "Enviar mensagem",
     "placeholder": "Pergunte o que quiser…",
     "greetingNamed": "Olá {name}, o que vai querer comer hoje?",

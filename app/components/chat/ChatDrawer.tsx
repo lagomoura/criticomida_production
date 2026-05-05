@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChartLine,
+  faClockRotateLeft,
   faComments,
   faPaperPlane,
   faPenToSquare,
@@ -14,6 +15,7 @@ import {
 import { ChatAgent, DishCardData, MapPayload } from '@/app/lib/api/chat';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { cn } from '@/app/lib/utils/cn';
+import ConversationList from './ConversationList';
 import MessageList from './MessageList';
 import { useChatStream } from './useChatStream';
 
@@ -43,13 +45,27 @@ export default function ChatDrawer({
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const {
+    conversationId,
     messages,
     isStreaming,
     error,
     send,
     abort,
     reset,
+    loadConversation,
   } = useChatStream({ agent, restaurantScopeId });
+
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  // Authenticated owners only — anonymous sessions can't enumerate
+  // their conversations (the endpoint requires auth) so we hide the
+  // button entirely instead of showing a broken state.
+  const showHistoryButton = Boolean(user);
+
+  const onPickConversation = async (id: string) => {
+    setHistoryOpen(false);
+    await loadConversation(id);
+  };
 
   // Focus input on open + cancel any in-flight stream on close.
   useEffect(() => {
@@ -147,9 +163,28 @@ export default function ChatDrawer({
             </div>
           </div>
           <div className="flex items-center gap-1">
+            {showHistoryButton && (
+              <button
+                onClick={() => setHistoryOpen((v) => !v)}
+                className={cn(
+                  'inline-flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition-colors',
+                  'hover:bg-surface-card hover:text-text-primary',
+                  'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                  historyOpen && 'bg-surface-card text-action-primary',
+                )}
+                aria-label={t('history')}
+                aria-expanded={historyOpen}
+                title={t('history')}
+              >
+                <FontAwesomeIcon icon={faClockRotateLeft} aria-hidden />
+              </button>
+            )}
             {messages.length > 0 && (
               <button
-                onClick={reset}
+                onClick={() => {
+                  setHistoryOpen(false);
+                  reset();
+                }}
                 className={cn(
                   'inline-flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition-colors',
                   'hover:bg-surface-card hover:text-text-primary',
@@ -177,18 +212,34 @@ export default function ChatDrawer({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto">
-          <MessageList
-            messages={messages}
-            isStreaming={isStreaming}
-            onShowDishOnMap={onShowDishOnMap}
-            emptyState={
-              agent === 'business' ? (
-                <BusinessEmptyState
-                  ownerName={user?.display_name ?? null}
-                />
-              ) : undefined
-            }
-          />
+          {historyOpen ? (
+            <ConversationList
+              agent={agent}
+              restaurantScopeId={restaurantScopeId}
+              currentConversationId={conversationId}
+              onPick={onPickConversation}
+              onArchivedActive={() => {
+                // The active conversation just got archived: clear
+                // the chat surface so the owner doesn't keep typing
+                // into a hidden conversation. ``reset`` also wipes
+                // the localStorage pointer.
+                reset();
+              }}
+            />
+          ) : (
+            <MessageList
+              messages={messages}
+              isStreaming={isStreaming}
+              onShowDishOnMap={onShowDishOnMap}
+              emptyState={
+                agent === 'business' ? (
+                  <BusinessEmptyState
+                    ownerName={user?.display_name ?? null}
+                  />
+                ) : undefined
+              }
+            />
+          )}
         </div>
 
         {error && (

@@ -88,6 +88,69 @@ interface UseChatStreamApi {
   reset: () => void;
   hydrate: (history: ChatMessageData[]) => void;
   setConversationId: (id: string | null) => void;
+  /**
+   * Load a previous conversation from history. Fetches its messages,
+   * paints the chat surface with them, sets it as the active
+   * conversation, and persists the choice so a refresh keeps it open.
+   */
+  loadConversation: (conversationId: string) => Promise<void>;
+}
+
+
+/**
+ * Translate persisted DB rows into the UI shape used by ``MessageList``.
+ *
+ * Pure function — extracted so it can be shared between the on-mount
+ * resume effect and the public ``hydrate`` / ``loadConversation``
+ * paths. All tools coming from history are already finished, so we
+ * always set ``pending: false``; live streaming uses a different
+ * codepath that flips pending to false when the ``tool_call_result``
+ * event arrives.
+ */
+function historyToUiMessages(history: ChatMessageData[]): UiMessage[] {
+  const out: UiMessage[] = [];
+  let lastAssistant: UiMessage | null = null;
+  for (const row of history) {
+    if (row.role === 'user') {
+      out.push({
+        id: row.id || crypto.randomUUID(),
+        role: 'user',
+        content: row.content || '',
+        tools: [],
+      });
+      lastAssistant = null;
+    } else if (row.role === 'assistant') {
+      const m: UiMessage = {
+        id: row.id || crypto.randomUUID(),
+        role: 'assistant',
+        content: row.content || '',
+        tools: (row.tool_calls || []).map((tc) => ({
+          id: tc.id,
+          name: tc.name,
+          pending: false,
+        })),
+      };
+      out.push(m);
+      lastAssistant = m;
+    } else if (row.role === 'tool' && lastAssistant && row.tool_result) {
+      const tr = row.tool_result;
+      const tool = lastAssistant.tools.find((t) => t.id === tr.id);
+      if (tool) {
+        tool.output = tr.content;
+        tool.isError = tr.is_error;
+        tool.pending = false;
+      } else {
+        lastAssistant.tools.push({
+          id: tr.id,
+          name: tr.name,
+          output: tr.content,
+          isError: tr.is_error,
+          pending: false,
+        });
+      }
+    }
+  }
+  return out;
 }
 
 /**
@@ -133,7 +196,6 @@ export function useChatStream({
     let cancelled = false;
     const savedId = readLastConversationId(agent, restaurantScopeId);
     if (!savedId) {
-      // Nothing to resume; ensure UI starts clean.
       setConversationId(null);
       setMessages([]);
       return;
@@ -142,52 +204,7 @@ export function useChatStream({
       .then((history) => {
         if (cancelled) return;
         setConversationId(savedId);
-        // hydrate is defined below; calling it here works because the
-        // closure captures the current setMessages. Inline the body to
-        // avoid a circular dependency between the two useCallbacks.
-        const ui: UiMessage[] = [];
-        let lastAssistant: UiMessage | null = null;
-        for (const row of history) {
-          if (row.role === 'user') {
-            ui.push({
-              id: row.id || crypto.randomUUID(),
-              role: 'user',
-              content: row.content || '',
-              tools: [],
-            });
-            lastAssistant = null;
-          } else if (row.role === 'assistant') {
-            const m: UiMessage = {
-              id: row.id || crypto.randomUUID(),
-              role: 'assistant',
-              content: row.content || '',
-              tools: (row.tool_calls || []).map((tc) => ({
-                id: tc.id,
-                name: tc.name,
-                pending: false,
-              })),
-            };
-            ui.push(m);
-            lastAssistant = m;
-          } else if (row.role === 'tool' && lastAssistant && row.tool_result) {
-            const tr = row.tool_result;
-            const tool = lastAssistant.tools.find((t) => t.id === tr.id);
-            if (tool) {
-              tool.output = tr.content;
-              tool.isError = tr.is_error;
-              tool.pending = false;
-            } else {
-              lastAssistant.tools.push({
-                id: tr.id,
-                name: tr.name,
-                output: tr.content,
-                isError: tr.is_error,
-                pending: false,
-              });
-            }
-          }
-        }
-        setMessages(ui);
+        setMessages(historyToUiMessages(history));
       })
       .catch(() => {
         // Saved id is stale (deleted, anon session, etc.). Drop it
@@ -203,53 +220,29 @@ export function useChatStream({
   }, [agent, restaurantScopeId]);
 
   const hydrate = useCallback((history: ChatMessageData[]) => {
-    // Translate persisted DB rows into the UI shape. ``role='tool'``
-    // rows are folded into the preceding assistant row.
-    const ui: UiMessage[] = [];
-    let lastAssistant: UiMessage | null = null;
-
-    for (const row of history) {
-      if (row.role === 'user') {
-        ui.push({
-          id: row.id || crypto.randomUUID(),
-          role: 'user',
-          content: row.content || '',
-          tools: [],
-        });
-        lastAssistant = null;
-      } else if (row.role === 'assistant') {
-        const m: UiMessage = {
-          id: row.id || crypto.randomUUID(),
-          role: 'assistant',
-          content: row.content || '',
-          tools: (row.tool_calls || []).map((tc) => ({
-            id: tc.id,
-            name: tc.name,
-            pending: true,
-          })),
-        };
-        ui.push(m);
-        lastAssistant = m;
-      } else if (row.role === 'tool' && lastAssistant && row.tool_result) {
-        const tr = row.tool_result;
-        const tool = lastAssistant.tools.find((t) => t.id === tr.id);
-        if (tool) {
-          tool.output = tr.content;
-          tool.isError = tr.is_error;
-          tool.pending = false;
-        } else {
-          lastAssistant.tools.push({
-            id: tr.id,
-            name: tr.name,
-            output: tr.content,
-            isError: tr.is_error,
-            pending: false,
-          });
-        }
-      }
-    }
-    setMessages(ui);
+    setMessages(historyToUiMessages(history));
   }, []);
+
+  const loadConversation = useCallback(
+    async (id: string) => {
+      // User picked a past conversation from the history panel. Fetch
+      // its messages, repaint, set it as active, and persist the
+      // choice so a refresh keeps it open. Cancel any in-flight
+      // streaming on the previous conversation first.
+      abortRef.current?.abort();
+      setIsStreaming(false);
+      setError(null);
+      try {
+        const history = await listConversationMessages(id);
+        setMessages(historyToUiMessages(history));
+        setConversationId(id);
+        writeLastConversationId(agent, restaurantScopeId, id);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'No pude cargar la conversación.');
+      }
+    },
+    [agent, restaurantScopeId],
+  );
 
   const applyEvent = useCallback(
     (ev: StreamEvent, assistantId: string) => {
@@ -387,5 +380,6 @@ export function useChatStream({
     reset,
     hydrate,
     setConversationId,
+    loadConversation,
   };
 }
