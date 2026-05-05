@@ -18,6 +18,17 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Reglas anti-alucinación 8-10** en `business.md` + 5 casos eval
+    nuevos (precios, nombres de reviewers, ventas, hora del día,
+    contexto externo). Cierra Fase 6 del plan de calidad. Las reglas
+    listan explícitamente las dimensiones que el toolbelt NO surface
+    (precio, identidad de reseñadores, hora del día, ventas,
+    contexto fuera del scope geográfico) y mandan al agente decir
+    "no tengo ese dato" en vez de aproximar. Bonus: bug fix del
+    runner de evals — `response_must_not_contain` ahora hace
+    substring match (antes usaba `re.search`, que interpretaba `$`
+    y otros chars como anchors regex). Pass rate suite (49 casos):
+    49/49 = 100% en último run, 48/49 estable considerando flakes.
   - **Nuevo tool `compare_to_baseline`** cierra la Fase 4 de
     insight-tools. Comparación focalizada de UNA métrica
     (`rating` / `review_count` / `sentiment_score` / `response_rate`)
@@ -568,6 +579,15 @@ implementadas** y vale tenerlas listadas para no duplicar trabajo:
   cada apertura empieza una sesión nueva si no se pasa
   `conversation_id`).
 - **Núcleo**: analytics de tokens y latencia visibles para admin.
+- **Evals**: validador post-hoc numérico en el runner. Hoy las reglas
+  anti-alucinación viven en el prompt + casos eval específicos
+  (Fase 6). El upgrade es: extraer todos los literales numéricos de
+  la respuesta del agente y verificar que cada uno aparece en algún
+  tool output del turno (string substring match), con whitelist de
+  números safe (1-5, años entre 2024-2030). Empuja el rate de
+  hallucination de "control por sampling" a "guard automático". ~1
+  día por sí solo, sobre todo por el tuning de la whitelist para
+  evitar false positives en contextos de redacción.
 
 Cualquiera de estos que se implemente, mover a la sección activa del
 agente correspondiente y borrar de acá.
