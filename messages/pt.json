@@ -1847,6 +1847,7 @@
         "list_reviews": "Verificando resenhas…",
         "rank_my_dishes": "Rankeando seus pratos…",
         "summarize_reviews_period": "Calculando o resumo…",
+        "suggest_review_response": "Preparando rascunho de resposta…",
         "suggest_tags_from_photo": "Olhando a foto…",
         "generic": "Processando…"
       },
@@ -1863,6 +1864,7 @@
         "list_reviews": "Resenhas consultadas",
         "rank_my_dishes": "Pratos rankeados",
         "summarize_reviews_period": "Resumo do período calculado",
+        "suggest_review_response": "Rascunho da resposta pronto",
         "suggest_tags_from_photo": "Foto analisada",
         "generic": "Tarefa concluída"
       },

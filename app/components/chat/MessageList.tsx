@@ -340,18 +340,23 @@ function collapseChipDuplicates(
  * for everything else. New tools without dedicated copy fall back to
  * the generic verb — the chip still renders ("Tarea completada") so the
  * owner sees the tool ran. Adding a tool no longer requires touching
- * any TypeScript: only the i18n catalog (optional, falls back gracefully).
+ * any TypeScript; the i18n entries are optional.
+ *
+ * Uses ``t.has`` (next-intl v4) instead of try/catch because next-intl
+ * surfaces missing keys via a dev-mode notification channel that does
+ * NOT throw — try/catch would silently miss the failure and the chip
+ * would render the raw key (``"chat.tools.completed.foo"``).
  */
 function labelForTool(
   t: ToolsTranslator,
   state: 'pending' | 'completed',
   toolName: string,
 ): string {
-  try {
-    return t(`${state}.${toolName}` as Parameters<ToolsTranslator>[0]);
-  } catch {
-    return t(`${state}.generic` as Parameters<ToolsTranslator>[0]);
+  const key = `${state}.${toolName}` as Parameters<ToolsTranslator>[0];
+  if (t.has(key)) {
+    return t(key);
   }
+  return t(`${state}.generic` as Parameters<ToolsTranslator>[0]);
 }
 
 function TypingIndicator() {

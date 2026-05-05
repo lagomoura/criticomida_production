@@ -538,7 +538,15 @@ implementadas** y vale tenerlas listadas para no duplicar trabajo:
 - **Ghostwriter**: catálogo curado de tags + sugerencia que prefiere
   tags ya existentes sobre tags inéditos.
 - **Ghostwriter**: análisis de video/reels (hoy solo imagen).
-- **Business**: respuestas sugeridas a reseñas pendientes.
+- **Business**: respuestas sugeridas a reseñas pendientes — **draft
+  generado, falta el "atajo de un click"**. Hoy el agente devuelve el
+  texto del draft en el chat; el owner copia y pega manualmente en la
+  reseña. Próximo paso: card/botón "Responder esta reseña con este
+  draft" que abra el form de respuesta (en `OwnerReviewModal` u otro
+  componente del dashboard) con el `review_id` correspondiente y el
+  draft pre-cargado, así el owner solo aprieta "Enviar". Requiere
+  coordinación entre `BusinessChatLauncher` y `OwnerDashboardClient`
+  (callback prop) o un store global compartido.
 - **Business**: series temporales de pilares (gráfico, no solo dos
   windows).
 - **Business**: predicción de no-shows / proyecciones.
