@@ -18,6 +18,24 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Memoria persistente del owner (Fase 5)**. Tabla
+    `owner_chat_preferences` (separada de `owner_notification_preferences`,
+    distinto producto) con `(user_id, restaurant_id)` UNIQUE y campos
+    `tone_preference`, `kpi_focus` (jsonb), `language_preference`.
+    Service en `owner_chat_preferences_service.py` con `get` y
+    `upsert` partial-update. El `chat_service.stream_chat` inyecta el
+    bloque "Preferencias del owner" al system prompt cuando hay fila.
+    Tool `update_owner_preferences(tone?, language?, kpi_focus?)` que
+    el agente llama cuando el owner pide algo persistente
+    ("siempre…", "de ahora en más…"). El cambio aplica desde la
+    PRÓXIMA sesión — el turno actual sigue con el state inicial.
+    `suggest_review_response` con `tone='match_brand'` ahora resuelve
+    contra `tone_preference` real (antes caía a professional con nota
+    F5). Few-shot 7 enseña el patrón de persistencia y la diferencia
+    con pedidos one-off ("esta vez…"). Limitación conocida: con
+    Gemini 3.1 Flash Lite Preview el agente a veces confirma
+    verbalmente sin disparar el tool — se mitigaría con un toggle UI
+    complementario o con un modelo más adherente (roadmap).
   - **Reglas anti-alucinación 8-10** en `business.md` + 5 casos eval
     nuevos (precios, nombres de reviewers, ventas, hora del día,
     contexto externo). Cierra Fase 6 del plan de calidad. Las reglas
