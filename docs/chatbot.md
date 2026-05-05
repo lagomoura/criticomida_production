@@ -18,6 +18,20 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Nuevo tool `compare_to_baseline`** cierra la Fase 4 de
+    insight-tools. Comparación focalizada de UNA métrica
+    (`rating` / `review_count` / `sentiment_score` / `response_rate`)
+    contra UN baseline (`prior_period` / `all_time` / `competition`).
+    Para `competition` reusa la lógica geográfica de `benchmark_dish`:
+    encuentra restaurantes en `radius_km` (default 2.0), calcula
+    cohort_avg y `percentile`. Cohort < 3 dispara nota explicativa
+    (sin afirmar un percentil ruidoso). Fechas opcionales (default
+    últimos 30 días) — saca presión al LLM cuando el owner pregunta
+    sin especificar período. Schema con `populate_by_name=True` y
+    `validation_alias` acepta tanto `from_date`/`to_date` como `from`/
+    `to`, y el `vs` también acepta `baseline`/`target_baseline`/
+    `compared_to` como aliases naturales que el LLM tiende a usar.
+    Few-shot 6 en `business.md` ilustra el patrón comparativo.
   - **Nuevo tool `suggest_review_response`** en el toolbelt del
     Business. **No** llama un LLM dedicado — devuelve contexto
     estructurado (texto de la reseña + plato + guía de tono + reglas
