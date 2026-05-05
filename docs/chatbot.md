@@ -14,10 +14,21 @@ estado actual, no la historia.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-04
+- **Fecha**: 2026-05-05
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Nuevo tool `suggest_review_response`** en el toolbelt del
+    Business. **No** llama un LLM dedicado — devuelve contexto
+    estructurado (texto de la reseña + plato + guía de tono + reglas
+    duras) y el agente redacta el draft en su próximo turno usando
+    ese payload. El `review_id` siempre viene de un `list_reviews`
+    previo; nunca se le pide al owner. Si el LLM omite `tone`, el
+    handler lo infiere del sentiment de la reseña (negative →
+    apologetic, positive → warm, neutral → professional). Few-shot 5
+    en `business.md` enseña el patrón list_reviews + suggest +
+    redacción + bilingüismo (meta-texto en idioma del owner; draft
+    en idioma de la reseña original).
   - **Nuevo tool `summarize_reviews_period`** en el toolbelt del
     Business (`backend/app/services/chat/tools/insights.py`). Devuelve
     agregados pre-calculados sobre las reseñas en un rango de fechas:
