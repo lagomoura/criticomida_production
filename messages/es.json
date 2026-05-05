@@ -1825,7 +1825,8 @@
       "empty": "Aún no hay conversaciones guardadas.",
       "untitled": "Conversación sin título",
       "archive": "Archivar",
-      "archiveConfirm": "Tocá de nuevo para confirmar"
+      "archiveConfirm": "Tocá de nuevo para confirmar",
+      "archiveCancel": "Cancelar archivado"
     },
     "send": "Enviar mensaje",
     "placeholder": "Preguntá lo que quieras…",

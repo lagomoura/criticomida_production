@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBoxArchive,
+  faCheck,
   faClockRotateLeft,
+  faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   ChatAgent,
@@ -59,10 +61,38 @@ export default function ConversationList({
   /** ID currently in the "confirming archive" state (one-click → ask). */
   const [pendingArchive, setPendingArchive] = useState<string | null>(null);
 
+  const cancelPending = useCallback(() => setPendingArchive(null), []);
+
+  // While an archive confirmation is pending, listen for clicks outside
+  // any archive button + the Escape key. Either path cancels the
+  // pending state without committing — gives the owner a real "oops"
+  // exit instead of forcing them to either confirm or click another
+  // row.
+  useEffect(() => {
+    if (!pendingArchive) return;
+
+    function onDocClick(e: MouseEvent) {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest('[data-archive-button]')) return;
+      cancelPending();
+    }
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') cancelPending();
+    }
+
+    document.addEventListener('click', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('click', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [pendingArchive, cancelPending]);
+
   async function handleArchive(id: string) {
     if (pendingArchive !== id) {
-      // First click on this item → enter confirm mode. Second click on
-      // the same row commits. Click anywhere else clears the prompt.
+      // First click on this item → enter confirm mode.
       setPendingArchive(id);
       return;
     }
@@ -175,29 +205,82 @@ export default function ConversationList({
                   {formatRelativeTime(convo.last_message_at, locale)}
                 </time>
               </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  void handleArchive(convo.id);
-                }}
-                className={cn(
-                  'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs transition-colors',
-                  'text-text-muted opacity-0 group-hover:opacity-100',
-                  'hover:bg-surface-card hover:text-text-primary',
-                  'focus:opacity-100 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
-                  isConfirming &&
-                    'bg-feedback-warning/15 text-feedback-warning opacity-100',
-                )}
-                aria-label={
-                  isConfirming
-                    ? t('archiveConfirm')
-                    : t('archive')
-                }
-                title={isConfirming ? t('archiveConfirm') : t('archive')}
-              >
-                <FontAwesomeIcon icon={faBoxArchive} aria-hidden />
-              </button>
+              {/*
+                Confirm/cancel pair — Krug's "Don't Make Me Think":
+                instead of a single icon button that toggles state
+                ("orange means click-again-to-confirm"), we show TWO
+                explicit buttons when the user has tapped archive:
+                ✓ "Archivar" (committal, warning-tinted) and ✗
+                cancel. Universal yes/no convention; no tooltip
+                hover required to know what does what.
+
+                Default state: only the archive icon, invisible until
+                the row is hovered (keeps the list visually quiet).
+              */}
+              {isConfirming ? (
+                <>
+                  <button
+                    type="button"
+                    data-archive-button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      void handleArchive(convo.id);
+                    }}
+                    className={cn(
+                      'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-xs font-medium transition-colors',
+                      'bg-feedback-warning/15 text-feedback-warning',
+                      'hover:bg-feedback-warning/25',
+                      'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                    )}
+                    aria-label={t('archive')}
+                    title={t('archive')}
+                  >
+                    <FontAwesomeIcon
+                      icon={faCheck}
+                      aria-hidden
+                      className="h-3 w-3"
+                    />
+                    <span>{t('archive')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    data-archive-button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      cancelPending();
+                    }}
+                    className={cn(
+                      'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors',
+                      'text-text-muted hover:bg-surface-card hover:text-text-primary',
+                      'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                    )}
+                    aria-label={t('archiveCancel')}
+                    title={t('archiveCancel')}
+                  >
+                    <FontAwesomeIcon icon={faXmark} aria-hidden />
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  data-archive-button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void handleArchive(convo.id);
+                  }}
+                  className={cn(
+                    'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs transition-colors',
+                    'text-text-muted opacity-0',
+                    'group-hover:opacity-100 focus:opacity-100',
+                    'hover:bg-surface-card hover:text-text-primary',
+                    'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                  )}
+                  aria-label={t('archive')}
+                  title={t('archive')}
+                >
+                  <FontAwesomeIcon icon={faBoxArchive} aria-hidden />
+                </button>
+              )}
             </div>
           </li>
         );

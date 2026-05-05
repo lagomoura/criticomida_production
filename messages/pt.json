@@ -1825,7 +1825,8 @@
       "empty": "Ainda não há conversas salvas.",
       "untitled": "Conversa sem título",
       "archive": "Arquivar",
-      "archiveConfirm": "Toque de novo para confirmar"
+      "archiveConfirm": "Toque de novo para confirmar",
+      "archiveCancel": "Cancelar arquivamento"
     },
     "send": "Enviar mensagem",
     "placeholder": "Pergunte o que quiser…",

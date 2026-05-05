@@ -1825,7 +1825,8 @@
       "empty": "No conversations yet.",
       "untitled": "Untitled conversation",
       "archive": "Archive",
-      "archiveConfirm": "Tap again to confirm"
+      "archiveConfirm": "Tap again to confirm",
+      "archiveCancel": "Cancel archive"
     },
     "send": "Send message",
     "placeholder": "Ask anything…",
