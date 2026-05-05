@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -21,12 +21,20 @@ interface MessageListProps {
   isStreaming: boolean;
   /** Optional handler so cards can ask the parent to open the map. */
   onShowDishOnMap?: (dish: DishCardData) => void;
+  /**
+   * Custom empty state node. When omitted falls back to the generic
+   * Sommelier hint (``chat.emptyState``). The Business agent passes
+   * its own polished version because the Sommelier example doesn't
+   * apply to the owner-facing chat.
+   */
+  emptyState?: ReactNode;
 }
 
 export default function MessageList({
   messages,
   isStreaming,
   onShowDishOnMap,
+  emptyState,
 }: MessageListProps) {
   const t = useTranslations('chat');
   const endRef = useRef<HTMLDivElement>(null);
@@ -38,7 +46,7 @@ export default function MessageList({
   if (messages.length === 0) {
     return (
       <div className="flex h-full items-center justify-center px-6 text-center text-sm text-text-muted">
-        {t('emptyState')}
+        {emptyState ?? t('emptyState')}
       </div>
     );
   }

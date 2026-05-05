@@ -1817,11 +1817,17 @@
     "open": "Abrir chat",
     "close": "Fechar chat",
     "clear": "Começar de novo",
+    "newConversation": "Nova conversa",
     "send": "Enviar mensagem",
     "placeholder": "Pergunte o que quiser…",
     "greetingNamed": "Olá {name}, o que vai querer comer hoje?",
     "greetingAnon": "Me diga o que está com vontade e eu sugiro um prato.",
     "emptyState": "Experimente: \"me encontre um 3/3 barato em Palermo com apresentação incrível\".",
+    "businessEmpty": {
+      "greeting": "Olá, {name} 👋",
+      "greetingAnon": "Seu assistente do negócio",
+      "subtitle": "Diga o que você quer olhar do seu restaurante."
+    },
     "dishCard": {
       "save": "Salvar",
       "saved": "Salvo",

@@ -5,9 +5,10 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faChartLine,
   faComments,
   faPaperPlane,
-  faTrashCan,
+  faPenToSquare,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { ChatAgent, DishCardData, MapPayload } from '@/app/lib/api/chat';
@@ -154,10 +155,10 @@ export default function ChatDrawer({
                   'hover:bg-surface-card hover:text-text-primary',
                   'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
                 )}
-                aria-label={t('clear')}
-                title={t('clear')}
+                aria-label={t('newConversation')}
+                title={t('newConversation')}
               >
-                <FontAwesomeIcon icon={faTrashCan} aria-hidden />
+                <FontAwesomeIcon icon={faPenToSquare} aria-hidden />
               </button>
             )}
             <button
@@ -180,6 +181,13 @@ export default function ChatDrawer({
             messages={messages}
             isStreaming={isStreaming}
             onShowDishOnMap={onShowDishOnMap}
+            emptyState={
+              agent === 'business' ? (
+                <BusinessEmptyState
+                  ownerName={user?.display_name ?? null}
+                />
+              ) : undefined
+            }
           />
         </div>
 
@@ -236,5 +244,40 @@ export default function ChatDrawer({
         </div>
       </aside>
     </>
+  );
+}
+
+/**
+ * Polished empty state for the Business agent.
+ *
+ * The Sommelier's default empty state ("Probá: 'buscame una ganga 3/3
+ * en Palermo…'") doesn't apply to the owner-facing chat — the owner
+ * is asking about *their* restaurant, not exploring the city. The
+ * owner dashboard already lists concrete examples next to the
+ * launcher button, so we deliberately keep this surface minimal:
+ * brand badge + warm greeting + one short tagline. The illustration
+ * step (custom SVG) is a roadmap follow-up.
+ */
+function BusinessEmptyState({ ownerName }: { ownerName: string | null }) {
+  const t = useTranslations('chat.businessEmpty');
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-4 px-6 py-10 text-center">
+      <span
+        className={cn(
+          'flex h-20 w-20 items-center justify-center rounded-full',
+          'bg-action-primary/10 text-action-primary',
+          'shadow-[var(--shadow-floating)]',
+        )}
+        aria-hidden
+      >
+        <FontAwesomeIcon icon={faChartLine} className="h-8 w-8" />
+      </span>
+      <div className="flex flex-col gap-1.5">
+        <h2 className="font-display text-xl text-text-primary">
+          {ownerName ? t('greeting', { name: ownerName }) : t('greetingAnon')}
+        </h2>
+        <p className="text-sm text-text-muted">{t('subtitle')}</p>
+      </div>
+    </div>
   );
 }

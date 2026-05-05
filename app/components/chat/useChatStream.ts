@@ -5,6 +5,7 @@ import {
   ChatAgent,
   ChatMessageData,
   StreamEvent,
+  listConversationMessages,
   streamChat,
 } from '@/app/lib/api/chat';
 
@@ -32,6 +33,49 @@ export interface UiToolInvocation {
 interface UseChatStreamOptions {
   agent: ChatAgent;
   restaurantScopeId?: string | null;
+}
+
+/**
+ * Per-(agent, scope) localStorage key that holds the last conversation
+ * the user was on. Letting the next page load resume that conversation
+ * is what turns "F5 borra todo" into "F5 retoma donde estaba". Anonymous
+ * sessions don't persist — the backend's ``listConversationMessages``
+ * endpoint requires the user's cookie anyway, so a saved id without
+ * auth is useless.
+ */
+function lastConvoStorageKey(
+  agent: ChatAgent,
+  scope: string | null,
+): string {
+  return `cc:chat:lastConvo:${agent}:${scope ?? '_'}`;
+}
+
+function readLastConversationId(
+  agent: ChatAgent,
+  scope: string | null,
+): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.localStorage.getItem(lastConvoStorageKey(agent, scope));
+  } catch {
+    return null;
+  }
+}
+
+function writeLastConversationId(
+  agent: ChatAgent,
+  scope: string | null,
+  id: string | null,
+): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const key = lastConvoStorageKey(agent, scope);
+    if (id) window.localStorage.setItem(key, id);
+    else window.localStorage.removeItem(key);
+  } catch {
+    /* localStorage may be unavailable (private mode, quota) — fall back
+       to in-memory only; the chat still works for the current session. */
+  }
 }
 
 interface UseChatStreamApi {
@@ -72,12 +116,91 @@ export function useChatStream({
     setMessages([]);
     setError(null);
     setIsStreaming(false);
-  }, []);
+    writeLastConversationId(agent, restaurantScopeId, null);
+  }, [agent, restaurantScopeId]);
 
   const abort = useCallback(() => {
     abortRef.current?.abort();
     setIsStreaming(false);
   }, []);
+
+  // Restore the last conversation on mount (and whenever the
+  // (agent, scope) pair changes — e.g. owner navigates between
+  // restaurants). If the saved id no longer exists or the user is
+  // anonymous, the API call returns an error and we silently start
+  // fresh.
+  useEffect(() => {
+    let cancelled = false;
+    const savedId = readLastConversationId(agent, restaurantScopeId);
+    if (!savedId) {
+      // Nothing to resume; ensure UI starts clean.
+      setConversationId(null);
+      setMessages([]);
+      return;
+    }
+    listConversationMessages(savedId)
+      .then((history) => {
+        if (cancelled) return;
+        setConversationId(savedId);
+        // hydrate is defined below; calling it here works because the
+        // closure captures the current setMessages. Inline the body to
+        // avoid a circular dependency between the two useCallbacks.
+        const ui: UiMessage[] = [];
+        let lastAssistant: UiMessage | null = null;
+        for (const row of history) {
+          if (row.role === 'user') {
+            ui.push({
+              id: row.id || crypto.randomUUID(),
+              role: 'user',
+              content: row.content || '',
+              tools: [],
+            });
+            lastAssistant = null;
+          } else if (row.role === 'assistant') {
+            const m: UiMessage = {
+              id: row.id || crypto.randomUUID(),
+              role: 'assistant',
+              content: row.content || '',
+              tools: (row.tool_calls || []).map((tc) => ({
+                id: tc.id,
+                name: tc.name,
+                pending: false,
+              })),
+            };
+            ui.push(m);
+            lastAssistant = m;
+          } else if (row.role === 'tool' && lastAssistant && row.tool_result) {
+            const tr = row.tool_result;
+            const tool = lastAssistant.tools.find((t) => t.id === tr.id);
+            if (tool) {
+              tool.output = tr.content;
+              tool.isError = tr.is_error;
+              tool.pending = false;
+            } else {
+              lastAssistant.tools.push({
+                id: tr.id,
+                name: tr.name,
+                output: tr.content,
+                isError: tr.is_error,
+                pending: false,
+              });
+            }
+          }
+        }
+        setMessages(ui);
+      })
+      .catch(() => {
+        // Saved id is stale (deleted, anon session, etc.). Drop it
+        // and let the next user message create a fresh conversation.
+        writeLastConversationId(agent, restaurantScopeId, null);
+        if (cancelled) return;
+        setConversationId(null);
+        setMessages([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [agent, restaurantScopeId]);
 
   const hydrate = useCallback((history: ChatMessageData[]) => {
     // Translate persisted DB rows into the UI shape. ``role='tool'``
@@ -133,6 +256,7 @@ export function useChatStream({
       switch (ev.type) {
         case 'conversation':
           setConversationId(ev.data.id);
+          writeLastConversationId(agent, restaurantScopeId, ev.data.id);
           break;
         case 'text_delta':
           setMessages((prev) =>
@@ -201,7 +325,7 @@ export function useChatStream({
           break;
       }
     },
-    [],
+    [agent, restaurantScopeId],
   );
 
   const send = useCallback(
