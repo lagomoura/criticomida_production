@@ -1,12 +1,14 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/app/lib/i18n/navigation';
 import Button from '@/app/components/ui/Button';
 import Input from '@/app/components/ui/Input';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { ApiError } from '@/app/lib/api/client';
+import { checkHandleAvailable } from '@/app/lib/api/auth';
+import { useDebounce } from '@/app/lib/hooks/useDebounce';
 import { cn } from '@/app/lib/utils/cn';
 
 export type AuthTab = 'login' | 'register';
@@ -18,6 +20,16 @@ export interface AuthFormProps {
   autoFocusFirst?: boolean;
   onTabChange?: (tab: AuthTab) => void;
 }
+
+const HANDLE_RE = /^[a-zA-Z0-9_]{3,30}$/;
+
+type HandleStatus =
+  | 'idle'
+  | 'invalid'
+  | 'checking'
+  | 'available'
+  | 'taken'
+  | 'error';
 
 export default function AuthForm({
   initialTab = 'login',
@@ -34,10 +46,48 @@ export default function AuthForm({
   const [password, setPassword] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
-  const [regDisplayName, setRegDisplayName] = useState('');
+  const [regHandle, setRegHandle] = useState('');
+  const [handleStatus, setHandleStatus] = useState<HandleStatus>('idle');
 
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const debouncedHandle = useDebounce(regHandle.trim(), 400);
+
+  // Live availability check on the username field. The local regex
+  // gates the network request: we never hit the API for inputs the
+  // backend would reject anyway.
+  useEffect(() => {
+    if (activeTab !== 'register') return;
+
+    if (!debouncedHandle) {
+      setHandleStatus('idle');
+      return;
+    }
+    if (!HANDLE_RE.test(debouncedHandle)) {
+      setHandleStatus('invalid');
+      return;
+    }
+
+    let cancelled = false;
+    setHandleStatus('checking');
+    checkHandleAvailable(debouncedHandle)
+      .then((res) => {
+        if (cancelled) return;
+        if (res.available) {
+          setHandleStatus('available');
+        } else {
+          setHandleStatus(res.reason === 'invalid_format' ? 'invalid' : 'taken');
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setHandleStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedHandle, activeTab]);
 
   const handleTab = (tab: AuthTab) => {
     setActiveTab(tab);
@@ -66,10 +116,11 @@ export default function AuthForm({
 
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (handleStatus !== 'available') return;
     setFormError(null);
     setSubmitting(true);
     try {
-      await register(regEmail.trim(), regPassword, regDisplayName.trim());
+      await register(regEmail.trim(), regPassword, regHandle.trim());
       setRegPassword('');
       onSuccess?.('register');
     } catch (err) {
@@ -137,18 +188,23 @@ export default function AuthForm({
         </form>
       ) : (
         <form className="flex flex-col gap-4" onSubmit={handleRegister} noValidate>
-          <Input
-            key="reg-name"
-            autoFocus={autoFocusFirst}
-            label={t('displayName')}
-            type="text"
-            name="displayName"
-            autoComplete="name"
-            required
-            value={regDisplayName}
-            onChange={(e) => setRegDisplayName(e.target.value)}
-            disabled={submitting}
-          />
+          <div className="flex flex-col gap-1.5">
+            <Input
+              key="reg-handle"
+              autoFocus={autoFocusFirst}
+              label={t('username')}
+              type="text"
+              name="username"
+              autoComplete="username"
+              required
+              value={regHandle}
+              onChange={(e) => setRegHandle(e.target.value)}
+              disabled={submitting}
+              placeholder="lagomoura"
+              maxLength={30}
+            />
+            <HandleStatusLine status={handleStatus} t={t} />
+          </div>
           <Input
             label={t('email')}
             type="email"
@@ -174,12 +230,67 @@ export default function AuthForm({
               {formError}
             </p>
           )}
-          <Button type="submit" variant="primary" size="lg" loading={submitting}>
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            loading={submitting}
+            disabled={submitting || handleStatus !== 'available'}
+          >
             {submitting ? t('creatingAccount') : t('createAccount')}
           </Button>
         </form>
       )}
     </div>
+  );
+}
+
+function HandleStatusLine({
+  status,
+  t,
+}: {
+  status: HandleStatus;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  if (status === 'idle') {
+    return (
+      <span className="font-sans text-xs text-text-muted" id="handle-help">
+        {t('usernameHint')}
+      </span>
+    );
+  }
+  if (status === 'invalid') {
+    return (
+      <span className="font-sans text-xs text-text-muted" role="status" aria-live="polite">
+        {t('usernameInvalid')}
+      </span>
+    );
+  }
+  if (status === 'checking') {
+    return (
+      <span className="font-sans text-xs text-text-muted" role="status" aria-live="polite">
+        {t('usernameChecking')}
+      </span>
+    );
+  }
+  if (status === 'available') {
+    return (
+      <span className={cn('font-sans text-xs', 'text-success')} role="status" aria-live="polite">
+        ✓ {t('usernameAvailable')}
+      </span>
+    );
+  }
+  if (status === 'taken') {
+    return (
+      <span className="font-sans text-xs text-action-danger" role="status" aria-live="polite">
+        ✗ {t('usernameTaken')}
+      </span>
+    );
+  }
+  return (
+    <span className="font-sans text-xs text-action-danger" role="status" aria-live="polite">
+      {t('usernameCheckError')}
+    </span>
   );
 }
 

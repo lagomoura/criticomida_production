@@ -33,4 +33,4 @@ export type {
   MapBboxResponse,
   MapSort,
 } from './discovery';
-export type { User, TokenResponse, RegisterRequest, LoginRequest, UserRole } from './user';
+export type { User, TokenResponse, RegisterRequest, LoginRequest, UserRole, HandleAvailability } from './user';

@@ -41,7 +41,12 @@ export interface TokenResponse {
 export interface RegisterRequest {
   email: string;
   password: string;
-  display_name: string;
+  handle: string;
+}
+
+export interface HandleAvailability {
+  available: boolean;
+  reason?: 'invalid_format' | 'taken' | null;
 }
 
 export interface LoginRequest {

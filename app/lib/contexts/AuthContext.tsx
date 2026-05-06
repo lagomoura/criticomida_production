@@ -21,7 +21,7 @@ interface AuthContextType {
   register: (
     email: string,
     password: string,
-    displayName: string
+    handle: string
   ) => Promise<void>;
   /** Re-fetch `/api/auth/me` and update local user. Callers use this after
    * editing the profile so every consumer of `useAuthContext()` sees the new
@@ -65,9 +65,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (
     email: string,
     password: string,
-    displayName: string
+    handle: string
   ) => {
-    await authApi.register({ email, password, display_name: displayName });
+    await authApi.register({ email, password, handle });
     await authApi.login(email, password);
     const currentUser = await authApi.getCurrentUser();
     setUser(currentUser);

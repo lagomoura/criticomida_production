@@ -1,5 +1,5 @@
 import { fetchApi, clearSessionCookies } from './client';
-import { User, TokenResponse, RegisterRequest } from '../types';
+import { User, TokenResponse, RegisterRequest, HandleAvailability } from '../types';
 
 export async function register(data: RegisterRequest): Promise<User> {
   return fetchApi<User>('/api/auth/register', {
@@ -7,6 +7,16 @@ export async function register(data: RegisterRequest): Promise<User> {
     body: JSON.stringify(data),
     skipAuth: true,
   });
+}
+
+export async function checkHandleAvailable(
+  handle: string,
+): Promise<HandleAvailability> {
+  const params = new URLSearchParams({ handle });
+  return fetchApi<HandleAvailability>(
+    `/api/users/handle-available?${params.toString()}`,
+    { skipAuth: true },
+  );
 }
 
 export async function login(
