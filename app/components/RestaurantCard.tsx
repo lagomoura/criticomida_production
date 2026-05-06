@@ -1,17 +1,22 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarCheck } from '@fortawesome/free-solid-svg-icons';
+import RatingPill from '@/app/components/ui/RatingPill';
+import { cn } from '@/app/lib/utils/cn';
 
 interface RestaurantCardProps {
   name: string;
-  image: string;
+  image: string | null;
   location: string;
+  /** 0–5 score from `computed_rating`. Internally scaled to 0–10 for RatingPill. */
   rating: number;
   description: string;
   reviewCount: number;
   categoryLabel?: string;
+  /** Editorial layout: full card with image + meta panel. When false, renders only the image tile. */
   showInfo?: boolean;
   hasReservation?: boolean;
 }
@@ -27,74 +32,126 @@ export default function RestaurantCard({
   showInfo = false,
   hasReservation = false,
 }: RestaurantCardProps) {
-  const [imgSrc, setImgSrc] = useState(image);
+  const [imgError, setImgError] = useState(false);
   const rating = Number(ratingProp);
-  const topRadius = showInfo ? 'rounded-t-2xl' : 'rounded-2xl';
+  const ratingOver10 = rating > 0 ? rating * 2 : null;
   const t = useTranslations('restaurantCard');
+  const showImage = !!image && !imgError;
 
-  return (
-    <div className={showInfo ? 'gallery-card' : 'gallery-link'}>
-      <div
-        className={`gallery-image-container relative aspect-[4/3] w-full overflow-hidden ${topRadius}`}
-      >
-        <Image
-          src={imgSrc}
+  const ImageTile = (
+    <div
+      className={cn(
+        'relative aspect-[4/3] w-full overflow-hidden bg-surface-subtle',
+        showInfo ? 'rounded-t-2xl' : 'rounded-2xl',
+      )}
+    >
+      {showImage ? (
+        // Covers vienen de hosts heterogéneos (Google Places HTTP, sitios del
+        // restaurante, uploads). next/image requeriría whitelist por host;
+        // <img> + onError es la elección pragmática.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={image as string}
           alt={name}
-          fill
-          className="gallery-image object-cover"
-          sizes="(max-width: 768px) 100vw, 33vw"
-          onError={() => setImgSrc('/img/restaurant-fallback.jpg')}
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+          onError={() => setImgError(true)}
+          loading="lazy"
         />
-        {categoryLabel && (
-          <div
-            className={
-              'absolute left-0 top-0 z-[5] m-3 rounded-[1.2em] ' +
-              'bg-white/95 px-3 py-2 text-sm font-bold text-orange-500 ' +
-              'shadow-[0_4px_12px_rgba(255,107,53,0.25)] backdrop-blur-sm'
-            }
-          >
-            {categoryLabel}
-          </div>
-        )}
+      ) : (
         <div
-          className={
-            'absolute right-0 top-0 z-[5] m-3 rounded-[1.2em] ' +
-            'bg-black/75 px-3 py-2 text-sm font-semibold text-white ' +
-            'shadow-[0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-sm'
-          }
+          aria-hidden
+          className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--color-canela)] via-[var(--color-azafran)] to-[var(--color-azafran-light)]"
         >
-          {t('reviewCount', { count: reviewCount })}
-        </div>
-        {hasReservation && (
-          <div
-            className={
-              'absolute bottom-0 right-0 z-[5] m-3 rounded-full ' +
-              'bg-[var(--mainPink,#ef7998)] px-3 py-1 text-xs font-semibold text-white ' +
-              'shadow-[0_4px_12px_rgba(0,0,0,0.2)]'
-            }
-          >
-            {t('onlineReservation')}
-          </div>
-        )}
-      </div>
-
-      {showInfo && (
-        <div className="gallery-card-info">
-          <h3 className="gallery-card-title">{name}</h3>
-          <div className="gallery-card-meta">
-            <span className="gallery-card-location">{location}</span>
-            {rating > 0 && (
-              <div className="gallery-card-rating">
-                <span className="rating-stars">
-                  {'★'.repeat(Math.round(rating))}
-                </span>
-                <span className="rating-number">{rating.toFixed(1)}</span>
-              </div>
-            )}
-          </div>
-          <p className="gallery-card-description">{description}</p>
+          <span className="font-display text-6xl font-medium italic text-white/95 drop-shadow-sm sm:text-7xl">
+            {name.charAt(0).toUpperCase()}
+          </span>
         </div>
       )}
+
+      {/* Bottom gradient veil — refuerza legibilidad de los chips inferiores y de la transición */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/45 via-black/10 to-transparent"
+      />
+
+      {categoryLabel && (
+        <span
+          className={cn(
+            'absolute left-3 top-3 z-[5] inline-flex items-center rounded-full',
+            'bg-white/95 px-2.5 py-1 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-action-primary',
+            'shadow-sm backdrop-blur-sm',
+          )}
+        >
+          {categoryLabel}
+        </span>
+      )}
+
+      {ratingOver10 !== null && (
+        <RatingPill
+          value={ratingOver10}
+          size="sm"
+          className="absolute right-3 top-3 z-[5] shadow-sm"
+        />
+      )}
+
+      {hasReservation && (
+        <span
+          className={cn(
+            'absolute bottom-3 left-3 z-[5] inline-flex items-center gap-1.5 rounded-full',
+            'bg-[var(--color-albahaca)] px-2.5 py-1 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-white',
+            'shadow-sm',
+          )}
+        >
+          <FontAwesomeIcon icon={faCalendarCheck} className="h-2.5 w-2.5" aria-hidden />
+          {t('onlineReservation')}
+        </span>
+      )}
     </div>
+  );
+
+  if (!showInfo) {
+    return <div className="group block">{ImageTile}</div>;
+  }
+
+  return (
+    <article
+      className={cn(
+        'group flex h-full flex-col overflow-hidden rounded-2xl border border-border-default bg-surface-card',
+        'shadow-[0_2px_8px_rgba(26,23,20,0.06)] transition-shadow duration-[var(--duration-standard)]',
+        'hover:shadow-[var(--shadow-elevated)]',
+      )}
+    >
+      {ImageTile}
+
+      <div className="flex flex-1 flex-col gap-2 px-5 pb-5 pt-4">
+        <h3 className="m-0 font-display text-xl font-medium leading-snug text-text-primary line-clamp-2 sm:text-[1.375rem]">
+          {name}
+        </h3>
+
+        {location && (
+          <p className="m-0 font-sans text-xs uppercase tracking-[0.14em] text-text-muted line-clamp-1">
+            {location}
+          </p>
+        )}
+
+        {description && (
+          <p className="m-0 font-sans text-sm leading-relaxed text-text-secondary line-clamp-2">
+            {description}
+          </p>
+        )}
+
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-border-subtle pt-3">
+          <span className="font-sans text-xs text-text-muted">
+            {t('reviewCount', { count: reviewCount })}
+          </span>
+          <span
+            aria-hidden
+            className="font-sans text-sm font-medium text-action-primary transition-transform group-hover:translate-x-0.5"
+          >
+            →
+          </span>
+        </div>
+      </div>
+    </article>
   );
 }

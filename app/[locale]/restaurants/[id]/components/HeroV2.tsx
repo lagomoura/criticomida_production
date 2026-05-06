@@ -7,6 +7,7 @@ import Breadcrumb from '@/app/components/ui/Breadcrumb';
 import OpenStatus from './OpenStatus';
 import RestaurantActionsBar from './RestaurantActionsBar';
 import DistanceBadge from './DistanceBadge';
+import RestaurantCategoryEditor from '@/app/components/admin/RestaurantCategoryEditor';
 
 interface HeroV2Props {
   restaurant: RestaurantDetail;
@@ -120,6 +121,11 @@ export default function HeroV2({
                 {restaurant.category.name}
               </Link>
             )}
+            <RestaurantCategoryEditor
+              restaurantSlug={restaurant.slug}
+              restaurantName={restaurant.name}
+              currentCategoryId={restaurant.category?.id ?? null}
+            />
             {restaurant.cuisine_types?.slice(0, 3).map((c) => (
               <span
                 key={c}

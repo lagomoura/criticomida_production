@@ -57,6 +57,7 @@ export interface UpdateRestaurantRequest {
   reservation_url?: string | null;
   reservation_provider?: string | null;
   reservation_partner_meta?: Record<string, unknown> | null;
+  category_id?: number;
 }
 
 export async function updateRestaurant(

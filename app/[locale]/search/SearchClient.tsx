@@ -14,6 +14,7 @@ import Avatar from '@/app/components/ui/Avatar';
 import Skeleton from '@/app/components/ui/Skeleton';
 import EmptyState from '@/app/components/ui/EmptyState';
 import RatingPill from '@/app/components/ui/RatingPill';
+import CategoriesShortcutStrip from '@/app/components/search/CategoriesShortcutStrip';
 import { searchAll, type SearchEntity, type SearchResults } from '@/app/lib/api/search';
 import { cn } from '@/app/lib/utils/cn';
 import type {
@@ -126,6 +127,8 @@ export default function SearchClient() {
           )}
         </label>
       </header>
+
+      {!query.trim() && <CategoriesShortcutStrip />}
 
       <Tabs
         ariaLabel={t('tabsLabel')}

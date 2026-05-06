@@ -1,36 +1,25 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/app/lib/i18n/navigation';
 import RestaurantCard from '@/app/components/RestaurantCard';
 import MapComponent from '@/app/components/maps';
 import CategoryEmptyState from './CategoryEmptyState';
-import AddRestaurantModal from './AddRestaurantModal';
-import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { RestaurantListItem } from '@/app/lib/types';
+import { resolveRestaurantCover } from '@/app/lib/utils/restaurantCover';
 
 interface CategoryPageClientProps {
   categorySlug: string;
   categoryLabel: string;
-  categoryId: number | null;
   initialRestaurants: RestaurantListItem[];
 }
 
 export default function CategoryPageClient({
   categoryLabel,
-  categoryId,
   initialRestaurants,
 }: CategoryPageClientProps) {
-  const { user } = useAuthContext();
   const t = useTranslations('categoryPage');
-  const [restaurants, setRestaurants] = useState(initialRestaurants);
-  const [showAddRestaurant, setShowAddRestaurant] = useState(false);
-
-  function handleRestaurantCreated(restaurant: RestaurantListItem) {
-    setRestaurants(prev => [restaurant, ...prev]);
-    setShowAddRestaurant(false);
-  }
+  const restaurants = initialRestaurants;
 
   return (
     <main id="main-content" className="cc-container py-6">
@@ -66,52 +55,34 @@ export default function CategoryPageClient({
           </section>
 
           <section>
-            <div className="mb-4 flex items-end justify-between gap-3">
-              <h2 className="m-0 font-display text-2xl font-medium text-text-primary sm:text-3xl">
-                {t('listHeading')}
-              </h2>
-              {user && (
-                <button
-                  type="button"
-                  className="inline-flex h-9 items-center gap-2 rounded-md bg-action-primary px-3 font-sans text-sm font-medium text-text-inverse transition-colors hover:bg-action-primary-hover focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
-                  onClick={() => setShowAddRestaurant(true)}
-                >
-                  {t('addRestaurant')}
-                </button>
-              )}
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <h2 className="mb-4 m-0 font-display text-2xl font-medium text-text-primary sm:text-3xl">
+              {t('listHeading')}
+            </h2>
+            <div className="grid auto-rows-fr grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {restaurants.map((restaurant) => (
-                <div key={restaurant.id}>
-                  <Link
-                    href={`/restaurants/${restaurant.slug}`}
-                    className="block rounded-2xl no-underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
-                  >
-                    <RestaurantCard
-                      name={restaurant.name}
-                      image={restaurant.cover_image_url || '/img/restaurant-fallback.jpg'}
-                      location={restaurant.location_name}
-                      rating={restaurant.computed_rating}
-                      description={restaurant.category?.description || restaurant.category?.name || ''}
-                      reviewCount={restaurant.review_count}
-                      showInfo={true}
-                      hasReservation={restaurant.has_reservation ?? false}
-                    />
-                  </Link>
-                </div>
+                <Link
+                  key={restaurant.id}
+                  href={`/restaurants/${restaurant.slug}`}
+                  className="block h-full rounded-2xl no-underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                >
+                  <RestaurantCard
+                    name={restaurant.name}
+                    image={resolveRestaurantCover(
+                      restaurant.cover_image_url,
+                      restaurant.google_photo_url,
+                    )}
+                    location={restaurant.location_name}
+                    rating={restaurant.computed_rating}
+                    description={restaurant.category?.description || restaurant.category?.name || ''}
+                    reviewCount={restaurant.review_count}
+                    showInfo={true}
+                    hasReservation={restaurant.has_reservation ?? false}
+                  />
+                </Link>
               ))}
             </div>
           </section>
         </>
-      )}
-
-      {user && (
-        <AddRestaurantModal
-          show={showAddRestaurant}
-          categoryId={categoryId}
-          onClose={() => setShowAddRestaurant(false)}
-          onRestaurantCreated={handleRestaurantCreated}
-        />
       )}
     </main>
   );

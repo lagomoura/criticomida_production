@@ -26,6 +26,7 @@ export interface RestaurantListItem {
   latitude: number | null;
   longitude: number | null;
   cover_image_url: string | null;
+  google_photo_url: string | null;
   computed_rating: number;
   review_count: number;
   category: Category | null;
