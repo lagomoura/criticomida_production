@@ -154,30 +154,46 @@ function MessageRow({
     Boolean(draftDeepLinkSlug) &&
     Boolean(message.content);
 
-  // Pending tool invocations (the spinning chips) belong above the
-  // text — they signal the agent is still working and the empty bubble
-  // would look broken. Completed tools (the dish/route/map cards) go
-  // BELOW the text: the editorial sentence frames what the cards mean
-  // ("te recomiendo solo Café Turco"), and the cards are visual
-  // reinforcement. Showing 6 unrelated cards above a one-sentence
-  // recommendation made the irrelevant grid look like the answer.
+  // Tool render order is split by visual weight, not by completion
+  // state:
   //
-  // While the message is inflight (LLM still generating, no text yet)
-  // we DON'T reveal the completed cards. The streaming order is
-  // tool_call_result → text_delta, so without this gate the cards
-  // would land first and the framing sentence would slide in above
-  // them ~500ms later. We keep showing the completed tools as
-  // chips-style indicators (via ``ToolInvocation`` itself, which
-  // collapses into a small "Resultado" line when the card section
-  // is hidden) so the comensal still sees that something happened.
+  // - **Above the text bubble (always visible)**: pending spinners
+  //   AND completed lightweight chips (search_dishes ✓, profile
+  //   updated ✓, wishlist saved ✓). These narrate the agent's work
+  //   in real time so the comensal sees the trail of features the
+  //   bot used. Hiding the completed chips during inflight (the
+  //   previous behaviour) made each new tool look like it ERASED
+  //   the prior one — the user could only see the very last step.
+  //
+  // - **Below the text bubble (gated during inflight)**: heavy cards
+  //   (recommend_dishes grid, compare_dishes side-by-side, map
+  //   embed, route card). These are the visual answer; the
+  //   editorial sentence above ("te recomiendo solo Café Turco")
+  //   frames what they mean. We still gate them while no text has
+  //   arrived because tool_call_result lands ~500ms before
+  //   text_delta — without the gate the grid would render first and
+  //   the framing sentence would slide in above it later, looking
+  //   like a layout glitch.
   const pendingTools = renderedTools.filter((t) => t.pending);
-  const completedTools = renderedTools.filter((t) => !t.pending);
-  const showCompletedCards = !isInflight || Boolean(message.content);
+  const completedChips = renderedTools.filter(
+    (t) => !t.pending && !TOOLS_WITH_HEAVY_CARD.has(t.name),
+  );
+  const completedHeavyCards = renderedTools.filter(
+    (t) => !t.pending && TOOLS_WITH_HEAVY_CARD.has(t.name),
+  );
+  const showHeavyCards = !isInflight || Boolean(message.content);
 
   return (
     <div className={cn('flex flex-col gap-2', isUser ? 'items-end' : 'items-start')}>
-      {pendingTools.length > 0 && (
+      {(pendingTools.length > 0 || completedChips.length > 0) && (
         <div className="flex w-full flex-col gap-2">
+          {completedChips.map((tool) => (
+            <ToolInvocation
+              key={tool.id}
+              tool={tool}
+              onShowDishOnMap={onShowDishOnMap}
+            />
+          ))}
           {pendingTools.map((tool) => (
             <ToolInvocation
               key={tool.id}
@@ -203,9 +219,9 @@ function MessageRow({
           )}
         </div>
       )}
-      {showCompletedCards && completedTools.length > 0 && (
+      {showHeavyCards && completedHeavyCards.length > 0 && (
         <div className="flex w-full flex-col gap-2">
-          {completedTools.map((tool) => (
+          {completedHeavyCards.map((tool) => (
             <ToolInvocation
               key={tool.id}
               tool={tool}
@@ -609,6 +625,25 @@ const TOOLS_WITH_OWN_CARD = new Set([
   'create_dish_route',
   'add_to_wishlist',
   'update_taste_profile',
+]);
+
+/**
+ * Subset of ``TOOLS_WITH_OWN_CARD`` that renders a *visually heavy*
+ * card (dish grid, comparison table, map embed, route card). These
+ * are gated to land below the text bubble so the editorial sentence
+ * frames them, and suppressed during inflight to avoid the
+ * tool-result-before-text-delta flash.
+ *
+ * Tools that emit only a small confirmation chip (``add_to_wishlist``,
+ * ``update_taste_profile``) belong with the lightweight chips
+ * upstream, so they appear immediately when they complete and remain
+ * visible as a trail of "things the bot did this turn".
+ */
+const TOOLS_WITH_HEAVY_CARD = new Set([
+  'recommend_dishes',
+  'compare_dishes',
+  'open_in_map',
+  'create_dish_route',
 ]);
 
 /**

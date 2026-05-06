@@ -87,6 +87,26 @@ export default function SettingsPage() {
         <span className="font-sans text-sm text-action-primary">{t('savedAction')}</span>
       </Link>
 
+      {/* Mis gustos — entrada al editor B2C de chat preferences +
+          allergies/preferred_hours del taste profile. Es la única
+          forma hoy de llegar a /me/preferencias desde la nav: el
+          chip "Editar mis gustos" del SommelierEmptyState solo
+          aparece a usuarios logueados que ya tienen un profile
+          inferido, así que sin esto el comensal queda atrapado
+          en el chat para tocar sus preferencias. */}
+      <Link
+        href="/me/preferencias"
+        className="mb-6 flex items-center justify-between rounded-2xl border border-border-default bg-surface-card px-4 py-3 no-underline transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+      >
+        <div>
+          <p className="font-sans text-sm font-medium text-text-primary">{t('preferencesTitle')}</p>
+          <p className="font-sans text-xs text-text-muted">
+            {t('preferencesDescription')}
+          </p>
+        </div>
+        <span className="font-sans text-sm text-action-primary">{t('preferencesAction')}</span>
+      </Link>
+
       <div className="mb-6 flex items-center justify-between rounded-2xl border border-border-default bg-surface-card px-4 py-3">
         <div>
           <p className="font-sans text-sm font-medium text-text-primary">{t('themeTitle')}</p>

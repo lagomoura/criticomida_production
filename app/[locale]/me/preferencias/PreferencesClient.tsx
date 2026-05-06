@@ -66,7 +66,6 @@ export default function PreferencesClient() {
   });
   const [taste, setTaste] = useState<TasteProfileRead | null>(null);
   const [allergiesDraft, setAllergiesDraft] = useState('');
-  const [hoursDraft, setHoursDraft] = useState('');
 
   // ── Bootstrap ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -83,7 +82,6 @@ export default function PreferencesClient() {
         setChatPrefs(prefs);
         setTaste(profile);
         setAllergiesDraft((profile.allergies || []).join(', '));
-        setHoursDraft((profile.preferred_hours || []).join(', '));
         setLoad({ kind: 'ready' });
       })
       .catch((err: unknown) => {
@@ -113,26 +111,23 @@ export default function PreferencesClient() {
           .map((s) => s.trim())
           .filter(Boolean)
           .slice(0, 20);
-        const hoursParsed = Array.from(
-          new Set(
-            hoursDraft
-              .split(',')
-              .map((s) => Number.parseInt(s.trim(), 10))
-              .filter((n) => Number.isFinite(n) && n >= 0 && n <= 23),
-          ),
-        ).sort((a, b) => a - b);
+        // ``preferred_hours`` is preserved as-is — the form doesn't
+        // expose a manual editor (the field is auto-inferred from
+        // review timestamps and adds little value when typed in by
+        // hand). Sending the existing array back keeps the column
+        // intact when the form saves.
+        const preservedHours = (taste?.preferred_hours ?? []).slice();
 
         const [savedPrefs, savedTaste] = await Promise.all([
           updateMyChatPreferences(chatPrefs),
           updateMyTasteProfile({
             allergies: allergiesParsed,
-            preferred_hours: hoursParsed,
+            preferred_hours: preservedHours,
           }),
         ]);
         setChatPrefs(savedPrefs);
         setTaste(savedTaste);
         setAllergiesDraft((savedTaste.allergies || []).join(', '));
-        setHoursDraft((savedTaste.preferred_hours || []).join(', '));
         setSave({ kind: 'saved' });
       } catch (err: unknown) {
         const message =
@@ -144,7 +139,7 @@ export default function PreferencesClient() {
         setSave({ kind: 'error', message });
       }
     },
-    [allergiesDraft, hoursDraft, chatPrefs, save.kind, t],
+    [allergiesDraft, taste, chatPrefs, save.kind, t],
   );
 
   // ── Gate ──────────────────────────────────────────────────────────────
@@ -287,22 +282,6 @@ export default function PreferencesClient() {
             value={allergiesDraft}
             onChange={(e) => setAllergiesDraft(e.target.value)}
             placeholder={t('taste.allergiesPlaceholder')}
-            className="mt-1 rounded-md border border-border-default bg-surface-card px-3 py-2 text-sm text-text-primary focus:outline-none focus:[box-shadow:var(--focus-ring)]"
-          />
-        </label>
-
-        <label className="mt-2 flex flex-col gap-1 text-sm">
-          <span className="font-medium text-text-primary">
-            {t('taste.hoursLabel')}
-          </span>
-          <span className="text-xs text-text-muted">
-            {t('taste.hoursHint')}
-          </span>
-          <input
-            type="text"
-            value={hoursDraft}
-            onChange={(e) => setHoursDraft(e.target.value)}
-            placeholder="13, 21"
             className="mt-1 rounded-md border border-border-default bg-surface-card px-3 py-2 text-sm text-text-primary focus:outline-none focus:[box-shadow:var(--focus-ring)]"
           />
         </label>
