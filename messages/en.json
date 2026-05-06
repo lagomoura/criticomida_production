@@ -1347,7 +1347,19 @@
     "loadError": "We couldn't load your saved. Try again.",
     "emptyTitle": "You haven't saved anything yet",
     "emptyDescription": "Tap the bookmark icon on any review to save it here.",
-    "emptyAction": "Explore reviews"
+    "emptyAction": "Explore reviews",
+    "wantToTry": {
+      "heading": "Want to try",
+      "count": "{count, plural, =1 {1 dish} other {# dishes}}",
+      "empty": "No dishes flagged yet. When you tap 'Want to try' in the chat or on a card, they'll show up here.",
+      "loadError": "We couldn't load your wishlist.",
+      "noPhoto": "No photo",
+      "openDish": "Open detail for {name}",
+      "remove": "Remove {name} from Want to try"
+    },
+    "bookmarks": {
+      "heading": "Saved reviews"
+    }
   },
   "wantToTry": {
     "title": "Want to try",
@@ -1830,6 +1842,14 @@
       "title": "Want to try | CritiComida",
       "description": "Your pending dish list for next Friday."
     },
+    "preferences": {
+      "title": "My preferences | CritiComida",
+      "description": "Tune your reply language, style and dietary restrictions so the Sommelier knows you better."
+    },
+    "mapa": {
+      "title": "Map | CritiComida",
+      "description": "Explore CritiComida dishes and restaurants on the map."
+    },
     "restaurant": {
       "fallbackTitle": "Restaurant · CritiComida",
       "title": "{name} · CritiComida",
@@ -1871,6 +1891,66 @@
     "description": "We'll list all the venues we've visited here. This section is still being built.",
     "viewCategories": "View review categories",
     "goHome": "Go home"
+  },
+  "mapa": {
+    "title": "Map",
+    "subtitle": "Explore dishes and restaurants geographically. Filter by score, review volume, or zoom into a neighborhood."
+  },
+  "preferences": {
+    "heading": "My preferences",
+    "subtitle": "Tune how the Sommelier knows you and talks to you.",
+    "loading": "Loading…",
+    "signInPrompt": "Sign in to edit your preferences.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "errors": {
+      "loadFailed": "Couldn't load your preferences. Try again in a bit.",
+      "saveFailed": "Couldn't save the changes. Try again."
+    },
+    "chat": {
+      "heading": "Chat preferences",
+      "subtitle": "How you want the Sommelier to reply in future sessions.",
+      "languageLabel": "Reply language",
+      "languageAuto": "Match the language you use",
+      "languages": {
+        "es": "Spanish",
+        "en": "English",
+        "pt": "Portuguese"
+      },
+      "styleLabel": "Response style",
+      "styleAuto": "Editorial (default)",
+      "styles": {
+        "editorial": "Editorial — 2-3 framing sentences",
+        "concise": "Concise — straight to the point",
+        "warm": "Warm — more conversational"
+      }
+    },
+    "taste": {
+      "heading": "Your tastes",
+      "subtitle": "What CritiComida knows about you. Some fields we infer from your reviews; others you can declare here.",
+      "empty": "No data yet",
+      "dominantPillar": "Dominant pillar",
+      "topNeighborhoods": "Frequent neighborhoods",
+      "topCategories": "Favorite categories",
+      "priceBand": "Typical price band",
+      "pillars": {
+        "presentation": "Presentation",
+        "execution": "Technical execution",
+        "value_prop": "Cost / benefit"
+      },
+      "priceBands": {
+        "low": "$",
+        "mid": "$$",
+        "high": "$$$"
+      },
+      "inferredHint": "The fields above update automatically with your reviews; you can't edit them here.",
+      "allergiesLabel": "Restrictions / allergies",
+      "allergiesHint": "Comma-separated. The Sommelier will respect these in every recommendation.",
+      "allergiesPlaceholder": "gluten, lactose, peanut",
+      "hoursLabel": "Hours you usually eat out",
+      "hoursHint": "Comma-separated integers 0-23 (e.g. 13, 21)."
+    }
   },
   "chat": {
     "title": "CritiComida Sommelier",
@@ -1925,9 +2005,51 @@
         }
       }
     },
+    "sommelierEmpty": {
+      "greetingNamed": "Hi, {name}",
+      "greetingAnon": "Welcome to the Sommelier",
+      "subtitle": "Tell me what you're craving and I'll suggest dishes for you.",
+      "anonInvite": "Sign in so we can remember your tastes across conversations.",
+      "startersHeading": "Start here",
+      "profileChip": {
+        "label": "We know you like this",
+        "pillarFragment": "you go for {pillar}",
+        "categoryFragment": "{category} cuisine",
+        "neighborhoodFragment": "in {neighborhood}",
+        "allergiesFragment": "always {allergies}-free",
+        "editCta": "Edit my preferences"
+      },
+      "pillars": {
+        "presentation": "presentation",
+        "execution": "technical execution",
+        "value_prop": "value for money"
+      },
+      "starters": {
+        "gangaInNeighborhood": {
+          "label": "A great deal in {neighborhood}",
+          "message": "Find me a great deal in {neighborhood}."
+        },
+        "routeInNeighborhood": {
+          "label": "A 3-dish route in {neighborhood}",
+          "message": "Build me a 3-dish route through {neighborhood}."
+        },
+        "greatDeal": {
+          "label": "A great deal nearby",
+          "message": "Find me a great deal nearby."
+        },
+        "firstDate": {
+          "label": "Something for a first date",
+          "message": "Recommend something for a first date."
+        },
+        "surprise": {
+          "label": "Surprise me",
+          "message": "Surprise me with something different."
+        }
+      }
+    },
     "dishCard": {
-      "save": "Save",
-      "saved": "Saved",
+      "save": "Want to try",
+      "saved": "In your list",
       "showOnMap": "View on map",
       "noPhoto": "No photo",
       "reviewCount": "{count, plural, =0 {no reviews} =1 {1 review} other {# reviews}}"
@@ -1936,9 +2058,27 @@
       "title": "View on the map",
       "subtitle": "Open the map with the suggested places."
     },
+    "comparisonCard": {
+      "heading": "Comparison",
+      "empty": "No dishes to compare.",
+      "noPhoto": "No photo",
+      "save": "Want to try",
+      "saved": "In your list",
+      "showOnMap": "View on map",
+      "pros": "Pros",
+      "cons": "Cons",
+      "pillars": {
+        "presentation": "Presentation",
+        "execution": "Execution",
+        "value_prop": "Value"
+      }
+    },
     "tools": {
       "pending": {
         "search_dishes": "Looking up dishes…",
+        "recommend_dishes": "Preparing recommendations…",
+        "surprise_me": "Picking a surprise for you…",
+        "compare_dishes": "Comparing dishes…",
         "get_dish_detail": "Reading dish details…",
         "add_to_wishlist": "Saving…",
         "open_in_map": "Preparing the map…",
@@ -1955,7 +2095,10 @@
         "generic": "Working on it…"
       },
       "completed": {
-        "search_dishes": "Dishes searched",
+        "search_dishes": "Catalog consulted",
+        "recommend_dishes": "Recommendations ready",
+        "surprise_me": "Surprise picked",
+        "compare_dishes": "Comparison ready",
         "get_dish_detail": "Dish detail loaded",
         "add_to_wishlist": "Saved to wishlist",
         "open_in_map": "Map opened",

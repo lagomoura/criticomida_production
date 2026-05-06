@@ -28,6 +28,12 @@ export interface DishCardData {
   review_count: number;
   price_tier: string | null;
   restaurant: DishCardRestaurant;
+  /** True when the authenticated comensal has already added this
+   *  dish to their want-to-try list. Always present — ``false``
+   *  for anonymous callers (the bookmark write would 401 anyway).
+   *  The FE uses this to seed the chip's saved state so the label
+   *  doesn't reset after a refresh. */
+  want_to_try?: boolean;
 }
 
 export interface SearchDishesResult {
@@ -52,6 +58,39 @@ export interface CreateRouteResult {
   public_url: string | null;
   dish_count: number;
   dish_ids: string[];
+}
+
+export interface ComparisonDishEntry {
+  dish_id: string;
+  name: string;
+  cover_image_url: string | null;
+  rating: number | null;
+  review_count: number;
+  price_tier: string | null;
+  restaurant_name: string | null;
+  restaurant_slug: string | null;
+  location_name: string | null;
+  lat: number | null;
+  lng: number | null;
+  /** Average per-pillar score (1-3 scale) across recent reviews.
+   *  Null when no review of that dish has rated the pillar. */
+  pillar_breakdown: {
+    presentation: number | null;
+    execution: number | null;
+    value_prop: number | null;
+  };
+  /** Up to 2 most-mentioned pros / cons across recent reviews. */
+  top_pros: string[];
+  top_cons: string[];
+  /** Mirrors ``DishCardData.want_to_try`` — server-side bookmark
+   *  state. Always present; ``false`` when no auth context. */
+  want_to_try?: boolean;
+}
+
+export interface ComparisonResult {
+  comparison: true;
+  count: number;
+  dishes: ComparisonDishEntry[];
 }
 
 export interface ChatToolCall {
@@ -291,6 +330,50 @@ export async function hardDeleteConversation(
       method: 'DELETE',
     },
   );
+}
+
+// ── Sommelier empty-state preview ────────────────────────────────────────
+
+/**
+ * Lightweight payload for the Sommelier empty state. Both nested
+ * fields are nullable on purpose so the same shape covers anonymous
+ * visitors and freshly-registered users with no profile inferred yet.
+ */
+export interface SommelierPreviewUser {
+  display_name: string;
+  handle: string | null;
+}
+
+export interface SommelierPreviewProfile {
+  /** Raw enum value: ``presentation`` | ``execution`` | ``value_prop``. */
+  dominant_pillar: string | null;
+  /** Pre-translated Spanish label. The FE uses this for ``locale=es``. */
+  dominant_pillar_label: string | null;
+  top_neighborhoods: string[];
+  top_categories: string[];
+  favorite_tags: string[];
+  /** User-declared dietary restrictions. Never inferred. */
+  allergies: string[];
+  /** Bucket: ``low`` / ``mid`` / ``high``, or null if not enough data. */
+  avg_price_band: string | null;
+}
+
+export interface SommelierPreview {
+  user: SommelierPreviewUser | null;
+  profile: SommelierPreviewProfile | null;
+}
+
+/**
+ * Fetch the empty-state preview for the Sommelier.
+ *
+ * The endpoint is auth-optional: anonymous callers receive
+ * ``{user: null, profile: null}`` and the FE renders the sign-in
+ * invitation. Logged-in users without a profile yet get
+ * ``{user: {...}, profile: null}``. Cheap to call on every drawer
+ * open — keep it lean.
+ */
+export async function getSommelierPreview(): Promise<SommelierPreview> {
+  return fetchApi<SommelierPreview>('/api/chat/sommelier/preview');
 }
 
 // ── deprecated non-streaming entry — kept for parity with old callers ────

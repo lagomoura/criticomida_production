@@ -20,7 +20,25 @@ const CABA_CENTER = { lat: -34.6037, lng: -58.3816 };
 const DEFAULT_ZOOM = 13;
 const MAP_ID = 'cc_discovery_map';
 
-export default function MapDiscoveryView() {
+export interface MapDiscoveryOverride {
+  /** Forced map center. Wins over user geolocation and CABA fallback. */
+  center: { lat: number; lng: number };
+  /** Optional zoom override; falls back to ``DEFAULT_ZOOM`` when null. */
+  zoom?: number | null;
+}
+
+interface MapDiscoveryViewProps {
+  /** When the standalone ``/mapa`` page is reached with query params
+   *  (``?lat=X&lng=Y&zoom=Z``), the wrapper passes them here so the
+   *  map opens on the requested point instead of defaulting to the
+   *  comensal's geolocation or CABA. ``undefined`` keeps the old
+   *  feed-discovery behaviour. */
+  overrideCenter?: MapDiscoveryOverride;
+}
+
+export default function MapDiscoveryView({
+  overrideCenter,
+}: MapDiscoveryViewProps = {}) {
   const t = useTranslations('discovery.map');
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const [pins, setPins] = useState<MapRestaurantPin[]>([]);
@@ -35,9 +53,11 @@ export default function MapDiscoveryView() {
   const { location } = useUserLocation();
 
   const initialCenter = useMemo(() => {
+    if (overrideCenter) return overrideCenter.center;
     if (location) return { lat: location.latitude, lng: location.longitude };
     return CABA_CENTER;
-  }, [location]);
+  }, [overrideCenter, location]);
+  const initialZoom = overrideCenter?.zoom ?? DEFAULT_ZOOM;
 
   const handleResponse = useCallback((res: MapBboxResponse) => {
     setPins(res.items);
@@ -67,7 +87,7 @@ export default function MapDiscoveryView() {
       <APIProvider apiKey={apiKey}>
         <Map
           defaultCenter={initialCenter}
-          defaultZoom={DEFAULT_ZOOM}
+          defaultZoom={initialZoom}
           mapId={MAP_ID}
           gestureHandling="greedy"
           disableDefaultUI={false}

@@ -8,6 +8,7 @@ import {
   listConversationMessages,
   streamChat,
 } from '@/app/lib/api/chat';
+import { checkWantToTry } from '@/app/lib/api/want-to-try';
 
 export interface UiMessage {
   /** Stable id for React keying. */
@@ -122,6 +123,85 @@ function parseToolArguments(
 }
 
 
+/**
+ * Walk a hydrated message list and refresh the per-dish
+ * ``want_to_try`` flag against the comensal's current wishlist.
+ *
+ * Why we need this: tool results are persisted in
+ * ``chat_messages.tool_result`` at the moment of the original tool
+ * call, so the ``want_to_try`` snapshot can be stale by the time the
+ * conversation is rehydrated (the comensal may have saved or removed
+ * the dish in between). One bulk lookup against
+ * ``/api/users/me/want-to-try/check`` is enough to refresh every
+ * card in the conversation. Anonymous callers fall back to the
+ * persisted snapshot — the helper returns an empty set.
+ *
+ * The function is pure: it returns a new array of messages with
+ * fresh ``want_to_try`` values, leaving the input untouched. Failure
+ * to fetch (network blip) returns the input unchanged so the chat
+ * never blocks on rehydrate.
+ */
+async function refreshWishlistFlags(
+  messages: UiMessage[],
+): Promise<UiMessage[]> {
+  // Collect every dish_id mentioned by any tool output in any
+  // assistant message. Tool outputs that paint cards
+  // (``recommend_dishes``, ``compare_dishes``) carry a ``dishes``
+  // array; we only look at those.
+  const dishIds = new Set<string>();
+  for (const m of messages) {
+    for (const t of m.tools) {
+      const out = t.output;
+      if (!out || typeof out !== 'object' || Array.isArray(out)) continue;
+      const dishes = (out as { dishes?: unknown }).dishes;
+      if (!Array.isArray(dishes)) continue;
+      for (const d of dishes) {
+        if (d && typeof d === 'object' && 'dish_id' in d) {
+          const id = (d as { dish_id: unknown }).dish_id;
+          if (typeof id === 'string') dishIds.add(id);
+        }
+      }
+    }
+  }
+  if (!dishIds.size) return messages;
+
+  const savedSet = await checkWantToTry(Array.from(dishIds));
+  if (!savedSet.size) {
+    // Nothing matched (or anon caller). Skip the rebuild entirely.
+    return messages;
+  }
+  return messages.map((m) => ({
+    ...m,
+    tools: m.tools.map((t) => {
+      const out = t.output;
+      if (!out || typeof out !== 'object' || Array.isArray(out)) return t;
+      const dishes = (out as { dishes?: unknown }).dishes;
+      if (!Array.isArray(dishes)) return t;
+      const refreshed = dishes.map((d) => {
+        if (
+          d &&
+          typeof d === 'object' &&
+          'dish_id' in d &&
+          typeof (d as { dish_id: unknown }).dish_id === 'string'
+        ) {
+          return {
+            ...(d as Record<string, unknown>),
+            want_to_try: savedSet.has(
+              (d as { dish_id: string }).dish_id,
+            ),
+          };
+        }
+        return d;
+      });
+      return {
+        ...t,
+        output: { ...(out as Record<string, unknown>), dishes: refreshed },
+      };
+    }),
+  }));
+}
+
+
 function historyToUiMessages(history: ChatMessageData[]): UiMessage[] {
   const out: UiMessage[] = [];
   let lastAssistant: UiMessage | null = null;
@@ -223,10 +303,18 @@ export function useChatStream({
       return;
     }
     listConversationMessages(savedId)
-      .then((history) => {
+      .then(async (history) => {
         if (cancelled) return;
+        const ui = historyToUiMessages(history);
         setConversationId(savedId);
-        setMessages(historyToUiMessages(history));
+        setMessages(ui);
+        // Refresh the want_to_try flags against the live wishlist
+        // — the persisted snapshot can lag if the comensal saved
+        // the dish after the original tool call. Failure is silent
+        // (the original snapshot stays).
+        const refreshed = await refreshWishlistFlags(ui);
+        if (cancelled) return;
+        if (refreshed !== ui) setMessages(refreshed);
       })
       .catch(() => {
         // Saved id is stale (deleted, anon session, etc.). Drop it
@@ -256,9 +344,14 @@ export function useChatStream({
       setError(null);
       try {
         const history = await listConversationMessages(id);
-        setMessages(historyToUiMessages(history));
+        const ui = historyToUiMessages(history);
+        setMessages(ui);
         setConversationId(id);
         writeLastConversationId(agent, restaurantScopeId, id);
+        // Refresh the want_to_try flags after the initial paint —
+        // see the on-mount effect for the rationale.
+        const refreshed = await refreshWishlistFlags(ui);
+        if (refreshed !== ui) setMessages(refreshed);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'No pude cargar la conversación.');
       }

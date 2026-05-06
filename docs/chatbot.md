@@ -18,6 +18,526 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **UX — Página global `/mapa`** (cierra el follow-up del CTA
+    "Ver en mapa"). Standalone discovery map en
+    `app/[locale]/mapa/page.tsx` reusando el componente
+    `MapDiscoveryView` que ya existe del feed (clusters + filtros
+    + top3 overlay). Cambio mínimo en el componente: nuevo prop
+    opcional `overrideCenter?: {center, zoom?}` que pisa la
+    geolocation y el fallback CABA cuando se llega vía deep link.
+    `MapaClient.tsx` parsea `?lat=&lng=&zoom=&dishes=` desde
+    `useSearchParams` y los valida (lat/lng en rango, zoom 1-20)
+    antes de pasarlos al map; envuelto en `<Suspense>` por el
+    requirement de Next 15. `ChatDrawer.onShowDishOnMap` revertido
+    a empujar `/mapa?lat=…` con fallback al detalle del restaurante
+    cuando faltan coordenadas. `MapEmbed` no necesitó cambio — ya
+    apuntaba a `/mapa`. i18n `mapa.{title,subtitle}` y
+    `metadata.mapa` en es/en/pt. Build incluye las tres rutas
+    `/es/mapa`, `/en/mapa`, `/pt/mapa`.
+  - **Calidad — Sommelier prompt: 2 few-shots quirúrgicos para
+    elevar pass-rate**. Diálogo 11 (ganga rica) ataca el failure
+    mode más frecuente del baseline 78-82% — el modelo confunde
+    `min_value_prop=3` con `max_price_tier=$`. Le muestra
+    explícitamente el razonamiento ("ganga != barato; un dish $$$
+    con value_prop=3 también es ganga") + un contraejemplo del
+    error a evitar. Diálogo 12 (saludo con perfil) refuerza la
+    regla "primera palabra = el nombre" + nudge breve al sesgo
+    sin recitar la lista entera. Casos eval correspondientes:
+    `pillar_value_prop_ganga_es` (ya existía, fortalecido) +
+    `profile_greeting_es` (ya existía). Suite unit completa
+    270/270.
+
+    **Resultado del 3-run probe (2 iteraciones)**:
+    1. Primera tanda con Diálogo 11 + 12 agregados: 93.9% / 93.9%
+       / 79.6% — el promedio mejora pero el peor caso queda lejos
+       del 90%, dragged down por `no_data_calories_es` (3/3 fail,
+       alucinación) y `profile_greeting_es` (2/3 fail, saludo).
+    2. Decisión consensuada con el comensal: **calorías sale del
+       scope** — CritiComida no almacena info nutricional en ningún
+       lado, mantener un test que pega contra paráfrasis del
+       training del modelo es perseguir un guard que no tiene
+       ground truth. Regla 8 del prompt limpiada del bullet
+       específico, caso eval `no_data_calories_es` removido.
+       Validador `response_must_not_match` (regex) agregado al
+       runner para futuras dimensiones que sí valga la pena gatear.
+    3. Segunda tanda post-cleanup: 81.2% / 83.3% / 81.2%. **Subir
+       a 0.9 no es viable con Gemini 3.1 Flash Lite + prompt
+       engineering**. El model variance domina por encima de este
+       punto; los fails se rotan entre `profile_greeting_es`,
+       `coffee_with_zone_no_category_filter_es`,
+       `language_pt_response`, `pillar_value_prop_en` sin un patrón
+       estructural arregable desde el prompt.
+    **Decisión final**: threshold queda en **0.85** combinado
+    (Business + Sommelier en una sola pasada). Run de cierre del
+    sprint confirma 88/100 = 88% combinado, con Business
+    sosteniendo ~96% y Sommelier oscilando 79-83%. Subir a 0.9
+    requeriría tooling adicional (modelo Pro, multi-shot retry,
+    structured output enforcement) — eso es otro PR, no un tuning
+    de prompt. Diálogos 11 y 12 que agregué en este sprint
+    fueron revertidos al confirmar que no movieron la aguja del
+    Sommelier (los fails se distribuyen entre 6+ casos rotativos,
+    no un par concentrado que un few-shot pueda atacar).
+  - **UX — `/saved` unifica wishlist + bookmarks**. La discusión
+    cross-link del bullet siguiente terminó en una decisión más
+    fuerte: las dos surfaces ("Quiero probar" + "Reseñas guardadas")
+    pertenecen a la misma página. Folding both into ``/saved``
+    elimina el problema raíz de discoverability — "guardados"
+    significa todo lo que el comensal guardó, no importa por qué
+    surface lo flag-eó. Cambios:
+    - `SavedClient.tsx` carga ambas listas en paralelo
+      (`getMyBookmarks` + `getMyWantToTry(null, 60)`). Cada sección
+      maneja su propio loading/error/empty independiente — un fallo
+      en una no bloquea la otra.
+    - Sección **Quiero probar** arriba en mosaico: grid responsive
+      2/3/4 cols (mobile→desktop), tiles cuadrados con foto, badge
+      de rating Albahaca, nombre + restaurante, botón ``×`` overlay
+      en hover para sacar de la lista (idempotente). Click en el
+      tile → ``/dishes/{id}``.
+    - Sección **Reseñas guardadas** abajo: mismo `FeedList` que
+      antes, scoped a bookmarks. Sin cambios funcionales.
+    - Página standalone ``/me/quiero-probar`` borrada
+      (`rm -rf` del directorio). El SommelierEmptyState seguía
+      apuntando a `/me/preferencias` — eso es preferencias, no
+      guardados; queda como está.
+    - i18n: namespace `saved.wantToTry.{heading,count,empty,
+      loadError,noPhoto,openDish,remove}` y `saved.bookmarks.heading`
+      en es/en/pt. Removidas las keys efímeras del banner cross-link.
+  - **Bugfix — bookmark "Quiero probar" no sobrevivía rehydrate +
+    discoverability cross /saved↔/me/quiero-probar**. Dos issues
+    relacionadas reportadas tras el bookmark fix anterior:
+    (1) **Tras refresh el chip volvía a "Quiero probar"** aunque el
+    POST persistía en DB. Causa raíz: los tool results se persisten
+    en `chat_messages.tool_result` con el `want_to_try` snapshot del
+    momento del original call (False). Cuando ChatDrawer remonta y
+    rehidrata desde la DB, el flag rehidratado es viejo. Fix:
+    endpoint nuevo `POST /api/users/me/want-to-try/check` (body
+    `{dish_ids[]}` → `{saved_ids[]}`) — bulk lookup sin paginación.
+    `useChatStream.ts` agrega `refreshWishlistFlags()` que recolecta
+    todos los dish_ids visibles en los tool outputs rehydrated y
+    cruza contra el wishlist actual; los flags `want_to_try` se
+    actualizan en memoria sin re-renderizar (un solo `setMessages`).
+    Llamado tanto en el mount inicial como en `loadConversation`.
+    Falla silente (anon / network) → snapshot persisted queda como
+    fallback.
+    (2) **Confusión `/saved` ↔ `/me/quiero-probar`**. Dos features
+    distintos (reviews bookmarked vs dishes wishlist) sin link
+    cruzado. Fix: banner Azafrán-tinted en `/saved` que linkea a
+    `/me/quiero-probar` cuando el comensal busca su lista de
+    "Quiero probar" en el lugar equivocado. i18n keys
+    `saved.wantToTryLink.{title,subtitle}` en es/en/pt.
+    Suite unit: 270/270.
+  - **Bugfix — bookmark "Quiero probar" no sobrevivía un refresh**.
+    El POST a `/api/dishes/{id}/want-to-try` persistía correctamente
+    (verified en DB), pero al recargar la página el chip volvía a
+    decir "Quiero probar" en lugar de "En tu lista". Causa raíz:
+    el `useState(false)` inicial del componente — el FE no tenía
+    forma de saber el estado real del bookmark al montar la card.
+    Fix:
+    - Helper compartido `tools/_wishlist_lookup.py::get_saved_dish_ids`
+      hace una sola query `IN(...)` contra `want_to_try_dishes` para
+      el lote de dishes que el tool va a devolver.
+    - `_serialize_dish` toma un parámetro opcional `saved_ids`. Si
+      lo recibe agrega `want_to_try: bool` por dish; si no, omite el
+      campo. Sin ramas de cliente que romper.
+    - `recommend_dishes` y `compare_dishes` aceptan ahora `user_id`
+      en su factory; lo pasan al lookup y enriquecen el output. El
+      registry pasa el user_id de la conversación.
+    - FE: `DishCard` y `ComparisonCard` siembran su `useState`
+      desde `dish.want_to_try` en lugar de empezar siempre en
+      `false`. Tipos en `chat.ts`: `want_to_try?: boolean` opcional
+      en `DishCardData` y `ComparisonDishEntry` (queda compatible
+      hacia atrás con respuestas viejas que aún no traen el campo).
+    Suite unit: 270/270 sigue pasando.
+  - **Fase 7 — Memoria persistente B2C + página `/me/preferencias`**.
+    Espejo del Sommelier de la Fase 5 del Business: el comensal
+    ahora puede pinear preferencias del chat (idioma + estilo de
+    respuesta) entre sesiones, y editar las dimensiones declarables
+    de su `UserTasteProfile` (alergias + horas preferidas).
+    **Backend**:
+    - Migración `043_add_user_chat_preferences.py` — tabla
+      `user_chat_preferences` (PK = `user_id`, columnas
+      `language_preference` ∈ es/en/pt, `response_style` ∈
+      editorial/concise/warm). Sin scope de restaurante porque el
+      Sommelier ve todo el catálogo.
+    - `models/user_preferences.py::UserChatPreference` separado del
+      `OwnerChatPreference` del Business (productos distintos,
+      ciclos de update distintos).
+    - `services/user_chat_preferences_service.py` con `get` /
+      `replace` (form-shaped, NULL limpia) / `upsert` (None = "no
+      tocar"). `render_user_preferences_block` arma el bloque
+      markdown que se inyecta al system prompt.
+    - Tool `update_user_chat_preferences` en `tools/preferences.py`,
+      registrado en el toolbelt del Sommelier. Anónimos reciben
+      `saved: false` con guidance inline (mismo patrón de la
+      Regla 5 anti-anon-mentira).
+    - Regex preprocessor `chat/user_preference_intent.py` — espejo
+      del de Business. Detecta combos trigger + keyword en la
+      misma oración ("siempre" + "en inglés", "from now on" +
+      "concise"). 21 unit tests fixan positivos y false-positives
+      (e.g. "siempre quise probarlo" NO dispara).
+    - `chat_service.stream_chat`: agregado el middleware
+      determinístico para Sommelier antes del LLM, y la inyección
+      del bloque "# Preferencias del comensal (chat)" al system
+      prompt al inicio de cada turno cuando hay fila.
+    - Router nuevo `routers/user_preferences.py` con dos pares
+      GET/PUT bajo `/api/users/me/...`: `chat-preferences` y
+      `taste-profile`. El segundo deja escribir `allergies` y
+      `preferred_hours` (los user-declared) y devuelve los
+      inferidos como read-only.
+    **Frontend**:
+    - `app/lib/api/userPreferences.ts` — types + 4 helpers.
+    - `app/[locale]/me/preferencias/page.tsx` +
+      `PreferencesClient.tsx` — form con dos secciones
+      ("Preferencias del chat" e "Tus gustos"), pills radio,
+      idle/saving/saved state machine, gate de auth con prompt de
+      sign-in. Reutiliza el patrón del Business
+      `OwnerSettingsClient.tsx`.
+    - `SommelierEmptyState` "Editar mis gustos" ahora apunta a
+      `/${locale}/me/preferencias` (antes redirigía a `/profile`,
+      una página genérica que no editaba nada del taste profile).
+    - i18n en es/en/pt: `preferences.*` (~40 keys) + entrada en
+      `metadata.preferences`.
+    Suite unit completa: 270/270 (241 antes + 21 del nuevo
+    preprocessor + 8 que ya teníamos sin contar).
+  - **Bugfix UX — tres fixes en cascada de la ComparisonCard**.
+    Reportados en producción tras la Fase 6:
+    (1) **"No encontré platos que coincidan" después de una respuesta
+    correcta**. El agente a veces hace dos calls: la principal
+    (compare_dishes) que devuelve la grilla bien, y una segunda
+    (recommend_dishes / compare_dishes con uuid mal resuelto) que
+    devuelve `{"error": "no_match"}`. El render del segundo tool
+    caía a la rama "empty" y mostraba la frase contradictoria. Fix
+    en `MessageList.tsx`: si el output tiene `.error` o
+    `.needs_disambiguation`, devolver `null` en el case del tool —
+    el chip "Catálogo consultado" basta. El agente ya recuperó en
+    la próxima iteración.
+    (2) **Botón "Guardar" sin feedback**. La ComparisonCard
+    ejecutaba el POST a `/want-to-try` pero no actualizaba el label
+    — daba la sensación de que el click no hacía nada. Fix: state
+    local `saved` / `savePending` (mismo patrón que DishCard), el
+    botón cambia a "En tu lista" después del click. Bonus: el
+    label global cambió de "Guardar" a "Quiero probar" (es la
+    semántica del feature; el endpoint mismo se llama want-to-try).
+    Mismos cambios en `chat.dishCard.save/saved` para coherencia.
+    (3) **"Ver en mapa" tira error de runtime**. El handler
+    pusheaba a `/${locale}/mapa?lat=…` pero esa ruta nunca se
+    implementó (la app no tiene un standalone map view). En dev
+    saltaba el AppDevOverlay. Fix temporal: redirige al detalle
+    del dish (`/${locale}/dishes/{id}`) que SÍ existe y muestra
+    la ubicación + reviews. Cuando `/mapa` se implemente, revertir
+    este redirect en `ChatDrawer.onShowDishOnMap`. `MapEmbed`
+    todavía linkea a `/mapa` — queda en el roadmap junto con la
+    página global del mapa.
+  - **Fase 6 — `compare_dishes` + ComparisonCard side-by-side**.
+    Tool nuevo en `tools/discovery.py` para el caso "¿cuál es mejor
+    X o Y?". Acepta 2-4 platos por uuid o por nombre (resuelve con
+    `_resolve_dish_global`); si una sola entrada es ambigua aborta
+    la comparación entera con un payload que registra qué se
+    resolvió y cuál slot quedó pendiente, así el agente desambigua
+    primero antes de pintar media grilla. Para cada plato devuelve
+    rating, review_count, price_tier, restaurant info,
+    `pillar_breakdown` (avg presentación/ejecución/value_prop sobre
+    las top 5 reseñas) y `top_pros`/`top_cons` (los 2 más mencionados
+    via `Counter.most_common`). `emits_card=True` con shape distinto
+    de `recommend_dishes`. Frontend
+    `app/components/chat/cards/ComparisonCard.tsx`: grid
+    responsive (2 cols mobile, 2-4 cols desktop según count). Cada
+    columna: foto cuadrada, badge rating Albahaca cuando ≥4.5,
+    barras proporcionales por pilar (Páprika/Albahaca/Azafrán
+    sobre escala 1-3), 2 pros + 2 cons, CTAs Guardar / Ver en
+    mapa. La columna líder (primer uuid pasado) recibe ring
+    Azafrán para señalizar "esta es la principal recomendación".
+    `MessageList`: handler dedicado + lo agrega a
+    `TOOLS_WITH_OWN_CARD`. i18n en es/en/pt: `chat.comparisonCard.*`
+    y `chat.tools.{pending,completed}.compare_dishes`. 8 unit tests
+    cubren schema (2-4 valid, extra forbid, missing input, validation)
+    + resolver short-circuit (ambiguity aborta + reporta resolved_so_far).
+    Caso eval `compare_two_dishes_by_name_es` valida el flujo
+    completo. Suite unit completa: 249/249.
+  - **Bugfix UX — resetear chat al cambiar auth (login/logout)**.
+    Reportado en producción: comensal abre el drawer anónimo,
+    conversa, hace login sin cerrar el drawer, y los mensajes
+    anónimos siguen visibles en pantalla. Es un bug de privacidad —
+    cualquiera con el mismo device podría ver / continuar la
+    conversación del visitante anterior. El backend rechaza con
+    404 al cargar una conversation cuyo `user_id != user.id`
+    (incluyendo `user_id IS NULL` cuando el caller logea), pero
+    la rehidratación del frontend ocurre solo en el mount inicial:
+    si el componente no se desmonta entre el chat anónimo y el
+    login (típico cuando solo se cierra/reabre el drawer sin
+    recargar la página), el state React en memoria sobrevive el
+    auth change. Fix en `ChatDrawer.tsx`: `useEffect` que mira
+    `user?.id` con un `useRef` para detectar **transiciones** y
+    llama `reset()` (limpia messages + conversationId +
+    localStorage) cuando el id cambia. La transición inicial mount
+    se ignora — la rehidratación normal del hook ya cubre ese
+    caso. El localStorage key sigue sin incluir user_id porque
+    multi-cuenta en un mismo device es minoritario; preferimos el
+    reset agresivo a la complejidad de keys per-user.
+  - **Bugfix — coherencia de update_taste_profile en comensal anónimo**.
+    En producción se vio que cuando un usuario anónimo declaraba una
+    alergia, el agente decía en el primer párrafo "no pude guardar
+    tu preferencia porque no has iniciado sesión" pero cerraba el
+    turno con "Anoté tus preferencias para futuras recomendaciones".
+    Las dos frases en el mismo turno se contradicen y rompen
+    confianza. Fix en cuatro planos:
+    (1) Handler retorna ahora un payload guía explícito (`saved:
+    false`, `error: "not_authenticated"`, mensaje con instrucciones
+    inline enumerando las frases prohibidas y el fraseo correcto).
+    (2) Regla 5 del prompt extendida con el caso anónimo.
+    (3) **Diálogo 10 nuevo** que enseña explícitamente el patrón —
+    el comensal anónimo declara lactosa, el handler retorna
+    saved=false, la respuesta correcta tiene UN solo párrafo de
+    cierre coherente y la sección termina con un "PROHIBIDO" que
+    enumera las frases boilerplate que el modelo suele agregar
+    como cortesía formal. La inversión en few-shot vs solo regla
+    es la que finalmente hizo el comportamiento consistente
+    (5/5 corridas post-fix vs 7/10 antes).
+    (4) Eval runner extendido con flag `anonymous: true` en
+    `EvalCase`. Sin esto el caso fallaba a capturar el bug porque
+    la fixture del Sommelier siempre bindea a "Lautaro" logueado;
+    el flag override `user_id=None` por caso. El test
+    `allergy_anon_no_false_save_es` ahora exercise la rama real.
+    Test unitario `test_update_taste_profile_tool.py` (2 casos)
+    pinea el contrato del payload + ausencia de DB call. Suite
+    unit completa: 241/241.
+  - **Fase 5 — Recall del wishlist + tool `surprise_me`**.
+    Dos features nuevas que enriquecen el Sommelier para usuarios
+    autenticados.
+    **5.A — Recall del wishlist**: `build_user_block` en
+    `prompts/loader.py` ahora es async y agrega un sub-bloque
+    "## Lista para probar (wishlist)" con los 7 items más antiguos
+    del comensal en `WantToTryDish` (nombre del plato + restaurante
+    + barrio + fecha guardada). El prompt incluye la regla 12 con
+    los tres triggers de recall: saludo con items >30 días sin
+    tachar, búsqueda en barrio donde hay item guardado, pregunta
+    directa "¿qué tenía guardado?". Diálogo 9 nuevo ilustra el
+    saludo con recall. El bloque se omite para usuarios anónimos.
+    Cumple el roadmap explícito de
+    `docs/chatbot.md:651-653` ("¿te animaste con el risotto que
+    guardaste?").
+    **5.B — Tool `surprise_me`** (`tools/discovery.py`): elige UN
+    plato fuera del histórico del comensal (categoría que no
+    frecuenta o barrio donde no reseña) respetando alergias
+    declaradas, con selección estable per (user, día) — un
+    "sorprendeme" repetido en la misma sesión devuelve el mismo
+    plato; mañana cambia. Mapeo conservador alergia → categoría
+    bloqueada (gluten → italiana/burguers/mexico-food/thaifood/
+    chinafood/brunchs; lácteo → helados/dulces). Cuando la novedad
+    deja el pool vacío, cae al pool completo en lugar de fallar.
+    Tool data-only (`emits_card=False`); el agente cita el
+    `serendipity_reason` retornado en su texto editorial y llama
+    `recommend_dishes` con el id para mostrar la card. 14 unit
+    tests pinean schema, blocklist, determinismo, novelty filter,
+    error paths. i18n en es/en/pt para `chat.tools.{pending,
+    completed}.surprise_me`. Suite unit completa: 239/239 pasan
+    sin regresiones.
+  - **Refactor — separar discovery↔presentation en el Sommelier**.
+    Cambio arquitectónico en respuesta a un bug recurrente: el agente
+    pedía `search_dishes(semantic_query='café')`, el catálogo
+    devolvía top-rated por similitud y la grid del comensal se
+    poblaba con dishes irrelevantes (Açai, IPA, Burritos cuando se
+    pedía café) porque `search_dishes` mezclaba "buscar" (data) con
+    "presentar" (cards). El agente no tenía control granular sobre
+    qué se mostraba.
+    **Fix**: split en dos tools.
+    - `search_dishes` ahora es **data-only** (`emits_card=False`).
+      Devuelve los rows al agente como contexto; el comensal no ve
+      nada hasta que el agente decide presentar algo.
+    - `recommend_dishes(dish_ids: list[1-6])` (NUEVO,
+      `tools/recommend.py`) toma uuids ya conocidos del search y
+      emite las cards. La grid visible es exactamente lo que el
+      agente cura en este call.
+    Patrón nuevo: agente busca → lee rows → decide cuáles 1-6 son
+    relevantes → llama recommend_dishes solo con esos. Si después
+    de buscar no encuentra nada que valga la pena, NO llama
+    recommend_dishes — la grid queda vacía y el agente lo dice en
+    texto. "Una grid vacía es mejor que una grid de tacos cuando se
+    pidió café."
+    Cambios incluidos en el refactor:
+    `_schemas.py` agrega `RecommendDishesInput` (1-6 uuids,
+    extra=forbid). `registry.py` registra el tool para Sommelier.
+    `prompt sommelier.md`: tools section reescrita, regla 1
+    actualizada, few-shots 2/5/8 actualizados con el patrón
+    search→recommend, diálogo 3 (ruta) y 7 (visita) sin recommend
+    porque ya muestran RouteCard/MapEmbed. `MessageList.tsx`:
+    `TOOLS_WITH_OWN_CARD` ahora incluye `recommend_dishes` y excluye
+    `search_dishes`; el handler de cards renderiza `recommend_dishes`
+    con la misma lógica de DishCard que tenía `search_dishes`. i18n
+    en es/en/pt: keys nuevas `chat.tools.{pending,completed}.recommend_dishes`,
+    label de `search_dishes` cambiado a "Catálogo consultado".
+    `sommelier.yaml`: casos `discover_pasta_palermo_es` y
+    `coffee_with_zone_no_category_filter_es` ahora esperan ambos
+    tools. Test unitario `test_recommend_dishes_tool.py` (10 casos)
+    pinea schema (1-6, extra=forbid) + error paths (no_valid_ids,
+    no_match) + happy path (preserve agent order, dedupe). Suite
+    unit completa: 225/225 pasan.
+  - **Bugfix UX — diferir cards hasta que arranque el texto**. El
+    fix anterior cambió el ORDEN final del render (texto antes,
+    cards después) pero durante el streaming el comensal seguía
+    viendo las cards aparecer primero porque la secuencia SSE es
+    `tool_call_result` → `text_delta`: el card section completa se
+    pintaba ~500ms antes que el primer token de texto y el efecto
+    visual era "cards primero, texto sliding in arriba". Fix en
+    `MessageList.tsx`: `MessageRow` recibe ahora un flag
+    `isInflight` (`isStreaming` + último mensaje + `content === ''`)
+    y suprime las cards completas mientras está activo. Cuando el
+    primer `text_delta` llega y `content` deja de ser vacío, las
+    cards se revelan junto con el texto. Los pending chips
+    ("Buscando platos…") siguen visibles para que el comensal sepa
+    que algo está pasando.
+  - **Bugfix UX — orden visual texto↔cards y `limit` en queries
+    específicas**. Dos issues que aparecieron en producción tras el
+    bugfix de café:
+    (1) Las cards se renderizaban ANTES del texto del agente, así
+    que el comensal veía 6 cards (algunas irrelevantes) y abajo una
+    sola frase que recomendaba 1. Visualmente el texto parecía nota
+    al pie. Fix en `app/components/chat/MessageList.tsx`: cambio
+    del orden a **pending tools (spinning) → texto → completed tools
+    (cards)**. La frase editorial enmarca, las cards apoyan.
+    (2) `search_dishes` con `semantic_query='café'` traía top-rated
+    del catálogo entero (Açai, IPA, Burritos) aunque el match real
+    fuera Café Turco. Fix en el prompt: regla nueva que mandá usar
+    `limit=3` (no el default 6) cuando el comensal pide un plato o
+    bebida concreto por nombre — "mejor 1-3 cards buenas que 6
+    mixtos". Se actualizó el few-shot 8 para reflejar el patrón.
+  - **Bugfix — bebidas y categorías cerradas en el Sommelier**. Se
+    detectó en producción que ante "¿dónde tomar un buen café?" el
+    agente llamaba `search_dishes` con `semantic_query='café'` y nada
+    más; sin `embed_query` el ranking cae a `computed_rating` y la
+    grilla quedaba poblada con tacos, parrillas y ramen — todos sin
+    café. Mostrar 6 cards irrelevantes Y preguntar después la zona
+    es el peor failure mode visible: el comensal pierde confianza.
+    Fix en tres planos:
+    (1) Premisa nueva en el prompt: el catálogo está organizado por
+    **platos individuales**, no por servicios. `category_slug` es
+    del restaurante, no del plato — una cantina israelí puede tener
+    un "Café Turco" excelente y filtrar por categoría te lo perdés.
+    (2) Lista cerrada de las 19 categorías reales del catálogo en el
+    prompt para que el agente no invente slugs (no hay "café" ni
+    "cafetería" en la taxonomía).
+    (3) Few-shot 8 nuevo: pedidos de bebida/plato genérico SIN zona →
+    preguntar primero, sin tools en ese turno. Respuesta editorial
+    explica que el lugar puede ser de cualquier cocina.
+    Casos eval `ambiguous_coffee_no_zone_es` y
+    `coffee_with_zone_no_category_filter_es` pinean el contrato.
+    Ambos pasan en run posterior al fix.
+  - **Visibility de gustos + smart starters en el Sommelier (Fase 4)**.
+    Empty state visible para el comensal cuando abre el drawer del
+    Sommelier. Tres ramas:
+    - **Logueado con perfil**: chip "Te conocemos así" rendereado
+      con `--font-display` (Cormorant Garamond) que arma una línea
+      tipo "te gusta la presentación · cocina italiana · en Palermo"
+      + badge paprika con alergias declaradas. Starter chips
+      *dinámicos* derivados del perfil ("Una ganga rica en {top
+      neighborhood}", "Una ruta de 3 platos en {top neighborhood}",
+      "Sorprendeme"). CTA "Editar mis gustos" → `/profile`.
+    - **Logueado sin perfil**: saludo por nombre + 3 starters
+      genéricos. Una vez que el aggregator pobla `UserTasteProfile`
+      (después de N reseñas), pasa solito a la rama anterior.
+    - **Anónimo**: saludo neutro + invitación suave a iniciar
+      sesión + 3 starters genéricos. Nunca bloquea el chat.
+    Backend: nuevo endpoint **`GET /api/chat/sommelier/preview`**
+    (auth opcional) que devuelve `{user, profile}` ambos nullables.
+    Frontend: `app/components/chat/SommelierEmptyState.tsx` se monta
+    desde `ChatDrawer` cuando `agent === 'sommelier'` (espejo del
+    `BusinessEmptyState`). i18n en es/en/pt con sección
+    `chat.sommelierEmpty.*` (greetings, profileChip fragments,
+    starters dinámicos con interpolación de `{neighborhood}`,
+    pillar labels per-locale). Click en starter dispara `send(text)`
+    como user-turn y arranca el stream — el agente responde en el
+    idioma del starter.
+  - **Eval suite del Sommelier + CI gate combinado (Fase 3)**.
+    `backend/tests/chat/evals/datasets/sommelier.yaml` con 45 casos en
+    12 categorías: descubrimiento básico, mood semántico, pilares,
+    multi-tool ruta+map, cero resultados con propuesta concreta de
+    relajación, alergia explícita vs preferencia, ambigüedad real
+    (UNA pregunta — nunca UUID), taste profile awareness, anti-
+    alucinación numérica, anti-alucinación de nombres (lista negra
+    de Don Julio / La Cabrera / Recoleta / etc. que NO existen en la
+    fixture), idioma es/en/pt consistente, datos que NO surfacean
+    (horarios, precios en pesos, disponibilidad de mesa, calorías).
+    Fixture `sommelier_eval_scope` en conftest.py: 3 restaurantes en
+    Palermo/Belgrano/Centro, 10 dishes con pillars/ratings calibrados,
+    usuario sintético "Lautaro" con `UserTasteProfile` poblado
+    (dominant=presentation, top_neighborhoods=[Palermo],
+    allergies=[gluten]). Test runner `test_sommelier_evals.py` espejo
+    del Business: `agent=sommelier`, `restaurant_scope_id=None`,
+    `model=default_b2c_model()` explícito. El runner reusa el
+    validador numérico, los assertions de tools/text del Business sin
+    cambios estructurales (sólo se relajó el typing de
+    `restaurant_scope_id` a `str | None`). Cleanup actualizado a
+    LIKE en `google_place_id` para barrer ambas fixtures + `DELETE
+    FROM user_taste_profiles` para no dejar el profile huérfano.
+    Workflow `chat-evals.yml`: paths `app/services/chat/**` ya
+    cubren `prompts/sommelier.md` y `tools/_resolution.py`; threshold
+    combinado **0.85** (no 0.9). El Business sostiene 96-100% en
+    corridas consecutivas, pero el Sommelier V1 baseline en Gemini
+    3.1 Flash Lite es ~78-82% sobre 45 casos: el modelo a veces se
+    salta los pilares numéricos (`min_value_prop=3` vs el más
+    intuitivo `max_price_tier=$`) y a veces alucina datos que NO
+    surfacean (calorías "estándar"). Subir el threshold a 0.9 queda
+    como follow-up explícito en el roadmap (Fase 5+) — requiere más
+    few-shots, posiblemente mover algunos asserts a `validate_numbers`,
+    y tres corridas consecutivas pasando.
+    Audit script `audit_chat_handoffs.py` extendido con patterns
+    B2C-flavor (`para poder buscarlo`, `si me pasás`, `the exact
+    name`) y portugueses (`preciso saber`, `qual é o id`, `me diga`,
+    `o nome exato`).
+  - **Tool contract defensivo del Sommelier (Fase 2)**. El helper
+    `_resolve_dish_in_scope` que vivía en `business.py` se promovió a
+    `app/services/chat/tools/_resolution.py::_resolve_dish_global` y
+    ahora atiende ambos agentes: con `restaurant_scope_id` se comporta
+    igual que antes para Business; sin scope busca en todo el catálogo
+    para Sommelier (candidates incluyen restaurante + barrio para
+    desambiguar dos "risotto" entre lugares distintos). `get_dish_detail`
+    y `add_to_wishlist` ahora aceptan `dish_name` además de `dish_id` y
+    delegan al helper, así un Sommelier que recibe "guardame el
+    risotto" puede actuar sin pedirle un UUID al comensal — match único
+    ejecuta directo, múltiples matches devuelven `needs_disambiguation:
+    true` con candidatos numerados, cero matches devuelven `no_match`
+    con hint a `search_dishes(semantic_query=…)`. Defensa en
+    profundidad: el `make_get_dish_detail_tool` recibe ahora
+    `restaurant_scope_id` y el Business lo registra con su scope para
+    que un owner no pueda extraer detalle de un competidor aunque el
+    LLM le pase un UUID ajeno. Schemas Pydantic nuevos en
+    `_schemas.py` (`SearchDishesInput`, `GetDishDetailInput`,
+    `AddToWishlistInput`, `OpenInMapInput`, `CreateDishRouteInput`,
+    `RequestReservationInput`) con `extra='forbid'`, validación de
+    rangos (pilares 1-3, rating 0-5, party_size 1-30, etc.), enum
+    `PriceTierFilter` (`$`/`$$`/`$$$`) con normalización de sinónimos
+    comunes (`low`/`barato`/`$$$$` → `$`/`$`/`$$$`) antes del enum
+    check, y `validation_alias` para `barrio`/`zona`/`mood`/`vibe`. Los
+    handlers ahora emiten `{"error": ..., "details": [...]}` ante
+    `ValidationError` y el agent loop reenvía al modelo para auto-
+    corrección en la próxima iteración. Tests en
+    `tests/unit/test_dish_resolution.py` (14 casos) y
+    `tests/unit/test_sommelier_tool_schemas.py` (37 casos) pinean el
+    contrato sin DB; integración real queda para la suite de evals
+    (Fase 3). Suite unit completa pasa 215/215 — sin regresiones del
+    Business.
+  - **System prompt del Sommelier al nivel del Business**
+    (`backend/app/services/chat/prompts/sommelier.md`). De 60 → ~280
+    líneas. Estructura nueva: identidad + premisa de catálogo público
+    con personalización + **Regla #0** (resolvé entidades vos, nunca
+    pidas IDs ni nombre exacto, manejo de los tres casos de los tools
+    — match único / `needs_disambiguation` con candidatos / `no_match`
+    con sugerencias) + **Regla prioritaria** de manejo de errores de
+    tools (auto-corregí en silencio, máx 2 reintentos, nunca exponé la
+    plomería al comensal) + 3 pilares + decodificación + especificación
+    explícita de tools (incluyendo `get_dish_detail` y `add_to_wishlist`
+    que pasan a aceptar `dish_name` además de UUID en Fase 2 — el prompt
+    ya documenta el contrato amistoso) + **11 reglas** anti-alucinación
+    explícitas (cifras solo de tools del turno, nombres/barrios solo de
+    tool outputs, datos que NO surfacean — horarios, precios exactos,
+    disponibilidad, calorías, promos, identidad de reseñador) + **7
+    diálogos de referencia** (saludo personalizado, mood semántico,
+    multi-tool ruta+map, cero resultados con propuesta concreta,
+    alergia explícita, ambigüedad real con UNA pregunta, recomendación
+    corta a turista en inglés). Voz editorial CritiComida sin emojis,
+    sin "delicioso/espectacular/imperdible". Primer cimiento del plan
+    Sommelier: paridad de calidad con el Business antes de sumar
+    features WOW.
   - **Auto-título de conversaciones vía Gemini Flash**
     (`app/services/chat_title_service.py`). Hook background en
     `chat_service.stream_chat` después del primer turno del usuario:
@@ -543,9 +1063,14 @@ Tres capas combinadas para no depender solo del prompt:
    aceptan *también* el input amistoso (`dish_name` además de
    `dish_id`) y resuelven internamente. Tres respuestas estructuradas:
    match único (ejecuta), `needs_disambiguation: true` con
-   `candidates`, o `error: "no_match"` con `menu_peek` real del
-   restaurante. Helper compartido en
-   `backend/app/services/chat/tools/business.py::_resolve_dish_in_scope`.
+   `candidates`, o `error: "no_match"` con `menu_peek` real (Business
+   scoped) / hint a `search_dishes(semantic_query=…)` (Sommelier
+   global). Helper compartido en
+   `backend/app/services/chat/tools/_resolution.py::_resolve_dish_global`,
+   parametrizado con `restaurant_scope_id` opcional y `actor` para
+   adaptar el fraseo a cada agente. Tools del Sommelier que ya delegan:
+   `get_dish_detail`, `add_to_wishlist`. Tools del Business: `analyze_dish_pillar_drop`,
+   `benchmark_dish` (vía thin wrapper `_resolve_dish_in_scope`).
 2. **Regla #0 del system prompt**. Cada agente arranca su prompt con
    "NUNCA pidas IDs al humano" más la receta para cada respuesta del
    tool. El prompt es backup del tool, no fuente única de verdad.
@@ -649,8 +1174,6 @@ implementadas** y vale tenerlas listadas para no duplicar trabajo:
 
 - **Sommelier**: integración de booking real con Resy/TheFork via API
   (hoy: solo deeplink + notificación al owner).
-- **Sommelier**: recall persistente de items del wishlist en futuras
-  conversaciones ("¿Te animaste con el risotto que guardaste?").
 - **Ghostwriter**: catálogo curado de tags + sugerencia que prefiere
   tags ya existentes sobre tags inéditos.
 - **Ghostwriter**: análisis de video/reels (hoy solo imagen).
@@ -677,16 +1200,48 @@ implementadas** y vale tenerlas listadas para no duplicar trabajo:
   (`archived_at` set, fila preservada). Si archivás la conversación
   activa, el chat se resetea limpiamente. Hard-delete (GDPR) queda
   como endpoint admin separado, follow-up.
+- **Sommelier evals**: subir el threshold combinado de la suite chat
+  de 0.85 a 0.9. **Confirmado experimentalmente** que con Gemini
+  3.1 Flash Lite y prompt-engineering solo no se alcanza: dos
+  iteraciones de tuning + few-shots quirúrgicos dejaron el promedio
+  en ~82% con flake distribuido entre `profile_greeting_es`,
+  `coffee_with_zone_no_category_filter_es`, `language_pt_response`,
+  `pillar_value_prop_en` (no hay un único caso roto, hay model
+  variance). Para llegar a 0.9 se necesita uno de tres caminos:
+  (a) cambiar a un modelo Pro (Gemini 3.1 Pro, Claude Sonnet) —
+  más caro y más lento pero más consistente con tool use;
+  (b) multi-shot retry — si una iteración del agent loop falla un
+  assertion crítico, reintentar con temperature más baja antes de
+  cerrar el turno; (c) structured output enforcement — JSON-mode
+  forzado en los puntos donde el modelo pifia (ej. el saludo
+  personalizado podría templarse fuera del LLM una vez que el
+  perfil está cargado). Cualquiera de los tres es un PR
+  arquitectónico, no un tuning incremental.
 - **Núcleo**: analytics de tokens y latencia visibles para admin.
-- **Evals**: validador post-hoc numérico en el runner. Hoy las reglas
-  anti-alucinación viven en el prompt + casos eval específicos
-  (Fase 6). El upgrade es: extraer todos los literales numéricos de
-  la respuesta del agente y verificar que cada uno aparece en algún
-  tool output del turno (string substring match), con whitelist de
-  números safe (1-5, años entre 2024-2030). Empuja el rate de
-  hallucination de "control por sampling" a "guard automático". ~1
-  día por sí solo, sobre todo por el tuning de la whitelist para
-  evitar false positives en contextos de redacción.
+- **Núcleo**: página global `/mapa` (no shipeada todavía). Hoy el
+  CTA "Ver en mapa" en las cards del Sommelier redirige a
+  `/${locale}/restaurants/{slug}?tab=info` (que tiene un
+  `LocationMap` embebido); el card `MapEmbed` que el agente emite
+  vía `open_in_map` tampoco tiene destino. Cuando se shippee,
+  revertir el handler `ChatDrawer.onShowDishOnMap` a un push con
+  lat/lng/dishes params + actualizar `MapEmbed` para linkear a la
+  ruta nueva.
+- **Evals — Sommelier**: ampliar el uso de `response_must_not_match`
+  (regex assertion en el runner) a los casos no_data_*. Hoy lo usa
+  el caso de horarios y precios; agregar al menos uno por dimensión
+  no surfaceada para cazar paráfrasis nuevas que el `must_not_contain`
+  con substrings no atrapa.
+- **Evals — Sommelier**: more few-shots quirúrgicos para la
+  confusión `min_value_prop=3` ↔ `max_price_tier=$` y para el
+  saludo personalizado. Son los dos failure modes más frecuentes
+  del baseline 78-82% del Sommelier. Cada few-shot suma un caso
+  eval correspondiente.
+- **Evals — Backend**: threshold semántico opcional en
+  `search_dishes`. Cuando hay `semantic_query` + `embed_query`,
+  descartar resultados con `cosine_distance > N` para que queries
+  ambigous ("café") devuelvan menos rows en lugar de top-rated
+  random. Calibrar `N` requiere data del catálogo real; queda
+  como follow-up cuando tengamos volumen.
 
 Cualquiera de estos que se implemente, mover a la sección activa del
 agente correspondiente y borrar de acá.

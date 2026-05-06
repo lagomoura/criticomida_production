@@ -12,11 +12,17 @@ import {
   faPenToSquare,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
-import { ChatAgent, DishCardData, MapPayload } from '@/app/lib/api/chat';
+import {
+  ChatAgent,
+  DishCardData,
+  SommelierPreview,
+  getSommelierPreview,
+} from '@/app/lib/api/chat';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { cn } from '@/app/lib/utils/cn';
 import ConversationList from './ConversationList';
 import MessageList from './MessageList';
+import SommelierEmptyState from './SommelierEmptyState';
 import { useChatStream } from './useChatStream';
 
 interface ChatDrawerProps {
@@ -66,6 +72,53 @@ export default function ChatDrawer({
 
   const [historyOpen, setHistoryOpen] = useState(false);
 
+  // Sommelier empty-state preview — fetched lazily the first time the
+  // drawer opens and the agent is the Sommelier. Anonymous callers
+  // get back ``{user: null, profile: null}`` (the FE renders the
+  // sign-in invitation in that case). We refetch when the user logs
+  // in/out so the chip updates to reflect the new identity without a
+  // full page reload.
+  const [sommelierPreview, setSommelierPreview] =
+    useState<SommelierPreview | null>(null);
+  useEffect(() => {
+    if (!open || agent !== 'sommelier') return;
+    let cancelled = false;
+    void getSommelierPreview()
+      .then((data) => {
+        if (!cancelled) setSommelierPreview(data);
+      })
+      .catch(() => {
+        // Graceful degrade: a network blip shouldn't gate the drawer.
+        // The empty state falls back to the anonymous branch.
+        if (!cancelled) setSommelierPreview({ user: null, profile: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, agent, user?.id]);
+
+  // Auth boundary: when the comensal logs in or out, wipe the local
+  // chat state. The localStorage key for "last conversation"
+  // (``cc:chat:lastConvo:{agent}:{scope}``) intentionally does NOT
+  // include the user id — that means an anonymous conversation
+  // would otherwise bleed into a logged-in session sharing the same
+  // device, and a logged-out browser would keep showing the prior
+  // user's chat. The backend already rejects cross-owner reads
+  // (404), but the React state in memory survives across the auth
+  // change unless we wipe it explicitly here.
+  //
+  // ``didMountAuthRef`` keeps the very first render quiet — we only
+  // want to react to *transitions* in the user id. On mount the
+  // hook itself already handled rehydration; firing reset() here
+  // would just clobber that work.
+  const currentUserId = user?.id ?? null;
+  const lastUserIdRef = useRef<string | null>(currentUserId);
+  useEffect(() => {
+    if (lastUserIdRef.current === currentUserId) return;
+    lastUserIdRef.current = currentUserId;
+    reset();
+  }, [currentUserId, reset]);
+
   // Authenticated owners only — anonymous sessions can't enumerate
   // their conversations (the endpoint requires auth) so we hide the
   // button entirely instead of showing a broken state.
@@ -104,20 +157,31 @@ export default function ChatDrawer({
   }
 
   function onShowDishOnMap(dish: DishCardData) {
-    if (!dish.restaurant.lat || !dish.restaurant.lng) return;
-    const payload: MapPayload = {
-      action: 'open_in_map',
-      center: { lat: dish.restaurant.lat, lng: dish.restaurant.lng, zoom: 15 },
-      dish_ids: [dish.dish_id],
-    };
-    const params = new URLSearchParams({
-      lat: String(payload.center?.lat),
-      lng: String(payload.center?.lng),
-      zoom: '15',
-      dishes: dish.dish_id,
-    });
-    router.push(`/${locale}/mapa?${params.toString()}`);
-    onClose();
+    // The standalone ``/mapa`` page exists now (``MapaClient.tsx``
+    // reads the same lat/lng/zoom/dishes query params we pass here).
+    // When lat/lng are missing — restaurant has no coords — fall
+    // back to the restaurant detail page with its embedded
+    // ``LocationMap`` so the comensal still lands on something
+    // useful instead of a map centered on (0, 0).
+    const lat = dish.restaurant.lat;
+    const lng = dish.restaurant.lng;
+    if (typeof lat === 'number' && typeof lng === 'number') {
+      const params = new URLSearchParams({
+        lat: String(lat),
+        lng: String(lng),
+        zoom: '15',
+        dishes: dish.dish_id,
+      });
+      router.push(`/${locale}/mapa?${params.toString()}`);
+      onClose();
+      return;
+    }
+    if (dish.restaurant.slug) {
+      router.push(
+        `/${locale}/restaurants/${dish.restaurant.slug}?tab=info`,
+      );
+      onClose();
+    }
   }
 
   if (!open) return null;
@@ -250,6 +314,13 @@ export default function ChatDrawer({
                     ownerName={user?.display_name ?? null}
                     onSendStarter={(text) => void send(text)}
                     disabled={isStreaming}
+                  />
+                ) : agent === 'sommelier' ? (
+                  <SommelierEmptyState
+                    preview={sommelierPreview}
+                    onSendStarter={(text) => void send(text)}
+                    disabled={isStreaming}
+                    onCloseDrawer={onClose}
                   />
                 ) : undefined
               }

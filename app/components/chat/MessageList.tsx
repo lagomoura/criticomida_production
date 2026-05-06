@@ -6,12 +6,14 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Link } from '@/app/lib/i18n/navigation';
 import {
+  ComparisonResult,
   CreateRouteResult,
   DishCardData,
   MapPayload,
   SearchDishesResult,
 } from '@/app/lib/api/chat';
 import { cn } from '@/app/lib/utils/cn';
+import ComparisonCard from './cards/ComparisonCard';
 import DishCard from './cards/DishCard';
 import MapEmbed from './cards/MapEmbed';
 import RouteCard from './cards/RouteCard';
@@ -84,6 +86,24 @@ export default function MessageList({
     );
   }
 
+  const lastIndex = messages.length - 1;
+  const lastMessage = lastIndex >= 0 ? messages[lastIndex] : null;
+  // ``inflightAssistantId`` is the id of the assistant turn whose text
+  // hasn't started arriving yet. We use it inside ``MessageRow`` to
+  // suppress completed-tool cards during the gap between
+  // ``tool_call_result`` (cards ready) and ``text_delta`` (first
+  // editorial token). Without this gating the user sees the cards
+  // pop in first and the framing sentence sliding in above them
+  // ~half a second later — that order made irrelevant cards look
+  // like the answer instead of supporting context.
+  const inflightAssistantId =
+    isStreaming &&
+    lastMessage &&
+    lastMessage.role === 'assistant' &&
+    lastMessage.content === ''
+      ? lastMessage.id
+      : null;
+
   return (
     <div className="flex flex-col gap-3 px-4 py-3">
       {messages.map((msg) => (
@@ -94,12 +114,10 @@ export default function MessageList({
           draftReviewId={draftAnchors.get(msg.id) ?? null}
           draftDeepLinkSlug={draftDeepLinkSlug}
           onDraftDeepLinkClick={onDraftDeepLinkClick}
+          isInflight={msg.id === inflightAssistantId}
         />
       ))}
-      {isStreaming &&
-        messages.length > 0 &&
-        messages[messages.length - 1].role === 'assistant' &&
-        messages[messages.length - 1].content === '' && <TypingIndicator />}
+      {inflightAssistantId !== null && <TypingIndicator />}
       <div ref={endRef} />
     </div>
   );
@@ -114,6 +132,10 @@ interface MessageRowProps {
   draftReviewId?: string | null;
   draftDeepLinkSlug?: string | null;
   onDraftDeepLinkClick?: () => void;
+  /** True while the LLM is still generating this turn AND the
+   *  text bubble is empty. Used to defer card rendering until the
+   *  framing sentence starts arriving. */
+  isInflight?: boolean;
 }
 
 function MessageRow({
@@ -122,6 +144,7 @@ function MessageRow({
   draftReviewId,
   draftDeepLinkSlug,
   onDraftDeepLinkClick,
+  isInflight = false,
 }: MessageRowProps) {
   const isUser = message.role === 'user';
   const renderedTools = isUser ? [] : collapseChipDuplicates(message.tools);
@@ -131,18 +154,31 @@ function MessageRow({
     Boolean(draftDeepLinkSlug) &&
     Boolean(message.content);
 
+  // Pending tool invocations (the spinning chips) belong above the
+  // text — they signal the agent is still working and the empty bubble
+  // would look broken. Completed tools (the dish/route/map cards) go
+  // BELOW the text: the editorial sentence frames what the cards mean
+  // ("te recomiendo solo Café Turco"), and the cards are visual
+  // reinforcement. Showing 6 unrelated cards above a one-sentence
+  // recommendation made the irrelevant grid look like the answer.
+  //
+  // While the message is inflight (LLM still generating, no text yet)
+  // we DON'T reveal the completed cards. The streaming order is
+  // tool_call_result → text_delta, so without this gate the cards
+  // would land first and the framing sentence would slide in above
+  // them ~500ms later. We keep showing the completed tools as
+  // chips-style indicators (via ``ToolInvocation`` itself, which
+  // collapses into a small "Resultado" line when the card section
+  // is hidden) so the comensal still sees that something happened.
+  const pendingTools = renderedTools.filter((t) => t.pending);
+  const completedTools = renderedTools.filter((t) => !t.pending);
+  const showCompletedCards = !isInflight || Boolean(message.content);
+
   return (
     <div className={cn('flex flex-col gap-2', isUser ? 'items-end' : 'items-start')}>
-      {/*
-        Tool invocations render BEFORE the assistant text. That's the
-        causal order — the agent runs the tool first and then replies
-        based on the result, so showing "✓ Platos rankeados" above
-        the answer reads more naturally and also aligns with the
-        streaming sequence (tool_call_start arrives before text_delta).
-      */}
-      {renderedTools.length > 0 && (
+      {pendingTools.length > 0 && (
         <div className="flex w-full flex-col gap-2">
-          {renderedTools.map((tool) => (
+          {pendingTools.map((tool) => (
             <ToolInvocation
               key={tool.id}
               tool={tool}
@@ -165,6 +201,17 @@ function MessageRow({
           ) : (
             <AssistantContent text={message.content} />
           )}
+        </div>
+      )}
+      {showCompletedCards && completedTools.length > 0 && (
+        <div className="flex w-full flex-col gap-2">
+          {completedTools.map((tool) => (
+            <ToolInvocation
+              key={tool.id}
+              tool={tool}
+              onShowDishOnMap={onShowDishOnMap}
+            />
+          ))}
         </div>
       )}
       {showDraftLink && (
@@ -363,8 +410,26 @@ function ToolInvocation({ tool, onShowDishOnMap }: ToolInvocationProps) {
   }
 
   // Render specific cards based on tool name.
-  if (tool.name === 'search_dishes') {
-    const result = tool.output as SearchDishesResult | null;
+  //
+  // ``search_dishes`` is **data-only** — it serves the agent context,
+  // not the comensal. So when it completes we fall through to the
+  // generic chip path ("Consulté el catálogo"). The visible card grid
+  // comes from ``recommend_dishes`` below, which the agent only fires
+  // for the curated subset it actually wants to recommend. Splitting
+  // these responsibilities is what keeps the visible grid in sync
+  // with the agent's editorial text.
+  if (tool.name === 'recommend_dishes') {
+    const raw = tool.output as Record<string, unknown> | null;
+    // The handler returns ``{"error": ...}`` on resolver failures
+    // (no_valid_ids, no_match, missing uuids). The agent reads that
+    // and typically recovers in the next iteration with a corrected
+    // call — so showing an "empty grid" card here would just
+    // contradict the rest of the answer. Skip rendering anything
+    // and let the generic completed-tool chip carry the signal.
+    if (raw && typeof raw === 'object' && 'error' in raw) {
+      return null;
+    }
+    const result = raw as unknown as SearchDishesResult | null;
     if (!result || !Array.isArray(result.dishes) || result.dishes.length === 0) {
       return (
         <div className="rounded-2xl border border-border-subtle bg-surface-subtle px-3 py-2 text-xs text-text-muted">
@@ -383,6 +448,28 @@ function ToolInvocation({ tool, onShowDishOnMap }: ToolInvocationProps) {
         ))}
       </div>
     );
+  }
+
+  if (tool.name === 'compare_dishes') {
+    const raw = tool.output as Record<string, unknown> | null;
+    // Same idea as recommend_dishes: when the handler returns an
+    // error / disambiguation payload, the agent recovers next
+    // iteration. Don't paint a misleading "empty grid" card.
+    if (raw && typeof raw === 'object' && 'error' in raw) {
+      return null;
+    }
+    if (raw && typeof raw === 'object' && 'needs_disambiguation' in raw) {
+      return null;
+    }
+    const result = raw as unknown as ComparisonResult | null;
+    if (!result || !Array.isArray(result.dishes) || result.dishes.length === 0) {
+      return (
+        <div className="rounded-2xl border border-border-subtle bg-surface-subtle px-3 py-2 text-xs text-text-muted">
+          {t('searchEmpty')}
+        </div>
+      );
+    }
+    return <ComparisonCard result={result} onShowDishOnMap={onShowDishOnMap} />;
   }
 
   if (tool.name === 'open_in_map') {
@@ -516,7 +603,8 @@ type ToolsTranslator = ReturnType<typeof useTranslations<'chat.tools'>>;
  * ``ToolInvocation`` and the dedup logic in ``collapseChipDuplicates``.
  */
 const TOOLS_WITH_OWN_CARD = new Set([
-  'search_dishes',
+  'recommend_dishes',
+  'compare_dishes',
   'open_in_map',
   'create_dish_route',
   'add_to_wishlist',

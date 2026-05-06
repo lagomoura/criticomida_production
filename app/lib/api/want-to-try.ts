@@ -59,6 +59,37 @@ export async function addToWantToTry(dishId: string): Promise<void> {
   );
 }
 
+interface WantToTryCheckResponseDTO {
+  saved_ids: string[];
+}
+
+/**
+ * Bulk lookup of bookmark state for a batch of dishes. Returns the
+ * subset of ``dishIds`` that the comensal has already saved. Empty
+ * array (not error) when not authenticated. The chat uses this on
+ * conversation rehydrate so the bookmark chip paints correctly even
+ * for tool results persisted before the dish was saved.
+ */
+export async function checkWantToTry(
+  dishIds: string[],
+): Promise<Set<string>> {
+  if (!dishIds.length) return new Set<string>();
+  try {
+    const data = await fetchApi<WantToTryCheckResponseDTO>(
+      '/api/users/me/want-to-try/check',
+      {
+        method: 'POST',
+        body: JSON.stringify({ dish_ids: dishIds }),
+      },
+    );
+    return new Set(data.saved_ids);
+  } catch {
+    // Anonymous (401) or network blip: degrade gracefully — the
+    // chip just defaults to "Quiero probar". Better than a crash.
+    return new Set<string>();
+  }
+}
+
 export async function removeFromWantToTry(dishId: string): Promise<void> {
   await fetchApi<WantToTryActionResponseDTO>(
     `/api/dishes/${encodeURIComponent(dishId)}/want-to-try`,

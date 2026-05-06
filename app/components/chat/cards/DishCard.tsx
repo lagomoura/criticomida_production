@@ -29,7 +29,10 @@ interface DishCardProps {
  */
 export default function DishCard({ dish, onShowOnMap }: DishCardProps) {
   const t = useTranslations('chat.dishCard');
-  const [saved, setSaved] = useState(false);
+  // Seed the saved state from the server-side flag so a refresh
+  // doesn't reset the chip to "Quiero probar" for dishes the
+  // comensal already has in their want-to-try list.
+  const [saved, setSaved] = useState<boolean>(Boolean(dish.want_to_try));
   const [savePending, setSavePending] = useState(false);
 
   async function handleSave() {

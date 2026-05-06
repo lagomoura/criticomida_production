@@ -1347,7 +1347,19 @@
     "loadError": "No pudimos cargar tus guardados. Probá de nuevo.",
     "emptyTitle": "Todavía no guardaste nada",
     "emptyDescription": "Tocá el ícono de marcador en cualquier reseña para guardarla acá.",
-    "emptyAction": "Explorar reseñas"
+    "emptyAction": "Explorar reseñas",
+    "wantToTry": {
+      "heading": "Quiero probar",
+      "count": "{count, plural, =1 {1 plato} other {# platos}}",
+      "empty": "Todavía no marcaste platos para probar. Cuando uses 'Quiero probar' en el chat o en una card, vas a verlos acá.",
+      "loadError": "No pudimos cargar tus platos pendientes.",
+      "noPhoto": "Sin foto",
+      "openDish": "Ver detalle de {name}",
+      "remove": "Sacar {name} de Quiero probar"
+    },
+    "bookmarks": {
+      "heading": "Reseñas guardadas"
+    }
   },
   "wantToTry": {
     "title": "Quiero probar",
@@ -1830,6 +1842,14 @@
       "title": "Quiero probar | CritiComida",
       "description": "Tu lista de platos pendientes para el próximo viernes."
     },
+    "preferences": {
+      "title": "Mis gustos | CritiComida",
+      "description": "Editá tu idioma, estilo de respuesta y restricciones para que el Sommelier te conozca mejor."
+    },
+    "mapa": {
+      "title": "Mapa | CritiComida",
+      "description": "Explorá los platos y restaurantes en CritiComida sobre el mapa."
+    },
     "restaurant": {
       "fallbackTitle": "Restaurante · CritiComida",
       "title": "{name} · CritiComida",
@@ -1871,6 +1891,66 @@
     "description": "Acá vamos a listar todos los locales que visitamos. Todavía estamos armando esta sección.",
     "viewCategories": "Ver categorías de reseñas",
     "goHome": "Ir al inicio"
+  },
+  "mapa": {
+    "title": "Mapa",
+    "subtitle": "Explorá los platos y restaurantes geográficamente. Filtrá por mejor puntaje, cantidad de reseñas, o zoomeá a una zona."
+  },
+  "preferences": {
+    "heading": "Mis gustos",
+    "subtitle": "Configurá cómo querés que el Sommelier te conozca y te hable.",
+    "loading": "Cargando…",
+    "signInPrompt": "Iniciá sesión para editar tus gustos.",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saved": "Guardado",
+    "errors": {
+      "loadFailed": "No pudimos cargar tus preferencias. Probá de nuevo en un rato.",
+      "saveFailed": "No pudimos guardar los cambios. Probá de nuevo."
+    },
+    "chat": {
+      "heading": "Preferencias del chat",
+      "subtitle": "Cómo querés que te responda el Sommelier en futuras conversaciones.",
+      "languageLabel": "Idioma de respuesta",
+      "languageAuto": "Adaptarse al idioma que use",
+      "languages": {
+        "es": "Español",
+        "en": "Inglés",
+        "pt": "Portugués"
+      },
+      "styleLabel": "Estilo de respuesta",
+      "styleAuto": "Editorial (default)",
+      "styles": {
+        "editorial": "Editorial — 2-3 frases enmarcando",
+        "concise": "Conciso — al grano",
+        "warm": "Cálido — más conversacional"
+      }
+    },
+    "taste": {
+      "heading": "Tus gustos",
+      "subtitle": "Lo que CritiComida sabe sobre vos. Algunos campos los inferimos de tus reseñas, otros los podés declarar acá.",
+      "empty": "Sin datos todavía",
+      "dominantPillar": "Pilar dominante",
+      "topNeighborhoods": "Barrios frecuentes",
+      "topCategories": "Categorías favoritas",
+      "priceBand": "Rango de precio típico",
+      "pillars": {
+        "presentation": "Presentación",
+        "execution": "Ejecución técnica",
+        "value_prop": "Costo / beneficio"
+      },
+      "priceBands": {
+        "low": "$",
+        "mid": "$$",
+        "high": "$$$"
+      },
+      "inferredHint": "Los campos de arriba se actualizan automáticamente con tus reseñas; no los podés editar acá.",
+      "allergiesLabel": "Restricciones / alergias",
+      "allergiesHint": "Separá con coma. El Sommelier va a respetar estas restricciones en cada recomendación.",
+      "allergiesPlaceholder": "gluten, lactosa, maní",
+      "hoursLabel": "Horas que solés salir a comer",
+      "hoursHint": "Separá con coma. Usá enteros 0-23 (por ejemplo 13, 21)."
+    }
   },
   "chat": {
     "title": "Sommelier de CritiComida",
@@ -1925,9 +2005,51 @@
         }
       }
     },
+    "sommelierEmpty": {
+      "greetingNamed": "Hola, {name}",
+      "greetingAnon": "Bienvenido al Sommelier",
+      "subtitle": "Contame qué se te antoja y te sugiero platos a medida.",
+      "anonInvite": "Iniciá sesión para que recordemos tus gustos entre conversaciones.",
+      "startersHeading": "Empezá por acá",
+      "profileChip": {
+        "label": "Te conocemos así",
+        "pillarFragment": "te gusta la {pillar}",
+        "categoryFragment": "cocina {category}",
+        "neighborhoodFragment": "en {neighborhood}",
+        "allergiesFragment": "siempre sin {allergies}",
+        "editCta": "Editar mis gustos"
+      },
+      "pillars": {
+        "presentation": "presentación",
+        "execution": "ejecución técnica",
+        "value_prop": "costo / beneficio"
+      },
+      "starters": {
+        "gangaInNeighborhood": {
+          "label": "Una ganga rica en {neighborhood}",
+          "message": "Buscame una ganga rica en {neighborhood}."
+        },
+        "routeInNeighborhood": {
+          "label": "Una ruta de 3 platos en {neighborhood}",
+          "message": "Armame una ruta de 3 platos ganadores en {neighborhood}."
+        },
+        "greatDeal": {
+          "label": "Una ganga rica cerca",
+          "message": "Buscame una ganga rica cerca."
+        },
+        "firstDate": {
+          "label": "Algo para una primera cita",
+          "message": "Recomendame algo para una primera cita."
+        },
+        "surprise": {
+          "label": "Sorprendeme",
+          "message": "Sorprendeme con algo distinto."
+        }
+      }
+    },
     "dishCard": {
-      "save": "Guardar",
-      "saved": "Guardado",
+      "save": "Quiero probar",
+      "saved": "En tu lista",
       "showOnMap": "Ver en mapa",
       "noPhoto": "Sin foto",
       "reviewCount": "{count, plural, =0 {sin reseñas} =1 {1 reseña} other {# reseñas}}"
@@ -1936,9 +2058,27 @@
       "title": "Ver en el mapa",
       "subtitle": "Abrir el mapa con los lugares sugeridos."
     },
+    "comparisonCard": {
+      "heading": "Comparativa",
+      "empty": "Sin platos para comparar.",
+      "noPhoto": "Sin foto",
+      "save": "Quiero probar",
+      "saved": "En tu lista",
+      "showOnMap": "Ver en mapa",
+      "pros": "A favor",
+      "cons": "En contra",
+      "pillars": {
+        "presentation": "Presentación",
+        "execution": "Ejecución",
+        "value_prop": "Valor"
+      }
+    },
     "tools": {
       "pending": {
         "search_dishes": "Buscando platos…",
+        "recommend_dishes": "Preparando recomendaciones…",
+        "surprise_me": "Buscando algo que te sorprenda…",
+        "compare_dishes": "Comparando platos…",
         "get_dish_detail": "Mirando detalles del plato…",
         "add_to_wishlist": "Guardando…",
         "open_in_map": "Preparando el mapa…",
@@ -1955,7 +2095,10 @@
         "generic": "Procesando…"
       },
       "completed": {
-        "search_dishes": "Platos consultados",
+        "search_dishes": "Catálogo consultado",
+        "recommend_dishes": "Recomendaciones listas",
+        "surprise_me": "Sorpresa elegida",
+        "compare_dishes": "Comparativa lista",
         "get_dish_detail": "Detalle del plato consultado",
         "add_to_wishlist": "Guardado en deseados",
         "open_in_map": "Mapa abierto",
