@@ -10,8 +10,9 @@ import type {
   RelatedDishItem,
   ReviewPost,
 } from '@/app/lib/types/social';
-import type { Dish } from '@/app/lib/types';
+import type { Dish, DishReview } from '@/app/lib/types';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
+import { getMyReviewsForDish } from '@/app/lib/api/reviews';
 import DishTabs from './DishTabs';
 import DishActionsBar from './DishActionsBar';
 import DishDescriptionCard from './DishDescriptionCard';
@@ -25,6 +26,7 @@ import RelatedDishesCarousel from './RelatedDishesCarousel';
 import DishPhotoMosaic from './DishPhotoMosaic';
 import DishReviewsTab from './DishReviewsTab';
 import DishEvolutionTimeline from './DishEvolutionTimeline';
+import MyDishEvolution from './MyDishEvolution';
 import FirstDiscoverersBlock from './FirstDiscoverersBlock';
 import PublishReviewModal from '@/app/[locale]/restaurants/[id]/components/PublishReviewModal';
 
@@ -51,6 +53,27 @@ export default function DishPageClient({
 }: DishPageClientProps) {
   const { user } = useAuthContext();
   const [showPublish, setShowPublish] = useState(false);
+  const [myReviews, setMyReviews] = useState<DishReview[] | null>(null);
+
+  // Cargar reviews propias sobre este plato — feed de la tab "Tu historia".
+  // null = todavía no se intentó / sin user; [] = se intentó y no hay.
+  useEffect(() => {
+    if (!user) {
+      setMyReviews(null);
+      return;
+    }
+    let cancelled = false;
+    getMyReviewsForDish(dish.id, user.id)
+      .then((rows) => {
+        if (!cancelled) setMyReviews(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setMyReviews([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, dish.id]);
 
   // Convert DishDetail (camelCase social view-model) → Dish (snake_case API
   // shape) so PublishReviewModal puede preseleccionarlo via initialDish.
@@ -80,12 +103,18 @@ export default function DishPageClient({
     return () => window.removeEventListener('cc:publish-review', handlePublish);
   }, [user]);
 
+  // La tab "Tu historia" sólo aparece cuando el usuario está logueado y tiene
+  // 1+ visitas registradas. Pasamos `count` undefined → DishTabs la oculta.
+  const myReviewsCount = myReviews?.length ?? 0;
+  const showMyHistory = !!user && myReviewsCount > 0;
+
   return (
     <>
     <DishTabs
       counts={{
         resenas: dish.reviewCount,
         fotos: aggregates.photosCount,
+        ...(showMyHistory ? { 'tu-historia': myReviewsCount } : {}),
       }}
     >
       {{
@@ -135,6 +164,17 @@ export default function DishPageClient({
             initialCursor={initialReviewsCursor}
           />
         ),
+        ...(showMyHistory && myReviews
+          ? {
+              'tu-historia': (
+                <MyDishEvolution
+                  myReviews={myReviews}
+                  dishName={dish.name}
+                  currencyCode={timeline.currencyCode ?? null}
+                />
+              ),
+            }
+          : {}),
         fotos: <DishPhotoMosaic photos={photos} />,
         restaurante: (
           <div className="space-y-8">
@@ -152,6 +192,7 @@ export default function DishPageClient({
         existingDishes={[dishForModal]}
         initialDish={dishForModal}
         currencyCode={timeline.currencyCode ?? null}
+        currentUserId={user.id}
         onClose={() => setShowPublish(false)}
         onSuccess={() => {
           setShowPublish(false);

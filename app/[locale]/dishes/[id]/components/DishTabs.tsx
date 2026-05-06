@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 
-const TAB_KEYS = ['resumen', 'resenas', 'fotos', 'restaurante'] as const;
+const TAB_KEYS = ['resumen', 'resenas', 'fotos', 'restaurante', 'tu-historia'] as const;
 type DishTabKeyTuple = typeof TAB_KEYS;
 
 export type DishTabKey = DishTabKeyTuple[number];
@@ -16,6 +16,10 @@ interface DishTabsProps {
 }
 
 const VALID_KEYS = new Set<DishTabKey>(TAB_KEYS);
+/** Tabs que solo aparecen cuando `counts[key]` está definido — sirven como
+ * affordance opt-in para features personalizadas (ej. "Tu historia" solo se
+ * muestra a usuarios logueados con visitas previas). */
+const CONDITIONAL_KEYS = new Set<DishTabKey>(['tu-historia']);
 
 export default function DishTabs({ children, counts }: DishTabsProps) {
   const router = useRouter();
@@ -24,12 +28,18 @@ export default function DishTabs({ children, counts }: DishTabsProps) {
   const t = useTranslations('dish.tabs');
   const queryTab = searchParams.get('tab') as DishTabKey | null;
 
-  const TABS = useMemo(() => [
-    { key: 'resumen' as const, label: t('summary') },
-    { key: 'resenas' as const, label: t('reviews') },
-    { key: 'fotos' as const, label: t('photos') },
-    { key: 'restaurante' as const, label: t('atRestaurant') },
-  ], [t]);
+  const TABS = useMemo(() => {
+    const all: { key: DishTabKey; label: string }[] = [
+      { key: 'resumen', label: t('summary') },
+      { key: 'resenas', label: t('reviews') },
+      { key: 'tu-historia', label: t('yourHistory') },
+      { key: 'fotos', label: t('photos') },
+      { key: 'restaurante', label: t('atRestaurant') },
+    ];
+    return all.filter(
+      (tab) => !CONDITIONAL_KEYS.has(tab.key) || counts?.[tab.key] !== undefined,
+    );
+  }, [t, counts]);
 
   const initialTab: DishTabKey =
     queryTab && VALID_KEYS.has(queryTab) ? queryTab : 'resumen';

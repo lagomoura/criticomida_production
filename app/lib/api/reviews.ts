@@ -15,6 +15,38 @@ export async function getReviews(dishId: string): Promise<DishReview[]> {
   return fetchApi<DishReview[]>(`/api/dishes/${dishId}/reviews`);
 }
 
+/** Reviews del plato hechas por un usuario, ordenadas por `date_tasted` ASC.
+ * Cuando hay varias el mismo día, se conserva sólo la de `created_at` más
+ * reciente (regla de "misma jornada = corrección, no evolución").
+ * Normaliza `rating` y `price_paid` a number — el backend los serializa como
+ * string (Decimal) aunque el tipo diga `number`. */
+export async function getMyReviewsForDish(
+  dishId: string,
+  userId: string,
+): Promise<DishReview[]> {
+  const all = await getReviews(dishId);
+  const mine = all.filter((r) => r.user_id === userId).map(normalizeReviewNumbers);
+  const byDay = new Map<string, DishReview>();
+  for (const review of mine) {
+    const day = review.date_tasted;
+    const existing = byDay.get(day);
+    if (!existing || review.created_at > existing.created_at) {
+      byDay.set(day, review);
+    }
+  }
+  return Array.from(byDay.values()).sort((a, b) =>
+    a.date_tasted < b.date_tasted ? -1 : a.date_tasted > b.date_tasted ? 1 : 0,
+  );
+}
+
+function normalizeReviewNumbers(review: DishReview): DishReview {
+  return {
+    ...review,
+    rating: Number(review.rating),
+    price_paid: review.price_paid != null ? Number(review.price_paid) : null,
+  };
+}
+
 export async function createReview(
   dishId: string,
   data: CreateReviewRequest

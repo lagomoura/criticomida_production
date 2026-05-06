@@ -31,8 +31,16 @@ export default function DishChecklistItem({
   const [showForm, setShowForm] = useState(false);
   const [imgError, setImgError] = useState(false);
 
+  // Última review del usuario por `created_at` — para multi-review queremos
+  // recordar la más reciente, no una cualquiera.
   const userReview = currentUserId
-    ? reviews.find(r => r.user_id === currentUserId)
+    ? reviews
+        .filter((r) => r.user_id === currentUserId)
+        .reduce<DishReview | null>(
+          (latest, r) =>
+            !latest || r.created_at > latest.created_at ? r : latest,
+          null,
+        )
     : null;
   const hasReviewed = !!userReview;
 
@@ -164,6 +172,7 @@ export default function DishChecklistItem({
                 dishId={dish.id}
                 dishName={dish.name}
                 currencyCode={currencyCode}
+                previousReview={userReview}
                 onSuccess={handleReviewSuccess}
                 onCancel={() => { setShowForm(false); }}
               />

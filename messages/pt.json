@@ -1012,6 +1012,14 @@
       "noReviewsYet": "Ainda não há resenhas para este prato.",
       "beFirst": "Seja o primeiro a resenhar"
     },
+    "previousReviewRecall": {
+      "regionLabel": "Sua resenha anterior",
+      "kicker": "A última vez que você provou",
+      "headerLabel": "Você deu ⭐{rating} em {date}",
+      "priceLabel": "Você pagou {price}",
+      "viewFullReview": "Ver sua resenha completa",
+      "whatChangedHint": "Conte para a comunidade o que mudou desta vez."
+    },
     "plateCard": {
       "ariaLabel": "Prato: {name}, comido em {date}",
       "ratingTitle": "Avaliação",
@@ -1312,7 +1320,27 @@
       "summary": "Resumo",
       "reviews": "Resenhas",
       "photos": "Fotos",
-      "atRestaurant": "No restaurante"
+      "atRestaurant": "No restaurante",
+      "yourHistory": "Sua história"
+    },
+    "myEvolution": {
+      "headingTitle": "Sua história com este prato",
+      "headingSubtitle": "Como sua opinião mudou a cada visita · {dish}",
+      "singleVisitMessage": "Sua primeira resenha de {dish} já está aqui. Volte a provar e vamos comparar seu paladar com o de hoje.",
+      "visitNumber": "Visita #{n}",
+      "pricePaid": "Você pagou",
+      "pillarPresentation": "Apresentação",
+      "pillarValue": "Custo/Benefício",
+      "pillarExecution": "Execução",
+      "noteReadMore": "ver mais",
+      "noteCollapse": "ver menos",
+      "viewVisit": "Abrir esta resenha",
+      "deltaFlat": "Sem mudanças",
+      "deltaRatingTooltipFlat": "Mesma nota da sua visita anterior.",
+      "deltaRatingTooltipChange": "Mudança de estrelas vs. sua visita anterior: {delta}.",
+      "deltaPriceTooltipFlat": "Mesmo preço da sua visita anterior.",
+      "deltaPriceTooltipChange": "Mudança de preço vs. sua visita anterior: {delta}.",
+      "pillarDeltaTooltipChange": "Mudou {delta} em relação à sua visita anterior."
     },
     "hero": {
       "photoOf": "Foto de {name}",

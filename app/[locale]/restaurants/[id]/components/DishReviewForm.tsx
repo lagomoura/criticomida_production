@@ -10,6 +10,7 @@ import StarRating from './StarRating';
 import TechnicalPillars, { type TechnicalPillarsValue } from './TechnicalPillars';
 import GhostwriterAssist from '@/app/components/ghostwriter/GhostwriterAssist';
 import MentionTextarea from '@/app/components/social/MentionTextarea';
+import PreviousReviewRecall from './PreviousReviewRecall';
 
 /** Subset de DishReview necesario para pre-llenar el form en modo edición. */
 export interface DishReviewFormInitial {
@@ -52,6 +53,10 @@ interface DishReviewFormProps {
    * adornment del campo precio. Cuando es null/undefined se muestra `$`
    * genérico. */
   currencyCode?: string | null;
+  /** Última review del usuario sobre este plato. Cuando se pasa y `mode`
+   * es 'create', se renderiza un panel colapsable con esa reseña anterior
+   * para reducir la fricción del "Reseñar de nuevo". Ignorado en 'edit'. */
+  previousReview?: DishReview | null;
 }
 
 interface ProConEntry {
@@ -98,6 +103,7 @@ export default function DishReviewForm({
   initial,
   submitLabel,
   currencyCode,
+  previousReview,
 }: DishReviewFormProps) {
   const t = useTranslations('restaurant.dishReviewForm');
   const isEdit = mode === 'edit';
@@ -302,6 +308,13 @@ export default function DishReviewForm({
       className="flex flex-col gap-3 rounded-2xl border border-border-subtle bg-surface-page p-4 text-text-primary"
       aria-label={t('ariaLabel')}
     >
+      {!isEdit && previousReview && (
+        <PreviousReviewRecall
+          review={previousReview}
+          currencyCode={currencyCode ?? null}
+        />
+      )}
+
       {/* Top: rating + would-order-again (full width, the gate) */}
       <div className="flex flex-wrap items-end justify-between gap-4 rounded-2xl border border-border-subtle bg-surface-card p-3 sm:p-4">
         <div>

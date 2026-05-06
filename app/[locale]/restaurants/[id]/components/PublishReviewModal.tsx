@@ -15,6 +15,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { createDish, updateDish } from '@/app/lib/api/dishes';
 import { uploadDishCoverImage } from '@/app/lib/api/images';
+import { getMyReviewsForDish } from '@/app/lib/api/reviews';
 import { Dish, DishReview, PriceTier } from '@/app/lib/types';
 import DishReviewForm from './DishReviewForm';
 
@@ -26,6 +27,11 @@ interface PublishReviewModalProps {
   initialDish?: Dish | null;
   /** ISO 4217 del restaurante para formatear el campo precio. */
   currencyCode?: string | null;
+  /** Cuando se pasa y el usuario seleccionó un plato existente, el modal
+   * busca la última reseña que este user hizo del plato y la muestra como
+   * recordatorio dentro del form (panel colapsable). Si es null/undefined
+   * el panel queda desactivado. */
+  currentUserId?: string | null;
   onClose: () => void;
   onSuccess: (dish: Dish, review: DishReview) => void;
 }
@@ -40,6 +46,7 @@ export default function PublishReviewModal({
   existingDishes,
   initialDish = null,
   currencyCode = null,
+  currentUserId = null,
   onClose,
   onSuccess,
 }: PublishReviewModalProps) {
@@ -52,6 +59,10 @@ export default function PublishReviewModal({
   const [newPriceTier, setNewPriceTier] = useState<PriceTier | null>(null);
   const [newCoverFile, setNewCoverFile] = useState<File | null>(null);
   const [newCoverPreview, setNewCoverPreview] = useState<string | null>(null);
+
+  // Última review que el usuario actual hizo del plato seleccionado.
+  // Sólo se carga para platos existentes y cuando hay `currentUserId`.
+  const [previousReview, setPreviousReview] = useState<DishReview | null>(null);
 
   const previewRef = useRef<string | null>(null);
   const createdDishRef = useRef<Dish | null>(null);
@@ -88,6 +99,30 @@ export default function PublishReviewModal({
       }
     };
   }, []);
+
+  // Cuando se elige un plato existente y hay user, traer su review más
+  // reciente para mostrarla como recordatorio en el form. Plato nuevo o
+  // user anónimo → no aplica.
+  useEffect(() => {
+    if (!show) return;
+    if (!currentUserId || selection?.kind !== 'existing') {
+      setPreviousReview(null);
+      return;
+    }
+    let cancelled = false;
+    getMyReviewsForDish(selection.dish.id, currentUserId)
+      .then((rows) => {
+        if (cancelled) return;
+        // getMyReviewsForDish ordena ASC; queremos la última.
+        setPreviousReview(rows.length > 0 ? rows[rows.length - 1] : null);
+      })
+      .catch(() => {
+        if (!cancelled) setPreviousReview(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [show, currentUserId, selection]);
 
   // Lock scroll + close on Escape.
   useEffect(() => {
@@ -319,6 +354,9 @@ export default function PublishReviewModal({
                 resolveDishId={selection.kind === 'new' ? resolveDishId : undefined}
                 dishName={dishName}
                 currencyCode={currencyCode}
+                previousReview={
+                  selection.kind === 'existing' ? previousReview : null
+                }
                 onSuccess={handleReviewSuccess}
                 onCancel={onClose}
               />
