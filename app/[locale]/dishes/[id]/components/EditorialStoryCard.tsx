@@ -2,25 +2,19 @@ import { useTranslations } from 'next-intl';
 
 interface EditorialStoryCardProps {
   blurb: string;
-  source?: string | null;
+  origin?: string | null;
   dishName: string;
   restaurantName: string;
 }
 
 export default function EditorialStoryCard({
   blurb,
-  source,
+  origin,
   dishName,
   restaurantName,
 }: EditorialStoryCardProps) {
   const t = useTranslations('dish.editorial');
   if (!blurb) return null;
-  const sourceMap: Record<string, string> = {
-    claude: t('sourceClaude'),
-    google: t('sourceGoogle'),
-    manual: t('sourceManual'),
-  };
-  const attribution = source ? sourceMap[source] ?? t('sourceDefault') : t('sourceDefault');
   return (
     <section
       aria-label={t('ariaLabel', { dish: dishName, restaurant: restaurantName })}
@@ -30,13 +24,19 @@ export default function EditorialStoryCard({
         aria-hidden
         className="absolute inset-y-0 left-0 w-1 bg-[var(--color-azafran)]"
       />
-      <p className="font-[family-name:var(--font-display)] text-xs uppercase tracking-[0.2em] text-[var(--color-canela)]">
-        {t('kicker')}
-      </p>
-      <blockquote className="mt-3 font-[family-name:var(--font-display)] text-xl italic leading-relaxed text-[var(--color-carbon)] sm:text-2xl">
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] leading-none">
+        {origin ? (
+          <span className="inline-flex items-center rounded-full bg-[var(--color-azafran)]/15 px-3 py-1.5 font-medium text-[var(--color-canela)]">
+            {origin}
+          </span>
+        ) : null}
+        <span className="font-[family-name:var(--font-display)] uppercase tracking-[0.2em] text-[var(--color-canela)]/70">
+          {t('kicker')}
+        </span>
+      </header>
+      <blockquote className="mt-5 font-[family-name:var(--font-display)] text-lg italic leading-relaxed text-[var(--color-carbon)] sm:text-xl">
         “{blurb}”
       </blockquote>
-      <p className="mt-3 text-xs text-[var(--color-carbon-soft)]">{attribution}</p>
     </section>
   );
 }

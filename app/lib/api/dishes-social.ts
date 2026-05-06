@@ -45,6 +45,7 @@ interface DishSocialDetailDTO {
   is_signature: boolean;
   editorial_blurb: string | null;
   editorial_source: string | null;
+  editorial_origin: string | null;
   created_by_display_name: string | null;
   want_to_try?: boolean;
   first_discoverers?: FirstDiscovererDTO[];
@@ -177,6 +178,7 @@ function toDishDetail(dto: DishSocialDetailDTO): DishDetail {
     isSignature: dto.is_signature,
     editorialBlurb: dto.editorial_blurb,
     editorialSource: dto.editorial_source,
+    editorialOrigin: dto.editorial_origin,
     createdByDisplayName: dto.created_by_display_name,
     wantToTry: dto.want_to_try ?? false,
     firstDiscoverers: (dto.first_discoverers ?? []).map(

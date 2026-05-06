@@ -1170,10 +1170,6 @@
       "title": "About the dish"
     },
     "editorial": {
-      "sourceClaude": "Editorial summary by Claude",
-      "sourceGoogle": "Editorial summary via Google",
-      "sourceManual": "Editorial summary by CritiComida",
-      "sourceDefault": "Editorial summary",
       "ariaLabel": "Story of {dish} at {restaurant}",
       "kicker": "The story of this dish"
     },

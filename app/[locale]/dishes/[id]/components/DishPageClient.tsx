@@ -104,7 +104,7 @@ export default function DishPageClient({
             {dish.editorialBlurb ? (
               <EditorialStoryCard
                 blurb={dish.editorialBlurb}
-                source={dish.editorialSource}
+                origin={dish.editorialOrigin}
                 dishName={dish.name}
                 restaurantName={dish.restaurantName}
               />

@@ -190,6 +190,7 @@ export interface DishDetail {
   isSignature?: boolean;
   editorialBlurb?: string | null;
   editorialSource?: string | null;
+  editorialOrigin?: string | null;
   createdByDisplayName?: string | null;
   wantToTry?: boolean;
   /** Top 3 primeros reseñadores del plato — vacío en platos sin reseñas. */

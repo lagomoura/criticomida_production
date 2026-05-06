@@ -14,10 +14,11 @@ es un changelog; describe el estado actual.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-02
+- **Fecha**: 2026-05-06
 - **Servicios activos**: agent loop multi-tool, embeddings de
   catálogo, búsqueda híbrida (filtros + KNN), perfil de gustos,
-  visión de plato, motor editorial, sentiment de reseñas.
+  visión de plato, motor editorial de platos, sentiment de
+  reseñas, auto-titulado de conversaciones.
 - **Pendiente / no cubierto**: ver
   [Roadmap conocido](#roadmap-conocido).
 
@@ -240,6 +241,77 @@ en el critical path del usuario, Flash es ~1¢ por 1k titulados,
 JSON-mode es predecible y el `thinking_budget=0` (memoria
 `feedback_gemini_thinking`) elimina la regresión histórica de
 trunc-JSON en Flash 2.5.
+
+### I. Motor editorial de platos — Anthropic `claude-haiku-4-5`
+
+`backend/app/services/dish_editorial_enricher.py`. Genera una
+mini cápsula editorial sobre cada plato — origen + curiosidad
+cultural — sin referencia al restaurante específico, para
+alimentar el bloque "La historia de este plato" en
+`/dishes/[id]`.
+
+Output JSON (`response_format={"type": "json_object"}`):
+
+- `origin`: etiqueta corta (≤ 5 palabras) que ubica al plato en
+  su tradición — "Cocina napolitana", "Sushi · Edo, Japón",
+  "Asado rioplatense". Renderiza como chip en `EditorialStoryCard`.
+- `story`: 2-3 oraciones (≤ 60 palabras) en español rioplatense
+  con origen + una curiosidad concreta (ingrediente clave,
+  técnica, anécdota cultural, momento histórico).
+
+Persistencia en `dishes`:
+
+- `editorial_blurb` ← `story`
+- `editorial_origin` ← `origin`
+- `editorial_blurb_lang` ← `"es"` (los idiomas adicionales están
+  en roadmap)
+- `editorial_blurb_source` ← `"claude"` (uso interno; ya no se
+  expone al usuario, antes formaba parte del attribution
+  "Resumen editorial generado con Claude" que se quitó por DMMT)
+- `editorial_prompt_version` ← `EDITORIAL_PROMPT_VERSION`
+  (constante en el módulo) — bumpear esta string invalida los
+  blurbs viejos sin tener que tocar el contenido.
+- `editorial_cached_at` ← `now()`
+
+**Cache compartida `dish_editorial_cache`**: un mismo plato
+("milanesa", "asado", "sushi") puede aparecer en N restaurantes
+y la historia es la misma. La cache se keyea por
+`(name_key, cuisine_key)` donde `name_key = dish.name_normalized`
+(función SQL `public.dish_name_normalized`) y `cuisine_key` es el
+primer `cuisine_types` del restaurante en lower (o `''` si no
+hay). Lookup antes de llamar al LLM, upsert después con
+`ON CONFLICT DO UPDATE` para race-safety. Versionada por
+`prompt_version`: cuando bumpea, los lookups de versión vieja
+fallan y caen al LLM. El costo de Anthropic escala con el
+número de **platos distintos**, no con `count(*) FROM dishes`.
+
+Funciones expuestas:
+
+- `refresh_dish_blurb(db, dish_id, force=False)` — cheque de
+  staleness (versión + presencia) → cache → LLM → persistir.
+  Idempotente: si nada está stale y `force=False`, retorna
+  `False` sin tocar nada.
+- `maybe_schedule_blurb_refresh(background_tasks, dish_id)` —
+  fire-and-forget desde el endpoint de detalle. La sesión del
+  request ya está cerrada cuando corre el task, así que abre
+  `async_session()` propia.
+
+**Triggers**:
+
+- Lazy: `GET /api/social/dishes/{dish_id}` enqueue un refresh
+  como background task. Próxima visita ve el blurb nuevo.
+- Admin/critic: `POST /api/social/dishes/{dish_id}/refresh-editorial`
+  (forzar regeneración).
+- Backfill: `python -m app.scripts.refresh_editorial_blurbs`
+  (solo stale) o `--all` (limpia cache + regenera todo). Útil
+  después de bumpear `EDITORIAL_PROMPT_VERSION`.
+
+Degradación: sin `ANTHROPIC_API_KEY` (o `EDITORIAL_API_KEY` /
+`CHAT_API_KEY`), el servicio retorna `False` silenciosamente y
+el bloque simplemente no se renderiza en el frontend.
+
+**Consumidores**: página de detalle de plato
+(`app/[locale]/dishes/[id]`) vía `EditorialStoryCard`.
 
 ---
 

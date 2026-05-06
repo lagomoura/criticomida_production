@@ -1170,10 +1170,6 @@
       "title": "Sobre o prato"
     },
     "editorial": {
-      "sourceClaude": "Resumo editorial gerado com Claude",
-      "sourceGoogle": "Resumo editorial via Google",
-      "sourceManual": "Resumo editorial do CritiComida",
-      "sourceDefault": "Resumo editorial",
       "ariaLabel": "História de {dish} em {restaurant}",
       "kicker": "A história deste prato"
     },

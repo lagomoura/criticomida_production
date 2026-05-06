@@ -1170,10 +1170,6 @@
       "title": "Sobre el plato"
     },
     "editorial": {
-      "sourceClaude": "Resumen editorial generado con Claude",
-      "sourceGoogle": "Resumen editorial vía Google",
-      "sourceManual": "Resumen editorial de CritiComida",
-      "sourceDefault": "Resumen editorial",
       "ariaLabel": "Historia de {dish} en {restaurant}",
       "kicker": "La historia de este plato"
     },
