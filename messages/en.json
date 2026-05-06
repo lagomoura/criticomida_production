@@ -588,7 +588,8 @@
       "comment": "Comment",
       "save": "Save",
       "unsave": "Unsave",
-      "share": "Share"
+      "share": "Share",
+      "report": "Report"
     },
     "postExtras": {
       "portionSmall": "Small portion",

@@ -44,6 +44,7 @@ export interface FeedListProps {
   onComment?: PostCardProps['onComment'];
   onShare?: PostCardProps['onShare'];
   onOpenMenu?: PostCardProps['onOpenMenu'];
+  onReport?: PostCardProps['onReport'];
 }
 
 export default function FeedList({

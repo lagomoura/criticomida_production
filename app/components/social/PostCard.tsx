@@ -26,6 +26,7 @@ export interface PostCardProps {
   onComment?: (postId: string) => void;
   onShare?: (postId: string) => void;
   onOpenMenu?: (postId: string) => void;
+  onReport?: (postId: string) => void;
   className?: string;
 }
 
@@ -42,6 +43,7 @@ export default function PostCard({
   onComment,
   onShare,
   onOpenMenu,
+  onReport,
   className,
 }: PostCardProps) {
   const t = useTranslations('social.post');
@@ -143,6 +145,7 @@ export default function PostCard({
           onToggleSave={onToggleSave}
           onComment={onComment}
           onShare={onShare}
+          onReport={onReport}
         />
       </div>
 

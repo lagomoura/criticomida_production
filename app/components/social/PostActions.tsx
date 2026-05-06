@@ -6,6 +6,7 @@ import {
   faComment,
   faBookmark,
   faShareNodes,
+  faFlag,
 } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import IconButton from '@/app/components/ui/IconButton';
@@ -19,6 +20,7 @@ export interface PostActionsProps {
   onToggleSave?: (postId: string, next: boolean) => void;
   onComment?: (postId: string) => void;
   onShare?: (postId: string) => void;
+  onReport?: (postId: string) => void;
 }
 
 export default function PostActions({
@@ -29,6 +31,7 @@ export default function PostActions({
   onToggleSave,
   onComment,
   onShare,
+  onReport,
 }: PostActionsProps) {
   const t = useTranslations('social.postActions');
   return (
@@ -63,6 +66,14 @@ export default function PostActions({
         onClick={() => onShare?.(postId)}
         className="ml-auto"
       />
+      {onReport && (
+        <IconButton
+          intent="neutral"
+          ariaLabel={t('report')}
+          icon={<FontAwesomeIcon icon={faFlag} className="h-4 w-4" />}
+          onClick={() => onReport(postId)}
+        />
+      )}
     </div>
   );
 }

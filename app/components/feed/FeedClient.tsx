@@ -350,7 +350,7 @@ export default function FeedClient() {
                 onOpenAuthor={(userId) => router.push(`/u/${userId}`)}
                 onOpenRestaurant={(restaurantId) => router.push(`/restaurants/${restaurantId}`)}
                 onComment={(postId) => router.push(`/reviews/${postId}#comments`)}
-                onOpenMenu={
+                onReport={
                   user
                     ? (postId) => {
                         const slot = cache[key];
