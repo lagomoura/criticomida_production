@@ -670,9 +670,15 @@
         "comment_like": "Curtida em comentário",
         "comment_reply": "Resposta",
         "reservation_requested": "Nova solicitação de reserva",
-        "review_on_owned_restaurant": "Nova avaliação no seu restaurante"
+        "review_on_owned_restaurant": "Nova avaliação no seu restaurante",
+        "mention": "Você foi mencionado"
       },
       "unread": "Não lido"
+    },
+    "mention": {
+      "loading": "Buscando…",
+      "noResults": "Sem resultados. Somente usuários com handle aparecem.",
+      "hint": "Digite @ seguido de um handle para mencionar alguém."
     }
   },
   "restaurant": {

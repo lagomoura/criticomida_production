@@ -8,7 +8,7 @@ import { faLock, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
 import Input from '@/app/components/ui/Input';
-import Textarea from '@/app/components/ui/Textarea';
+import MentionTextarea from '@/app/components/social/MentionTextarea';
 import Select from '@/app/components/ui/Select';
 import Skeleton from '@/app/components/ui/Skeleton';
 import Chip from '@/app/components/ui/Chip';
@@ -364,14 +364,14 @@ export default function ComposeClient() {
           />
 
 
-          <Textarea
+          <MentionTextarea
             label={t('reviewLabel')}
             name="text"
             placeholder={t('reviewPlaceholder')}
             required
             rows={6}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={setText}
             maxLength={MAX_TEXT}
             valueLength={text.length}
             helpText={text.trim().length < MIN_TEXT ? t('minCharsHint', { n: MIN_TEXT }) : undefined}

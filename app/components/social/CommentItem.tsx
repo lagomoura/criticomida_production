@@ -11,7 +11,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
 import IconButton from '@/app/components/ui/IconButton';
-import Textarea from '@/app/components/ui/Textarea';
+import MentionText from '@/app/components/social/MentionText';
+import MentionTextarea from '@/app/components/social/MentionTextarea';
 import { formatRelativeTime } from '@/app/lib/utils/time';
 import type { Comment } from '@/app/lib/types/social';
 
@@ -229,11 +230,11 @@ export default function CommentItem({
         </div>
         {editing ? (
           <div className="mt-1.5 flex flex-col gap-2">
-            <Textarea
+            <MentionTextarea
               label={t('editLabel')}
               hideLabel
               value={draft}
-              onChange={(e) => setDraft(e.target.value)}
+              onChange={setDraft}
               disabled={saving}
               error={error}
               maxLength={COMMENT_MAX_LENGTH}
@@ -258,7 +259,7 @@ export default function CommentItem({
           </div>
         ) : (
           <p className="mt-0.5 whitespace-pre-wrap font-sans text-[15px] leading-relaxed text-text-primary">
-            {comment.text}
+            <MentionText text={comment.text} />
           </p>
         )}
 
@@ -307,14 +308,14 @@ export default function CommentItem({
 
         {replying && canReply && (
           <div className="mt-2 flex flex-col gap-2">
-            <Textarea
+            <MentionTextarea
               label={t('replyTo', { name: comment.author.displayName })}
               hideLabel
               placeholder={t('replyPlaceholder', {
                 handle: comment.author.handle ?? comment.author.displayName,
               })}
               value={replyDraft}
-              onChange={(e) => setReplyDraft(e.target.value)}
+              onChange={setReplyDraft}
               disabled={replySubmitting}
               error={replyError}
               maxLength={COMMENT_MAX_LENGTH}

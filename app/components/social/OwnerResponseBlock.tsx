@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
+import MentionText from '@/app/components/social/MentionText';
+import MentionTextarea from '@/app/components/social/MentionTextarea';
 import { ApiError } from '@/app/lib/api/client';
 import { getRestaurant } from '@/app/lib/api/restaurants';
 import {
@@ -104,13 +106,15 @@ export default function OwnerResponseBlock({
           <span aria-hidden>✓</span>
           {t('header')}
         </p>
-        <textarea
+        <MentionTextarea
+          label={t('header')}
+          hideLabel
           value={mode.draft}
-          onChange={(e) => setMode({ ...mode, draft: e.target.value })}
+          onChange={(next) => setMode({ ...mode, draft: next })}
           rows={4}
           maxLength={2000}
+          valueLength={mode.draft.length}
           placeholder={t('placeholder')}
-          className="w-full rounded-md border border-emerald-300 bg-white px-3 py-2 font-sans text-sm"
         />
         {mode.error && (
           <p className="mt-2 font-sans text-xs text-red-600">{mode.error}</p>
@@ -207,7 +211,7 @@ export default function OwnerResponseBlock({
         )}
       </div>
       <p className="whitespace-pre-wrap font-sans text-sm text-text-primary">
-        {response.body}
+        <MentionText text={response.body} />
       </p>
       <p className="mt-2 font-sans text-xs text-text-muted">
         {new Date(response.updated_at).toLocaleDateString(locale, {

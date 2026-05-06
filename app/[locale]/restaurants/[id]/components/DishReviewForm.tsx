@@ -9,6 +9,7 @@ import { formatCurrencySymbol } from '@/app/lib/utils/currency';
 import StarRating from './StarRating';
 import TechnicalPillars, { type TechnicalPillarsValue } from './TechnicalPillars';
 import GhostwriterAssist from '@/app/components/ghostwriter/GhostwriterAssist';
+import MentionTextarea from '@/app/components/social/MentionTextarea';
 
 /** Subset de DishReview necesario para pre-llenar el form en modo edición. */
 export interface DishReviewFormInitial {
@@ -352,13 +353,15 @@ export default function DishReviewForm({
         <div className="flex flex-col gap-3">
           <div className="flex flex-1 flex-col">
             <SubLabel htmlFor="review-note">{t('notesLabel')}</SubLabel>
-            <textarea
+            <MentionTextarea
               id="review-note"
-              className={inputBase + ' flex-1 resize-none'}
+              label={t('notesLabel')}
+              hideLabel
+              className="flex-1"
               rows={4}
               placeholder={t('notesPlaceholder')}
               value={note}
-              onChange={e => setNote(e.target.value)}
+              onChange={setNote}
               disabled={submitting}
             />
           </div>

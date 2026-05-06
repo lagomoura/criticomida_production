@@ -116,7 +116,8 @@ export type NotificationKind =
   | 'comment_like'
   | 'comment_reply'
   | 'reservation_requested'
-  | 'review_on_owned_restaurant';
+  | 'review_on_owned_restaurant'
+  | 'mention';
 
 export interface SocialNotification {
   id: string;

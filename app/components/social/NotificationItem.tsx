@@ -11,6 +11,7 @@ import {
   faShieldHalved,
   faUtensils,
   faCalendarCheck,
+  faAt,
 } from '@fortawesome/free-solid-svg-icons';
 import { useLocale, useTranslations } from 'next-intl';
 import Avatar from '@/app/components/ui/Avatar';
@@ -34,6 +35,7 @@ const kindIcon: Record<NotificationKind, typeof faHeart> = {
   comment_reply: faReply,
   reservation_requested: faCalendarCheck,
   review_on_owned_restaurant: faUtensils,
+  mention: faAt,
 };
 
 const kindTint: Record<NotificationKind, string> = {
@@ -47,6 +49,7 @@ const kindTint: Record<NotificationKind, string> = {
   comment_reply: 'text-action-primary',
   reservation_requested: 'text-[var(--color-canela)]',
   review_on_owned_restaurant: 'text-[var(--color-canela)]',
+  mention: 'text-action-primary',
 };
 
 export default function NotificationItem({ notification, onOpen }: NotificationItemProps) {

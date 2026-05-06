@@ -4,7 +4,7 @@ import { FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
-import Textarea from '@/app/components/ui/Textarea';
+import MentionTextarea from '@/app/components/social/MentionTextarea';
 
 export interface CommentComposerProps {
   viewerName: string;
@@ -45,12 +45,12 @@ export default function CommentComposer({
     <form onSubmit={handleSubmit} className="flex items-start gap-3">
       <Avatar src={viewerAvatarUrl} name={viewerName} size="sm" />
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <Textarea
+        <MentionTextarea
           label={effectivePlaceholder}
           hideLabel
           placeholder={effectivePlaceholder}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={onChange}
           disabled={disabled || loading}
           error={error}
           maxLength={maxLength}

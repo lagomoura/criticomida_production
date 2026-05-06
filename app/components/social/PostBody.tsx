@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import MentionText from '@/app/components/social/MentionText';
 import { cn } from '@/app/lib/utils/cn';
 
 export interface PostBodyProps {
@@ -32,7 +33,7 @@ export default function PostBody({
             'first-letter:float-left first-letter:mr-2 first-letter:mt-1 first-letter:font-display first-letter:text-[3.25rem] first-letter:font-medium first-letter:italic first-letter:leading-[0.85] first-letter:text-action-primary',
         )}
       >
-        {text}
+        <MentionText text={text} />
       </p>
       {canToggle && (
         <button
