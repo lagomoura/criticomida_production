@@ -1,6 +1,6 @@
 {
   "common": {
-    "siteName": "CritiComida",
+    "siteName": "Palato",
     "close": "Fechar",
     "closeDialog": "Fechar diálogo",
     "back": "Voltar",
@@ -106,7 +106,7 @@
     "registerPage": {
       "kicker": "Junte-se",
       "title": "Cada prato, <em>sua resenha</em>.",
-      "subtitle": "CritiComida não é de delivery: é de provar, opinar e descobrir o melhor da cozinha perto de você. Comece com um prato que tenha te surpreendido.",
+      "subtitle": "Palato não é de delivery: é de provar, opinar e descobrir o melhor da cozinha perto de você. Comece com um prato que tenha te surpreendido.",
       "bullet1": "Resenhe pratos específicos, não restaurantes inteiros.",
       "bullet2": "Salve o que quer experimentar e monte sua lista.",
       "bullet3": "Siga críticos cujo paladar combina com o seu.",
@@ -138,7 +138,7 @@
     "verifyEmail": {
       "verifying": "Confirmando seu e-mail…",
       "successTitle": "E-mail confirmado!",
-      "successMessage": "Pronto, agora você tem acesso completo à CritiComida.",
+      "successMessage": "Pronto, agora você tem acesso completo à Palato.",
       "goToFeed": "Ir para o feed",
       "errorTitle": "Não conseguimos confirmar o link",
       "errorMessage": "O link já foi usado ou expirou. Solicite um e-mail novo no banner do cabeçalho."
@@ -319,8 +319,8 @@
   },
   "ownerDashboard": {
     "businessChat": {
-      "badge": "CritiComida Business",
-      "title": "Pergunte ao CritiComida",
+      "badge": "Palato Business",
+      "title": "Pergunte ao Palato",
       "subtitle": "Assistente analítico restrito aos dados do seu restaurante.",
       "open": "Abrir chat Business",
       "exampleDrop": "Por que a apresentação do prato mais resenhado em {restaurant} caiu este mês?",
@@ -397,7 +397,7 @@
       "authorAnonymousShort": "Anônimo",
       "authorCritic": "Crítico verificado",
       "authorCriticShort": "Crítico",
-      "authorAdmin": "Equipe CritiComida",
+      "authorAdmin": "Equipe Palato",
       "authorAdminShort": "Equipe",
       "genderFemale": "Mulher",
       "genderFemaleShort": "Mulher",
@@ -486,14 +486,14 @@
   },
   "claim": {
     "alreadyClaimed": "Esta ficha já foi reivindicada",
-    "alreadyClaimedDescription": "{name} já tem um dono verificado no CritiComida. Se você acha que é um erro, escreva para o suporte.",
+    "alreadyClaimedDescription": "{name} já tem um dono verificado no Palato. Se você acha que é um erro, escreva para o suporte.",
     "backToRestaurant": "← Voltar a {name}",
     "needAccount": "Você precisa de uma conta",
     "needAccountDescription": "Para reivindicar uma ficha você precisa estar logado. A reivindicação fica associada ao seu usuário para podermos contatá-lo se pedirmos evidência adicional.",
     "backToRestaurantShort": "← Voltar ao restaurante",
     "successTitle": "Reivindicação enviada!",
     "successDomainEmail": "Enviamos (ou enviaremos em breve) um link de verificação ao email que você indicou. Clique nele e sua ficha fica verificada instantaneamente.",
-    "successManual": "Um admin do CritiComida vai revisar sua evidência e te avisamos por email quando aprovarmos ou precisarmos de algo mais.",
+    "successManual": "Um admin do Palato vai revisar sua evidência e te avisamos por email quando aprovarmos ou precisarmos de algo mais.",
     "kicker": "Reivindicação de ficha",
     "intro": "Se você é dono ou gerente, reivindique a ficha para responder resenhas, enviar fotos oficiais e manter a informação atualizada. Só se aprova um owner por restaurante; os dados ficam registrados para auditoria.",
     "verifyHowLegend": "Como quer verificar?",
@@ -521,11 +521,11 @@
     "breadcrumbAria": "Migalhas de pão",
     "backToFeed": "← Voltar ao feed",
     "kicker": "Categoria",
-    "subtitle": "O que o CritiComida tem mapeado dentro de {label}.",
+    "subtitle": "O que o Palato tem mapeado dentro de {label}.",
     "mapHeading": "Mapa",
     "listHeading": "Lista",
     "emptyTitle": "Ainda não há restaurantes em",
-    "emptyDescription": "Esta categoria já faz parte do CritiComida, mas ainda não publicamos visitas nesta seção. Volte em breve ou explore outras cozinhas a partir do início.",
+    "emptyDescription": "Esta categoria já faz parte do Palato, mas ainda não publicamos visitas nesta seção. Volte em breve ou explore outras cozinhas a partir do início.",
     "viewOtherCategories": "Ver outras categorias",
     "goHome": "Ir ao início"
   },
@@ -575,8 +575,8 @@
   "categories": {
     "all": "Todas",
     "notFound": "Categoria não encontrada",
-    "metaTitle": "{label} | Restaurantes | CritiComida",
-    "metaDescription": "Restaurantes e resenhas na categoria {label} no CritiComida.",
+    "metaTitle": "{label} | Restaurantes | Palato",
+    "metaDescription": "Restaurantes e resenhas na categoria {label} no Palato.",
     "argentina": "Argentina",
     "brasilena": "Brasileira",
     "peruana": "Peruana",
@@ -1258,7 +1258,7 @@
       "photoOf": "Foto de {name}",
       "verifiedBadge": "Verificado pelo restaurante",
       "verifiedTitle": "Esta ficha foi verificada pelo dono do restaurante.",
-      "averageTitle": "Média CritiComida",
+      "averageTitle": "Média Palato",
       "googleAverageTitle": "Média no Google Maps",
       "reviewOne": "{count} resenha",
       "reviewMany": "{count} resenhas",
@@ -1278,7 +1278,7 @@
     "restaurantContext": {
       "servedAt": "Servido em",
       "viewRestaurant": "Ver o restaurante completo →",
-      "ratingCriticomida": "★ {value} CritiComida",
+      "ratingPalato": "★ {value} Palato",
       "ratingGoogle": "Google {value}"
     },
     "related": {
@@ -1547,10 +1547,10 @@
     "ctaPrompt": "Topa somar seu paladar?",
     "ctaPrimary": "Criar conta",
     "ctaSecondary": "Ver o feed",
-    "footerCredit": "Feito com carinho · © {year} CritiComida",
+    "footerCredit": "Feito com carinho · © {year} Palato",
     "pillars": {
       "dishHeading": "O prato manda",
-      "dishBody": "Um restaurante pode ser um misto de acertos e erros. Uma milanesa, não. Uma milanesa é boa ou não é. CritiComida indexa por prato — porque na hora de pedir, é só isso que importa.",
+      "dishBody": "Um restaurante pode ser um misto de acertos e erros. Uma milanesa, não. Uma milanesa é boa ou não é. Palato indexa por prato — porque na hora de pedir, é só isso que importa.",
       "reviewHeading": "Resenhas com corpo",
       "reviewBody": "Textura, ponto, porção, preço. A voz de alguém que já pediu. Sem parênteses emocionais, sem emojis decorativos: o que você comeu, como estava, se voltaria.",
       "communityHeading": "Comunidade de paladar",
@@ -1563,7 +1563,7 @@
     "notFoundTitle": "Resenha não encontrada",
     "notFoundDescription": "Pode ter sido excluída ou nunca ter existido.",
     "backToFeed": "Voltar ao feed",
-    "fallbackShareLabel": "Resenha no CritiComida",
+    "fallbackShareLabel": "Resenha no Palato",
     "shareCardErrorTitle": "Não conseguimos gerar o cartão",
     "shareCardErrorBody": "Tente novamente em um momento.",
     "loadRepliesError": "Não conseguimos carregar as respostas",
@@ -1905,7 +1905,7 @@
       "title": "Um feed editorial de <em>o que vale a pena pedir</em>.",
       "greetingPrefix": "Olá, ",
       "greetingSuffix": ". Aqui abaixo, o que há de mais recente das pessoas que você segue e os pratos que valem a pena experimentar.",
-      "anonymousIntro": "CritiComida não opina de restaurantes inteiros: opina do prato. Entre ou crie uma conta para resenhar o que prova, salvar o que quer experimentar e seguir o paladar de gente que conhece.",
+      "anonymousIntro": "Palato não opina de restaurantes inteiros: opina do prato. Entre ou crie uma conta para resenhar o que prova, salvar o que quer experimentar e seguir o paladar de gente que conhece.",
       "tip1": "Resenhe pratos específicos, não restaurantes inteiros.",
       "tip2": "Salve o que quer experimentar e monte sua lista.",
       "tip3": "Siga pessoas cujo paladar combina com o seu."
@@ -1917,116 +1917,116 @@
   },
   "metadata": {
     "default": {
-      "title": "CritiComida",
+      "title": "Palato",
       "description": "Cada prato, sua resenha."
     },
     "home": {
-      "title": "CritiComida",
+      "title": "Palato",
       "description": "Resenhas de pratos. O feed com o que vale a pena pedir."
     },
     "login": {
-      "title": "Entrar · CritiComida",
+      "title": "Entrar · Palato",
       "description": "Acesse sua conta para resenhar pratos e seguir críticos."
     },
     "register": {
-      "title": "Criar conta · CritiComida",
-      "description": "Junte-se à CritiComida para resenhar pratos e compartilhar o que prova."
+      "title": "Criar conta · Palato",
+      "description": "Junte-se à Palato para resenhar pratos e compartilhar o que prova."
     },
     "forgotPassword": {
-      "title": "Esqueci minha senha | CritiComida"
+      "title": "Esqueci minha senha | Palato"
     },
     "resetPassword": {
-      "title": "Nova senha | CritiComida"
+      "title": "Nova senha | Palato"
     },
     "verifyEmail": {
-      "title": "Confirmar e-mail | CritiComida"
+      "title": "Confirmar e-mail | Palato"
     },
     "claim": {
-      "title": "Reivindicar restaurante · CritiComida",
+      "title": "Reivindicar restaurante · Palato",
       "description": "Reivindique a ficha do seu restaurante para responder resenhas e enviar fotos oficiais."
     },
     "notifications": {
-      "title": "Notificações | CritiComida"
+      "title": "Notificações | Palato"
     },
     "settings": {
-      "title": "Configurações | CritiComida"
+      "title": "Configurações | Palato"
     },
     "profile": {
-      "title": "Perfil | CritiComida"
+      "title": "Perfil | Palato"
     },
     "compose": {
-      "title": "Nova resenha | CritiComida"
+      "title": "Nova resenha | Palato"
     },
     "about": {
-      "title": "Sobre o CritiComida",
+      "title": "Sobre o Palato",
       "description": "Resenhamos pratos, não restaurantes. A diferença importa."
     },
     "search": {
-      "title": "Buscar | CritiComida"
+      "title": "Buscar | Palato"
     },
     "trending": {
-      "title": "Em alta | CritiComida",
+      "title": "Em alta | Palato",
       "description": "Os pratos mais buscados pelos críticos na sua cidade."
     },
     "saved": {
-      "title": "Salvos | CritiComida"
+      "title": "Salvos | Palato"
     },
     "wantToTry": {
-      "title": "Quero provar | CritiComida",
+      "title": "Quero provar | Palato",
       "description": "Sua lista de pratos pendentes para a próxima sexta."
     },
     "preferences": {
-      "title": "Meus gostos | CritiComida",
+      "title": "Meus gostos | Palato",
       "description": "Configure idioma, estilo de resposta e restrições para o Sommelier te conhecer melhor."
     },
     "mapa": {
-      "title": "Mapa | CritiComida",
-      "description": "Explore os pratos e restaurantes do CritiComida no mapa."
+      "title": "Mapa | Palato",
+      "description": "Explore os pratos e restaurantes do Palato no mapa."
     },
     "restaurant": {
-      "fallbackTitle": "Restaurante · CritiComida",
-      "title": "{name} · CritiComida",
-      "fallbackDescription": "{name} em {location} · CritiComida — resenhas, pratos assinatura, fotos e horários."
+      "fallbackTitle": "Restaurante · Palato",
+      "title": "{name} · Palato",
+      "fallbackDescription": "{name} em {location} · Palato — resenhas, pratos assinatura, fotos e horários."
     },
     "dish": {
-      "fallbackTitle": "Prato · CritiComida",
-      "title": "{name} — {restaurant} · CritiComida",
+      "fallbackTitle": "Prato · Palato",
+      "title": "{name} — {restaurant} · Palato",
       "ogTitle": "{name} · {restaurant}",
-      "fallbackDescription": "{name} em {restaurant} · CritiComida — resenhas, fotos e opiniões do prato."
+      "fallbackDescription": "{name} em {restaurant} · Palato — resenhas, fotos e opiniões do prato."
     },
     "review": {
-      "title": "Resenha | CritiComida"
+      "title": "Resenha | Palato"
     },
     "restaurantsIndex": {
-      "title": "Restaurantes | CritiComida"
+      "title": "Restaurantes | Palato"
     },
     "ownerDashboard": {
-      "title": "Painel do restaurante · CritiComida"
+      "title": "Painel do restaurante · Palato"
     },
     "ownerSettings": {
-      "title": "Preferências do agente · CritiComida"
+      "title": "Preferências do agente · Palato"
     },
     "adminClaims": {
-      "title": "Reclamações de restaurantes | CritiComida"
+      "title": "Reclamações de restaurantes | Palato"
     },
     "adminMetrics": {
-      "title": "Métricas B2B | CritiComida"
+      "title": "Métricas B2B | Palato"
     },
     "adminReservations": {
-      "title": "Reservas afiliadas | CritiComida"
+      "title": "Reservas afiliadas | Palato"
     },
     "adminReports": {
-      "title": "Moderação | CritiComida"
+      "title": "Moderação | Palato"
     },
     "categoriesIndex": {
-      "title": "Categorias | CritiComida",
-      "description": "Explore os restaurantes por tipo de cozinha em CritiComida."
+      "title": "Categorias | Palato",
+      "description": "Explore os restaurantes por tipo de cozinha em Palato."
     },
     "adminCategorias": {
-      "title": "Categorias | CritiComida"
+      "title": "Categorias | Palato"
     },
     "adminUncategorized": {
-      "title": "Restaurantes sem categoria | CritiComida"
+      "title": "Restaurantes sem categoria | Palato"
     }
   },
   "restaurantsIndex": {
@@ -2071,7 +2071,7 @@
     },
     "taste": {
       "heading": "Seus gostos",
-      "subtitle": "O que o CritiComida sabe de você. Alguns campos vêm das suas resenhas; outros você declara aqui.",
+      "subtitle": "O que o Palato sabe de você. Alguns campos vêm das suas resenhas; outros você declara aqui.",
       "empty": "Sem dados ainda",
       "dominantPillar": "Pilar dominante",
       "topNeighborhoods": "Bairros frequentes",
@@ -2096,8 +2096,8 @@
     }
   },
   "chat": {
-    "title": "Sommelier do CritiComida",
-    "businessTitle": "CritiComida Business",
+    "title": "Sommelier do Palato",
+    "businessTitle": "Palato Business",
     "open": "Abrir chat",
     "close": "Fechar chat",
     "clear": "Começar de novo",
@@ -2298,9 +2298,9 @@
     "itemCount": "{count, plural, =1 {1 prato} other {# pratos}}",
     "byOwner": "Por {owner} · {count, plural, =1 {1 prato} other {# pratos}}",
     "reviewCount": "{count, plural, =0 {sem resenhas} =1 {1 resenha} other {# resenhas}}",
-    "metaFallbackTitle": "Lista — CritiComida",
-    "metaTitle": "{name} · CritiComida",
-    "metaDescription": "Uma rota curada de {count} pratos no CritiComida.",
-    "metaOgDescription": "{count} pratos selecionados no CritiComida."
+    "metaFallbackTitle": "Lista — Palato",
+    "metaTitle": "{name} · Palato",
+    "metaDescription": "Uma rota curada de {count} pratos no Palato.",
+    "metaOgDescription": "{count} pratos selecionados no Palato."
   }
 }

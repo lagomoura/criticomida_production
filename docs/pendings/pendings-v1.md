@@ -1,4 +1,4 @@
-# CritiComida — Pendientes (v1)
+# Palato — Pendientes (v1)
 
 **Fecha:** 2026-04-24
 **Fuente:** auditoría contra `docs/brand-identity.md`, `docs/brand-identity-v2.md`, `docs/design-system-v1.md`, `docs/criticomida-social-product-spec-v1.md`, memoria del proyecto y estado actual del código/backend.
@@ -8,7 +8,7 @@
 
 ## Contexto del proyecto (ancla)
 
-CritiComida es una red social editorial centrada en **platos** (no restaurantes). El principio no-negociable es *plato > restaurante*. Estamos en plena migración del modelo "guía editorial" al modelo "feed + conversación" (spec social v1). La identidad visual v2 (Especiería + Cormorant Garamond + DM Sans) ya está aplicada en código.
+Palato es una red social editorial centrada en **platos** (no restaurantes). El principio no-negociable es *plato > restaurante*. Estamos en plena migración del modelo "guía editorial" al modelo "feed + conversación" (spec social v1). La identidad visual v2 (Especiería + Cormorant Garamond + DM Sans) ya está aplicada en código.
 
 ---
 

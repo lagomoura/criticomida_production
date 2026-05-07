@@ -1,7 +1,7 @@
-# CritiComida — Evolución a red social (Product Spec v1)
+# Palato — Evolución a red social (Product Spec v1)
 
 **Estado:** borrador para implementación  
-**Objetivo:** convertir CritiComida en un producto social centrado en *platos* (no
+**Objetivo:** convertir Palato en un producto social centrado en *platos* (no
 restaurantes), habilitando interacción entre usuarios alrededor de reseñas,
 descubrimiento y conversación.
 
@@ -9,7 +9,7 @@ descubrimiento y conversación.
 
 ## 1. Contexto y principio rector
 
-CritiComida hoy es una plataforma de reseñas. La evolución propuesta es: **una
+Palato hoy es una plataforma de reseñas. La evolución propuesta es: **una
 red social donde el contenido principal es la reseña de un plato**, y la unidad
 social es la conversación que se forma alrededor de ese plato (y sus variantes).
 

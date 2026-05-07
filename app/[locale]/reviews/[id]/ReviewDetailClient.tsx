@@ -104,7 +104,7 @@ export default function ReviewDetailClient({ postId }: Props) {
         });
         if (!res.ok) throw new Error('og-failed');
         const blob = await res.blob();
-        const file = new File([blob], `criticomida-${id}.png`, {
+        const file = new File([blob], `palato-${id}.png`, {
           type: 'image/png',
         });
         const dishLabel = post?.dish.name ?? t('fallbackShareLabel');

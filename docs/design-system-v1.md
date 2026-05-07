@@ -1,4 +1,4 @@
-# CritiComida — Design System (v1)
+# Palato — Design System (v1)
 
 **Estado:** listo para implementación  
 **Fuente de verdad visual:** `docs/brand-identity-v2.md` (incluye “Social UI Kit”)  

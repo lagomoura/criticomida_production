@@ -21,7 +21,7 @@ const PROVIDER_KEY: Record<string, string> = {
 };
 
 const UTM_PARAMS: Record<string, string> = {
-  utm_source: 'criticomida',
+  utm_source: 'palato',
   utm_medium: 'referral',
   utm_campaign: 'reservation_cta',
 };

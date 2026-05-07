@@ -182,7 +182,7 @@ function ErrorCard() {
           lineHeight: 1.1,
         }}
       >
-        CritiComida
+        Palato
       </div>
       <div
         style={{
@@ -295,7 +295,7 @@ export async function GET(
               color: COLOR_CARBON,
             }}
           >
-            CritiComida
+            Palato
           </div>
         </div>
 

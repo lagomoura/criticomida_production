@@ -1,4 +1,4 @@
-# CritiComida — Identidad de Marca
+# Palato — Identidad de Marca
 
 > Documento de referencia visual y tonal del proyecto. Fuente de verdad para decisiones de diseño, componentes y comunicación.
 
@@ -10,14 +10,14 @@
 
 | | |
 |---|---|
-| **Nombre oficial** | CritiComida |
-| **Ortografía** | Una sola palabra, capital C y M. Nunca "Criti Comida" ni "criticomida" en textos visibles. El metadata de la app dice "Criticomida" — es un bug pendiente de corrección. |
+| **Nombre oficial** | Palato |
+| **Ortografía** | Una sola palabra, "Palato" con P mayúscula. En textos visibles siempre como "Palato"; reservá las minúsculas para identificadores técnicos. |
 | **Idioma** | Español (es) — todo el copy de la UI está en español. |
-| **Contacto** | info@criticomida.com |
+| **Contacto** | info@palato.me |
 
 ### Misión
 
-Hacer que cada plato hable por sí mismo. CritiComida existe para que las personas descubran qué comer antes de pagar la cuenta — no si el lugar es bueno, sino **qué pedir**.
+Hacer que cada plato hable por sí mismo. Palato existe para que las personas descubran qué comer antes de pagar la cuenta — no si el lugar es bueno, sino **qué pedir**.
 
 ### Tagline
 
@@ -31,7 +31,7 @@ No usar: *"Reseñas honestas de restaurantes, bares y cafés"* — describe lo m
 
 ### Diferenciador de marca
 
-CritiComida no reseña establecimientos como TripAdvisor. Reseña **platos individuales**. El restaurante es una agregación de sus platos — su rating surge del promedio de lo que sirve, no de una impresión general. Esta jerarquía debe verse en la UI: el plato es la entidad protagonista.
+Palato no reseña establecimientos como TripAdvisor. Reseña **platos individuales**. El restaurante es una agregación de sus platos — su rating surge del promedio de lo que sirve, no de una impresión general. Esta jerarquía debe verse en la UI: el plato es la entidad protagonista.
 
 ### Valores
 
@@ -45,7 +45,7 @@ CritiComida no reseña establecimientos como TripAdvisor. Reseña **platos indiv
 
 ### Descripción del logo
 
-El logo de CritiComida es un **mascot character** encerrado en un badge circular. Está construido en SVG de 128×128px con los siguientes elementos:
+El logo de Palato es un **mascot character** encerrado en un badge circular. Está construido en SVG de 128×128px con los siguientes elementos:
 
 | Capa | Descripción | Color |
 |---|---|---|
@@ -74,7 +74,7 @@ Mínimo `0.5× el diámetro del logo` de espacio libre alrededor del badge en to
 
 ### Combinación con wordmark
 
-El ícono siempre acompaña al wordmark "CritiComida" en la navbar. El wordmark usa el gradiente de marca (`#ef7998 → #F9E494`). No separar el ícono del wordmark en contextos de navegación.
+El ícono siempre acompaña al wordmark "Palato" en la navbar. El wordmark usa el gradiente de marca (`#ef7998 → #F9E494`). No separar el ícono del wordmark en contextos de navegación.
 
 ### Usos no permitidos
 
@@ -93,13 +93,13 @@ El proyecto tiene **dos capas de color que coexisten con roles distintos**:
 
 | Capa | Tokens | Propósito |
 |---|---|---|
-| **Identidad de marca** | `--mainPink`, `--mainYellow`, gradiente | Logo, navbar brand, footer, gradientes decorativos. Lo que hace reconocible a CritiComida. |
+| **Identidad de marca** | `--mainPink`, `--mainYellow`, gradiente | Logo, navbar brand, footer, gradientes decorativos. Lo que hace reconocible a Palato. |
 | **Sistema funcional** | `--primary-*`, `--accent-*`, `--neutral-*` | Botones, formularios, cards, badges. Lo que hace la UI legible y usable. |
 
 No son sistemas en conflicto. La capa de identidad define el carácter; la capa funcional resuelve la interfaz.
 
 **Color primario de marca: `#ef7998` (mainPink)**
-Es el rosa que aparece en el logo, el footer, el wordmark animado y los nav links. Es el color que identifica a CritiComida en cualquier contexto.
+Es el rosa que aparece en el logo, el footer, el wordmark animado y los nav links. Es el color que identifica a Palato en cualquier contexto.
 
 **Color primario de acción UI: `#FF6B6B` (coral)**
 Es el coral que se usa en botones de acción principal. Es más saturado y legible que el pink de marca. No compite con él — cumple roles distintos.
@@ -110,8 +110,8 @@ Es el coral que se usa en botones de acción principal. Es más saturado y legib
 
 | Token CSS | Hex | Nombre | Uso |
 |---|---|---|---|
-| `--mainPink` | `#ef7998` | Rosa CritiComida | **Color primario de marca.** Navbar links, footer brand, iconos, hover states. |
-| `--mainYellow` | `#F9E494` | Amarillo CritiComida | **Color secundario de marca.** Gradientes, borde del footer, acentos decorativos. |
+| `--mainPink` | `#ef7998` | Rosa Palato | **Color primario de marca.** Navbar links, footer brand, iconos, hover states. |
+| `--mainYellow` | `#F9E494` | Amarillo Palato | **Color secundario de marca.** Gradientes, borde del footer, acentos decorativos. |
 | `--yellowTrans` | `rgba(218,207,164,0.5)` | Amarillo translúcido | Fondo de la sección de reseñas en la home. |
 | `--mainWhite` | `#ffffff` | Blanco | Fondos limpios, texto sobre fondos oscuros. |
 | `--mainBlack` | `#000000` | Negro | Texto fuerte, fondos de contraste. |
@@ -495,7 +495,7 @@ Si se implementa en el futuro, los tokens de marca mantienen su valor — el gra
 
 ### Personalidad
 
-CritiComida habla como **un amigo con criterio**: alguien que conoce la ciudad, va a lugares, y te dice directamente qué pedir. No es un crítico de alta cocina ni un turista entusiasta. Es honesto, concreto y cercano.
+Palato habla como **un amigo con criterio**: alguien que conoce la ciudad, va a lugares, y te dice directamente qué pedir. No es un crítico de alta cocina ni un turista entusiasta. Es honesto, concreto y cercano.
 
 ### Principios
 
@@ -522,7 +522,7 @@ CritiComida habla como **un amigo con criterio**: alguien que conoce la ciudad, 
 
 - Secciones y títulos: primera letra mayúscula, resto minúsculas. Ejemplo: "Reseñas recientes", no "RESEÑAS RECIENTES".
 - CTAs: frase completa en minúscula o capitalización normal. Ejemplo: "Ver más" no "VER MÁS".
-- Nombre de la plataforma: siempre "CritiComida".
+- Nombre de la plataforma: siempre "Palato".
 
 ---
 

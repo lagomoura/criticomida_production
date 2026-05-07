@@ -1,5 +1,5 @@
 
-# Servicios de IA en CritiComida — funcionalidades vigentes
+# Servicios de IA en Palato — funcionalidades vigentes
 
 Este documento es la **memoria viva de los servicios de IA** del
 producto. Toca actualizarlo en el mismo PR que cambia un servicio. No

@@ -59,7 +59,7 @@ export function mockGetDishDetail(dishId: string): DishDetail | null {
     editorialBlurb:
       'Una preparación con raíz porteña que se reinterpreta en cada cocina. Aquí lo trabajan a fuego lento y con corte propio, fiel al espíritu del barrio.',
     editorialSource: 'claude',
-    createdByDisplayName: 'CritiComida',
+    createdByDisplayName: 'Palato',
   };
 }
 

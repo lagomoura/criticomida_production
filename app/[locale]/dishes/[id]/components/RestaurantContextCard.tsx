@@ -49,7 +49,7 @@ export default function RestaurantContextCard({ dish }: RestaurantContextCardPro
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
               {typeof dish.restaurantAverageRating === 'number' && (
                 <span className="rounded-full bg-[var(--color-azafran-pale)] px-2.5 py-1 font-semibold text-[var(--color-canela)]">
-                  {t('ratingCriticomida', { value: dish.restaurantAverageRating.toFixed(1) })}
+                  {t('ratingPalato', { value: dish.restaurantAverageRating.toFixed(1) })}
                 </span>
               )}
               {typeof dish.restaurantGoogleRating === 'number' && (

@@ -24,7 +24,21 @@ import {
 } from '@/app/lib/api/trending';
 import { cn } from '@/app/lib/utils/cn';
 
-const STORAGE_KEY = 'criticomida.trending.city';
+const STORAGE_KEY = 'palato.trending.city';
+const LEGACY_STORAGE_KEY = 'criticomida.trending.city';
+
+function readStoredCity(): string | null {
+  if (typeof window === 'undefined') return null;
+  const current = window.localStorage.getItem(STORAGE_KEY);
+  if (current) return current;
+  const legacy = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+  if (legacy) {
+    window.localStorage.setItem(STORAGE_KEY, legacy);
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+    return legacy;
+  }
+  return null;
+}
 
 type CitiesState =
   | { status: 'loading' }
@@ -52,9 +66,7 @@ export default function TrendingClient() {
         if (cancelled) return;
         setCities({ status: 'ready', items });
 
-        const stored = typeof window !== 'undefined'
-          ? window.localStorage.getItem(STORAGE_KEY)
-          : null;
+        const stored = readStoredCity();
         const initial = stored && items.some((c) => c.city === stored)
           ? stored
           : items[0]?.city ?? '';

@@ -1,4 +1,4 @@
-# CritiComida
+# Palato
 
 Plataforma de reseñas gastronómicas centradas en el plato. Frontend en Next.js 15 (App Router) con backend FastAPI en submódulo (`backend/`, repo separado).
 

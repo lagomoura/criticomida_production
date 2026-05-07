@@ -1,4 +1,4 @@
-# Chatbot CritiComida — funcionalidades vigentes
+# Chatbot Palato — funcionalidades vigentes
 
 Este documento es la **memoria viva del chatbot**. Cada vez que se
 agrega, modifica o retira una capacidad del chatbot, esta página tiene
@@ -65,7 +65,7 @@ estado actual, no la historia.
        del 90%, dragged down por `no_data_calories_es` (3/3 fail,
        alucinación) y `profile_greeting_es` (2/3 fail, saludo).
     2. Decisión consensuada con el comensal: **calorías sale del
-       scope** — CritiComida no almacena info nutricional en ningún
+       scope** — Palato no almacena info nutricional en ningún
        lado, mantener un test que pega contra paráfrasis del
        training del modelo es perseguir un guard que no tiene
        ground truth. Regla 8 del prompt limpiada del bullet
@@ -547,7 +547,7 @@ estado actual, no la historia.
     diálogos de referencia** (saludo personalizado, mood semántico,
     multi-tool ruta+map, cero resultados con propuesta concreta,
     alergia explícita, ambigüedad real con UNA pregunta, recomendación
-    corta a turista en inglés). Voz editorial CritiComida sin emojis,
+    corta a turista en inglés). Voz editorial Palato sin emojis,
     sin "delicioso/espectacular/imperdible". Primer cimiento del plan
     Sommelier: paridad de calidad con el Business antes de sumar
     features WOW.
@@ -830,7 +830,7 @@ desde el panel del Ghostwriter se inserta automáticamente al post
 | Detectar tags visuales del plato | `suggest_tags_from_photo` | Gemini Vision (`gemini-2.5-flash`). Devuelve hasta 6 tags lowercase sin "#". |
 | Identificar ingredientes visibles | mismo | Hasta 6 ingredientes únicos (sin enumerar variantes del mismo). |
 | Sugerir un *plating style* | mismo | Enum: `minimalist|family-style|deconstructed|rustic|classic`. |
-| Sugerir una frase editorial corta | mismo | 1-2 frases, ≤200 caracteres, tono CritiComida (sin "delicioso", "espectacular"). |
+| Sugerir una frase editorial corta | mismo | 1-2 frases, ≤200 caracteres, tono Palato (sin "delicioso", "espectacular"). |
 | Sugerir 0-2 pros y 0-2 cons | mismo | Bullets puntuales ≤60 caracteres c/u. |
 | Distinguir tags inéditos vs ya en draft | endpoint `/assist` | El backend devuelve `new_tags` filtrando contra el `draft_text` del usuario. |
 | Tolerar respuesta truncada de Gemini | parser custom | Si `finishReason=MAX_TOKENS`, reconstruimos JSON parcial cerrando comillas/brackets. |
@@ -855,7 +855,7 @@ desde el panel del Ghostwriter se inserta automáticamente al post
 
 ## 3) Business — owner verificado (B2B)
 
-**Punto de entrada**: bloque "Pregúntale a CritiComida" embebido en
+**Punto de entrada**: bloque "Pregúntale a Palato" embebido en
 `/restaurants/{slug}/owner`. El gate del endpoint usa
 `assert_verified_owner` (`backend/app/services/claim_service.py`), que
 acepta dos perfiles:

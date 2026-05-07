@@ -1,4 +1,4 @@
-# CritiComida — Identidad Visual v2
+# Palato — Identidad Visual v2
 
 > Documento de rediseño. Define la dirección visual del sitio.  
 > Reemplaza los criterios estéticos de `brand-identity.md` — los datos de arquitectura y voz siguen vigentes.
@@ -27,7 +27,7 @@ de Voz”).
 
 ### "La mesa del crítico"
 
-CritiComida reseña platos, no restaurantes. Esa diferencia es el punto de partida del diseño: la entidad protagonista es el plato — su color, su textura, su temperatura visual. La identidad no imita a una app de delivery ni a una guía gastronómica tradicional. Se posiciona como **una publicación editorial de cocina**: opinada, específica, confiable.
+Palato reseña platos, no restaurantes. Esa diferencia es el punto de partida del diseño: la entidad protagonista es el plato — su color, su textura, su temperatura visual. La identidad no imita a una app de delivery ni a una guía gastronómica tradicional. Se posiciona como **una publicación editorial de cocina**: opinada, específica, confiable.
 
 **Metáfora de diseño:** una mesa de trabajo bien organizada. Espacio limpio, tipografía clara, fotografía como protagonista, color como acento. Como el mise en place antes del servicio: todo tiene su lugar y su propósito.
 
@@ -156,14 +156,14 @@ La itálica de Cormorant Garamond se reserva para:
 ### 4.1 Wordmark principal
 
 ```
-CritiComida
+Palato
 ```
 
 - Tipografía: **Cormorant Garamond 500**
 - Color por defecto: `var(--color-carbon)` sobre fondos claros
 - Color sobre fondos oscuros: `var(--color-crema)`
 - Color de marca (navbar, footer brand): gradiente `var(--color-azafran) → var(--color-azafran-light)` aplicado como `background-clip: text`
-- Nunca en minúsculas. Siempre "CritiComida" con capital C y M.
+- Nunca en minúsculas. Siempre "Palato" con capital C y M.
 
 ### 4.2 Combinación con ícono
 
@@ -318,7 +318,7 @@ Brand wordmark en footer: gradiente `#D4870A → #F5C842`, Cormorant 500, 2.2rem
 
 ## 6.8 Social UI Kit (v1)
 
-Esta sección define los componentes mínimos para que CritiComida “se sienta” una
+Esta sección define los componentes mínimos para que Palato “se sienta” una
 red social sin perder foco editorial. Se apoya en:
 
 - Tipografía: **Cormorant** (display) + **DM Sans** (UI).
@@ -711,5 +711,5 @@ Para comunicar la dirección a colaboradores, diseñadores o herramientas de IA:
 
 ---
 
-*Versión 2.0 — Rediseño. Elaborado para orientar la migración del sistema visual del sitio web de CritiComida.*  
+*Versión 2.0 — Rediseño. Elaborado para orientar la migración del sistema visual del sitio web de Palato.*  
 *Los principios de voz, arquitectura de información y jerarquía de entidades (plato > restaurante) siguen siendo los mismos — ver `brand-identity.md §13`.*
