@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -18,10 +18,26 @@ import ChatDrawer from './ChatDrawer';
 export default function ChatLauncher() {
   const t = useTranslations('chat');
   const [open, setOpen] = useState(false);
+  // Mientras hay un modal abierto (Publicar reseña, Reportar, etc.) el
+  // launcher se esconde: en mobile su esquina inferior-derecha solapa el
+  // CTA del modal (p. ej. "Publicar reseña"). Todos los modales del
+  // proyecto bloquean el scroll con body.style.overflow = 'hidden', así
+  // que observamos ese cambio en lugar de propagar un contexto.
+  const [modalOpen, setModalOpen] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    const sync = () => setModalOpen(document.body.style.overflow === 'hidden');
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+    return () => observer.disconnect();
+  }, []);
+
   // /es/restaurants/{slug}/owner, /en/restaurants/{slug}/owner, etc.
   const isOwnerPanel = /\/restaurants\/[^/]+\/owner(?:\/|$)/.test(pathname || '');
   if (isOwnerPanel) return null;
+  if (modalOpen) return null;
 
   return (
     <>
