@@ -782,6 +782,7 @@ es un panel derecho de ~440px.
 | Crear ruta de platos (compartible) | `create_dish_route` | Crea `dish_lists` + `dish_list_items` con slug único. Por defecto `is_public=true`. URL pública en `/listas/{slug}` con metadata OG para WhatsApp/Twitter. |
 | Pedir reserva en un restaurante | `request_reservation` | Si el restaurante tiene owner verificado: row en `reservation_requests` + notification + email. Si no: hand-off al `reservation_url` partner. |
 | Anotar alergias / horarios declarados | `update_taste_profile` | Sólo cuando el usuario lo dice explícito. Allergias **nunca** se infieren. |
+| Identificar un plato a partir de una foto | `identify_dish_from_photo` | El comensal adjunta una imagen desde el composer (botón 📎) y pregunta "¿qué es esto?" / "¿lo tienen?". El tool corre **en paralelo** Gemini 2.5 Flash (vision → tags/ingredientes/plating, materia prima editorial) + Gemini Embedding 2 multimodal (foto → vector 768-dim en el MISMO espacio que `dish_embeddings`); el match contra el catálogo se hace por cosine distance directo, sin pasar por texto intermedio. **Data-only**: el agente lee `matches` y encadena `recommend_dishes` con los 1-3 mejores. Convención FE↔prompt: el composer prepende `[foto: <url>]` al mensaje y el system prompt dispara el tool al verlo. Resiliente: si el image embed falla pero vision tiene tags, cae a text-embed de tags (`matched_via='vision_tags_text_embedding'`). Solo logueado (el uploader requiere auth). |
 
 ### Cards visuales
 
@@ -795,7 +796,13 @@ Cuando el bot llama una tool, la UI renderiza:
 ### Lo que el Sommelier NO hace todavía
 
 - No genera reseñas escritas (eso es Ghostwriter).
-- No abre la cámara para subir foto (sólo links a fotos existentes en la DB).
+- Acepta fotos adjuntas en el composer (📎) pero no abre la cámara
+  nativa del dispositivo todavía — el `<input type="file">` permite
+  galería + cámara según OS, pero no hay flujo dedicado.
+- No matchea **fotos de menú** (texto sobre cartón). Está pensado para
+  fotos de plato. Una foto de menú devuelve tags genéricos
+  (papel, lista) y no encuentra matches útiles — caso pendiente para
+  follow-up con Document AI / OCR.
 - No hace cross-restaurant comparisons profundas (eso es Business).
 - No se acuerda de items del wishlist en futuras conversaciones más
   allá de lo que el `taste_profile` infiere.

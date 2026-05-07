@@ -45,6 +45,7 @@ Este documento reúne los **casos de uso principales** del proyecto y sus **fluj
 
 ### Asistente (chat)
 - **CU-30** Chat (enviar mensaje + historial; respuesta del modelo)
+- **CU-31** Sommelier multimodal: identificar plato por foto y matchear contra el catálogo
 
 ---
 
@@ -530,4 +531,62 @@ flowchart TB
 
   API -.->|502 si falla proveedor| FE
 ```
+
+### CU-31 Sommelier multimodal: identificar plato por foto
+
+```mermaid
+flowchart TB
+  U[Comensal autenticado] --> FE[Frontend: ChatDrawer + 📎]
+  FE -->|valida tipo + tamaño| FE
+  FE -->|multipart: file + entity_type=chat_attachment| UP[POST /api/images/upload]
+  UP --> DB[(DB: images)]
+  UP -->|{url: /uploads/abc.jpg}| FE
+  FE -->|message = "[foto: /uploads/abc.jpg] texto"| API[POST /api/chat/stream]
+  API --> AGENT[AgentLoop Sommelier]
+  AGENT -->|identify_dish_from_photo photo_url=…| TOOL[Tool: vision + embed + search]
+  TOOL -->|lee bytes desde disk UPLOAD_DIR o fetch httpx| TOOL
+  TOOL -->|asyncio.gather paralelo| VIS[Gemini 2.5 Flash vision]
+  TOOL -->|asyncio.gather paralelo| EMB[Gemini Embedding 2 multimodal]
+  VIS -->|tags + visible_ingredients + plating_style| TOOL
+  EMB -->|vec 768 en MISMO espacio que dish_embeddings| TOOL
+  TOOL -->|execute_dish_search query_vector=image_vector| DB2[(Postgres + pgvector)]
+  DB2 -->|top-N dishes filtrados por alergias| TOOL
+  TOOL -->|matches + detected + matched_via=multimodal_image_embedding| AGENT
+  AGENT -->|recommend_dishes dish_ids=[..]| AGENT
+  AGENT -->|SSE: card + text editorial| FE
+  FE --> U
+
+  TOOL -.->|image embed falla pero vision ok: fallback text-embed de tags| EMB
+  EMB -.->|matched_via=vision_tags_text_embedding| TOOL
+
+  TOOL -.->|sin signals + sin vector: no_signal=true| AGENT
+  AGENT -.->|texto "no se deja leer la foto"| FE
+  TOOL -.->|GEMINI_API_KEY ausente: vision_unavailable=true| AGENT
+
+  UP -.->|401 si no auth| FE
+```
+
+**Notas**:
+
+- Solo logueado: el uploader exige `get_current_user`, así que el
+  botón 📎 está oculto para sesiones anónimas.
+- La foto la sube el FE ANTES del mensaje, por eso `entity_id` puede
+  ser un UUID generado en el cliente cuando todavía no hay
+  `conversation_id` (primer turno).
+- El prefijo `[foto: <url>]` es la convención FE↔system prompt: sin
+  él, el agente no sabe que la URL es un adjunto.
+- **Multimodal directo**: gemini-embedding-2 mapea texto e imagen al
+  mismo espacio semántico, así que el image-vector se compara
+  directo contra los `dish_embeddings` texto-derivados sin paso
+  intermedio. La cadena previa (vision → tags string →
+  text-embedding) quedó como fallback resiliente cuando el image
+  embed falla.
+- **Vision sigue activa**: aunque no participa del matching, su
+  output (`detected.*`) alimenta la respuesta editorial del agente
+  ("se ve a un ramen estilo shoyu con chashu y huevo marinado").
+- El tool es **data-only** (no emite card por sí mismo) — sigue el
+  patrón `search_dishes` → `recommend_dishes` para que el agente
+  decida la curaduría editorial antes de mostrar cards.
+- Re-usa filtros de alergia compartiendo `execute_dish_search` con
+  `make_search_dishes_tool` (helper extraído en este PR).
 

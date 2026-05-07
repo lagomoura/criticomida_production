@@ -14,11 +14,12 @@ es un changelog; describe el estado actual.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-06
+- **Fecha**: 2026-05-07
 - **Servicios activos**: agent loop multi-tool, embeddings de
   catálogo, búsqueda híbrida (filtros + KNN), perfil de gustos,
-  visión de plato, motor editorial de platos, sentiment de
-  reseñas, auto-titulado de conversaciones.
+  visión de plato (Ghostwriter + Sommelier multimodal), motor
+  editorial de platos, sentiment de reseñas, auto-titulado de
+  conversaciones.
 - **Pendiente / no cubierto**: ver
   [Roadmap conocido](#roadmap-conocido).
 
@@ -71,11 +72,18 @@ agnóstico de framework (sin LangChain/LangGraph). Implementa:
 
 **Consumidores**: chatbot (3 agentes).
 
-### B. Embeddings — Gemini `gemini-embedding-2`
+### B. Embeddings — Gemini `gemini-embedding-2` (multimodal nativo)
 
 `backend/app/services/embeddings_service.py`. Vectores L2-normalizados
-de **768 dims** (configurado vía `outputDimensionality` para mantener
-el schema `pgvector(768)` actual sin migración).
+de **768 dims** (Matryoshka Representation Learning: el modelo emite
+3072 nativos y se truncan via `outputDimensionality` para mantener el
+schema `pgvector(768)` actual sin migración).
+
+`gemini-embedding-2` es **nativamente multimodal**: texto, imagen,
+audio y video se proyectan al MISMO espacio semántico. Eso habilita
+comparar un photo-embedding contra un dish-embedding (texto-derivado)
+por cosine distance sin necesidad de tablas de embeddings separadas
+ni re-indexación del catálogo.
 
 Funciones expuestas:
 
@@ -83,6 +91,13 @@ Funciones expuestas:
   `search_dishes(semantic_query=...)` para re-rankear el subset.
 - `embed_documents(texts: list[str])` — batch. Usado para mantener las
   tablas `dish_review_embeddings` y `dish_embeddings` actualizadas.
+- `embed_image(photo_bytes, mime_type)` — embedding multimodal de una
+  imagen. Usado por `identify_dish_from_photo` (Sommelier) para
+  matchear la foto del comensal contra `dish_embeddings`. NO pasa
+  `taskType` (la API explícitamente no lo soporta para multimodal).
+  Timeout 30s (vs 20s del path texto) por overhead del payload
+  base64. Retorna `None` si Gemini está caído o el payload no se
+  parsea.
 - `reembed_review(review_id)` y `reembed_dish(dish_id)` —
   re-indexación puntual con `source_text_hash` para skipear cuando
   nada cambió.
@@ -93,8 +108,13 @@ Script one-shot: `python -m app.scripts.backfill_embeddings`.
 
 **Consumidores**:
 
-- `search_dishes` (Sommelier + Business) — re-ranking semántico.
+- `search_dishes` (Sommelier + Business) — re-ranking semántico de
+  texto.
 - `benchmark_dish` (Business) — vecinos semánticos dentro de un radio.
+- `identify_dish_from_photo` (Sommelier) — image embedding directo +
+  KNN contra `dish_embeddings`. Aprovecha el espacio semántico
+  unificado del modelo: el vector de la foto se compara contra
+  vectores texto-derivados sin paso intermedio.
 
 ### C. Visión — Gemini `gemini-2.5-flash`
 
@@ -119,7 +139,28 @@ Robustez:
 
 - Ghostwriter — endpoint `POST /api/dish-reviews/assist[/upload]`
   (formulario de reseñas).
-- Tool `suggest_tags_from_photo` — disponible al chatbot también.
+- Tool `suggest_tags_from_photo` — disponible al Ghostwriter dentro
+  del chat.
+- Sommelier — tool `identify_dish_from_photo`
+  (`backend/app/services/chat/tools/vision.py`). La foto que adjunta
+  el comensal vía el composer del chat (📎 →
+  `/api/images/upload` con `entity_type=chat_attachment`) llega
+  como prefijo `[foto: <url>]` en el mensaje; el system prompt
+  matchea ese patrón y dispara el tool. La handler:
+  (1) resuelve la URL a bytes (lectura desde `UPLOAD_DIR` para
+  paths locales o fetch httpx con timeout 10s para URLs absolutas);
+  (2) corre `analyze_dish_photo` y `embed_image` en paralelo via
+  `asyncio.gather` — vision provee tags/ingredients para narración
+  editorial, embed_image provee el vector de búsqueda directo;
+  (3) llama `execute_dish_search` (helper extraído de
+  `make_search_dishes_tool`) pasando el image vector como
+  `query_vector`, lo que reusa toda la lógica de filtros, allergy
+  guard y serialización. Si el image embed falla pero vision sigue
+  ok, cae a un fallback de text-embed sobre los tags (rotulado
+  `matched_via='vision_tags_text_embedding'`). La salida es
+  **data-only** (no emite cards), igual que `search_dishes`: el
+  agente lee `matches` y encadena `recommend_dishes` con los 1-3
+  mejores.
 
 ### D. Búsqueda híbrida (filtros + KNN)
 
@@ -475,6 +516,84 @@ sequenceDiagram
 - Si Gemini falla o `GEMINI_API_KEY` no está, los campos quedan
   `null`. El próximo edit del usuario o el script de backfill cubren
   el reintento — no hay queue con retries todavía.
+
+### CU-IA-7 — Foto de plato → match contra catálogo (Sommelier multimodal)
+
+```mermaid
+sequenceDiagram
+    participant User as Comensal
+    participant FE as ChatDrawer
+    participant Up as POST /api/images/upload
+    participant Stream as POST /api/chat/stream
+    participant Loop as AgentLoop (Sommelier)
+    participant Ident as identify_dish_from_photo
+    participant Vision as Gemini 2.5 Flash (vision)
+    participant Embed as Gemini Embedding 2 (multimodal)
+    participant DB as Postgres + pgvector
+    User->>FE: 📎 elige foto + escribe "qué es esto"
+    FE->>Up: multipart (file, entity_type=chat_attachment)
+    Up-->>FE: { url: "/uploads/abc.jpg" }
+    FE->>Stream: { message: "[foto: /uploads/abc.jpg] qué es esto" }
+    Stream->>Loop: run(system, messages)
+    Loop->>Ident: identify_dish_from_photo(photo_url=...)
+    Ident->>Ident: leer bytes de disk (UPLOAD_DIR) o fetch httpx
+    par paralelo: vision + image-embed
+        Ident->>Vision: analyze_dish_photo(photo_bytes, mime)
+        Vision-->>Ident: { tags, visible_ingredients, plating_style, ... }
+    and
+        Ident->>Embed: embed_image(photo_bytes, mime)
+        Embed-->>Ident: vec(768) en el mismo espacio que dish_embeddings
+    end
+    alt image vector ok (path normal)
+        Ident->>DB: execute_dish_search query_vector=image_vector
+        DB-->>Ident: top-N dishes (filtrados por allergies)
+        Ident-->>Loop: { matches, detected, matched_via='multimodal_image_embedding' }
+    else image vector falla pero vision tiene tags (degradado)
+        Ident->>Embed: embed_query("ramen shoyu chashu …")
+        Embed-->>Ident: vec(768) text-derived
+        Ident->>DB: execute_dish_search query_vector=text_vector
+        DB-->>Ident: top-N dishes
+        Ident-->>Loop: { matches, detected, matched_via='vision_tags_text_embedding' }
+    else todo falla
+        Ident-->>Loop: { matches: [], no_signal: true | vision_unavailable: true }
+        Loop-->>FE: text "no se deja leer la foto"
+    end
+    Loop->>Loop: elegir 1-3 mejores
+    Loop->>Loop: recommend_dishes(dish_ids=[..])
+    Loop-->>FE: SSE card + text editorial
+```
+
+**Notas**:
+
+- **Por qué multimodal embed directo**: la versión previa pasaba
+  `tags + ingredients` por `embed_query` (texto), introduciendo
+  pérdida de señal en el paso de tagging. Con
+  `embed_image(photo_bytes)` el matching usa toda la información
+  visual (color, plating, composición exacta) sin compresión a
+  texto, y el vector resultante vive en el mismo espacio que los
+  `dish_embeddings` texto-derivados gracias al training cross-modal
+  de Gemini Embedding 2.
+- **Vision sigue corriendo**: aunque ya no se usa para construir un
+  `semantic_query`, su output (`detected.tags`,
+  `detected.visible_ingredients`, `detected.plating_style`)
+  alimenta la respuesta editorial del agente ("se ve a un ramen
+  shoyu con chashu y huevo marinado"). Sin esto el bot no podría
+  confirmar verbalmente lo que ve y el comensal pierde la
+  certeza de que la foto fue leída.
+- **Filtro de alergias**: `execute_dish_search` aplica el mismo
+  guard que `search_dishes`, así que las alergias declaradas se
+  respetan en el path multimodal sin código duplicado.
+- **Resiliencia**: si solo el image embed falla (raro, p.ej. HEIC
+  problemático), el fallback de text-embed sobre los tags conserva
+  el matching. `matched_via` informa al agente qué path se usó —
+  útil para debugging y para evals que quieran filtrar por path.
+- **Timeout del tool**: 35s. Como vision + embed corren en paralelo
+  via `asyncio.gather`, el wall time es el max de ambos (vision
+  ~10-25s, embed ~1-3s).
+- **Diferencia con `suggest_tags_from_photo` (Ghostwriter)**: este
+  NO emite card, NO genera blurb editorial, NO sugiere pros/cons.
+  Devuelve matches contra el catálogo + el dump de visión para que
+  el agente lo cite.
 
 ### CU-IA-5 — Diagnóstico de pilar (Business)
 

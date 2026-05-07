@@ -213,7 +213,7 @@ function MessageRow({
           )}
         >
           {isUser ? (
-            message.content
+            <UserContent text={message.content} />
           ) : (
             <AssistantContent text={message.content} />
           )}
@@ -540,6 +540,34 @@ function ToolInvocation({ tool, onShowDishOnMap }: ToolInvocationProps) {
  * work without extra plugins. Component overrides apply the design
  * tokens used elsewhere (font weights, spacing, focusable links).
  */
+/**
+ * Renders a user bubble — same as plain text in the common case, but
+ * detects the FE's ``[foto: <url>]`` prefix used by the chat
+ * uploader and shows the attached image as a thumbnail above the
+ * remaining text. Without this the bubble would show the literal
+ * "[foto: /uploads/abc.jpg] qué es esto?" — accurate but visually
+ * confusing for the comensal who already saw the photo as
+ * thumbnail before sending.
+ */
+function UserContent({ text }: { text: string }) {
+  const match = text.match(/^\[foto:\s*([^\]]+)\]\s*([\s\S]*)$/);
+  if (!match) return <>{text}</>;
+  const photoUrl = match[1].trim();
+  const trailing = match[2];
+  return (
+    <div className="flex flex-col gap-2">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={photoUrl}
+        alt=""
+        className="max-h-56 max-w-full rounded-lg object-cover"
+      />
+      {trailing.trim() ? <span>{trailing}</span> : null}
+    </div>
+  );
+}
+
+
 function AssistantContent({ text }: { text: string }) {
   return (
     <div className="cc-chat-markdown">

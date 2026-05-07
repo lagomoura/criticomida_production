@@ -9,6 +9,7 @@ import {
   faClockRotateLeft,
   faComments,
   faPaperPlane,
+  faPaperclip,
   faPenToSquare,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
@@ -18,12 +19,25 @@ import {
   SommelierPreview,
   getSommelierPreview,
 } from '@/app/lib/api/chat';
+import { uploadChatPhoto } from '@/app/lib/api/images';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { cn } from '@/app/lib/utils/cn';
 import ConversationList from './ConversationList';
 import MessageList from './MessageList';
 import SommelierEmptyState from './SommelierEmptyState';
 import { useChatStream } from './useChatStream';
+
+// Multimodal: límite client-side. Vision API maneja imágenes grandes
+// pero arriba de ~8 MB la red en mobile se vuelve frustrante y la
+// mayoría de fotos de smartphone caen muy debajo. Rejecteamos antes
+// de gastar la subida.
+const MAX_CHAT_PHOTO_BYTES = 8 * 1024 * 1024;
+const ALLOWED_CHAT_PHOTO_MIMES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+]);
 
 interface ChatDrawerProps {
   open: boolean;
@@ -58,6 +72,22 @@ export default function ChatDrawer({
   const { user } = useAuthContext();
   const [input, setInput] = useState('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Multimodal: foto adjunta al próximo mensaje. Una sola foto por
+  // mensaje (no carrusel) — más fotos al mismo turno se manejan con
+  // mensajes separados.
+  const [attachedPhotoUrl, setAttachedPhotoUrl] = useState<string | null>(
+    null,
+  );
+  const [isUploading, setIsUploading] = useState(false);
+  const [attachError, setAttachError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // El uploader del backend exige auth y solo el Sommelier sabe usar
+  // ``identify_dish_from_photo`` por ahora. Mostrar el botón adjuntar
+  // solo cuando ambas condiciones se cumplen — en caso contrario el
+  // click llevaría a un 401 o a un agente que no procesa la foto.
+  const showAttach = agent === 'sommelier' && Boolean(user);
 
   const {
     conversationId,
@@ -151,9 +181,55 @@ export default function ChatDrawer({
 
   function handleSubmit() {
     const text = input.trim();
-    if (!text) return;
+    if (!text && !attachedPhotoUrl) return;
+    // Convención FE → Sommelier: prefijo ``[foto: <url>]``. El system
+    // prompt matchea ese patrón y dispara ``identify_dish_from_photo``
+    // como primera tool call del turno. Sin el prefijo el agente no
+    // sabría que la URL en el texto es decoración o adjunto.
+    const composed = attachedPhotoUrl
+      ? `[foto: ${attachedPhotoUrl}] ${text}`.trim()
+      : text;
     setInput('');
-    void send(text);
+    setAttachedPhotoUrl(null);
+    setAttachError(null);
+    void send(composed);
+  }
+
+  function onAttachClick() {
+    setAttachError(null);
+    fileInputRef.current?.click();
+  }
+
+  async function onFileChosen(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    // Resetear el value del input para que volver a elegir el MISMO
+    // archivo dispare onChange — sin esto el segundo intento queda
+    // mudo (comportamiento estándar de <input type=file>).
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (!file) return;
+    if (!ALLOWED_CHAT_PHOTO_MIMES.has(file.type)) {
+      setAttachError(t('attachInvalidType'));
+      return;
+    }
+    if (file.size > MAX_CHAT_PHOTO_BYTES) {
+      setAttachError(t('attachTooBig'));
+      return;
+    }
+    setIsUploading(true);
+    setAttachError(null);
+    try {
+      const url = await uploadChatPhoto(file, conversationId);
+      setAttachedPhotoUrl(url);
+    } catch {
+      setAttachError(t('attachUploadError'));
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  function onRemovePhoto() {
+    setAttachedPhotoUrl(null);
+    setAttachError(null);
   }
 
   function onShowDishOnMap(dish: DishCardData) {
@@ -336,7 +412,79 @@ export default function ChatDrawer({
 
         {/* Composer */}
         <div className="border-t border-border-subtle bg-surface-card p-3">
+          {attachedPhotoUrl && (
+            <div className="mb-2 flex items-center gap-2 rounded-md border border-border-subtle bg-surface-subtle p-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={attachedPhotoUrl}
+                alt=""
+                className="h-12 w-12 shrink-0 rounded object-cover"
+              />
+              <span className="flex-1 truncate text-xs text-text-muted">
+                {t('photoAttached')}
+              </span>
+              <button
+                onClick={onRemovePhoto}
+                type="button"
+                aria-label={t('removePhoto')}
+                title={t('removePhoto')}
+                className={cn(
+                  'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors',
+                  'hover:bg-surface-card hover:text-text-primary',
+                  'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                )}
+              >
+                <FontAwesomeIcon
+                  icon={faXmark}
+                  aria-hidden
+                  className="h-3.5 w-3.5"
+                />
+              </button>
+            </div>
+          )}
+          {attachError && (
+            <div
+              role="alert"
+              className="mb-2 text-xs text-action-danger"
+            >
+              {attachError}
+            </div>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic"
+            hidden
+            onChange={onFileChosen}
+          />
           <div className="flex items-end gap-2">
+            {showAttach && (
+              <button
+                type="button"
+                onClick={onAttachClick}
+                disabled={
+                  isUploading || isStreaming || Boolean(attachedPhotoUrl)
+                }
+                title={t('attachPhoto')}
+                aria-label={t('attachPhoto')}
+                className={cn(
+                  'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                  'border border-border-default bg-surface-card text-text-muted transition-colors',
+                  'hover:border-action-primary hover:text-action-primary',
+                  'disabled:cursor-not-allowed disabled:opacity-50',
+                  'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                )}
+              >
+                <FontAwesomeIcon
+                  icon={faPaperclip}
+                  aria-hidden
+                  className={cn(
+                    'h-3.5 w-3.5',
+                    isUploading && 'animate-pulse',
+                  )}
+                />
+              </button>
+            )}
             <textarea
               ref={inputRef}
               value={input}
@@ -356,12 +504,16 @@ export default function ChatDrawer({
                 'disabled:opacity-60',
               )}
               style={{ minHeight: '38px', maxHeight: '120px' }}
-              disabled={isStreaming}
+              disabled={isStreaming || isUploading}
               aria-label={t('placeholder')}
             />
             <button
               onClick={handleSubmit}
-              disabled={!input.trim() || isStreaming}
+              disabled={
+                (!input.trim() && !attachedPhotoUrl) ||
+                isStreaming ||
+                isUploading
+              }
               className={cn(
                 'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
                 'bg-action-primary text-text-inverse transition-colors',

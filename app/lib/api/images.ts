@@ -37,3 +37,30 @@ export async function uploadRestaurantImage(
   });
   return result.url;
 }
+
+/**
+ * Sube una foto adjunta a un mensaje del chatbot.
+ *
+ * El uploader del backend exige `entity_type` + `entity_id`; usamos
+ * `chat_attachment` y, cuando ya existe la conversación, su id como
+ * `entity_id`. En el primer turno todavía no hay conversación: el
+ * server crea una al recibir el mensaje, pero la foto sube ANTES,
+ * así que pasamos un UUID generado en el cliente. Esa foto queda
+ * disponible vía la URL relativa que devuelve el endpoint y se
+ * inyecta al mensaje como prefijo `[foto: <url>]` para que el
+ * Sommelier lo reconozca y dispare `identify_dish_from_photo`.
+ */
+export async function uploadChatPhoto(
+  file: File,
+  conversationId: string | null,
+): Promise<string> {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('entity_type', 'chat_attachment');
+  form.append('entity_id', conversationId ?? crypto.randomUUID());
+  const result = await fetchApi<{ url: string }>('/api/images/upload', {
+    method: 'POST',
+    body: form,
+  });
+  return result.url;
+}
