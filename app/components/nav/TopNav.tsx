@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowTrendUp,
   faBell,
+  faFolderTree,
   faHouse,
   faMagnifyingGlass,
   faPenToSquare,
@@ -120,20 +121,36 @@ export default function TopNav({ onOpenAuthModal, unreadCount = 0 }: TopNavProps
 
         <div className="flex items-center gap-2">
           {user?.role === 'admin' && (
-            <Link
-              href="/admin/reports"
-              aria-label={t('moderation')}
-              aria-current={isActive('/admin/reports') ? 'page' : undefined}
-              className={cn(
-                'inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors',
-                'text-text-secondary hover:bg-surface-subtle hover:text-text-primary',
-                'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
-                isActive('/admin/reports') && 'bg-surface-subtle text-text-primary',
-              )}
-              title={t('moderation')}
-            >
-              <FontAwesomeIcon icon={faShieldHalved} aria-hidden className="h-4 w-4" />
-            </Link>
+            <>
+              <Link
+                href="/admin/restaurantes-sin-categoria"
+                aria-label={t('uncategorized')}
+                aria-current={isActive('/admin/restaurantes-sin-categoria') ? 'page' : undefined}
+                className={cn(
+                  'inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors',
+                  'text-text-secondary hover:bg-surface-subtle hover:text-text-primary',
+                  'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                  isActive('/admin/restaurantes-sin-categoria') && 'bg-surface-subtle text-text-primary',
+                )}
+                title={t('uncategorized')}
+              >
+                <FontAwesomeIcon icon={faFolderTree} aria-hidden className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/admin/reports"
+                aria-label={t('moderation')}
+                aria-current={isActive('/admin/reports') ? 'page' : undefined}
+                className={cn(
+                  'inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors',
+                  'text-text-secondary hover:bg-surface-subtle hover:text-text-primary',
+                  'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                  isActive('/admin/reports') && 'bg-surface-subtle text-text-primary',
+                )}
+                title={t('moderation')}
+              >
+                <FontAwesomeIcon icon={faShieldHalved} aria-hidden className="h-4 w-4" />
+              </Link>
+            </>
           )}
           <LanguageSwitcher />
           <ThemeToggle />

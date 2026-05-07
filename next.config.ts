@@ -50,6 +50,37 @@ const nextConfig: NextConfig = {
       'helados',
       'peru-food',
     ];
+
+    // Slug renames de la migración 047. Convención limpia (chinafood→china,
+    // mexico-food→mexicana, etc.). 307 también para no atrapar al browser
+    // si más adelante cambian los slugs nuevos.
+    const renamedSlugs: Array<[string, string]> = [
+      ['brazilfood', 'brasilena'],
+      ['peru-food', 'peruana'],
+      ['mexico-food', 'mexicana'],
+      ['arabic-food', 'arabe'],
+      ['israelfood', 'israeli'],
+      ['japan-food', 'japonesa'],
+      ['chinafood', 'china'],
+      ['koreanfood', 'coreana'],
+      ['thaifood', 'thai'],
+      ['parrillas', 'parrilla'],
+      ['burguers', 'burgers'],
+    ];
+
+    const renameRedirects = renamedSlugs.flatMap(([from, to]) => [
+      {
+        source: `/categorias/${from}`,
+        destination: `/categorias/${to}`,
+        permanent: false,
+      },
+      {
+        source: `/:locale(es|en|pt)/categorias/${from}`,
+        destination: `/:locale/categorias/${to}`,
+        permanent: false,
+      },
+    ]);
+
     return [
       {
         source: `/reviews/:slug(${legacySlugs.join('|')})`,
@@ -59,6 +90,7 @@ const nextConfig: NextConfig = {
         // redirects viejos. Para slugs editoriales legacy alcanza con 307.
         permanent: false,
       },
+      ...renameRedirects,
     ];
   },
   images: {

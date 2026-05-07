@@ -20,6 +20,7 @@ export interface GetRestaurantsParams {
   per_page?: number;
   min_rating?: number;
   max_rating?: number;
+  uncategorized?: boolean;
 }
 
 export async function getRestaurants(
@@ -33,6 +34,7 @@ export async function getRestaurants(
   if (params?.per_page) searchParams.set('per_page', String(params.per_page));
   if (params?.min_rating !== undefined) searchParams.set('min_rating', String(params.min_rating));
   if (params?.max_rating !== undefined) searchParams.set('max_rating', String(params.max_rating));
+  if (params?.uncategorized) searchParams.set('uncategorized', 'true');
 
   const query = searchParams.toString();
   const endpoint = `/api/restaurants${query ? `?${query}` : ''}`;

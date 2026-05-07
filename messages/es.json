@@ -68,7 +68,8 @@
     "myProfile": "Mi perfil",
     "enter": "Entrar",
     "signIn": "Iniciar sesión",
-    "moderation": "Moderación"
+    "moderation": "Moderación",
+    "uncategorized": "Sin categoría"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -302,6 +303,18 @@
       "accessRestricted": "Acceso restringido",
       "adminOnly": "Esta página es solo para administradores.",
       "backToFeed": "Volver al feed"
+    },
+    "uncategorized": {
+      "kicker": "Admin",
+      "title": "Restaurantes sin categoría",
+      "subtitle": "Asigná una categoría para que aparezcan en filtros y búsqueda.",
+      "count": "{count, plural, one {1 restaurante} other {# restaurantes}}",
+      "empty": "Todos los restaurantes tienen categoría 🎉",
+      "selectLabel": "Asignar categoría",
+      "selectPlaceholder": "Asignar a…",
+      "assignSuccess": "{name} categorizado.",
+      "assignError": "No se pudo asignar la categoría.",
+      "badgeOtros": "Otros"
     }
   },
   "ownerDashboard": {
@@ -529,7 +542,19 @@
     "viewLabel": "Ver categoría",
     "filterPlaceholder": "Filtrar por nombre…",
     "filterAria": "Filtrar categorías por nombre",
-    "filterEmpty": "Ninguna categoría coincide."
+    "filterEmpty": "Ninguna categoría coincide.",
+    "popularHeading": "Más buscadas",
+    "sectionSudamerica": "Sudamérica",
+    "sectionCentroamerica": "Centroamérica y Caribe",
+    "sectionNorteamerica": "Norteamérica",
+    "sectionEuropa": "Europa",
+    "sectionMedioOriente": "Medio Oriente y Norte de África",
+    "sectionAsia": "Asia",
+    "sectionCarnes": "Carnes y parrilla",
+    "sectionMariscos": "Mariscos",
+    "sectionEstilos": "Estilos de comida",
+    "sectionBebidaDulce": "Dulce, café y bebida",
+    "sectionOtros": "Otros"
   },
   "searchCategoriesStrip": {
     "heading": "Explorar por categoría",
@@ -552,21 +577,57 @@
     "notFound": "Categoría no encontrada",
     "metaTitle": "{label} | Restaurantes | CritiComida",
     "metaDescription": "Restaurantes y reseñas en la categoría {label} en CritiComida.",
-    "dulces": "Dulces",
+    "argentina": "Argentina",
+    "brasilena": "Brasileña",
+    "peruana": "Peruana",
+    "uruguaya": "Uruguaya",
+    "venezolana": "Venezolana",
+    "colombiana": "Colombiana",
+    "chilena": "Chilena",
+    "boliviana": "Boliviana",
+    "mexicana": "Mexicana",
+    "cubana": "Cubana",
+    "caribena": "Caribeña",
+    "burgers": "Hamburguesas",
+    "estadounidense": "Estadounidense",
+    "italiana": "Italiana",
+    "espanola": "Española",
+    "francesa": "Francesa",
+    "griega": "Griega",
+    "alemana": "Alemana",
+    "portuguesa": "Portuguesa",
+    "arabe": "Árabe",
+    "israeli": "Israelí",
+    "libanesa": "Libanesa",
+    "turca": "Turca",
+    "marroqui": "Marroquí",
+    "armenia": "Armenia",
+    "japonesa": "Japonesa",
+    "china": "China",
+    "coreana": "Coreana",
+    "thai": "Tailandesa",
+    "vietnamita": "Vietnamita",
+    "india": "India",
+    "parrilla": "Parrilla",
+    "steakhouse": "Steakhouse",
+    "mariscos": "Mariscos",
     "brunchs": "Brunchs",
     "desayunos": "Desayunos",
-    "mexicoFood": "Mexicana",
-    "japanFood": "Japonesa",
-    "arabicFood": "Árabe",
-    "israelFood": "Israelí",
-    "thaiFood": "Tailandesa",
-    "koreanFood": "Coreana",
-    "chinaFood": "China",
-    "parrillas": "Parrilla",
-    "brazilFood": "Brasileña",
-    "burguers": "Hamburguesas",
+    "tapas": "Tapas",
+    "picadas": "Picadas",
+    "sandwiches": "Sándwiches",
+    "empanadas": "Empanadas",
+    "bowls": "Bowls",
+    "vegano": "Vegano",
+    "vegetariano": "Vegetariano",
+    "sinTacc": "Sin TACC",
+    "dulces": "Dulces",
     "helados": "Helados",
-    "peruFood": "Peruana"
+    "pasteleria": "Pastelería",
+    "panaderia": "Panadería",
+    "cafeteria": "Cafetería",
+    "bar": "Bar",
+    "cerveceria": "Cervecería"
   },
   "social": {
     "post": {
@@ -1963,6 +2024,9 @@
     },
     "adminCategorias": {
       "title": "Categorías | CritiComida"
+    },
+    "adminUncategorized": {
+      "title": "Restaurantes sin categoría | CritiComida"
     }
   },
   "restaurantsIndex": {

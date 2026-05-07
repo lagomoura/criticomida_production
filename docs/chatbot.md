@@ -14,10 +14,22 @@ estado actual, no la historia.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-05
+- **Fecha**: 2026-05-06
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Catálogo de categorías ampliado a 52** (migración 047). La
+    lista cerrada de slugs que el sommelier puede pasar a
+    `categoria_slug` se expandió de 16 a 52 cocinas + estilos
+    (italiana, libanesa, vietnamita, tapas, picadas, cafetería,
+    cervecería, etc.) y los 11 slugs heredados se renombraron a
+    convención limpia (chinafood→china, mexico-food→mexicana,
+    parrillas→parrilla, burguers→burgers, etc.). Lista completa
+    en `backend/app/services/chat/prompts/sommelier.md` sección
+    "Categorías disponibles". URLs públicas viejas redirigen 301
+    desde `next.config.ts`. Restaurantes ya asignados conservan
+    su FK por id (no migración de datos). Allergy blocklist en
+    `discovery.py` reescrito con los slugs nuevos.
   - **UX — Página global `/mapa`** (cierra el follow-up del CTA
     "Ver en mapa"). Standalone discovery map en
     `app/[locale]/mapa/page.tsx` reusando el componente
@@ -322,9 +334,10 @@ estado actual, no la historia.
     declaradas, con selección estable per (user, día) — un
     "sorprendeme" repetido en la misma sesión devuelve el mismo
     plato; mañana cambia. Mapeo conservador alergia → categoría
-    bloqueada (gluten → italiana/burguers/mexico-food/thaifood/
-    chinafood/brunchs; lácteo → helados/dulces). Cuando la novedad
-    deja el pool vacío, cae al pool completo en lugar de fallar.
+    bloqueada (gluten → italiana/pasteleria/panaderia/burgers/
+    sandwiches/empanadas/mexicana/thai/china/brunchs; lácteo →
+    helados/dulces/pasteleria). Cuando la novedad deja el pool
+    vacío, cae al pool completo en lugar de fallar.
     Tool data-only (`emits_card=False`); el agente cita el
     `serendipity_reason` retornado en su texto editorial y llama
     `recommend_dishes` con el id para mostrar la card. 14 unit

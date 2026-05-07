@@ -68,7 +68,8 @@
     "myProfile": "My profile",
     "enter": "Sign in",
     "signIn": "Sign in",
-    "moderation": "Moderation"
+    "moderation": "Moderation",
+    "uncategorized": "Uncategorized"
   },
   "auth": {
     "signIn": "Sign in",
@@ -302,6 +303,18 @@
       "accessRestricted": "Access restricted",
       "adminOnly": "This page is for admins only.",
       "backToFeed": "Back to feed"
+    },
+    "uncategorized": {
+      "kicker": "Admin",
+      "title": "Uncategorized restaurants",
+      "subtitle": "Assign a category so they appear in filters and search.",
+      "count": "{count, plural, one {1 restaurant} other {# restaurants}}",
+      "empty": "All restaurants have a category 🎉",
+      "selectLabel": "Assign category",
+      "selectPlaceholder": "Assign to…",
+      "assignSuccess": "{name} categorized.",
+      "assignError": "Couldn't assign the category.",
+      "badgeOtros": "Other"
     }
   },
   "ownerDashboard": {
@@ -529,7 +542,19 @@
     "viewLabel": "View category",
     "filterPlaceholder": "Filter by name…",
     "filterAria": "Filter categories by name",
-    "filterEmpty": "No category matches."
+    "filterEmpty": "No category matches.",
+    "popularHeading": "Most popular",
+    "sectionSudamerica": "South America",
+    "sectionCentroamerica": "Central America & Caribbean",
+    "sectionNorteamerica": "North America",
+    "sectionEuropa": "Europe",
+    "sectionMedioOriente": "Middle East & North Africa",
+    "sectionAsia": "Asia",
+    "sectionCarnes": "Grilled meats",
+    "sectionMariscos": "Seafood",
+    "sectionEstilos": "Eating styles",
+    "sectionBebidaDulce": "Sweet, coffee & drinks",
+    "sectionOtros": "Other"
   },
   "searchCategoriesStrip": {
     "heading": "Browse by category",
@@ -552,21 +577,57 @@
     "notFound": "Category not found",
     "metaTitle": "{label} | Restaurants | CritiComida",
     "metaDescription": "Restaurants and reviews in the {label} category on CritiComida.",
-    "dulces": "Sweets",
+    "argentina": "Argentine",
+    "brasilena": "Brazilian",
+    "peruana": "Peruvian",
+    "uruguaya": "Uruguayan",
+    "venezolana": "Venezuelan",
+    "colombiana": "Colombian",
+    "chilena": "Chilean",
+    "boliviana": "Bolivian",
+    "mexicana": "Mexican",
+    "cubana": "Cuban",
+    "caribena": "Caribbean",
+    "burgers": "Burgers",
+    "estadounidense": "American",
+    "italiana": "Italian",
+    "espanola": "Spanish",
+    "francesa": "French",
+    "griega": "Greek",
+    "alemana": "German",
+    "portuguesa": "Portuguese",
+    "arabe": "Arab",
+    "israeli": "Israeli",
+    "libanesa": "Lebanese",
+    "turca": "Turkish",
+    "marroqui": "Moroccan",
+    "armenia": "Armenian",
+    "japonesa": "Japanese",
+    "china": "Chinese",
+    "coreana": "Korean",
+    "thai": "Thai",
+    "vietnamita": "Vietnamese",
+    "india": "Indian",
+    "parrilla": "Grill",
+    "steakhouse": "Steakhouse",
+    "mariscos": "Seafood",
     "brunchs": "Brunch",
     "desayunos": "Breakfast",
-    "mexicoFood": "Mexican",
-    "japanFood": "Japanese",
-    "arabicFood": "Arab",
-    "israelFood": "Israeli",
-    "thaiFood": "Thai",
-    "koreanFood": "Korean",
-    "chinaFood": "Chinese",
-    "parrillas": "Grill",
-    "brazilFood": "Brazilian",
-    "burguers": "Burgers",
+    "tapas": "Tapas",
+    "picadas": "Sharing platters",
+    "sandwiches": "Sandwiches",
+    "empanadas": "Empanadas",
+    "bowls": "Bowls",
+    "vegano": "Vegan",
+    "vegetariano": "Vegetarian",
+    "sinTacc": "Gluten-free",
+    "dulces": "Sweets",
     "helados": "Ice cream",
-    "peruFood": "Peruvian"
+    "pasteleria": "Pastry",
+    "panaderia": "Bakery",
+    "cafeteria": "Coffee shop",
+    "bar": "Bar",
+    "cerveceria": "Beer hall"
   },
   "social": {
     "post": {
@@ -1963,6 +2024,9 @@
     },
     "adminCategorias": {
       "title": "Categories | CritiComida"
+    },
+    "adminUncategorized": {
+      "title": "Uncategorized restaurants | CritiComida"
     }
   },
   "restaurantsIndex": {

@@ -19,6 +19,12 @@ const CANONICAL_ORDER = REVIEW_CATEGORIES.reduce<Record<string, number>>(
   {},
 );
 
+// El strip es atajos rápidos para los usuarios que no saben qué buscar — no
+// el catálogo completo. Mostrar 52 chips horizontales convierte el strip en
+// un muro scrollable. 10 cubre los casos comunes; el resto se descubre en
+// /categorias vía el botón "Ver todas →".
+const MAX_SHORTCUTS = 10;
+
 type Status =
   | { kind: 'loading' }
   | { kind: 'error' }
@@ -34,13 +40,20 @@ export default function CategoriesShortcutStrip() {
     getCategories()
       .then((cats) => {
         if (cancelled) return;
+        // Priorizá categorías con más reseñas (señal real de que el catálogo
+        // tiene contenido detrás de ese chip). Cuando todas están en 0
+        // (catálogo virgen) cae al orden canónico para no quedar vacío.
         const sorted = [...cats].sort((a, b) => {
+          const ra = a.review_count ?? 0;
+          const rb = b.review_count ?? 0;
+          if (ra !== rb) return rb - ra;
           const orderA = a.display_order ?? CANONICAL_ORDER[a.slug] ?? 99;
           const orderB = b.display_order ?? CANONICAL_ORDER[b.slug] ?? 99;
           if (orderA !== orderB) return orderA - orderB;
           return a.name.localeCompare(b.name);
         });
-        setStatus({ kind: 'ready', categories: sorted });
+        const trimmed = sorted.slice(0, MAX_SHORTCUTS);
+        setStatus({ kind: 'ready', categories: trimmed });
       })
       .catch(() => {
         if (!cancelled) setStatus({ kind: 'error' });
