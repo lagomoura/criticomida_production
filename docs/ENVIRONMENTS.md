@@ -168,7 +168,7 @@ El dump **no** se commitea. Si trabaja más de una persona, distribuirlo por can
 | `JWT_SECRET`                        | dev value en `backend/.env`                      | Railway, distinto, rotable                          |
 | Postgres user/password              | `backend/.env` (compose lo usa para inicializar) | gestionado por Railway, en la URL `DATABASE_URL`    |
 | DB snapshot                         | `backend/scripts/seeds/dev_baseline.dump`        | n/a                                                 |
-| Admin user de la app                | `admin@criticomida.com / admin123` (en seed)     | mismo si viene del snapshot — **rotar si querés**   |
+| Admin user de la app                | `gustavoandroid1802@gmail.com / admin123` (en seed)     | mismo (rebrand desde `admin@criticomida.com` a un gmail personal hasta tener inbox en palato.me — entonces migrar a `admin@palato.me`) |
 
 ### Rotación
 
