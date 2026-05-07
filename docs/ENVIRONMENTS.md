@@ -83,7 +83,7 @@ Vercel **no** lee archivos del repo para prod — todas las variables se setean 
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | `criticomida` / `criticomida_secret` / `criticomida` | no aplican (Railway gestiona el Postgres)               | Usadas por compose para inicializar el contenedor `db`. |
 | `JWT_SECRET`                      | cualquier string >=32 chars                                | `openssl rand -hex 32`, **distinto** al de dev          | Rotar si se filtra. |
 | `JWT_ALGORITHM`                   | `HS256`                                                    | `HS256`                                                 |       |
-| `JWT_ISSUER` / `JWT_AUDIENCE`     | `criticomida-api` / `criticomida-clients`                  | igual                                                   |       |
+| `JWT_ISSUER` / `JWT_AUDIENCE`     | `palato-api` / `palato-clients`                  | igual                                                   |       |
 | `ACCESS_TOKEN_EXPIRE_MINUTES`     | `30` (cómodo en dev)                                       | `15`                                                    | Más corto en prod. |
 | `REFRESH_TOKEN_EXPIRE_DAYS`       | `7`                                                        | `7`                                                     |       |
 | `APP_ENV`                         | `development`                                              | `production`                                            |       |
