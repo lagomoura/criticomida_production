@@ -181,7 +181,7 @@ export default function AdminUncategorizedClient() {
                   <span aria-hidden>·</span>
                   <span className="inline-flex items-center gap-1">
                     <FontAwesomeIcon icon={faStar} className="h-3 w-3" aria-hidden />
-                    {r.computed_rating?.toFixed(1) ?? '—'}
+                    {Number(r.computed_rating) > 0 ? Number(r.computed_rating).toFixed(1) : '—'}
                     <span className="text-text-muted">({r.review_count})</span>
                   </span>
                   {r.category?.slug === 'otros' && (
