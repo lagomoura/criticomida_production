@@ -51,6 +51,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void loadUser();
   }, [loadUser]);
 
+  useEffect(() => {
+    function handleAuthCleared() {
+      setUser(null);
+    }
+    window.addEventListener('auth:cleared', handleAuthCleared);
+    return () => window.removeEventListener('auth:cleared', handleAuthCleared);
+  }, []);
+
   const login = async (email: string, password: string) => {
     await authApi.login(email, password);
     const currentUser = await authApi.getCurrentUser();

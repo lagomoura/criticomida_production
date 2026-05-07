@@ -55,24 +55,40 @@ export async function clearSessionCookies(): Promise<void> {
   }
 }
 
+let refreshInFlight: Promise<boolean> | null = null;
+
 async function tryRefreshToken(): Promise<boolean> {
-  try {
-    const res = await fetch(`${BASE_URL}/api/auth/refresh`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: '{}',
-    });
+  if (refreshInFlight) return refreshInFlight;
 
-    if (!res.ok) {
+  refreshInFlight = (async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/api/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      if (!res.ok) {
+        await clearSessionCookies();
+        notifyAuthCleared();
+        return false;
+      }
+      return true;
+    } catch {
       await clearSessionCookies();
+      notifyAuthCleared();
       return false;
+    } finally {
+      refreshInFlight = null;
     }
+  })();
 
-    return true;
-  } catch {
-    await clearSessionCookies();
-    return false;
+  return refreshInFlight;
+}
+
+function notifyAuthCleared(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('auth:cleared'));
   }
 }
 
