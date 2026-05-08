@@ -14,7 +14,7 @@ export interface PostActionsMenuProps {
 }
 
 export default function PostActionsMenu({ post, onClose, onDelete, onEdit }: PostActionsMenuProps) {
-  const t = useTranslations('social.postActionsMenu');
+  const t = useTranslations('profile.postActionsMenu');
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
