@@ -14,12 +14,41 @@ es un changelog; describe el estado actual.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-07
+- **Fecha**: 2026-05-08
 - **Servicios activos**: agent loop multi-tool, embeddings de
   catálogo, búsqueda híbrida (filtros + KNN), perfil de gustos,
   visión de plato (Ghostwriter + Sommelier multimodal), motor
   editorial de platos, sentiment de reseñas, auto-titulado de
   conversaciones.
+- **Cambios recientes (hardening del audit)** — commit `7305ed7`:
+  - **Rate-limit por usuario / IP** en cada endpoint que hace
+    salida hacia un provider pago. Constantes vivas en
+    `backend/app/middleware/rate_limit.py`:
+    `CHAT_STREAM_LIMIT = "30/hour"` para `/api/chat/stream` y
+    legacy `/api/chat`; `GHOSTWRITER_ASSIST_LIMIT = "20/hour"` para
+    `/api/dish-reviews/assist` y `/assist/upload`. El bucketing
+    sigue el patrón existente (`user_or_ip_key`): autenticados por
+    `user_id`, anónimos por IP. Cualquier servicio nuevo que llame
+    a Gemini / Anthropic / fal.ai debe declarar su propio
+    `*_LIMIT` y decorarse con `@limiter.limit(...)`; no apoyarse en
+    el cap "ambiental".
+  - **SSRF guard** centralizado en `backend/app/services/_safe_url.py`
+    (`safe_fetch_bytes`). Reemplaza el patrón previo
+    `httpx.AsyncClient(follow_redirects=True).get(...)` que se
+    repetía en `vision_service._fetch_image` y en
+    `chat/tools/vision.py`. Reglas: scheme allowlist (`http`,
+    `https`), DNS resolución upfront con denylist de rangos
+    privados/loopback/link-local/multicast/reserved, sin redirects,
+    cap de respuesta 16 MB. Cualquier servicio IA que tenga que
+    dereferenciar una URL controlada por el usuario debe usar este
+    helper — no abrir un `httpx.AsyncClient` directo.
+  - **Validación de uploads** en `backend/app/services/_safe_upload.py`
+    (`assert_image_or_raise`). Magic-bytes JPEG/PNG/WebP, cap 8 MB,
+    extensión derivada del sniff (no del filename del cliente).
+    Aplicado en el endpoint de Ghostwriter (`/assist/upload`) y en
+    el endpoint de imágenes general (`/api/images/upload`). HEIC
+    queda fuera del whitelist hasta que el pipeline re-encode en
+    el server.
 - **Pendiente / no cubierto**: ver
   [Roadmap conocido](#roadmap-conocido).
 

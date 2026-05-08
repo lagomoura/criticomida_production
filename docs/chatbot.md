@@ -14,10 +14,39 @@ estado actual, no la historia.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-06
+- **Fecha**: 2026-05-08
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Hardening de seguridad del audit completo** (commit 7305ed7
+    en backend, 56f9a25 en super-repo). Tres cambios visibles desde
+    el chatbot:
+    1. **Rate-limit en endpoints de chat e IA**.
+       `POST /api/chat/stream` y el legacy `POST /api/chat` quedan
+       capeados a `CHAT_STREAM_LIMIT = 30/hour` por usuario
+       autenticado (o por IP en el caso anónimo del Sommelier).
+       `POST /api/dish-reviews/assist` y `/assist/upload` quedan
+       capeados a `GHOSTWRITER_ASSIST_LIMIT = 20/hour`. El cap se
+       aplica al provider de litellm sin importar el agente. Ver
+       `backend/app/middleware/rate_limit.py`.
+    2. **SSRF guard en el pipeline multimodal**. El tool
+       `identify_dish_from_photo` del Sommelier y el endpoint de
+       Ghostwriter aceptan URLs de fotos que el comensal/owner
+       provee — antes el backend hacía `httpx.get(url, follow_redirects=True)`
+       sin allowlist. Ahora todo pasa por `safe_fetch_bytes()`
+       (`backend/app/services/_safe_url.py`) que (a) sólo permite
+       `http`/`https`, (b) resuelve DNS y rechaza si el IP cae en
+       cualquier rango privado/loopback/link-local/multicast/reserved,
+       (c) no sigue redirects y (d) capa la respuesta a 16 MB. Si la
+       URL es rechazada, la tool devuelve `{error: "photo_url_rejected"}`
+       y el agente retoma con un mensaje pidiéndole al usuario que
+       suba la foto de nuevo.
+    3. **Validación de uploads multipart**. Las dos rutas que
+       reciben bytes directos del cliente (Ghostwriter `/assist/upload`
+       y `/api/images/upload`) sniffean los magic bytes — JPEG/PNG/WebP
+       only — y reescriben la extensión del archivo guardado al
+       formato sniffed, sin confiar en `filename` ni `content_type`
+       del cliente. El cap de 8 MB se mantiene.
   - **Catálogo de categorías ampliado a 52** (migración 047). La
     lista cerrada de slugs que el sommelier puede pasar a
     `categoria_slug` se expandió de 16 a 52 cocinas + estilos
