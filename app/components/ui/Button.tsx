@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/app/lib/utils/cn';
 
-type Variant = 'primary' | 'secondary' | 'outline' | 'ghost';
+type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type Size = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -21,6 +21,8 @@ const variantClass: Record<Variant, string> = {
     'border border-border-strong bg-transparent text-text-primary hover:bg-surface-subtle',
   ghost:
     'bg-transparent text-action-primary hover:bg-surface-subtle',
+  danger:
+    'bg-action-danger text-text-inverse hover:brightness-110',
 };
 
 const sizeClass: Record<Size, string> = {

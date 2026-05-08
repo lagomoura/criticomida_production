@@ -22,7 +22,9 @@
   },
   "themeToggle": {
     "switchToLight": "Mudar para modo claro",
-    "switchToDark": "Mudar para modo escuro"
+    "switchToDark": "Mudar para modo escuro",
+    "currentLight": "Tema atual: claro",
+    "currentDark": "Tema atual: escuro"
   },
   "breadcrumb": {
     "ariaLabel": "Migalhas de pão"
@@ -1683,14 +1685,14 @@
   },
   "settings": {
     "title": "Configurações",
-    "anonMessage": "Você precisa estar logado para ver suas configurações.",
-    "goHome": "Ir para o início",
+    "anonMessage": "Entre para ver e editar suas configurações.",
+    "goHome": "Entrar",
     "savedTitle": "Salvos",
     "savedDescription": "As resenhas que você marcou para voltar.",
-    "savedAction": "Ver →",
+    "savedAction": "Ver salvos",
     "preferencesTitle": "Meus gostos",
     "preferencesDescription": "Idioma do Sommelier, estilo de resposta e restrições declaradas.",
-    "preferencesAction": "Editar →",
+    "preferencesAction": "Editar gostos",
     "themeTitle": "Tema",
     "themeDescription": "Alterne entre claro e escuro.",
     "logoutTitle": "Sair",
@@ -1726,8 +1728,14 @@
       "birthDateHelp": "Opcional. Só aparece ao dono do restaurante como faixa etária, nunca sua data exata.",
       "errorMessage": "Não conseguimos salvar as alterações. Tente novamente.",
       "cancel": "Cancelar",
-      "save": "Salvar alterações"
-    }
+      "save": "Salvar alterações",
+      "savedTitle": "Alterações salvas",
+      "savedDescription": "Seu perfil público foi atualizado."
+    },
+    "logoutConfirm": "Sair da sua conta?",
+    "logoutConfirmAction": "Sim, sair",
+    "logoutCancel": "Cancelar",
+    "logoutError": "Não foi possível sair. Tente novamente."
   },
   "profile": {
     "header": {

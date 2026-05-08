@@ -97,3 +97,45 @@ export function ListItemSkeleton({ className }: { className?: string }) {
     </div>
   );
 }
+
+/**
+ * Skeleton for the /settings page loading state.
+ * Mirrors the page shape: user header + edit-profile card + 4 option rows.
+ */
+export function SettingsSkeleton({ className }: { className?: string }) {
+  return (
+    <div aria-hidden className={cn('cc-container py-10 md:py-14', className)}>
+      {/* User header */}
+      <div className="mb-8 flex flex-wrap items-center gap-4">
+        <Skeleton shape="circle" width={56} height={56} />
+        <div className="flex flex-col gap-2">
+          <Skeleton shape="line" width={160} height={20} />
+          <Skeleton shape="line" width={100} height={14} />
+        </div>
+      </div>
+      {/* Edit profile card */}
+      <div className="mb-8 rounded-2xl border border-border-default bg-surface-card px-4 py-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-1 flex-col gap-1.5">
+            <Skeleton shape="line" width="50%" height={16} />
+            <Skeleton shape="line" width="70%" />
+          </div>
+          <Skeleton shape="box" width={80} height={32} className="rounded-lg" />
+        </div>
+      </div>
+      {/* Option rows */}
+      {[0, 1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="mb-6 flex items-center justify-between rounded-2xl border border-border-default bg-surface-card px-4 py-3"
+        >
+          <div className="flex flex-col gap-1.5">
+            <Skeleton shape="line" width={120} height={16} />
+            <Skeleton shape="line" width={180} />
+          </div>
+          <Skeleton shape="box" width={64} height={32} className="rounded-full" />
+        </div>
+      ))}
+    </div>
+  );
+}

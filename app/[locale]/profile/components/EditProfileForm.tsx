@@ -6,6 +6,7 @@ import Button from '@/app/components/ui/Button';
 import Input from '@/app/components/ui/Input';
 import Select from '@/app/components/ui/Select';
 import Textarea from '@/app/components/ui/Textarea';
+import { useToast } from '@/app/components/ui/Toast';
 import { updateProfile } from '@/app/lib/api/users';
 import { ApiError } from '@/app/lib/api/client';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
@@ -18,6 +19,7 @@ const TODAY_ISO = () => new Date().toISOString().slice(0, 10);
 export default function EditProfileForm() {
   const { user, refreshUser } = useAuthContext();
   const t = useTranslations('settings.editForm');
+  const toast = useToast();
   const [open, setOpen] = useState(false);
 
   const [displayName, setDisplayName] = useState(user?.display_name ?? '');
@@ -29,7 +31,6 @@ export default function EditProfileForm() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   if (!user) return null;
 
@@ -41,7 +42,6 @@ export default function EditProfileForm() {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-    setSuccess(false);
     try {
       await updateProfile({
         display_name: displayName.trim() || undefined,
@@ -52,7 +52,7 @@ export default function EditProfileForm() {
         birth_date: birthDate || null,
       });
       await refreshUser();
-      setSuccess(true);
+      toast.success(t('savedTitle'), t('savedDescription'));
       setOpen(false);
     } catch (err) {
       setError(
@@ -81,12 +81,6 @@ export default function EditProfileForm() {
           </Button>
         )}
       </header>
-
-      {success && !open && (
-        <p className="border-t border-border-default px-4 py-2 font-sans text-xs text-action-secondary">
-          {t('savedNotice')}
-        </p>
-      )}
 
       {open && (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 border-t border-border-default p-4" noValidate>

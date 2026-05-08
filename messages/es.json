@@ -22,7 +22,9 @@
   },
   "themeToggle": {
     "switchToLight": "Cambiar a modo claro",
-    "switchToDark": "Cambiar a modo oscuro"
+    "switchToDark": "Cambiar a modo oscuro",
+    "currentLight": "Tema actual: claro",
+    "currentDark": "Tema actual: oscuro"
   },
   "breadcrumb": {
     "ariaLabel": "Migas de pan"
@@ -1683,14 +1685,14 @@
   },
   "settings": {
     "title": "Configuración",
-    "anonMessage": "Necesitás estar logueado para ver tu configuración.",
-    "goHome": "Ir al inicio",
+    "anonMessage": "Iniciá sesión para ver y editar tu configuración.",
+    "goHome": "Iniciar sesión",
     "savedTitle": "Guardados",
     "savedDescription": "Las reseñas que marcaste para volver.",
-    "savedAction": "Ver →",
+    "savedAction": "Ver guardados",
     "preferencesTitle": "Mis gustos",
     "preferencesDescription": "Idioma del Sommelier, estilo de respuesta y restricciones declaradas.",
-    "preferencesAction": "Editar →",
+    "preferencesAction": "Editar gustos",
     "themeTitle": "Tema",
     "themeDescription": "Alterná entre claro y oscuro.",
     "logoutTitle": "Cerrar sesión",
@@ -1726,8 +1728,14 @@
       "birthDateHelp": "Opcional. Solo se muestra al dueño del restaurante como rango etario, nunca tu fecha exacta.",
       "errorMessage": "No pudimos guardar los cambios. Probá de nuevo.",
       "cancel": "Cancelar",
-      "save": "Guardar cambios"
-    }
+      "save": "Guardar cambios",
+      "savedTitle": "Cambios guardados",
+      "savedDescription": "Tu perfil público fue actualizado."
+    },
+    "logoutConfirm": "¿Salir de tu cuenta?",
+    "logoutConfirmAction": "Sí, salir",
+    "logoutCancel": "Cancelar",
+    "logoutError": "No se pudo cerrar la sesión. Probá de nuevo."
   },
   "profile": {
     "header": {

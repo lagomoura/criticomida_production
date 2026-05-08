@@ -22,7 +22,9 @@
   },
   "themeToggle": {
     "switchToLight": "Switch to light mode",
-    "switchToDark": "Switch to dark mode"
+    "switchToDark": "Switch to dark mode",
+    "currentLight": "Current theme: light",
+    "currentDark": "Current theme: dark"
   },
   "breadcrumb": {
     "ariaLabel": "Breadcrumb"
@@ -1683,14 +1685,14 @@
   },
   "settings": {
     "title": "Settings",
-    "anonMessage": "You need to be signed in to see your settings.",
-    "goHome": "Go home",
+    "anonMessage": "Sign in to view and edit your settings.",
+    "goHome": "Sign in",
     "savedTitle": "Saved",
     "savedDescription": "The reviews you bookmarked to come back to.",
-    "savedAction": "View →",
+    "savedAction": "View saved",
     "preferencesTitle": "My preferences",
     "preferencesDescription": "Sommelier reply language, response style, and declared restrictions.",
-    "preferencesAction": "Edit →",
+    "preferencesAction": "Edit preferences",
     "themeTitle": "Theme",
     "themeDescription": "Toggle between light and dark.",
     "logoutTitle": "Sign out",
@@ -1726,8 +1728,14 @@
       "birthDateHelp": "Optional. Only shown to the restaurant owner as an age range, never your exact date.",
       "errorMessage": "Couldn't save the changes. Try again.",
       "cancel": "Cancel",
-      "save": "Save changes"
-    }
+      "save": "Save changes",
+      "savedTitle": "Changes saved",
+      "savedDescription": "Your public profile has been updated."
+    },
+    "logoutConfirm": "Sign out of your account?",
+    "logoutConfirmAction": "Yes, sign out",
+    "logoutCancel": "Cancel",
+    "logoutError": "Could not sign out. Please try again."
   },
   "profile": {
     "header": {
