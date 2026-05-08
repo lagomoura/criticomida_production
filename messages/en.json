@@ -908,9 +908,13 @@
       "askDistance": "How far?"
     },
     "prosCons": {
+      "empty": "Pros and cons will show up here once visitors start commenting.",
+      "title": "Most repeated",
+      "subtitle": "What gets mentioned the most across community reviews and comments.",
       "pros": "Pros",
       "cons": "Cons",
-      "noCons": "Nothing relevant!"
+      "noPros": "No positive mentions yet.",
+      "noCons": "No negative mentions yet."
     },
     "starRating": {
       "ariaValue": "{value} of 5 stars",
@@ -1046,8 +1050,22 @@
       "companyOther": "Other",
       "companyOtherPlaceholder": "Tell us…",
       "addChip": "Add",
-      "prosPresets": ["Tasty", "Generous", "Beautifully plated", "Good value", "Fresh", "Well cooked"],
-      "consPresets": ["Pricey", "Small portion", "Cold", "Bland", "Overcooked", "Slow service"]
+      "prosPresets": [
+        "Tasty",
+        "Generous",
+        "Beautifully plated",
+        "Good value",
+        "Fresh",
+        "Well cooked"
+      ],
+      "consPresets": [
+        "Pricey",
+        "Small portion",
+        "Cold",
+        "Bland",
+        "Overcooked",
+        "Slow service"
+      ]
     },
     "technicalPillars": {
       "heading": "Technical pillars",
@@ -1244,15 +1262,6 @@
     },
     "editorial": {
       "footer": "Editorial summary via Google"
-    },
-    "prosCons": {
-      "empty": "Pros and cons will show up here once visitors start commenting.",
-      "title": "Most repeated",
-      "subtitle": "What gets mentioned the most across community reviews and comments.",
-      "pros": "Pros",
-      "cons": "Cons",
-      "noPros": "No positive mentions yet.",
-      "noCons": "No negative mentions yet."
     },
     "header": {
       "backTo": "Back to {label}",
@@ -1783,13 +1792,15 @@
     "nearYou": {
       "kicker": "Near you",
       "title": "Steps from where you are",
-      "subtitle": "Within {km} km — we mix cuisine, distance, and freshness."
+      "subtitle": "Within {km} km — we mix cuisine, distance, and freshness.",
+      "scrollLabel": "Dishes near you"
     },
     "bestExecution": {
       "kicker": "Technical pillar",
       "title": "Best technical execution",
       "subtitleNear": "Dishes where the cooking weighs more than the plating, near you.",
-      "subtitleGlobal": "Dishes where the cooking weighs more than the plating."
+      "subtitleGlobal": "Dishes where the cooking weighs more than the plating.",
+      "scrollLabel": "Best execution dishes"
     },
     "duel": {
       "kicker": "Dish duel",
@@ -1804,7 +1815,8 @@
       "subtitleCity": "In {city}, last 7 days.",
       "subtitleGlobal": "Last 7 days.",
       "cityLabel": "City",
-      "reviewsPerWeek": "{count} reviews/wk"
+      "reviewsPerWeek": "{count} reviews/wk",
+      "scrollLabel": "Trending dishes this week"
     },
     "card": {
       "noPhoto": "no photo",
@@ -1893,7 +1905,7 @@
   },
   "feed": {
     "heading": "Feed",
-    "kicker": "The feed",
+    "kicker": "Browse by type",
     "feedType": "Feed type",
     "loading": "Loading feed",
     "tabForYou": "For you",
@@ -1907,9 +1919,9 @@
     "tryAgain": "Try again",
     "endOfFeed": "You've reached the end of the feed.",
     "followingEmpty": {
-      "title": "You aren't following anyone yet",
+      "title": "Your feed is empty",
       "description": "Follow critics or friends to see their reviews here.",
-      "action": "Discover critics"
+      "action": "Find critics"
     },
     "actionErrors": {
       "likeFailed": "Couldn't like",
@@ -1928,7 +1940,8 @@
       "anonymousIntro": "Palato doesn't review entire restaurants: it reviews the dish. Sign in or create an account to review what you taste, save what you want to try, and follow the palate of people who know.",
       "tip1": "Review specific dishes, not entire restaurants.",
       "tip2": "Save what you want to try and build your list.",
-      "tip3": "Follow people whose taste matches yours."
+      "tip3": "Follow people whose taste matches yours.",
+      "tipsLabel": "How Palato works"
     }
   },
   "globalError": {

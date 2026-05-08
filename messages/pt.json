@@ -908,9 +908,13 @@
       "askDistance": "A que distância?"
     },
     "prosCons": {
-      "pros": "Prós",
-      "cons": "Contras",
-      "noCons": "Nada relevante!"
+      "empty": "As menções a favor e contra aparecerão aqui quando os visitantes começarem a comentar.",
+      "title": "O que mais se repete",
+      "subtitle": "O mais mencionado em resenhas e comentários da comunidade.",
+      "pros": "A favor",
+      "cons": "Contra",
+      "noPros": "Ainda sem menções positivas.",
+      "noCons": "Ainda sem menções negativas."
     },
     "starRating": {
       "ariaValue": "{value} de 5 estrelas",
@@ -1046,8 +1050,22 @@
       "companyOther": "Outro",
       "companyOtherPlaceholder": "Conte para nós…",
       "addChip": "Adicionar",
-      "prosPresets": ["Saboroso", "Generoso", "Bem apresentado", "Bom preço", "Fresco", "Bem cozido"],
-      "consPresets": ["Caro", "Porção pequena", "Frio", "Sem graça", "Mal cozido", "Demorou muito"]
+      "prosPresets": [
+        "Saboroso",
+        "Generoso",
+        "Bem apresentado",
+        "Bom preço",
+        "Fresco",
+        "Bem cozido"
+      ],
+      "consPresets": [
+        "Caro",
+        "Porção pequena",
+        "Frio",
+        "Sem graça",
+        "Mal cozido",
+        "Demorou muito"
+      ]
     },
     "technicalPillars": {
       "heading": "Pilares técnicos",
@@ -1244,15 +1262,6 @@
     },
     "editorial": {
       "footer": "Resumo editorial via Google"
-    },
-    "prosCons": {
-      "empty": "As menções a favor e contra aparecerão aqui quando os visitantes começarem a comentar.",
-      "title": "O que mais se repete",
-      "subtitle": "O mais mencionado em resenhas e comentários da comunidade.",
-      "pros": "A favor",
-      "cons": "Contra",
-      "noPros": "Ainda sem menções positivas.",
-      "noCons": "Ainda sem menções negativas."
     },
     "header": {
       "backTo": "Voltar a {label}",
@@ -1783,13 +1792,15 @@
     "nearYou": {
       "kicker": "Perto de você",
       "title": "A poucos passos de onde está",
-      "subtitle": "Em um raio de {km} km — combinamos cozinha, distância e novidade."
+      "subtitle": "Em um raio de {km} km — combinamos cozinha, distância e novidade.",
+      "scrollLabel": "Pratos perto de você"
     },
     "bestExecution": {
       "kicker": "Pilar técnico",
       "title": "Melhor execução técnica",
       "subtitleNear": "Pratos em que a cozinha pesa mais que a apresentação, perto de você.",
-      "subtitleGlobal": "Pratos em que a cozinha pesa mais que a apresentação."
+      "subtitleGlobal": "Pratos em que a cozinha pesa mais que a apresentação.",
+      "scrollLabel": "Pratos com melhor execução técnica"
     },
     "duel": {
       "kicker": "Duelo de pratos",
@@ -1804,7 +1815,8 @@
       "subtitleCity": "Em {city}, últimos 7 dias.",
       "subtitleGlobal": "Últimos 7 dias.",
       "cityLabel": "Cidade",
-      "reviewsPerWeek": "{count} resenhas/sem"
+      "reviewsPerWeek": "{count} resenhas/sem",
+      "scrollLabel": "Pratos em alta nesta semana"
     },
     "card": {
       "noPhoto": "sem foto",
@@ -1893,7 +1905,7 @@
   },
   "feed": {
     "heading": "Feed",
-    "kicker": "O feed",
+    "kicker": "Explore por tipo",
     "feedType": "Tipo de feed",
     "loading": "Carregando feed",
     "tabForYou": "Para você",
@@ -1907,9 +1919,9 @@
     "tryAgain": "Tentar novamente",
     "endOfFeed": "Você chegou ao fim do feed.",
     "followingEmpty": {
-      "title": "Você ainda não segue ninguém",
+      "title": "Seu feed está vazio",
       "description": "Siga críticos ou amigos para ver as resenhas deles aqui.",
-      "action": "Descobrir críticos"
+      "action": "Encontrar críticos"
     },
     "actionErrors": {
       "likeFailed": "Não foi possível curtir",
@@ -1928,7 +1940,8 @@
       "anonymousIntro": "Palato não opina de restaurantes inteiros: opina do prato. Entre ou crie uma conta para resenhar o que prova, salvar o que quer experimentar e seguir o paladar de gente que conhece.",
       "tip1": "Resenhe pratos específicos, não restaurantes inteiros.",
       "tip2": "Salve o que quer experimentar e monte sua lista.",
-      "tip3": "Siga pessoas cujo paladar combina com o seu."
+      "tip3": "Siga pessoas cujo paladar combina com o seu.",
+      "tipsLabel": "Como o Palato funciona"
     }
   },
   "globalError": {

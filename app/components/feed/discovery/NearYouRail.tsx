@@ -98,7 +98,7 @@ export default function NearYouRail({
       {items === null ? (
         <RailSkeleton />
       ) : (
-        <HorizontalScroll>
+        <HorizontalScroll ariaLabel={t('scrollLabel')}>
           {items.map((dish) => (
             <DishDiscoveryCard
               key={dish.dishId}

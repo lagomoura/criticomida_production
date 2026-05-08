@@ -47,7 +47,7 @@ export default function DishDiscoveryCard({
             {t('noPhoto')}
           </div>
         )}
-        <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-[var(--color-azafran)] px-2 py-1 font-sans text-[0.7rem] font-semibold uppercase tracking-wider text-white shadow">
+        <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-[var(--color-azafran)] px-2 py-1 font-sans text-[0.7rem] font-semibold uppercase tracking-wider text-text-inverse shadow">
           {Math.round(dish.geekScore)} <span className="opacity-80">{t('geekChip')}</span>
         </span>
       </Link>
@@ -68,11 +68,13 @@ export default function DishDiscoveryCard({
         </Link>
       </div>
 
-      <PillarMiniBars dish={dish} />
+      <PillarMiniBars dish={dish} t={t} />
 
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-3 font-sans text-xs text-text-muted">
-          <span>★ {dish.computedRating.toFixed(1)}</span>
+          <span>
+            <span aria-hidden>★</span> {dish.computedRating.toFixed(1)}
+          </span>
           <span>{t('reviews', { count: dish.reviewCount })}</span>
           {dish.distanceKm !== null && (
             <span className="inline-flex items-center gap-1">
@@ -104,11 +106,17 @@ function formatDistance(km: number): string {
   return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
 }
 
-function PillarMiniBars({ dish }: { dish: DiscoveryDishItem }) {
+function PillarMiniBars({
+  dish,
+  t,
+}: {
+  dish: DiscoveryDishItem;
+  t: ReturnType<typeof useTranslations<'discovery.card'>>;
+}) {
   const pillars: Array<{ label: string; avg: number | null; n: number }> = [
-    { label: 'Ejec.', avg: dish.pillars.executionAvg, n: dish.pillars.executionN },
-    { label: 'Costo', avg: dish.pillars.valuePropAvg, n: dish.pillars.valuePropN },
-    { label: 'Pres.', avg: dish.pillars.presentationAvg, n: dish.pillars.presentationN },
+    { label: t('pillarExec'), avg: dish.pillars.executionAvg, n: dish.pillars.executionN },
+    { label: t('pillarValue'), avg: dish.pillars.valuePropAvg, n: dish.pillars.valuePropN },
+    { label: t('pillarPres'), avg: dish.pillars.presentationAvg, n: dish.pillars.presentationN },
   ];
   return (
     <div className="flex gap-2">

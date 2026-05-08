@@ -128,7 +128,7 @@ export default function DishDuelRail({
             aria-label={t('categoryLabel')}
             value={activeCategory ?? ''}
             onChange={(e) => setActiveCategory(e.target.value)}
-            className="rounded-full border border-border-default bg-white px-3 py-1.5 font-sans text-xs"
+            className="min-h-[44px] rounded-full border border-border-default bg-surface-card px-3 py-2.5 font-sans text-xs text-text-primary"
           >
             {categories.map((c) => (
               <option key={c.slug} value={c.slug}>
@@ -146,7 +146,7 @@ export default function DishDuelRail({
           {items.map((dish, idx) => (
             <div key={dish.dishId} className="relative">
               {idx === 0 && (
-                <span className="absolute -top-2 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-white shadow">
+                <span className="absolute -top-2 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-[color:var(--color-albahaca)] px-2.5 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-text-inverse shadow">
                   {t('winner')}
                 </span>
               )}

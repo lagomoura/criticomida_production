@@ -81,7 +81,7 @@ export default function TrendingRail({ defaultCity }: TrendingRailProps) {
             aria-label={t('cityLabel')}
             value={activeCity ?? ''}
             onChange={(e) => setActiveCity(e.target.value)}
-            className="rounded-full border border-border-default bg-white px-3 py-1.5 font-sans text-xs"
+            className="min-h-[44px] rounded-full border border-border-default bg-surface-card px-3 py-2.5 font-sans text-xs text-text-primary"
           >
             {cities.map((c) => (
               <option key={c} value={c}>
@@ -95,7 +95,7 @@ export default function TrendingRail({ defaultCity }: TrendingRailProps) {
       {items === null ? (
         <RailSkeleton />
       ) : (
-        <HorizontalScroll>
+        <HorizontalScroll ariaLabel={t('scrollLabel')}>
           {items.map((dish, idx) => (
             <TrendingMiniCard key={dish.dishId} dish={dish} rank={idx + 1} />
           ))}
@@ -123,9 +123,15 @@ function TrendingMiniCard({ dish, rank }: { dish: TrendingDish; rank: number }) 
           {dish.restaurantName}
         </span>
         <div className="mt-1 flex flex-wrap gap-x-2 font-sans text-[0.7rem] text-text-muted">
-          <span>★ {dish.averageScore.toFixed(1)}</span>
+          <span>
+            <span aria-hidden>★</span>{' '}
+            {dish.averageScore.toFixed(1)}
+          </span>
           <span>{t('reviewsPerWeek', { count: dish.reviewsRecent })}</span>
-          <span>{dish.likesRecent} ❤</span>
+          <span>
+            <span aria-hidden>♥</span>{' '}
+            {dish.likesRecent}
+          </span>
         </div>
       </div>
     </Link>

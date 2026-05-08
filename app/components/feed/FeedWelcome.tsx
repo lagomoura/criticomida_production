@@ -53,21 +53,23 @@ export default function FeedWelcome() {
               <p className="mt-3 max-w-prose font-sans text-sm text-text-secondary md:text-base">
                 {t('anonymousIntro')}
               </p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                <Link href="/registro" className="no-underline">
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Link href="/registro" className="no-underline sm:flex-none">
                   <Button
                     variant="primary"
-                    size="md"
-                    leftIcon={<FontAwesomeIcon icon={faPenToSquare} className="h-3.5 w-3.5" />}
+                    size="lg"
+                    className="w-full sm:w-auto"
+                    leftIcon={<FontAwesomeIcon icon={faPenToSquare} className="h-4 w-4" />}
                   >
                     {tAuth('createAccount')}
                   </Button>
                 </Link>
-                <Link href="/login" className="no-underline">
+                <Link href="/login" className="no-underline sm:flex-none">
                   <Button
-                    variant="ghost"
-                    size="md"
-                    leftIcon={<FontAwesomeIcon icon={faRightToBracket} className="h-3.5 w-3.5" />}
+                    variant="outline"
+                    size="lg"
+                    className="w-full sm:w-auto"
+                    leftIcon={<FontAwesomeIcon icon={faRightToBracket} className="h-4 w-4" />}
                   >
                     {tAuth('signIn')}
                   </Button>
@@ -77,7 +79,10 @@ export default function FeedWelcome() {
           )}
         </div>
 
-        <ul className="flex flex-col gap-3 border-t border-border-subtle pt-5 md:border-l md:border-t-0 md:pl-8 md:pt-0">
+        <ul
+          aria-label={t('tipsLabel')}
+          className="flex flex-col gap-2.5 border-t border-border-subtle pt-5 md:border-l md:border-t-0 md:pl-8 md:pt-0"
+        >
           <Tip kicker="01" text={t('tip1')} />
           <Tip kicker="02" text={t('tip2')} />
           <Tip kicker="03" text={t('tip3')} />
@@ -89,11 +94,14 @@ export default function FeedWelcome() {
 
 function Tip({ kicker, text }: { kicker: string; text: string }) {
   return (
-    <li className="flex items-baseline gap-3 font-sans text-sm text-text-secondary">
-      <span className="font-display text-base font-medium text-action-primary tabular-nums">
+    <li className="flex items-baseline gap-2.5 font-sans text-xs text-text-muted">
+      <span
+        aria-hidden
+        className="shrink-0 font-sans text-[0.65rem] font-semibold tabular-nums text-text-muted opacity-60"
+      >
         {kicker}
       </span>
-      <span>{text}</span>
+      <span className="leading-relaxed">{text}</span>
     </li>
   );
 }

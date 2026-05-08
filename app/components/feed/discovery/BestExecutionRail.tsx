@@ -97,7 +97,7 @@ export default function BestExecutionRail({
       {items === null ? (
         <RailSkeleton />
       ) : (
-        <HorizontalScroll>
+        <HorizontalScroll ariaLabel={t('scrollLabel')}>
           {items.map((dish) => (
             <DishDiscoveryCard
               key={dish.dishId}
