@@ -995,6 +995,8 @@
       "photosLabel": "Photos",
       "removePhoto": "Remove photo",
       "photoButton": "Photo",
+      "photoCtaTitle": "Add photos of the dish",
+      "photoCtaHelp": "Reviews with photos get more views",
       "portionLabel": "Portion",
       "portionUnspecified": "Unspecified",
       "portionSmall": "Small",

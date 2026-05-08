@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 import { MealPeriod, PortionSize } from '@/app/lib/types';
 import { formatCurrencySymbol } from '@/app/lib/utils/currency';
 import StarRating from '@/app/[locale]/restaurants/[id]/components/StarRating';
@@ -217,51 +219,14 @@ export default function ReviewFormBody({
   return (
     <>
       {/* 1. Photos — first action, mobile convention (Instagram/TikTok).
-          Followed by an inline Ghostwriter banner so the AI assist is
-          discoverable right where it makes sense (it operates on the photo). */}
+          Empty state shows a full-width dropzone CTA so the affordance is
+          impossible to miss on mobile; once the user adds at least one photo
+          we collapse to a thumbnail grid with a same-size "+" tile. */}
       <div>
         <label className="mb-1.5 block font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-text-secondary">
           {t('photosLabel')}
         </label>
-        <div className="flex flex-wrap gap-2">
-          {value.existingImages.map((img) => (
-            <div key={img.id} className="relative h-16 w-16 shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={img.url}
-                alt={img.alt_text ?? ''}
-                className="h-full w-full rounded-xl object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => removeExistingImage(img.id)}
-                disabled={submitting}
-                aria-label={t('removePhoto')}
-                className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-color-paprika text-[12px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-          {value.photos.map((photo) => (
-            <div key={photo.id} className="relative h-16 w-16 shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photo.preview}
-                alt=""
-                className="h-full w-full rounded-xl object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => removePhoto(photo.id)}
-                disabled={submitting}
-                aria-label={t('removePhoto')}
-                className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-color-paprika text-[12px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light"
-              >
-                ×
-              </button>
-            </div>
-          ))}
+        {value.existingImages.length === 0 && value.photos.length === 0 ? (
           <button
             type="button"
             onClick={() => {
@@ -269,74 +234,145 @@ export default function ReviewFormBody({
               photoInputRef.current?.click();
             }}
             disabled={submitting}
-            className="group flex h-16 w-16 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border-default bg-surface-card text-text-muted transition-all hover:border-color-azafran hover:bg-color-azafran-pale hover:text-color-azafran disabled:cursor-not-allowed disabled:opacity-50"
+            className="group flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border-default bg-surface-card px-4 py-8 text-text-muted transition-all hover:border-color-azafran hover:bg-color-azafran-pale disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <span className="text-2xl leading-none">+</span>
-            <span className="text-[10px] font-medium">{t('photoButton')}</span>
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-color-azafran-pale text-color-azafran transition-colors group-hover:bg-color-azafran group-hover:text-text-inverse">
+              <FontAwesomeIcon icon={faCamera} className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <span className="font-sans text-sm font-semibold text-text-primary">
+              {t('photoCtaTitle')}
+            </span>
+            <span className="font-sans text-[11px] text-text-muted">
+              {t('photoCtaHelp')}
+            </span>
           </button>
-          <input
-            ref={photoInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            hidden
-            onChange={handlePhotoAdd}
-          />
-        </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {value.existingImages.map((img) => (
+              <div key={img.id} className="relative h-24 w-24 shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={img.url}
+                  alt={img.alt_text ?? ''}
+                  className="h-full w-full rounded-xl object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeExistingImage(img.id)}
+                  disabled={submitting}
+                  aria-label={t('removePhoto')}
+                  className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-color-paprika text-[12px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {value.photos.map((photo) => (
+              <div key={photo.id} className="relative h-24 w-24 shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photo.preview}
+                  alt=""
+                  className="h-full w-full rounded-xl object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removePhoto(photo.id)}
+                  disabled={submitting}
+                  aria-label={t('removePhoto')}
+                  className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-color-paprika text-[12px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                vibrateOnce(8);
+                photoInputRef.current?.click();
+              }}
+              disabled={submitting}
+              className="group flex h-24 w-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border-default bg-surface-card text-text-muted transition-all hover:border-color-azafran hover:bg-color-azafran-pale hover:text-color-azafran disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <FontAwesomeIcon icon={faCamera} className="h-5 w-5" aria-hidden="true" />
+              <span className="text-[10px] font-medium">{t('photoButton')}</span>
+            </button>
+          </div>
+        )}
+        <input
+          ref={photoInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          hidden
+          onChange={handlePhotoAdd}
+        />
       </div>
 
       {/* 1b. Ghostwriter banner — placed right after photos so the AI assist
-          is contextual: subiste foto → te ayudamos a escribir. */}
-      <div className="flex flex-col gap-2 rounded-2xl border border-action-primary/20 bg-action-primary/5 p-3">
-        <div className="flex items-start gap-2">
-          <span aria-hidden className="text-base leading-none">✨</span>
-          <div className="flex flex-col">
-            <p className="m-0 font-sans text-sm font-semibold text-text-primary">
-              {t('ghostwriterIntroTitle')}
-            </p>
-            <p className="m-0 font-sans text-[12px] text-text-muted">
-              {t('ghostwriterIntroDesc')}
-            </p>
+          is contextual: subiste foto → te ayudamos a escribir. Conventional
+          info-banner pattern (icon + title/desc + CTA). No idle animation:
+          attention comes from brand color and clear hierarchy, not motion.
+          DMMT: the AI is an offer, not the task — must read lighter than
+          the actual review fields. */}
+      <div className="rounded-2xl border border-color-azafran/40 bg-color-azafran-pale p-3.5 shadow-[var(--shadow-base)] dark:bg-[color-mix(in_srgb,var(--color-azafran)_14%,var(--surface-page))] sm:p-4">
+        <div className="flex items-start gap-3">
+          <span
+            aria-hidden="true"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-color-azafran text-text-inverse shadow-[var(--shadow-micro)]"
+          >
+            <FontAwesomeIcon icon={faWandMagicSparkles} className="h-4 w-4" />
+          </span>
+          <div className="flex flex-1 flex-col gap-2.5">
+            <div className="flex flex-col gap-0.5">
+              <p className="m-0 font-sans text-sm font-semibold text-text-primary">
+                {t('ghostwriterIntroTitle')}
+              </p>
+              <p className="m-0 font-sans text-[12.5px] leading-snug text-text-secondary">
+                {t('ghostwriterIntroDesc')}
+              </p>
+            </div>
+            <GhostwriterAssist
+              dishId={dishId}
+              dishName={dishName}
+              draft={value.note}
+              defaultPhoto={value.photos[0]?.file ?? null}
+              onPhotoUploaded={(file) => {
+                const isDuplicate = value.photos.some(
+                  (p) =>
+                    p.file.name === file.name &&
+                    p.file.size === file.size &&
+                    p.file.lastModified === file.lastModified,
+                );
+                if (isDuplicate) return;
+                onChange({
+                  ...value,
+                  photos: [
+                    ...value.photos,
+                    { id: nextEntryId(), file, preview: URL.createObjectURL(file) },
+                  ],
+                });
+              }}
+              onAddTag={(tag) => {
+                if (value.tags.includes(tag)) return;
+                set('tags', [...value.tags, tag]);
+              }}
+              onAddPro={(text) => {
+                if (value.pros.includes(text)) return;
+                set('pros', [...value.pros, text]);
+              }}
+              onAddCon={(text) => {
+                if (value.cons.includes(text)) return;
+                set('cons', [...value.cons, text]);
+              }}
+              onApplyBlurb={(text) => {
+                const trimmed = value.note.trim();
+                set('note', trimmed ? `${trimmed}\n\n${text}` : text);
+              }}
+            />
           </div>
         </div>
-        <GhostwriterAssist
-          dishId={dishId}
-          dishName={dishName}
-          draft={value.note}
-          defaultPhoto={value.photos[0]?.file ?? null}
-          onPhotoUploaded={(file) => {
-            const isDuplicate = value.photos.some(
-              (p) =>
-                p.file.name === file.name &&
-                p.file.size === file.size &&
-                p.file.lastModified === file.lastModified,
-            );
-            if (isDuplicate) return;
-            onChange({
-              ...value,
-              photos: [
-                ...value.photos,
-                { id: nextEntryId(), file, preview: URL.createObjectURL(file) },
-              ],
-            });
-          }}
-          onAddTag={(tag) => {
-            if (value.tags.includes(tag)) return;
-            set('tags', [...value.tags, tag]);
-          }}
-          onAddPro={(text) => {
-            if (value.pros.includes(text)) return;
-            set('pros', [...value.pros, text]);
-          }}
-          onAddCon={(text) => {
-            if (value.cons.includes(text)) return;
-            set('cons', [...value.cons, text]);
-          }}
-          onApplyBlurb={(text) => {
-            const trimmed = value.note.trim();
-            set('note', trimmed ? `${trimmed}\n\n${text}` : text);
-          }}
-        />
       </div>
 
       {/* 2. Rating + ¿lo pedirías? — the gate */}
@@ -430,28 +466,34 @@ export default function ReviewFormBody({
         removeLabel={(item) => `${t('removeCon')} (${item})`}
       />
 
-      {/* 7+8. Portion + meal period — side-by-side on sm+ to save vertical room */}
+      {/* 7+8. Portion + meal period — side-by-side on sm+ to save vertical room.
+          Each one wraps in its own card so on mobile (stacked) the sections
+          read as discrete groups instead of a single rail of buttons. */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <SegmentedSelect
-          label={t('portionLabel')}
-          options={portionOptions}
-          value={(value.portionSize || null) as PortionSize | null}
-          onChange={(v) => set('portionSize', v ?? '')}
-          columns={3}
-          disabled={submitting}
-        />
-        <SegmentedSelect
-          label={t('mealPeriodLabel')}
-          options={mealOptions}
-          value={value.mealPeriod}
-          onChange={(v) => set('mealPeriod', v)}
-          columns={4}
-          disabled={submitting}
-        />
+        <div className="rounded-2xl border border-border-subtle bg-surface-card p-2.5 sm:p-3">
+          <SegmentedSelect
+            label={t('portionLabel')}
+            options={portionOptions}
+            value={(value.portionSize || null) as PortionSize | null}
+            onChange={(v) => set('portionSize', v ?? '')}
+            columns={3}
+            disabled={submitting}
+          />
+        </div>
+        <div className="rounded-2xl border border-border-subtle bg-surface-card p-2.5 sm:p-3">
+          <SegmentedSelect
+            label={t('mealPeriodLabel')}
+            options={mealOptions}
+            value={value.mealPeriod}
+            onChange={(v) => set('mealPeriod', v)}
+            columns={4}
+            disabled={submitting}
+          />
+        </div>
       </div>
 
       {/* 9. Company — preset, with free-text fallback when "other" */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 rounded-2xl border border-border-subtle bg-surface-card p-2.5 sm:p-3">
         <SegmentedSelect
           label={t('companyLabel')}
           options={companyOptions}
@@ -475,7 +517,7 @@ export default function ReviewFormBody({
             onChange={(e) => set('visitedWith', e.target.value)}
             disabled={submitting}
             maxLength={200}
-            className="w-full rounded-xl border border-border-subtle bg-surface-card px-3.5 py-2.5 font-sans text-sm text-text-primary placeholder:text-text-muted/80 transition-all focus:border-color-azafran focus:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-60"
+            className="w-full rounded-xl border border-border-subtle bg-surface-page px-3.5 py-2.5 font-sans text-sm text-text-primary placeholder:text-text-muted/80 transition-all focus:border-color-azafran focus:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-60"
           />
         )}
       </div>
