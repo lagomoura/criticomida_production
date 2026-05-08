@@ -813,7 +813,8 @@
       "title": "Destaques do restaurante",
       "topN": "Top {count}",
       "wouldOrderAgain": "Pediria de novo",
-      "anonymous": "Anônimo"
+      "anonymous": "Anônimo",
+      "cardAria": "Ver resenha de {dish} por {author}"
     },
     "ratings": {
       "title": "Como a comunidade avaliou",
@@ -1088,6 +1089,7 @@
     },
     "checklistItem": {
       "ariaLabel": "Prato: {name}",
+      "viewDishAria": "Ver detalhe de {name}",
       "reviewed": "Revisado",
       "noRatings": "Sem avaliações ainda",
       "reviewOne": "{count} resenha",

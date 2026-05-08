@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/app/lib/i18n/navigation';
 import { Dish, DishReview } from '@/app/lib/types';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import StarRating from './StarRating';
@@ -44,8 +45,18 @@ export default function DishChecklistItem({
     : null;
   const hasReviewed = !!userReview;
 
-  const imageSrc =
-    !imgError && dish.cover_image_url ? dish.cover_image_url : '/img/food-fallback.jpg';
+  // Fallback en cascada: cover oficial del plato → primera imagen de la
+  // review más reciente que tenga fotos → mock genérico. Así un plato sin
+  // cover asignado pero con reseñas con fotos muestra una imagen real.
+  const reviewCover = [...reviews]
+    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+    .flatMap((r) =>
+      [...r.images].sort((a, b) => a.display_order - b.display_order),
+    )
+    .find((img) => !!img.url)?.url;
+  const resolvedCover = dish.cover_image_url || reviewCover || null;
+  const imageSrc = !imgError && resolvedCover ? resolvedCover : '/img/food-fallback.jpg';
+  const dishHref = `/dishes/${dish.id}`;
 
   const displayRating = Number(dish.computed_rating);
   const reviewCount = dish.review_count;
@@ -73,7 +84,11 @@ export default function DishChecklistItem({
       aria-label={t('ariaLabel', { name: dish.name })}
     >
       <div className="flex items-center gap-3 p-3 sm:p-4">
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-amber-50 sm:h-20 sm:w-20">
+        <Link
+          href={dishHref}
+          aria-label={t('viewDishAria', { name: dish.name })}
+          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-amber-50 transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mainPink)] focus-visible:ring-offset-2 sm:h-20 sm:w-20"
+        >
           <Image
             src={imageSrc}
             alt={dish.name}
@@ -82,13 +97,16 @@ export default function DishChecklistItem({
             sizes="80px"
             onError={() => setImgError(true)}
           />
-        </div>
+        </Link>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-start justify-between gap-1">
-            <h3 className="text-base font-semibold leading-tight text-neutral-900 sm:text-lg">
-              {dish.name}
-            </h3>
+            <Link
+              href={dishHref}
+              className="group/title text-base font-semibold leading-tight text-neutral-900 no-underline hover:text-[var(--mainPink)] focus-visible:outline-none focus-visible:underline focus-visible:decoration-2 focus-visible:underline-offset-4 sm:text-lg"
+            >
+              <h3 className="inline">{dish.name}</h3>
+            </Link>
             {hasReviewed && (
               <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
                 {t('reviewed')}
