@@ -2302,7 +2302,10 @@
       "blurbApplied": "Pasted",
       "prosTitle": "Possible pros",
       "consTitle": "Possible cons",
-      "reanalyze": "Try another photo"
+      "reanalyze": "Try another photo",
+      "appliedTitle": "Applied to the form",
+      "appliedBlurbInline": "pasted into the note field",
+      "appliedHelper": "Edit or remove anything that doesn't fit from the form fields."
     }
   },
   "lists": {

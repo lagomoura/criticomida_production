@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faCheck,
   faCircleNotch,
   faPenFancy,
   faPlus,
@@ -265,6 +266,34 @@ export default function GhostwriterAssist({
                 </SuggestionGroup>
               )}
 
+              {(usedTags.size > 0 ||
+                usedPros.size > 0 ||
+                usedCons.size > 0 ||
+                blurbApplied) && (
+                <AppliedRecap
+                  title={t('appliedTitle')}
+                  helper={t('appliedHelper')}
+                  rows={[
+                    usedTags.size > 0 && {
+                      label: t('tagsTitle'),
+                      text: [...usedTags].map((x) => `#${x}`).join('  '),
+                    },
+                    blurbApplied && {
+                      label: t('blurbTitle'),
+                      text: t('appliedBlurbInline'),
+                    },
+                    usedPros.size > 0 && {
+                      label: t('prosTitle'),
+                      text: [...usedPros].join(' · '),
+                    },
+                    usedCons.size > 0 && {
+                      label: t('consTitle'),
+                      text: [...usedCons].join(' · '),
+                    },
+                  ].filter(Boolean) as Array<{ label: string; text: string }>}
+                />
+              )}
+
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
@@ -300,6 +329,34 @@ function SuggestionGroup({
         {title}
       </span>
       <div className="flex flex-wrap gap-1.5">{children}</div>
+    </div>
+  );
+}
+
+function AppliedRecap({
+  title,
+  helper,
+  rows,
+}: {
+  title: string;
+  helper: string;
+  rows: Array<{ label: string; text: string }>;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5 rounded-xl border border-color-albahaca/25 bg-color-albahaca-pale px-3 py-2.5">
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-color-albahaca">
+        <FontAwesomeIcon icon={faCheck} aria-hidden className="h-3 w-3" />
+        {title}
+      </div>
+      <ul className="m-0 flex list-none flex-col gap-1 p-0 text-xs text-text-primary">
+        {rows.map((r) => (
+          <li key={r.label} className="leading-snug">
+            <span className="font-medium text-text-secondary">{r.label}:</span>{' '}
+            {r.text}
+          </li>
+        ))}
+      </ul>
+      <p className="m-0 text-[11px] italic text-text-muted">{helper}</p>
     </div>
   );
 }

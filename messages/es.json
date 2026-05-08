@@ -2302,7 +2302,10 @@
       "blurbApplied": "Pegado",
       "prosTitle": "Posibles \"lo bueno\"",
       "consTitle": "Posibles \"lo malo\"",
-      "reanalyze": "Probar otra foto"
+      "reanalyze": "Probar otra foto",
+      "appliedTitle": "Aplicado al formulario",
+      "appliedBlurbInline": "pegada en el campo de notas",
+      "appliedHelper": "Editá o sacá lo que no te cierre desde los campos del formulario."
     }
   },
   "lists": {

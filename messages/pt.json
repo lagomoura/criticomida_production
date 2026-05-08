@@ -2302,7 +2302,10 @@
       "blurbApplied": "Colado",
       "prosTitle": "Possíveis \"o bom\"",
       "consTitle": "Possíveis \"o ruim\"",
-      "reanalyze": "Tentar outra foto"
+      "reanalyze": "Tentar outra foto",
+      "appliedTitle": "Aplicado ao formulário",
+      "appliedBlurbInline": "colada no campo de notas",
+      "appliedHelper": "Edite ou remova o que não combinar pelos campos do formulário."
     }
   },
   "lists": {
