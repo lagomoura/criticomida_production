@@ -58,6 +58,9 @@ export default function Textarea({
         </div>
       )}
       <textarea
+        autoCapitalize="sentences"
+        autoCorrect="on"
+        spellCheck
         {...rest}
         id={inputId}
         rows={rows}
@@ -67,7 +70,9 @@ export default function Textarea({
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         className={cn(
-          'rounded-md border bg-surface-card px-3 py-2 font-sans text-sm leading-relaxed text-text-primary',
+          // text-base on mobile prevents iOS Safari zoom on focus; resize-none
+          // by default avoids accidental layout shift from the corner handle.
+          'rounded-md border bg-surface-card px-3 py-2 font-sans text-base leading-relaxed text-text-primary sm:text-sm resize-none',
           'placeholder:text-text-muted',
           'focus:outline-none focus:[box-shadow:var(--focus-ring)]',
           'disabled:cursor-not-allowed disabled:opacity-60',

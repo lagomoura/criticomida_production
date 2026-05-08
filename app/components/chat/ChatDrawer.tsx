@@ -429,7 +429,7 @@ export default function ChatDrawer({
                 aria-label={t('removePhoto')}
                 title={t('removePhoto')}
                 className={cn(
-                  'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors',
+                  'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors',
                   'hover:bg-surface-card hover:text-text-primary',
                   'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
                 )}

@@ -238,6 +238,12 @@ export default function MentionTextarea({
         </div>
       )}
       <textarea
+        // Sentence-style autocap matches free-text review prose. enterKeyHint
+        // is left as the Enter default (newline) — overriding to "send" would
+        // mislead users since Enter inserts a line break, not a submit.
+        autoCapitalize="sentences"
+        autoCorrect="on"
+        spellCheck
         {...rest}
         id={inputId}
         ref={textareaRef}
@@ -253,7 +259,8 @@ export default function MentionTextarea({
         aria-autocomplete="list"
         aria-controls={open ? listboxId : undefined}
         className={cn(
-          'rounded-md border bg-surface-card px-3 py-2 font-sans text-sm leading-relaxed text-text-primary',
+          // text-base on mobile prevents iOS Safari zoom on focus.
+          'rounded-md border bg-surface-card px-3 py-2 font-sans text-base leading-relaxed text-text-primary sm:text-sm',
           'placeholder:text-text-muted',
           'focus:outline-none focus:[box-shadow:var(--focus-ring)]',
           'disabled:cursor-not-allowed disabled:opacity-60',

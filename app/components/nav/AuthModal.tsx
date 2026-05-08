@@ -29,6 +29,7 @@ export default function AuthModal({ open, onClose, initialTab = 'login', onSucce
       onClose={onClose}
       title={tab === 'login' ? t('signIn') : t('createAccount')}
       size="md"
+      position="bottom-sheet"
     >
       <AuthForm
         initialTab={tab}

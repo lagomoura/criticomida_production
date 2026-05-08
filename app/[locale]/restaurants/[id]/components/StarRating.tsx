@@ -27,9 +27,13 @@ export default function StarRating({
   const [hovered, setHovered] = useState(0);
   const effective = hovered || value;
 
+  // Padding only when interactive: bumps each tap target above 44px on mobile
+  // without expanding the visual footprint of the read-only display variant.
+  const paddingClass = readonly ? 'p-0' : 'p-1';
+
   return (
     <span
-      className={`inline-flex gap-0.5 ${sizeClasses[size]}`}
+      className={`inline-flex ${readonly ? 'gap-0.5' : 'gap-0'} ${sizeClasses[size]}`}
       aria-label={t('ariaValue', { value })}
       role={readonly ? 'img' : 'group'}
     >
@@ -42,7 +46,8 @@ export default function StarRating({
           className={
             'leading-none transition-transform duration-100 ' +
             (readonly ? 'cursor-default' : 'cursor-pointer hover:scale-110') +
-            ' disabled:pointer-events-none bg-transparent border-none p-0'
+            ' disabled:pointer-events-none bg-transparent border-none ' + paddingClass +
+            ' focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] rounded'
           }
           onClick={() => onChange?.(star)}
           onMouseEnter={() => !readonly && setHovered(star)}

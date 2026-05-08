@@ -39,7 +39,10 @@ export default function Input({
   const effectiveType = isPassword && visible ? 'text' : type;
 
   const inputClassName = cn(
-    'h-10 w-full rounded-md border bg-surface-card px-3 font-sans text-sm text-text-primary',
+    // text-base (16px) on mobile to suppress iOS Safari's involuntary zoom on
+    // focus; sm:text-sm preserves the 14px design density on viewports where
+    // the zoom heuristic doesn't apply.
+    'h-10 w-full rounded-md border bg-surface-card px-3 font-sans text-base text-text-primary sm:text-sm',
     'placeholder:text-text-muted',
     'focus:outline-none focus:[box-shadow:var(--focus-ring)]',
     'disabled:cursor-not-allowed disabled:opacity-60',

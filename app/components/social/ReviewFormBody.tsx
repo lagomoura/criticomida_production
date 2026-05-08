@@ -15,6 +15,7 @@ import MentionTextarea from '@/app/components/social/MentionTextarea';
 import SegmentedSelect from '@/app/components/ui/SegmentedSelect';
 import ChipInput from '@/app/components/ui/ChipInput';
 import { vibrateOnce } from '@/app/lib/utils/haptics';
+import { compressImage } from '@/app/lib/utils/compressImage';
 
 export interface PhotoEntry {
   id: number;
@@ -151,7 +152,14 @@ export default function ReviewFormBody({
 }: ReviewFormBodyProps) {
   const t = useTranslations('restaurant.dishReviewForm');
   const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const otherInputRef = useRef<HTMLInputElement | null>(null);
+  // Latest-value mirror for async callbacks (image compression resolves after
+  // re-renders, the closure's `value` is stale by then).
+  const valueRef = useRef(value);
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
 
   function set<K extends keyof ReviewFormBodyValue>(
     key: K,
@@ -169,6 +177,10 @@ export default function ReviewFormBody({
 
   function handlePhotoAdd(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
+    // Show previews immediately with the originals so the dropzone responds
+    // instantly. Compression happens in the background and swaps in the
+    // smaller File before submit. Preview URLs stay valid: they point at the
+    // originals which we keep around until the photo is removed/published.
     const entries: PhotoEntry[] = files.map((file) => ({
       id: nextEntryId(),
       file,
@@ -176,6 +188,32 @@ export default function ReviewFormBody({
     }));
     onChange({ ...value, photos: [...value.photos, ...entries] });
     e.target.value = '';
+
+    // Background compress: replace `file` per entry as each finishes. We
+    // can't depend on `value` inside the async closure (it would close over
+    // the stale value), so we use a functional-style reducer via the
+    // onChange contract: the parent gets a fresh copy each time.
+    entries.forEach((entry) => {
+      void compressImage(entry.file).then((compressed) => {
+        if (compressed === entry.file) return; // no-op when skipped
+        // Update via a microtask: by this time React may have re-rendered
+        // and replaced `value`. We rely on the parent to merge correctly by
+        // photo id. Each call uses a fresh closure capturing the latest
+        // entry id, not the value snapshot.
+        replacePhotoFile(entry.id, compressed);
+      });
+    });
+  }
+
+  function replacePhotoFile(id: number, file: File) {
+    // Use the ref so we read the latest value, not the closure from the
+    // moment we kicked off the compression.
+    const latest = valueRef.current;
+    const idx = latest.photos.findIndex((p) => p.id === id);
+    if (idx === -1) return; // user removed the photo before compression finished
+    const next = latest.photos.slice();
+    next[idx] = { ...next[idx], file };
+    onChange({ ...latest, photos: next });
   }
 
   function removePhoto(id: number) {
@@ -227,25 +265,44 @@ export default function ReviewFormBody({
           {t('photosLabel')}
         </label>
         {value.existingImages.length === 0 && value.photos.length === 0 ? (
-          <button
-            type="button"
-            onClick={() => {
-              vibrateOnce(8);
-              photoInputRef.current?.click();
-            }}
-            disabled={submitting}
-            className="group flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border-default bg-surface-card px-4 py-8 text-text-muted transition-all hover:border-color-azafran hover:bg-color-azafran-pale disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-color-azafran-pale text-color-azafran transition-colors group-hover:bg-color-azafran group-hover:text-text-inverse">
+          <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-border-default bg-surface-card px-4 py-7 text-text-muted">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-color-azafran-pale text-color-azafran">
               <FontAwesomeIcon icon={faCamera} className="h-5 w-5" aria-hidden="true" />
             </span>
-            <span className="font-sans text-sm font-semibold text-text-primary">
-              {t('photoCtaTitle')}
-            </span>
-            <span className="font-sans text-[11px] text-text-muted">
-              {t('photoCtaHelp')}
-            </span>
-          </button>
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="font-sans text-sm font-semibold text-text-primary">
+                {t('photoCtaTitle')}
+              </span>
+              <span className="font-sans text-[11px] text-text-muted">
+                {t('photoCtaHelp')}
+              </span>
+            </div>
+            <div className="mt-1 flex w-full max-w-xs gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  vibrateOnce(8);
+                  cameraInputRef.current?.click();
+                }}
+                disabled={submitting}
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-color-azafran px-3 py-2.5 font-sans text-sm font-semibold text-text-inverse shadow-[var(--shadow-micro)] transition-colors hover:bg-color-canela disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+              >
+                <FontAwesomeIcon icon={faCamera} className="h-4 w-4" aria-hidden="true" />
+                {t('photoCameraButton')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  vibrateOnce(8);
+                  photoInputRef.current?.click();
+                }}
+                disabled={submitting}
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border-default bg-surface-page px-3 py-2.5 font-sans text-sm font-semibold text-text-secondary transition-colors hover:border-color-azafran hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+              >
+                {t('photoGalleryButton')}
+              </button>
+            </div>
+          </div>
         ) : (
           <div className="flex flex-wrap gap-2">
             {value.existingImages.map((img) => (
@@ -261,7 +318,7 @@ export default function ReviewFormBody({
                   onClick={() => removeExistingImage(img.id)}
                   disabled={submitting}
                   aria-label={t('removePhoto')}
-                  className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-color-paprika text-[12px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light"
+                  className="absolute -right-2 -top-2 flex h-9 w-9 items-center justify-center rounded-full bg-color-paprika text-[15px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                 >
                   ×
                 </button>
@@ -280,7 +337,7 @@ export default function ReviewFormBody({
                   onClick={() => removePhoto(photo.id)}
                   disabled={submitting}
                   aria-label={t('removePhoto')}
-                  className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-color-paprika text-[12px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light"
+                  className="absolute -right-2 -top-2 flex h-9 w-9 items-center justify-center rounded-full bg-color-paprika text-[15px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                 >
                   ×
                 </button>
@@ -305,6 +362,18 @@ export default function ReviewFormBody({
           type="file"
           accept="image/*"
           multiple
+          hidden
+          onChange={handlePhotoAdd}
+        />
+        {/* `capture="environment"` opens the rear camera directly on mobile.
+            It is incompatible with `multiple`, so we keep a separate input
+            for the camera CTA and the gallery + thumbnail "+" tile keeps the
+            multi-pick flow. */}
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
           hidden
           onChange={handlePhotoAdd}
         />
@@ -399,7 +468,7 @@ export default function ReviewFormBody({
                 onClick={() => set('wouldOrderAgain', value.wouldOrderAgain === v ? null : v)}
                 disabled={submitting}
                 className={
-                  'rounded-full border-2 px-4 py-1.5 font-sans text-sm font-semibold transition-colors ' +
+                  'rounded-full border-2 px-4 py-2.5 font-sans text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] ' +
                   (value.wouldOrderAgain === v
                     ? v
                       ? 'border-color-albahaca bg-color-albahaca text-text-inverse'

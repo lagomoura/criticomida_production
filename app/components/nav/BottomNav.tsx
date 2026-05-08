@@ -54,7 +54,11 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
     <nav
       aria-label={t('bottomNavigation')}
       className={cn(
-        'fixed inset-x-0 bottom-0 z-40 border-t border-border-default bg-surface-page/95 backdrop-blur md:hidden',
+        // Solid-ish background instead of backdrop-blur: blur() is composited
+        // every scroll frame and was a measurable jank source on Android
+        // mid-range. With bg-surface-page/98 the visual difference is
+        // imperceptible.
+        'fixed inset-x-0 bottom-0 z-40 border-t border-border-default bg-surface-page/98 md:hidden',
       )}
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >

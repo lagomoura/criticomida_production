@@ -22,7 +22,7 @@ export default function PostMedia({ images, className }: PostMediaProps) {
     return (
       <figure className={cn('overflow-hidden rounded-lg bg-surface-subtle', className)}>
         <div className="relative aspect-[4/3] w-full">
-          <Image src={img.url} alt={img.alt ?? ''} fill sizes="(min-width: 640px) 640px, 100vw" className="object-cover" unoptimized />
+          <Image src={img.url} alt={img.alt ?? ''} fill sizes="(min-width: 640px) 640px, 100vw" className="object-cover" />
         </div>
       </figure>
     );
@@ -33,7 +33,7 @@ export default function PostMedia({ images, className }: PostMediaProps) {
       <div className={cn('grid grid-cols-2 gap-1', className)}>
         {images.map((img, i) => (
           <figure key={i} className="relative aspect-square overflow-hidden rounded-lg bg-surface-subtle">
-            <Image src={img.url} alt={img.alt ?? ''} fill sizes="(min-width: 640px) 320px, 50vw" className="object-cover" unoptimized />
+            <Image src={img.url} alt={img.alt ?? ''} fill sizes="(min-width: 640px) 320px, 50vw" className="object-cover" />
           </figure>
         ))}
       </div>
@@ -47,11 +47,11 @@ export default function PostMedia({ images, className }: PostMediaProps) {
   return (
     <div className={cn('grid grid-cols-2 gap-1', className)}>
       <figure className="relative col-span-1 row-span-2 aspect-[3/4] overflow-hidden rounded-lg bg-surface-subtle">
-        <Image src={hero.url} alt={hero.alt ?? ''} fill sizes="(min-width: 640px) 320px, 50vw" className="object-cover" unoptimized />
+        <Image src={hero.url} alt={hero.alt ?? ''} fill sizes="(min-width: 640px) 320px, 50vw" className="object-cover" />
       </figure>
       {visible.map((img, i) => (
         <figure key={i} className="relative aspect-square overflow-hidden rounded-lg bg-surface-subtle">
-          <Image src={img.url} alt={img.alt ?? ''} fill sizes="(min-width: 640px) 160px, 50vw" className="object-cover" unoptimized />
+          <Image src={img.url} alt={img.alt ?? ''} fill sizes="(min-width: 640px) 160px, 50vw" className="object-cover" />
           {i === visible.length - 1 && extra > 0 && (
             <span className="absolute inset-0 flex items-center justify-center bg-black/45 font-sans text-lg font-medium text-white">
               +{extra}

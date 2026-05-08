@@ -27,7 +27,7 @@ export default function LoginClient({
   const titleHtml = t.raw('title') as string;
 
   return (
-    <main id="main-content" className="min-h-[calc(100vh-4rem)] bg-surface-page">
+    <main id="main-content" className="min-h-[calc(100dvh-4rem)] bg-surface-page">
       <div className="cc-container grid gap-10 py-10 md:grid-cols-2 md:py-16 lg:gap-16">
         <section className="flex flex-col justify-center">
           <p className="font-sans text-xs font-semibold uppercase tracking-[0.2em] text-action-primary">

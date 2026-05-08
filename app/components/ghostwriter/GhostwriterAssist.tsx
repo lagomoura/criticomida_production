@@ -143,7 +143,7 @@ export default function GhostwriterAssist({
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-text-muted hover:bg-surface-card hover:text-text-primary"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-text-muted hover:bg-surface-page hover:text-text-primary focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
               aria-label={t('close')}
             >
               <FontAwesomeIcon icon={faXmark} aria-hidden />

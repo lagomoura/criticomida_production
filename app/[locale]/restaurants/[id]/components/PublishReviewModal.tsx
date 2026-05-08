@@ -706,7 +706,7 @@ function NewDishInlineFields({
                 type="button"
                 onClick={onCoverClear}
                 aria-label={t('removePhoto')}
-                className="absolute right-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-surface-card/95 text-[11px] text-text-primary shadow-[var(--shadow-base)] backdrop-blur transition-colors hover:bg-surface-card"
+                className="absolute right-1.5 top-1.5 inline-flex h-9 w-9 items-center justify-center rounded-full bg-surface-card/95 text-[12px] text-text-primary shadow-[var(--shadow-base)] backdrop-blur transition-colors hover:bg-surface-card focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
               >
                 <FontAwesomeIcon icon={faTrashCan} className="h-2.5 w-2.5" aria-hidden />
               </button>

@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/app/lib/utils/cn';
 
 type Size = 'sm' | 'md' | 'lg' | 'xl';
+type Position = 'center' | 'bottom-sheet';
 
 export interface ModalProps {
   open: boolean;
@@ -19,6 +20,13 @@ export interface ModalProps {
   /** Optional footer node rendered below the body (e.g., action buttons). */
   footer?: ReactNode;
   size?: Size;
+  /**
+   * Layout position. Default 'center' is the classic centered dialog. Set
+   * 'bottom-sheet' to slide up from the bottom on mobile (one-handed reach
+   * for the title and X) and fall back to centered on sm+ viewports where
+   * thumb zone is no longer the constraint.
+   */
+  position?: Position;
   /** Disable closing on overlay click + ESC (use during in-flight mutations). */
   busy?: boolean;
   /** Hide the X button in the header. */
@@ -42,6 +50,7 @@ export default function Modal({
   children,
   footer,
   size = 'md',
+  position = 'center',
   busy = false,
   hideCloseButton = false,
   className,
@@ -112,8 +121,18 @@ export default function Modal({
 
   if (!open) return null;
 
+  const isSheet = position === 'bottom-sheet';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="presentation">
+    <div
+      className={cn(
+        'fixed inset-0 z-50 flex justify-center',
+        // Bottom-sheet on mobile, fall back to centered on sm+ where the
+        // viewport is wide enough that thumb zone stops mattering.
+        isSheet ? 'items-end p-0 sm:items-center sm:p-4' : 'items-center p-4',
+      )}
+      role="presentation"
+    >
       <button
         type="button"
         aria-label={tCommon('closeDialog')}
@@ -128,13 +147,26 @@ export default function Modal({
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
         className={cn(
-          'relative z-10 flex w-full flex-col overscroll-contain rounded-2xl border border-border-default bg-surface-card',
-          'max-h-[calc(100dvh-2rem)]',
-          'shadow-[var(--shadow-floating)] motion-safe:animate-[modal-in_240ms_var(--ease-spoon)]',
+          'relative z-10 flex w-full flex-col overscroll-contain border border-border-default bg-surface-card',
+          isSheet
+            ? 'rounded-t-3xl border-b-0 sm:rounded-2xl sm:border-b'
+            : 'rounded-2xl',
+          isSheet
+            ? 'max-h-[94dvh] sm:max-h-[calc(100dvh-2rem)]'
+            : 'max-h-[calc(100dvh-2rem)]',
+          'shadow-[var(--shadow-floating)]',
+          isSheet
+            ? 'motion-safe:animate-[cc-modal-sheet-up_320ms_var(--ease-spoon)] sm:motion-safe:animate-[modal-in_240ms_var(--ease-spoon)]'
+            : 'motion-safe:animate-[modal-in_240ms_var(--ease-spoon)]',
           sizeClass[size],
           className,
         )}
       >
+        {isSheet && (
+          <div className="flex justify-center pb-1 pt-2.5 sm:hidden">
+            <div className="h-1 w-10 rounded-full bg-border-default" aria-hidden />
+          </div>
+        )}
         <div
           className={cn(
             'flex shrink-0 items-start gap-3 px-6 pt-6 pb-4',
@@ -182,7 +214,14 @@ export default function Modal({
         </div>
 
         {footer && (
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border-subtle px-6 py-4">
+          <div
+            className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border-subtle px-6 py-4"
+            style={
+              isSheet
+                ? { paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }
+                : undefined
+            }
+          >
             {footer}
           </div>
         )}

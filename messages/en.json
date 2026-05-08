@@ -995,6 +995,8 @@
       "photosLabel": "Photos",
       "removePhoto": "Remove photo",
       "photoButton": "Photo",
+      "photoCameraButton": "Camera",
+      "photoGalleryButton": "Gallery",
       "photoCtaTitle": "Add photos of the dish",
       "photoCtaHelp": "Reviews with photos get more views",
       "portionLabel": "Portion",
@@ -1653,7 +1655,11 @@
     "successTitle": "Review published",
     "successDescription": "{dish} at {restaurant}",
     "errorTitle": "The review wasn't published",
-    "errorMessage": "Couldn't publish the review. Try again."
+    "errorMessage": "Couldn't publish the review. Try again.",
+    "draftRestoredTitle": "We recovered your draft",
+    "draftRestoredDesc": "What you wrote was saved automatically.",
+    "draftDiscard": "Start over",
+    "draftKeep": "Keep editing"
   },
   "settings": {
     "title": "Settings",

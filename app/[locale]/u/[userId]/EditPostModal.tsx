@@ -133,7 +133,7 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
   }
 
   return (
-    <Modal open onClose={onClose} title={title} description={description} size="xl">
+    <Modal open onClose={onClose} title={title} description={description} size="xl" position="bottom-sheet">
       {loading ? (
         <div className="flex justify-center py-10">
           <span className="inline-block h-7 w-7 animate-spin rounded-full border-2 border-action-primary border-t-transparent" />

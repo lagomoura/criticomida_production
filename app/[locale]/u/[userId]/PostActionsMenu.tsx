@@ -72,6 +72,7 @@ export default function PostActionsMenu({ post, onClose, onDelete, onEdit }: Pos
       title={t('menuTitle')}
       hideTitle
       size="sm"
+      position="bottom-sheet"
     >
       <ul className="flex flex-col" role="list">
         <li>

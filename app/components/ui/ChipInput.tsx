@@ -104,8 +104,11 @@ export default function ChipInput({
           onBlur={commitDraft}
           placeholder={placeholder}
           disabled={disabled}
+          autoComplete="off"
+          autoCapitalize="none"
           className={cn(
-            'h-10 flex-1 rounded-xl border border-border-subtle bg-surface-card px-3.5 font-sans text-sm text-text-primary',
+            // text-base on mobile prevents iOS Safari zoom on focus.
+            'h-10 flex-1 rounded-xl border border-border-subtle bg-surface-card px-3.5 font-sans text-base text-text-primary sm:text-sm',
             'placeholder:text-text-muted/80 transition-all',
             'focus:border-color-azafran focus:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
             'disabled:cursor-not-allowed disabled:opacity-60',

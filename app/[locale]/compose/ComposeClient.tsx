@@ -1,10 +1,10 @@
 'use client';
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from '@/app/lib/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLock } from '@fortawesome/free-solid-svg-icons';
+import { faLock, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
 import Select from '@/app/components/ui/Select';
@@ -30,6 +30,11 @@ import { uploadReviewPhoto } from '@/app/lib/api/reviews';
 import { ApiError } from '@/app/lib/api/client';
 import { useToast } from '@/app/components/ui/Toast';
 import type { PriceTier, ReviewExtras } from '@/app/lib/types/social';
+import {
+  clearComposeDraft,
+  readComposeDraft,
+  writeComposeDraft,
+} from '@/app/lib/utils/compose-draft';
 
 const MIN_TEXT = 20;
 const MAX_TEXT = 1200;
@@ -83,6 +88,58 @@ export default function ComposeClient() {
   const [prefilling, setPrefilling] = useState(Boolean(prefillDishId));
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [draftRestored, setDraftRestored] = useState(false);
+  // Hydration gate for the autosave effect: skip the very first render so we
+  // don't clobber the persisted draft with the empty initial state before the
+  // restore effect has had a chance to run.
+  const draftHydrated = useRef(false);
+
+  // Restore a persisted draft on mount. Skipped when the URL pre-fills a dish
+  // — that flow is "review *this* dish", not "continue your last review".
+  useEffect(() => {
+    if (prefillDishId) {
+      draftHydrated.current = true;
+      return;
+    }
+    const snap = readComposeDraft();
+    if (snap) {
+      if (snap.place) setPlace(snap.place);
+      if (snap.dish) setDish(snap.dish);
+      setCategory(snap.category);
+      setPriceTier(snap.priceTier);
+      setBody({ ...snap.body, photos: [], existingImages: [] });
+      setDraftRestored(true);
+    }
+    draftHydrated.current = true;
+  }, [prefillDishId]);
+
+  // Autosave with a 600ms debounce. Photos and existingImages are stripped:
+  // File/Blob references can't survive a reload, and re-syncing stale
+  // ObjectURLs would point at nothing. The user re-attaches the photos but
+  // keeps the costly text/rating/metadata.
+  useEffect(() => {
+    if (!draftHydrated.current) return;
+    if (submitting) return;
+    const handle = window.setTimeout(() => {
+      // We can't import the inferred Omit type cleanly here; the writer
+      // accepts the same shape minus `savedAt`, which we provide.
+      const bodyWithoutPhotos = {
+        ...body,
+        photos: undefined,
+        existingImages: undefined,
+      };
+      delete (bodyWithoutPhotos as Record<string, unknown>).photos;
+      delete (bodyWithoutPhotos as Record<string, unknown>).existingImages;
+      writeComposeDraft({
+        place,
+        dish,
+        category,
+        priceTier,
+        body: bodyWithoutPhotos as Parameters<typeof writeComposeDraft>[0]['body'],
+      });
+    }, 600);
+    return () => window.clearTimeout(handle);
+  }, [place, dish, category, priceTier, body, submitting]);
 
   // Cleanup blob previews on unmount.
   useEffect(() => {
@@ -90,6 +147,16 @@ export default function ComposeClient() {
       body.photos.forEach((p) => URL.revokeObjectURL(p.preview));
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleDiscardDraft = useCallback(() => {
+    clearComposeDraft();
+    setPlace(null);
+    setDish(null);
+    setCategory('');
+    setPriceTier(null);
+    setBody(makeBodyInitial());
+    setDraftRestored(false);
   }, []);
 
   useEffect(() => {
@@ -213,6 +280,7 @@ export default function ComposeClient() {
             avatarUrl: user.avatar_url ?? null,
           },
         });
+        clearComposeDraft();
         toast.success(
           t('successTitle'),
           t('successDescription', { dish: dish.name, restaurant: place.name }),
@@ -270,7 +338,10 @@ export default function ComposeClient() {
   }
 
   return (
-    <div className="cc-container flex max-w-3xl flex-col gap-4 py-5">
+    <div
+      className="cc-container flex max-w-3xl flex-col gap-4 py-5"
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.5rem)' }}
+    >
       <header className="flex flex-col gap-1">
         <h1 className="font-display text-3xl font-medium text-text-primary sm:text-4xl">
           {t('title')}
@@ -279,6 +350,31 @@ export default function ComposeClient() {
           {t('subtitle')}
         </p>
       </header>
+
+      {draftRestored && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-start gap-3 rounded-2xl border border-color-azafran/40 bg-color-azafran-pale px-3.5 py-3 shadow-[var(--shadow-micro)]"
+        >
+          <div className="flex flex-1 flex-col gap-0.5">
+            <p className="m-0 font-sans text-sm font-semibold text-text-primary">
+              {t('draftRestoredTitle')}
+            </p>
+            <p className="m-0 font-sans text-[12.5px] leading-snug text-text-secondary">
+              {t('draftRestoredDesc')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleDiscardDraft}
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border-default bg-surface-card px-3 font-sans text-xs font-semibold text-text-secondary hover:border-color-paprika hover:text-color-paprika focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+          >
+            <FontAwesomeIcon icon={faXmark} className="h-3 w-3" aria-hidden />
+            {t('draftDiscard')}
+          </button>
+        </div>
+      )}
 
       {prefilling ? (
         <Skeleton shape="box" width="100%" height={320} />
@@ -390,7 +486,14 @@ export default function ComposeClient() {
             </p>
           )}
 
-          <div className="flex items-center justify-end gap-3 pt-2">
+          {/* Sticky submit bar — keeps "Publicar" reachable from any scroll
+              position on mobile, where the form is tall (photos + ghostwriter
+              + 12 sections). The bar respects iOS safe-area and the parent
+              padding-bottom prevents the last form field from being covered. */}
+          <div
+            className="sticky bottom-0 z-30 -mx-3 mt-1 flex items-center justify-end gap-2 border-t border-border-subtle bg-surface-page/95 px-3 py-3 backdrop-blur supports-[backdrop-filter]:bg-surface-page/85 sm:-mx-0 sm:px-0"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)' }}
+          >
             <Button
               type="button"
               variant="ghost"

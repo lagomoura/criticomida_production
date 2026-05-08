@@ -995,6 +995,8 @@
       "photosLabel": "Fotos",
       "removePhoto": "Eliminar foto",
       "photoButton": "Foto",
+      "photoCameraButton": "Cámara",
+      "photoGalleryButton": "Galería",
       "photoCtaTitle": "Sumá fotos del plato",
       "photoCtaHelp": "Las reseñas con foto reciben más vistas",
       "portionLabel": "Porción",
@@ -1653,7 +1655,11 @@
     "successTitle": "Reseña publicada",
     "successDescription": "{dish} en {restaurant}",
     "errorTitle": "No se publicó la reseña",
-    "errorMessage": "No se pudo publicar la reseña. Probá de nuevo."
+    "errorMessage": "No se pudo publicar la reseña. Probá de nuevo.",
+    "draftRestoredTitle": "Recuperamos tu borrador",
+    "draftRestoredDesc": "Lo que escribiste se guardó automáticamente.",
+    "draftDiscard": "Empezar de cero",
+    "draftKeep": "Seguir editando"
   },
   "settings": {
     "title": "Configuración",

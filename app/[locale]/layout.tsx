@@ -40,6 +40,10 @@ export async function generateMetadata({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  // viewport-fit=cover is required for `env(safe-area-inset-*)` to take
+  // effect on iOS notch / Dynamic Island devices, where the BottomNav and
+  // sticky compose footer rely on the inset to clear the home indicator.
+  viewportFit: 'cover',
 };
 
 export function generateStaticParams() {
