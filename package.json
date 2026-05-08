@@ -18,7 +18,7 @@
     "@googlemaps/markerclusterer": "^2.6.2",
     "@vercel/speed-insights": "^2.0.0",
     "@vis.gl/react-google-maps": "^1.5.4",
-    "next": "15.3.8",
+    "next": "^15.5.18",
     "next-intl": "^4.11.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -34,8 +34,11 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
-    "postcss": "^8.5.8",
+    "postcss": "^8.5.14",
     "tailwindcss": "^4.2.2",
     "typescript": "^5"
+  },
+  "overrides": {
+    "postcss": "$postcss"
   }
 }
