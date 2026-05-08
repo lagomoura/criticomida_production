@@ -27,9 +27,9 @@ interface SegmentedSelectProps<V extends string> {
 }
 
 const TONE_STYLES: Record<NonNullable<SegmentedOption<string>['tone']>, string> = {
-  positive: 'border-color-azafran bg-color-azafran text-text-inverse shadow-sm',
-  neutral: 'border-amber-400 bg-amber-400 text-white shadow-sm',
-  negative: 'border-rose-500 bg-rose-500 text-white shadow-sm',
+  positive: 'border-color-azafran bg-color-azafran text-text-primary shadow-sm',
+  neutral: 'border-color-azafran bg-color-azafran text-text-primary shadow-sm',
+  negative: 'border-color-paprika bg-color-paprika text-text-inverse shadow-sm',
 };
 
 /** Mobile defaults wrap at 3-col so 4/5-col layouts don't shrink tap targets

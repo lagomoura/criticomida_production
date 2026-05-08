@@ -202,7 +202,7 @@ function ToastCard({
                 entry.action?.onClick();
                 onDismiss(entry.id);
               }}
-              className="mt-1.5 font-sans text-xs font-semibold text-action-primary hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+              className="mt-1.5 inline-flex min-h-[36px] items-center rounded-md px-2 py-1.5 font-sans text-xs font-semibold text-action-primary hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
             >
               {entry.action.label}
             </button>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
-import ComposeClient from './ComposeClient';
+import ComposeClient, { LoadingView } from './ComposeClient';
 
 export async function generateMetadata({
   params,
@@ -16,7 +16,7 @@ export async function generateMetadata({
 export default function ComposePage() {
   return (
     <main id="main-content">
-      <Suspense fallback={null}>
+      <Suspense fallback={<LoadingView />}>
         <ComposeClient />
       </Suspense>
     </main>

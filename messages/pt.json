@@ -1000,7 +1000,7 @@
       "yes": "Sim",
       "no": "Não",
       "notesLabel": "Notas",
-      "notesPlaceholder": "O que achou do prato?",
+      "notesPlaceholder": "Conta o que te impressionou — ou o que decepcionou. Textura, ponto, temperatura, porção.",
       "prosLabel": "Prós",
       "prosPlaceholder": "Ex: Muito saboroso",
       "removePro": "Remover prós",
@@ -1640,7 +1640,7 @@
     "scoreLabel": "Pontuação (1–5)",
     "reviewLabel": "Resenha",
     "reviewPlaceholder": "Como estava? Os detalhes que importam: textura, ponto, porção, preço…",
-    "minCharsHint": "No mínimo {n} caracteres.",
+    "minCharsHint": "Faltam {remaining} caracteres.",
     "photosLabel": "Fotos do prato",
     "photoButton": "Foto",
     "removePhoto": "Remover foto",
@@ -1681,7 +1681,12 @@
     "draftRestoredTitle": "Recuperamos seu rascunho",
     "draftRestoredDesc": "O que você escreveu foi salvo automaticamente.",
     "draftDiscard": "Começar do zero",
-    "draftKeep": "Continuar editando"
+    "draftKeep": "Continuar editando",
+    "titleWithDish": "Sua resenha de {dish}",
+    "viewReview": "Ver resenha",
+    "disabledNeedsRestaurant": "Escolha um restaurante para continuar",
+    "disabledNeedsDish": "Escolha ou escreva o nome do prato",
+    "disabledNeedsNote": "Escreva pelo menos 20 caracteres"
   },
   "settings": {
     "title": "Configurações",

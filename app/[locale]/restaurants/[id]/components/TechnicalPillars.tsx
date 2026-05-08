@@ -24,9 +24,9 @@ interface PillarConfig {
 }
 
 const TONE_STYLES: Record<PillarOption['tone'], string> = {
-  negative: 'border-rose-500 bg-rose-500 text-white shadow-sm',
-  neutral: 'border-amber-400 bg-amber-400 text-white shadow-sm',
-  positive: 'border-emerald-500 bg-emerald-500 text-white shadow-sm',
+  negative: 'border-color-paprika bg-color-paprika text-text-inverse shadow-sm',
+  neutral: 'border-color-azafran bg-color-azafran text-text-primary shadow-sm',
+  positive: 'border-color-albahaca bg-color-albahaca text-text-inverse shadow-sm',
 };
 
 function vibrateOnce(ms = 12) {

@@ -235,7 +235,7 @@ export default function DishAutocomplete({
           aria-controls={listboxId}
           role="combobox"
           className={cn(
-            'h-10 w-full rounded-md border bg-surface-card pl-9 pr-9 font-sans text-sm text-text-primary',
+            'h-10 w-full rounded-xl border bg-surface-card pl-9 pr-9 font-sans text-base sm:text-sm text-text-primary',
             'placeholder:text-text-muted',
             'focus:outline-none focus:[box-shadow:var(--focus-ring)]',
             'disabled:cursor-not-allowed disabled:opacity-60',

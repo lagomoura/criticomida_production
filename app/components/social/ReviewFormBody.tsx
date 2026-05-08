@@ -318,7 +318,7 @@ export default function ReviewFormBody({
                   onClick={() => removeExistingImage(img.id)}
                   disabled={submitting}
                   aria-label={t('removePhoto')}
-                  className="absolute -right-2 -top-2 flex h-9 w-9 items-center justify-center rounded-full bg-color-paprika text-[15px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                  className="absolute -right-1 -top-1 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-color-paprika text-[15px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                 >
                   ×
                 </button>
@@ -337,7 +337,7 @@ export default function ReviewFormBody({
                   onClick={() => removePhoto(photo.id)}
                   disabled={submitting}
                   aria-label={t('removePhoto')}
-                  className="absolute -right-2 -top-2 flex h-9 w-9 items-center justify-center rounded-full bg-color-paprika text-[15px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                  className="absolute -right-1 -top-1 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-color-paprika text-[15px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                 >
                   ×
                 </button>
@@ -450,7 +450,7 @@ export default function ReviewFormBody({
           <label className="mb-1 block font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-text-secondary">
             {t('ratingLabel')} <span className="text-color-azafran">*</span>
           </label>
-          <StarRating value={value.rating} onChange={(r) => set('rating', r)} size="lg" />
+          <StarRating value={value.rating} onChange={(r) => set('rating', r)} size="lg" showValue />
         </div>
 
         <div>
@@ -586,7 +586,7 @@ export default function ReviewFormBody({
             onChange={(e) => set('visitedWith', e.target.value)}
             disabled={submitting}
             maxLength={200}
-            className="w-full rounded-xl border border-border-subtle bg-surface-page px-3.5 py-2.5 font-sans text-sm text-text-primary placeholder:text-text-muted/80 transition-all focus:border-color-azafran focus:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-60"
+            className="w-full rounded-xl border border-border-subtle bg-surface-page px-3.5 py-2.5 font-sans text-base sm:text-sm text-text-primary placeholder:text-text-muted/80 transition-all focus:border-color-azafran focus:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-60"
           />
         )}
       </div>
@@ -674,7 +674,7 @@ export default function ReviewFormBody({
 
 const inputBase = [
   'w-full rounded-xl border border-border-subtle bg-surface-card',
-  'px-3.5 py-2.5 font-sans text-sm text-text-primary',
+  'px-3.5 py-2.5 font-sans text-base sm:text-sm text-text-primary',
   'placeholder:text-text-muted/80 transition-all',
   'focus:border-color-azafran focus:outline-none',
   'focus-visible:[box-shadow:var(--focus-ring)]',

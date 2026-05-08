@@ -1000,7 +1000,7 @@
       "yes": "Yes",
       "no": "No",
       "notesLabel": "Notes",
-      "notesPlaceholder": "What did you think of the dish?",
+      "notesPlaceholder": "Tell us what blew you away — or what fell short. Texture, doneness, temperature, portion.",
       "prosLabel": "Pros",
       "prosPlaceholder": "e.g. Very tasty",
       "removePro": "Remove pro",
@@ -1640,7 +1640,7 @@
     "scoreLabel": "Score (1–5)",
     "reviewLabel": "Review",
     "reviewPlaceholder": "How was it? The details that matter: texture, doneness, portion, price…",
-    "minCharsHint": "At least {n} characters.",
+    "minCharsHint": "{remaining} characters left.",
     "photosLabel": "Dish photos",
     "photoButton": "Photo",
     "removePhoto": "Remove photo",
@@ -1681,7 +1681,12 @@
     "draftRestoredTitle": "We recovered your draft",
     "draftRestoredDesc": "What you wrote was saved automatically.",
     "draftDiscard": "Start over",
-    "draftKeep": "Keep editing"
+    "draftKeep": "Keep editing",
+    "titleWithDish": "Your review of {dish}",
+    "viewReview": "View review",
+    "disabledNeedsRestaurant": "Choose a restaurant to continue",
+    "disabledNeedsDish": "Choose or enter the dish name",
+    "disabledNeedsNote": "Write at least 20 characters"
   },
   "settings": {
     "title": "Settings",

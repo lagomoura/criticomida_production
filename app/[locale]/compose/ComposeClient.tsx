@@ -281,11 +281,18 @@ export default function ComposeClient() {
           },
         });
         clearComposeDraft();
-        toast.success(
-          t('successTitle'),
-          t('successDescription', { dish: dish.name, restaurant: place.name }),
-        );
-        router.push(`/reviews/${post.id}`);
+        const postId = post.id;
+        toast.toast({
+          title: t('successTitle'),
+          description: t('successDescription', { dish: dish.name, restaurant: place.name }),
+          variant: 'success',
+          duration: 6000,
+          action: {
+            label: t('viewReview'),
+            onClick: () => router.push(`/reviews/${postId}`),
+          },
+        });
+        router.push(`/reviews/${postId}`);
       } catch (err) {
         const message =
           err instanceof ApiError && typeof err.detail === 'string'
@@ -302,8 +309,17 @@ export default function ComposeClient() {
   const minCharsHint = useMemo(() => {
     if (noteLength === 0) return null;
     if (noteLength >= MIN_TEXT) return null;
-    return t('minCharsHint', { n: MIN_TEXT });
+    return t('minCharsHint', { remaining: MIN_TEXT - noteLength });
   }, [noteLength, t]);
+
+  /** The first missing requirement — shown below the disabled submit button. */
+  const submitBlockReason = useMemo(() => {
+    if (submitting || canSubmit) return null;
+    if (!place) return t('disabledNeedsRestaurant');
+    if (!dish || dish.name.trim().length <= 1) return t('disabledNeedsDish');
+    if (noteLength < MIN_TEXT || noteLength > MAX_TEXT) return t('disabledNeedsNote');
+    return null;
+  }, [submitting, canSubmit, place, dish, noteLength, t]);
 
   if (authLoading) return <LoadingView />;
 
@@ -343,8 +359,10 @@ export default function ComposeClient() {
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.5rem)' }}
     >
       <header className="flex flex-col gap-1">
-        <h1 className="font-display text-3xl font-medium text-text-primary sm:text-4xl">
-          {t('title')}
+        <h1 className="line-clamp-2 font-display text-3xl font-medium text-text-primary sm:text-4xl">
+          {dish?.name?.trim()
+            ? t('titleWithDish', { dish: dish.name.trim() })
+            : t('title')}
         </h1>
         <p className="font-sans text-sm text-text-muted">
           {t('subtitle')}
@@ -368,7 +386,7 @@ export default function ComposeClient() {
           <button
             type="button"
             onClick={handleDiscardDraft}
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border-default bg-surface-card px-3 font-sans text-xs font-semibold text-text-secondary hover:border-color-paprika hover:text-color-paprika focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+            className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-border-default bg-surface-card px-3 font-sans text-xs font-semibold text-text-secondary hover:border-color-paprika hover:text-color-paprika focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
           >
             <FontAwesomeIcon icon={faXmark} className="h-3 w-3" aria-hidden />
             {t('draftDiscard')}
@@ -491,21 +509,32 @@ export default function ComposeClient() {
               + 12 sections). The bar respects iOS safe-area and the parent
               padding-bottom prevents the last form field from being covered. */}
           <div
-            className="sticky bottom-0 z-30 -mx-3 mt-1 flex items-center justify-end gap-2 border-t border-border-subtle bg-surface-page/95 px-3 py-3 backdrop-blur supports-[backdrop-filter]:bg-surface-page/85 sm:-mx-0 sm:px-0"
+            className="sticky bottom-0 z-30 -mx-3 mt-1 border-t border-border-subtle bg-surface-page/95 px-3 py-3 backdrop-blur supports-[backdrop-filter]:bg-surface-page/85 sm:-mx-0 sm:px-0"
             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)' }}
           >
-            <Button
-              type="button"
-              variant="ghost"
-              size="md"
-              disabled={submitting}
-              onClick={() => router.back()}
-            >
-              {t('cancel')}
-            </Button>
-            <Button type="submit" variant="primary" size="md" loading={submitting} disabled={!canSubmit}>
-              {t('submit')}
-            </Button>
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="md"
+                disabled={submitting}
+                onClick={() => router.back()}
+              >
+                {t('cancel')}
+              </Button>
+              <Button type="submit" variant="primary" size="md" loading={submitting} disabled={!canSubmit}>
+                {t('submit')}
+              </Button>
+            </div>
+            {submitBlockReason && (
+              <p
+                className="mt-1.5 text-right font-sans text-xs text-text-muted"
+                role="status"
+                aria-live="polite"
+              >
+                {submitBlockReason}
+              </p>
+            )}
           </div>
         </form>
       )}
@@ -513,7 +542,7 @@ export default function ComposeClient() {
   );
 }
 
-function LoadingView() {
+export function LoadingView() {
   return (
     <div className="cc-container flex max-w-2xl flex-col gap-4 py-6">
       <Skeleton shape="line" width="40%" height={32} />
