@@ -47,7 +47,13 @@ function postToInitial(post: ReviewPost): DishReviewFormInitial {
   };
 }
 
-function reviewToOverlay(review: DishReview): Partial<ReviewPost> {
+function reviewToOverlay(
+  review: DishReview,
+  source: ReviewPost,
+  newDishName?: string,
+): Partial<ReviewPost> {
+  const dishChanged =
+    newDishName !== undefined && newDishName !== source.dish.name;
   return {
     score: Number(review.rating),
     text: review.note,
@@ -55,6 +61,15 @@ function reviewToOverlay(review: DishReview): Partial<ReviewPost> {
       url: img.url,
       alt: img.alt_text ?? undefined,
     })),
+    ...(dishChanged
+      ? {
+          dish: {
+            ...source.dish,
+            id: review.dish_id,
+            name: newDishName,
+          },
+        }
+      : {}),
     extras: {
       portionSize: review.portion_size,
       wouldOrderAgain: review.would_order_again,
@@ -109,8 +124,9 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
   const title = source ? t('title', { dishName: source.dish.name }) : t('fallbackTitle');
   const description = source ? source.dish.restaurantName : undefined;
 
-  function handleSuccess(review: DishReview) {
-    onUpdated(postId, reviewToOverlay(review));
+  function handleSuccess(review: DishReview, newDishName?: string) {
+    if (!source) return;
+    onUpdated(postId, reviewToOverlay(review, source, newDishName));
     onClose();
   }
 

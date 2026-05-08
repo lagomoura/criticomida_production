@@ -1021,7 +1021,11 @@
       "priceLabel": "Precio pagado",
       "pricePlaceholder": "4500",
       "priceHelp": "Moneda del restaurante",
-      "priceInvalid": "El precio tiene que ser un número mayor que 0."
+      "priceInvalid": "El precio tiene que ser un número mayor que 0.",
+      "dishNameLabel": "Nombre del plato",
+      "dishNamePlaceholder": "Ej. Milanesa napolitana",
+      "dishNameHelp": "Si lo cambiás, tu reseña se mueve a un plato distinto del menú.",
+      "dishNameRequired": "El nombre del plato no puede estar vacío."
     },
     "technicalPillars": {
       "heading": "Pilares técnicos",

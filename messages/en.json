@@ -1021,7 +1021,11 @@
       "priceLabel": "Price paid",
       "pricePlaceholder": "12.50",
       "priceHelp": "Restaurant currency",
-      "priceInvalid": "Price must be a number greater than 0."
+      "priceInvalid": "Price must be a number greater than 0.",
+      "dishNameLabel": "Dish name",
+      "dishNamePlaceholder": "e.g. Margherita pizza",
+      "dishNameHelp": "Changing this moves your review to a different menu item.",
+      "dishNameRequired": "Dish name can't be empty."
     },
     "technicalPillars": {
       "heading": "Technical pillars",

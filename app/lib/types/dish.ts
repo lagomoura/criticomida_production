@@ -108,6 +108,9 @@ export interface UpdateReviewRequest {
   presentation?: PillarScore;
   value_prop?: PillarScore;
   execution?: PillarScore;
+  /** Renombre del plato. Si el nombre normalizado cambia, el backend re-linkea
+   * la review a otro Dish (find-or-create) en el mismo restaurante. */
+  dish_name?: string;
   /** When omitted, leave existing rows alone. When [], clear them. */
   pros_cons?: { type: DishReviewProsConsType; text: string }[];
   tags?: { tag: string }[];

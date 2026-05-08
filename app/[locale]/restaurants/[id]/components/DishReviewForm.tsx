@@ -41,7 +41,9 @@ interface DishReviewFormProps {
   dishId?: string;
   resolveDishId?: () => Promise<string>;
   dishName: string;
-  onSuccess: (review: DishReview) => void;
+  /** En modo edit, el segundo arg es el nombre tipeado al guardar — el modal
+   * lo usa para actualizar el overlay del post si el nombre cambió. */
+  onSuccess: (review: DishReview, newDishName?: string) => void;
   onCancel: () => void;
   cancelLabel?: string;
   /** Default 'create'. En 'edit' se requiere `reviewId` + `initial`. */
@@ -109,6 +111,9 @@ export default function DishReviewForm({
   const isEdit = mode === 'edit';
   const effectiveCancelLabel = cancelLabel ?? t('cancel');
 
+  // Editable solo en modo edit. En create el nombre lo gobierna el caller
+  // (autocompletar / nuevo plato), y mostrarlo acá duplicaría la fuente.
+  const [editableDishName, setEditableDishName] = useState(dishName);
   const [rating, setRating] = useState(initial?.rating ?? 5);
   const [pillars, setPillars] = useState<TechnicalPillarsValue>({
     presentation: initial?.presentation ?? null,
@@ -198,13 +203,18 @@ export default function DishReviewForm({
       pricePaidParsed = n;
     }
 
+    const trimmedDishName = (isEdit ? editableDishName : dishName).trim();
+    if (isEdit && !trimmedDishName) {
+      setError(t('dishNameRequired'));
+      return;
+    }
+
     setSubmitting(true);
 
     const prosFiltered = pros.map(p => p.text.trim()).filter(Boolean);
     const consFiltered = cons.map(c => c.text.trim()).filter(Boolean);
     const tagsFiltered = tags.split(',').map(t => t.trim()).filter(Boolean);
 
-    const trimmedDishName = dishName.trim();
     const altFor = (index: number, total: number) =>
       total > 1
         ? t('altPhotoIndexed', { index: index + 1, dish: trimmedDishName })
@@ -231,6 +241,7 @@ export default function DishReviewForm({
           display_order: i,
         }));
 
+        const dishNameChanged = trimmedDishName !== dishName.trim();
         const review = await updateReview(reviewId, {
           rating,
           note,
@@ -246,6 +257,9 @@ export default function DishReviewForm({
           presentation: pillars.presentation ?? undefined,
           value_prop: pillars.value_prop ?? undefined,
           execution: pillars.execution ?? undefined,
+          // Solo mandamos dish_name cuando cambió: si el nombre normalizado
+          // no cambia el backend hace no-op igual, pero acá ahorramos ruido.
+          dish_name: dishNameChanged ? trimmedDishName : undefined,
           pros_cons: [
             ...prosFiltered.map(text => ({ type: 'pro' as const, text })),
             ...consFiltered.map(text => ({ type: 'con' as const, text })),
@@ -253,7 +267,7 @@ export default function DishReviewForm({
           tags: tagsFiltered.map(tag => ({ tag })),
           images: allImages,
         });
-        onSuccess(review);
+        onSuccess(review, trimmedDishName);
         return;
       }
 
@@ -313,6 +327,26 @@ export default function DishReviewForm({
           review={previousReview}
           currencyCode={currencyCode ?? null}
         />
+      )}
+
+      {isEdit && (
+        <div>
+          <SubLabel htmlFor="review-dish-name">{t('dishNameLabel')}</SubLabel>
+          <input
+            id="review-dish-name"
+            type="text"
+            className={inputBase}
+            value={editableDishName}
+            onChange={(e) => setEditableDishName(e.target.value)}
+            placeholder={t('dishNamePlaceholder')}
+            disabled={submitting}
+            maxLength={200}
+            required
+          />
+          <p className="mt-1 font-sans text-[11px] text-text-muted">
+            {t('dishNameHelp')}
+          </p>
+        </div>
       )}
 
       {/* Top: rating + would-order-again (full width, the gate) */}
