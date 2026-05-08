@@ -1,58 +1,114 @@
 'use client';
 
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useTransition } from 'react';
 import { useRouter, usePathname } from '@/app/lib/i18n/navigation';
 import { routing } from '@/app/lib/i18n/routing';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGlobe, faCheck, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { cn } from '@/app/lib/utils/cn';
+
+const SHORT: Record<string, string> = { es: 'ES', en: 'EN', pt: 'PT' };
 
 export default function LanguageSwitcher() {
   const t = useTranslations('language');
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const ref = useRef<HTMLDivElement>(null);
 
-  function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    const next = event.target.value as (typeof routing.locales)[number];
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [open]);
+
+  const choose = (next: (typeof routing.locales)[number]) => {
+    setOpen(false);
+    if (next === locale) return;
     startTransition(() => {
       router.replace(pathname, { locale: next });
     });
-  }
+  };
 
   return (
-    <label className="relative inline-flex items-center">
-      <span className="sr-only">{t('label')}</span>
-      <select
-        value={locale}
-        onChange={handleChange}
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
         disabled={isPending}
+        aria-haspopup="listbox"
+        aria-expanded={open}
         aria-label={t('label')}
         className={cn(
-          'h-9 cursor-pointer rounded-full border border-border-default bg-surface-card px-3 pr-7 font-sans text-xs font-medium text-text-secondary',
-          'appearance-none transition-colors hover:bg-surface-subtle hover:text-text-primary',
+          'inline-flex h-9 items-center gap-1.5 rounded-full border border-border-default bg-surface-card px-3',
+          'font-sans text-xs font-semibold text-text-secondary transition-colors',
+          'hover:bg-surface-subtle hover:text-text-primary',
           'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
           'disabled:opacity-60',
         )}
       >
-        {routing.locales.map((loc) => (
-          <option key={loc} value={loc}>
-            {t(loc)}
-          </option>
-        ))}
-      </select>
-      <svg
-        aria-hidden
-        className="pointer-events-none absolute right-2 h-3 w-3 text-text-muted"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-      >
-        <path
-          fillRule="evenodd"
-          d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 011.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
-          clipRule="evenodd"
+        <FontAwesomeIcon icon={faGlobe} aria-hidden className="h-3.5 w-3.5" />
+        <span>{SHORT[locale] ?? locale.toUpperCase()}</span>
+        <FontAwesomeIcon
+          icon={faChevronDown}
+          aria-hidden
+          className={cn('h-2.5 w-2.5 transition-transform', open && 'rotate-180')}
         />
-      </svg>
-    </label>
+      </button>
+
+      {open && (
+        <ul
+          role="listbox"
+          aria-label={t('label')}
+          className="absolute right-0 top-full z-50 mt-2 min-w-[180px] overflow-hidden rounded-lg border border-border-default bg-surface-card p-1 shadow-[var(--shadow-elevated)]"
+        >
+          {routing.locales.map((loc) => {
+            const isActive = loc === locale;
+            return (
+              <li key={loc}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={isActive}
+                  onClick={() => choose(loc)}
+                  className={cn(
+                    'flex w-full items-center gap-2 rounded-md px-3 py-2 text-left font-sans text-sm transition-colors',
+                    'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                    isActive
+                      ? 'bg-surface-subtle text-text-primary'
+                      : 'text-text-secondary hover:bg-surface-subtle hover:text-text-primary',
+                  )}
+                >
+                  <span className="w-7 font-semibold tracking-wider text-text-muted">
+                    {SHORT[loc] ?? loc.toUpperCase()}
+                  </span>
+                  <span className="flex-1">{t(loc)}</span>
+                  {isActive && (
+                    <FontAwesomeIcon
+                      icon={faCheck}
+                      aria-hidden
+                      className="h-3 w-3 text-action-primary"
+                    />
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }
