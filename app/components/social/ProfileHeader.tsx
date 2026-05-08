@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRightFromBracket, faUtensils } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
@@ -40,6 +41,7 @@ export default function ProfileHeader({
   const tSpec = useTranslations('profile.specialty');
   const { isSelf, following } = profile.viewerState;
   const kicker = isSelf ? t('kickerSelf') : t('kickerOther');
+  const [bioExpanded, setBioExpanded] = useState(false);
 
   return (
     <header className="flex flex-col gap-6 border-b border-border-subtle pb-6">
@@ -77,12 +79,31 @@ export default function ProfileHeader({
       </div>
 
       {profile.bio && (
-        <p className="max-w-2xl whitespace-pre-wrap font-display italic text-base leading-relaxed text-text-secondary sm:text-lg">
-          {profile.bio}
-        </p>
+        <div className="max-w-2xl">
+          <p
+            className={[
+              'whitespace-pre-wrap font-display italic text-base leading-relaxed text-text-secondary sm:text-lg',
+              !bioExpanded ? 'line-clamp-3' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            {profile.bio}
+          </p>
+          {/* Only render toggle if bio is long enough to actually clamp */}
+          {profile.bio.length > 120 && (
+            <button
+              type="button"
+              onClick={() => setBioExpanded((v) => !v)}
+              className="mt-1 inline-flex min-h-[44px] items-center font-sans text-xs font-semibold text-action-primary hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+            >
+              {bioExpanded ? t('bioSeeLess') : t('bioSeeMore')}
+            </button>
+          )}
+        </div>
       )}
 
-      <dl className="flex flex-wrap items-baseline gap-x-7 gap-y-3 font-sans text-sm">
+      <dl className="flex flex-wrap items-baseline gap-x-5 gap-y-3 font-sans text-sm">
         <Stat label={t('statReviews')} value={profile.counts.reviews} />
         <Stat
           label={t('statFollowers')}
@@ -132,17 +153,22 @@ export default function ProfileHeader({
               {t('editProfile')}
             </Button>
             {onLogout && (
-              <Button
-                variant="ghost"
-                size="md"
-                loading={logoutLoading}
-                onClick={onLogout}
-                leftIcon={
-                  <FontAwesomeIcon icon={faRightFromBracket} className="h-3.5 w-3.5" aria-hidden />
-                }
-              >
-                {t('logout')}
-              </Button>
+              <span className="ml-1 border-l border-border-subtle pl-3">
+                <button
+                  type="button"
+                  disabled={logoutLoading}
+                  onClick={onLogout}
+                  aria-busy={logoutLoading || undefined}
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md px-2 font-sans text-xs font-medium text-text-muted transition-colors hover:bg-surface-subtle hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                >
+                  {logoutLoading ? (
+                    <span aria-hidden className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : (
+                    <FontAwesomeIcon icon={faRightFromBracket} className="h-3 w-3" aria-hidden />
+                  )}
+                  {t('logout')}
+                </button>
+              </span>
             )}
           </>
         ) : onFollowToggle ? (

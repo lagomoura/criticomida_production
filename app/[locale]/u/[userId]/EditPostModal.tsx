@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Modal from '@/app/components/ui/Modal';
 import Button from '@/app/components/ui/Button';
+import { useToast } from '@/app/components/ui/Toast';
 import { getPost } from '@/app/lib/api/posts';
 import type { DishReview } from '@/app/lib/types';
 import type { ReviewPost } from '@/app/lib/types/social';
@@ -96,6 +97,7 @@ function reviewToOverlay(
 
 export default function EditPostModal({ postId, onClose, onUpdated }: EditPostModalProps) {
   const t = useTranslations('social.editPost');
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [source, setSource] = useState<ReviewPost | null>(null);
@@ -129,6 +131,7 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
   function handleSuccess(review: DishReview, newDishName?: string) {
     if (!source) return;
     onUpdated(postId, reviewToOverlay(review, source, newDishName));
+    toast.success(t('savedTitle'), t('savedDescription'));
     onClose();
   }
 

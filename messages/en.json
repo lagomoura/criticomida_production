@@ -667,7 +667,9 @@
     },
     "follow": {
       "following": "Following",
-      "follow": "Follow"
+      "follow": "Follow",
+      "unfollow": "Unfollow",
+      "followingHint": "Following — activate to unfollow"
     },
     "comment": {
       "editLabel": "Edit comment",
@@ -779,6 +781,15 @@
       "loading": "Searching…",
       "noResults": "No matches. Only users with a handle appear.",
       "hint": "Type @ followed by a handle to mention someone."
+    },
+    "editPost": {
+      "savedTitle": "Changes saved",
+      "savedDescription": "Your review has been updated.",
+      "loadError": "We couldn't load the review. Try again.",
+      "fallbackTitle": "Edit review",
+      "title": "Edit review of {dishName}",
+      "loadFailed": "Couldn't load the review.",
+      "close": "Close"
     }
   },
   "restaurant": {
@@ -1732,7 +1743,9 @@
       "specialtyHeading": "Specialty",
       "editProfile": "Edit profile",
       "logout": "Sign out",
-      "averageWord": "Average"
+      "averageWord": "Average",
+      "bioSeeMore": "See more",
+      "bioSeeLess": "See less"
     },
     "editPost": {
       "loadError": "We couldn't load the review. Try again.",
@@ -1764,7 +1777,7 @@
       "emptyOtherTitle": "No reviews yet",
       "emptySelfDescription": "Share your first review and start building your critical voice.",
       "emptyOtherDescription": "When this user posts something, you'll see it here.",
-      "emptySelfAction": "Write review"
+      "emptySelfAction": "Post review"
     },
     "specialty": {
       "masterHeadline": "Authority on {name}: {count, plural, one {# review} other {# reviews}} behind every opinion.",

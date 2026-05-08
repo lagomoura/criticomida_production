@@ -42,14 +42,14 @@ export default function PostActionsMenu({ post, onClose, onDelete, onEdit }: Pos
         busy={deleting}
         footer={
           <>
-            <Button variant="ghost" size="sm" onClick={() => setConfirming(false)} disabled={deleting}>
+            <Button variant="ghost" size="md" onClick={() => setConfirming(false)} disabled={deleting}>
               {t('back')}
             </Button>
             <button
               type="button"
               onClick={handleConfirmDelete}
               disabled={deleting}
-              className="inline-flex h-8 items-center gap-1.5 rounded-md bg-action-danger px-3 text-xs font-medium text-white transition-colors hover:brightness-110 disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md bg-action-danger px-3 py-2.5 text-xs font-medium text-text-inverse transition-colors hover:brightness-110 disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
             >
               {deleting ? t('deleting') : t('confirmDelete')}
             </button>
@@ -79,7 +79,7 @@ export default function PostActionsMenu({ post, onClose, onDelete, onEdit }: Pos
           <button
             type="button"
             onClick={() => onEdit(post.id)}
-            className="w-full rounded-md px-3 py-3 text-left font-sans text-sm font-medium text-text-primary transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+            className="w-full min-h-[44px] rounded-md px-3 py-2.5 text-left font-sans text-sm font-medium text-text-primary transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
           >
             {t('edit')}
           </button>
@@ -88,7 +88,7 @@ export default function PostActionsMenu({ post, onClose, onDelete, onEdit }: Pos
           <button
             type="button"
             onClick={() => setConfirming(true)}
-            className="w-full rounded-md px-3 py-3 text-left font-sans text-sm font-medium text-action-danger transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+            className="w-full min-h-[44px] rounded-md px-3 py-2.5 text-left font-sans text-sm font-medium text-action-danger transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
           >
             {t('delete')}
           </button>

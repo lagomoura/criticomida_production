@@ -667,7 +667,9 @@
     },
     "follow": {
       "following": "Siguiendo",
-      "follow": "Seguir"
+      "follow": "Seguir",
+      "unfollow": "Dejar de seguir",
+      "followingHint": "Siguiendo — activar para dejar de seguir"
     },
     "comment": {
       "editLabel": "Editar comentario",
@@ -779,6 +781,15 @@
       "loading": "Buscando…",
       "noResults": "Sin resultados. Solo aparecen usuarios con handle.",
       "hint": "Escribí @ y un handle para arrobar a alguien."
+    },
+    "editPost": {
+      "savedTitle": "Cambios guardados",
+      "savedDescription": "Tu reseña fue actualizada.",
+      "loadError": "No pudimos cargar la reseña. Probá de nuevo.",
+      "fallbackTitle": "Editar reseña",
+      "title": "Editar reseña de {dishName}",
+      "loadFailed": "No se pudo cargar la reseña.",
+      "close": "Cerrar"
     }
   },
   "restaurant": {
@@ -1732,7 +1743,9 @@
       "specialtyHeading": "Especialidad",
       "editProfile": "Editar perfil",
       "logout": "Cerrar sesión",
-      "averageWord": "Promedio"
+      "averageWord": "Promedio",
+      "bioSeeMore": "Ver más",
+      "bioSeeLess": "Ver menos"
     },
     "editPost": {
       "loadError": "No pudimos cargar la reseña. Probá de nuevo.",
@@ -1764,7 +1777,7 @@
       "emptyOtherTitle": "Sin reseñas por ahora",
       "emptySelfDescription": "Compartí tu primera reseña y empezá a construir tu voz crítica.",
       "emptyOtherDescription": "Cuando este usuario publique algo, lo vas a ver acá.",
-      "emptySelfAction": "Escribir reseña"
+      "emptySelfAction": "Publicar reseña"
     },
     "specialty": {
       "masterHeadline": "Autoridad en {name}: {count, plural, one {# reseña} other {# reseñas}} detrás de cada opinión.",

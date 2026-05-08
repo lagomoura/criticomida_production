@@ -90,7 +90,7 @@ export default function PostHeader({
           type="button"
           onClick={onOpenMenu}
           aria-label={t('moreOptions')}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
           <FontAwesomeIcon icon={faEllipsisVertical} className="h-4 w-4" />
         </button>

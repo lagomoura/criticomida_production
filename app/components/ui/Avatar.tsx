@@ -8,6 +8,8 @@ export interface AvatarProps {
   name: string;
   size?: Size;
   className?: string;
+  /** Pass true when this avatar is the LCP image (e.g. profile hero at size="xl"). */
+  priority?: boolean;
 }
 
 const sizePx: Record<Size, number> = {
@@ -16,6 +18,18 @@ const sizePx: Record<Size, number> = {
   md: 40,
   lg: 56,
   xl: 80,
+};
+
+/**
+ * `sizes` hint for next/image: we know the rendered CSS size is fixed, so
+ * we describe it explicitly to avoid the browser downloading a full-width image.
+ */
+const sizesHint: Record<Size, string> = {
+  xs: '24px',
+  sm: '32px',
+  md: '40px',
+  lg: '56px',
+  xl: '80px',
 };
 
 const sizeTextClass: Record<Size, string> = {
@@ -29,10 +43,15 @@ const sizeTextClass: Record<Size, string> = {
 /**
  * Circular user avatar. Falls back to initials over a warm surface when no `src`.
  * `alt` is derived from `name` for image accessibility.
+ *
+ * - `priority`: set to true when this is the LCP candidate (auto-applied for size="xl").
+ * - `sizes`: always passed so next/image can pick the correct source size.
  */
-export default function Avatar({ src, name, size = 'md', className }: AvatarProps) {
+export default function Avatar({ src, name, size = 'md', className, priority }: AvatarProps) {
   const px = sizePx[size];
   const initials = getInitials(name);
+  // xl avatars are typically LCP (profile hero); propagate priority automatically.
+  const isPriority = priority ?? size === 'xl';
 
   return (
     <span
@@ -49,8 +68,9 @@ export default function Avatar({ src, name, size = 'md', className }: AvatarProp
           alt={name}
           width={px}
           height={px}
+          sizes={sizesHint[size]}
+          priority={isPriority}
           className="h-full w-full object-cover"
-          unoptimized
         />
       ) : (
         <span aria-hidden>{initials}</span>

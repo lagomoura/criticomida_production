@@ -667,7 +667,9 @@
     },
     "follow": {
       "following": "Seguindo",
-      "follow": "Seguir"
+      "follow": "Seguir",
+      "unfollow": "Deixar de seguir",
+      "followingHint": "Seguindo — ativar para deixar de seguir"
     },
     "comment": {
       "editLabel": "Editar comentário",
@@ -779,6 +781,15 @@
       "loading": "Buscando…",
       "noResults": "Sem resultados. Somente usuários com handle aparecem.",
       "hint": "Digite @ seguido de um handle para mencionar alguém."
+    },
+    "editPost": {
+      "savedTitle": "Alterações salvas",
+      "savedDescription": "Sua resenha foi atualizada.",
+      "loadError": "Não conseguimos carregar a resenha. Tente novamente.",
+      "fallbackTitle": "Editar resenha",
+      "title": "Editar resenha de {dishName}",
+      "loadFailed": "Não foi possível carregar a resenha.",
+      "close": "Fechar"
     }
   },
   "restaurant": {
@@ -1732,7 +1743,9 @@
       "specialtyHeading": "Especialidade",
       "editProfile": "Editar perfil",
       "logout": "Sair",
-      "averageWord": "Média"
+      "averageWord": "Média",
+      "bioSeeMore": "Ver mais",
+      "bioSeeLess": "Ver menos"
     },
     "editPost": {
       "loadError": "Não conseguimos carregar a resenha. Tente novamente.",
@@ -1764,7 +1777,7 @@
       "emptyOtherTitle": "Sem resenhas por enquanto",
       "emptySelfDescription": "Compartilhe sua primeira resenha e comece a construir sua voz crítica.",
       "emptyOtherDescription": "Quando este usuário publicar algo, você vai ver aqui.",
-      "emptySelfAction": "Escrever resenha"
+      "emptySelfAction": "Publicar resenha"
     },
     "specialty": {
       "masterHeadline": "Autoridade em {name}: {count, plural, one {# resenha} other {# resenhas}} por trás de cada opinião.",

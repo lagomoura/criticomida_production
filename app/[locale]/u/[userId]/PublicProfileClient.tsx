@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from '@/app/lib/i18n/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTriangleExclamation, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faTriangleExclamation, faPenToSquare, faUtensils } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
 import Skeleton from '@/app/components/ui/Skeleton';
@@ -210,6 +210,11 @@ export default function PublicProfileClient({ userId }: Props) {
               profile.viewerState.isSelf
                 ? t('emptySelfDescription')
                 : t('emptyOtherDescription')
+            }
+            icon={
+              profile.viewerState.isSelf ? (
+                <FontAwesomeIcon icon={faUtensils} className="h-8 w-8" aria-hidden />
+              ) : undefined
             }
             action={
               profile.viewerState.isSelf

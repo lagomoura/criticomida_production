@@ -243,6 +243,18 @@ body::before {
   }
 }
 
+/* Follow-check entrance — micro bounce del ícono check al hacer follow.   */
+/* Usado en FollowButton.tsx vía motion-safe:animate-[follow-pop_...].     */
+/* Declarado dentro de prefers-reduced-motion: no-preference para          */
+/* que sea autoexplicativo (motion-safe: ya garantiza silencio en código). */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes follow-pop {
+    0%   { transform: scale(0.6) rotate(-12deg); opacity: 0; }
+    60%  { transform: scale(1.2) rotate(4deg);   opacity: 1; }
+    100% { transform: scale(1)   rotate(0deg);   opacity: 1; }
+  }
+}
+
 .text-muted {
   color: var(--neutral-600);
 }
