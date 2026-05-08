@@ -1628,18 +1628,7 @@
     "successTitle": "Review published",
     "successDescription": "{dish} at {restaurant}",
     "errorTitle": "The review wasn't published",
-    "errorMessage": "Couldn't publish the review. Try again.",
-    "categoryOptions": {
-      "argentina": "Argentinian",
-      "italian": "Italian",
-      "japanese": "Japanese",
-      "mexican": "Mexican",
-      "pizza": "Pizza",
-      "sweets": "Sweets",
-      "healthy": "Healthy",
-      "coffee": "Coffee",
-      "other": "Other"
-    }
+    "errorMessage": "Couldn't publish the review. Try again."
   },
   "settings": {
     "title": "Settings",

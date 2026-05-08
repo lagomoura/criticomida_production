@@ -30,17 +30,30 @@ import TechnicalPillars, {
   type TechnicalPillarsValue,
 } from '@/app/[locale]/restaurants/[id]/components/TechnicalPillars';
 
-const CATEGORY_KEYS = [
-  'argentina',
-  'italian',
-  'japanese',
-  'mexican',
-  'pizza',
-  'sweets',
-  'healthy',
-  'coffee',
-  'other',
-] as const;
+// Grupos del catálogo canónico (52 categorías) reflejando los `display_order`
+// de la migración 047. Mantener alineado con `app/data/review-categories.ts` y
+// con `SECTIONS` de `app/[locale]/categorias/CategoriasIndexClient.tsx`.
+const COMPOSE_CATEGORY_GROUPS: ReadonlyArray<{
+  titleKey: string;
+  slugs: ReadonlyArray<string>;
+}> = [
+  { titleKey: 'sectionSudamerica', slugs: ['argentina', 'brasilena', 'peruana', 'uruguaya', 'venezolana', 'colombiana', 'chilena', 'boliviana'] },
+  { titleKey: 'sectionCentroamerica', slugs: ['mexicana', 'cubana', 'caribena'] },
+  { titleKey: 'sectionNorteamerica', slugs: ['burgers', 'estadounidense'] },
+  { titleKey: 'sectionEuropa', slugs: ['italiana', 'espanola', 'francesa', 'griega', 'alemana', 'portuguesa'] },
+  { titleKey: 'sectionMedioOriente', slugs: ['arabe', 'israeli', 'libanesa', 'turca', 'marroqui', 'armenia'] },
+  { titleKey: 'sectionAsia', slugs: ['japonesa', 'china', 'coreana', 'thai', 'vietnamita', 'india'] },
+  { titleKey: 'sectionCarnes', slugs: ['parrilla', 'steakhouse'] },
+  { titleKey: 'sectionMariscos', slugs: ['mariscos'] },
+  { titleKey: 'sectionEstilos', slugs: ['brunchs', 'desayunos', 'tapas', 'picadas', 'sandwiches', 'empanadas', 'bowls', 'vegano', 'vegetariano', 'sin-tacc'] },
+  { titleKey: 'sectionBebidaDulce', slugs: ['dulces', 'helados', 'pasteleria', 'panaderia', 'cafeteria', 'bar', 'cerveceria'] },
+];
+
+// `categories.*` usa camelCase para slugs con guiones (sólo `sin-tacc` por ahora).
+const SLUG_TO_I18N_KEY: Record<string, string> = {
+  'sin-tacc': 'sinTacc',
+};
+const slugToCategoryKey = (slug: string): string => SLUG_TO_I18N_KEY[slug] ?? slug;
 
 const MIN_TEXT = 20;
 const MAX_TEXT = 1200;
@@ -51,7 +64,8 @@ export default function ComposeClient() {
   const { user, isLoading: authLoading } = useAuthContext();
   const toast = useToast();
   const t = useTranslations('compose');
-  const tCat = useTranslations('compose.categoryOptions');
+  const tCat = useTranslations('categories');
+  const tSec = useTranslations('categoriesIndex');
 
   const prefillDishId = searchParams?.get('dish') ?? null;
 
@@ -324,10 +338,14 @@ export default function ComposeClient() {
             disabled={submitting}
           >
             <option value="">{t('categoryNone')}</option>
-            {CATEGORY_KEYS.map((c) => (
-              <option key={c} value={tCat(c)}>
-                {tCat(c)}
-              </option>
+            {COMPOSE_CATEGORY_GROUPS.map((group) => (
+              <optgroup key={group.titleKey} label={tSec(group.titleKey)}>
+                {group.slugs.map((slug) => (
+                  <option key={slug} value={slug}>
+                    {tCat(slugToCategoryKey(slug))}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </Select>
 

@@ -1628,18 +1628,7 @@
     "successTitle": "Reseña publicada",
     "successDescription": "{dish} en {restaurant}",
     "errorTitle": "No se publicó la reseña",
-    "errorMessage": "No se pudo publicar la reseña. Probá de nuevo.",
-    "categoryOptions": {
-      "argentina": "Argentina",
-      "italian": "Italiana",
-      "japanese": "Japonesa",
-      "mexican": "Mexicana",
-      "pizza": "Pizza",
-      "sweets": "Dulces",
-      "healthy": "Saludable",
-      "coffee": "Café",
-      "other": "Otra"
-    }
+    "errorMessage": "No se pudo publicar la reseña. Probá de nuevo."
   },
   "settings": {
     "title": "Configuración",
