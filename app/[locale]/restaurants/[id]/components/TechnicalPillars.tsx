@@ -116,8 +116,8 @@ export default function TechnicalPillars({
       }
       aria-hidden={!visible}
     >
-      <div className="rounded-2xl border border-border-subtle bg-surface-card p-3 sm:p-4">
-        <header className="mb-3 flex items-baseline justify-between gap-2">
+      <div className="rounded-2xl border border-border-subtle bg-surface-card p-2.5 sm:p-3">
+        <header className="mb-2 flex items-baseline justify-between gap-2">
           <div>
             <h3
               id="technical-pillars-title"
@@ -140,7 +140,7 @@ export default function TechnicalPillars({
           </span>
         </header>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           {PILLARS.map((pillar) => {
             const selected = value[pillar.key];
             const selectedOption = pillar.options.find((o) => o.value === selected);
@@ -171,13 +171,13 @@ export default function TechnicalPillars({
                         disabled={disabled}
                         onClick={() => handleSelect(pillar.key, opt.value)}
                         className={
-                          'flex min-h-[56px] flex-col items-center justify-center gap-0.5 rounded-xl border-2 px-2 py-2 font-sans text-xs font-semibold transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] ' +
+                          'flex min-h-[48px] flex-col items-center justify-center gap-0.5 rounded-xl border-2 px-2 py-1.5 font-sans text-[11px] font-semibold transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] ' +
                           (isSelected
                             ? TONE_STYLES[opt.tone]
                             : 'border-border-subtle bg-surface-page text-text-secondary hover:border-border-default hover:bg-surface-subtle')
                         }
                       >
-                        <span className="text-xl leading-none" aria-hidden="true">
+                        <span className="text-base leading-none" aria-hidden="true">
                           {opt.emoji}
                         </span>
                         <span className="leading-tight">{opt.label}</span>

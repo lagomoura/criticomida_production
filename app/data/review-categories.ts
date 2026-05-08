@@ -97,3 +97,31 @@ export const reviewCategoryFilterOptions = [
     value: c.slug,
   })),
 ];
+
+/** Regional grouping of the canonical 52 categories — used by the compose form
+ * and by the dish-create flow to render `<optgroup>` selects. Section titles
+ * resolve via the `categoriesIndex` namespace; slugs match REVIEW_CATEGORIES. */
+export const REVIEW_CATEGORY_GROUPS: ReadonlyArray<{
+  titleKey: string;
+  slugs: ReadonlyArray<string>;
+}> = [
+  { titleKey: 'sectionSudamerica', slugs: ['argentina', 'brasilena', 'peruana', 'uruguaya', 'venezolana', 'colombiana', 'chilena', 'boliviana'] },
+  { titleKey: 'sectionCentroamerica', slugs: ['mexicana', 'cubana', 'caribena'] },
+  { titleKey: 'sectionNorteamerica', slugs: ['burgers', 'estadounidense'] },
+  { titleKey: 'sectionEuropa', slugs: ['italiana', 'espanola', 'francesa', 'griega', 'alemana', 'portuguesa'] },
+  { titleKey: 'sectionMedioOriente', slugs: ['arabe', 'israeli', 'libanesa', 'turca', 'marroqui', 'armenia'] },
+  { titleKey: 'sectionAsia', slugs: ['japonesa', 'china', 'coreana', 'thai', 'vietnamita', 'india'] },
+  { titleKey: 'sectionCarnes', slugs: ['parrilla', 'steakhouse'] },
+  { titleKey: 'sectionMariscos', slugs: ['mariscos'] },
+  { titleKey: 'sectionEstilos', slugs: ['brunchs', 'desayunos', 'tapas', 'picadas', 'sandwiches', 'empanadas', 'bowls', 'vegano', 'vegetariano', 'sin-tacc'] },
+  { titleKey: 'sectionBebidaDulce', slugs: ['dulces', 'helados', 'pasteleria', 'panaderia', 'cafeteria', 'bar', 'cerveceria'] },
+];
+
+/** `categories.*` uses camelCase for slugs with hyphens. */
+const SLUG_TO_I18N_KEY: Record<string, string> = {
+  'sin-tacc': 'sinTacc',
+};
+
+export function categorySlugToI18nKey(slug: string): string {
+  return SLUG_TO_I18N_KEY[slug] ?? slug;
+}

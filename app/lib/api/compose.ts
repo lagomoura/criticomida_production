@@ -57,6 +57,9 @@ interface PostCreateDTO {
     visited_with?: string | null;
     is_anonymous?: boolean | null;
     date_tasted?: string | null;
+    /** "HH:MM" or "HH:MM:SS"; backend coerces to time. */
+    time_tasted?: string | null;
+    meal_period?: 'breakfast' | 'lunch' | 'snack' | 'dinner' | null;
     price_tier?: '$' | '$$' | '$$$' | null;
     price_paid?: number | null;
     pros?: string[];
@@ -102,6 +105,8 @@ function toPostCreateDTO(input: CreatePostInput): PostCreateDTO {
       visited_with: extras.visitedWith ?? null,
       is_anonymous: extras.isAnonymous ?? null,
       date_tasted: extras.dateTasted ?? null,
+      time_tasted: extras.timeTasted ?? null,
+      meal_period: extras.mealPeriod ?? null,
       price_tier: extras.priceTier ?? null,
       price_paid: extras.pricePaid ?? null,
       pros: extras.pros ?? [],

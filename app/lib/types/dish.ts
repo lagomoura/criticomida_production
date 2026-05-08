@@ -2,6 +2,9 @@ export type PriceTier = '$' | '$$' | '$$$';
 export type PortionSize = 'small' | 'medium' | 'large';
 export type DishReviewProsConsType = 'pro' | 'con';
 export type PillarScore = 1 | 2 | 3;
+/** Coarse meal period — replaces the legacy free-form `time_tasted` input
+ * for the compose flow. Backend persists it as `dish_reviews.meal_period`. */
+export type MealPeriod = 'breakfast' | 'lunch' | 'snack' | 'dinner';
 
 export interface Dish {
   id: string;
@@ -56,6 +59,7 @@ export interface DishReview {
   user_display_name: string | null;
   date_tasted: string;
   time_tasted: string | null;
+  meal_period: MealPeriod | null;
   note: string;
   rating: number;
   /** Precio absoluto en la moneda del restaurante. Null cuando el crítico
@@ -78,6 +82,7 @@ export interface DishReview {
 export interface CreateReviewRequest {
   date_tasted: string;
   time_tasted?: string;
+  meal_period?: MealPeriod;
   note: string;
   rating: number;
   /** Numérico positivo. Omitir cuando no aplica. */
@@ -97,6 +102,7 @@ export interface CreateReviewRequest {
 export interface UpdateReviewRequest {
   date_tasted?: string;
   time_tasted?: string;
+  meal_period?: MealPeriod | null;
   note?: string;
   rating?: number;
   /** Numérico positivo o null para limpiar. */

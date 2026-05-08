@@ -38,8 +38,11 @@ export interface ReviewExtras {
   tags?: string[];
   /** ISO date (yyyy-mm-dd). */
   dateTasted?: string | null;
-  /** "HH:MM:SS" o "HH:MM". */
+  /** "HH:MM:SS" o "HH:MM" — solo lectura para reviews legacy. Las nuevas
+   * usan `mealPeriod`. */
   timeTasted?: string | null;
+  /** Coarse meal period — replaces the legacy free-form time picker. */
+  mealPeriod?: 'breakfast' | 'lunch' | 'snack' | 'dinner' | null;
   visitedWith?: string | null;
   isAnonymous?: boolean | null;
   priceTier?: PriceTier | null;

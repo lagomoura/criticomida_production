@@ -1,5 +1,5 @@
 export type { ProCon, PaginatedResponse } from './common';
-export type { Plate, DishReview, Dish, CreateDishRequest, UpdateDishRequest, CreateReviewRequest, UpdateReviewRequest, DishReviewProsCons, DishReviewTag, DishReviewImage, PriceTier, PortionSize, PillarScore, DishReviewProsConsType } from './dish';
+export type { Plate, DishReview, Dish, CreateDishRequest, UpdateDishRequest, CreateReviewRequest, UpdateReviewRequest, DishReviewProsCons, DishReviewTag, DishReviewImage, PriceTier, PortionSize, MealPeriod, PillarScore, DishReviewProsConsType } from './dish';
 export type {
   Restaurant,
   RestaurantDetail,
