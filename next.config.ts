@@ -16,6 +16,28 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  async headers() {
+    // Hardening baseline. We deliberately omit a strict CSP for now —
+    // several legit components still ship `dangerouslySetInnerHTML`
+    // (theme bootstrap inline script, OG route) and a strict CSP would
+    // blackhole them. Roll out CSP in Report-Only mode first, audit
+    // reports, then promote to enforced.
+    const securityHeaders = [
+      {
+        key: 'Strict-Transport-Security',
+        value: 'max-age=63072000; includeSubDomains; preload',
+      },
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      {
+        key: 'Permissions-Policy',
+        value:
+          'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
+      },
+      { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+    ];
+    return [{ source: '/:path*', headers: securityHeaders }];
+  },
   async rewrites() {
     // El backend devuelve URLs relativas (/uploads/abc.webp) y los archivos
     // los sirve FastAPI en NEXT_PUBLIC_API_URL/uploads/*. En dev apunta a
@@ -100,12 +122,41 @@ const nextConfig: NextConfig = {
         hostname: 'staticmap.openstreetmap.de',
         pathname: '/**',
       },
+      // Backend de FastAPI en dev: docker compose mapea host :8002 → contenedor :8000
+      // y el rewrite de /uploads/:path* apunta ahí. next/image necesita el host
+      // exacto para optimizar las imágenes que vienen del backend.
       {
         protocol: 'http',
         hostname: 'localhost',
-        port: '8000',
+        port: '8002',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8002',
+        pathname: '/**',
+      },
+      // Backend en prod: el hostname se resuelve desde NEXT_PUBLIC_API_URL al
+      // build de Vercel. Si la env var no está seteada, no agregamos pattern
+      // (las imágenes seguirán sirviéndose vía el rewrite, que sí funciona,
+      // pero next/image las dejará pasar sin optimizar).
+      ...(process.env.NEXT_PUBLIC_API_URL
+        ? (() => {
+            try {
+              const u = new URL(process.env.NEXT_PUBLIC_API_URL!);
+              return [
+                {
+                  protocol: u.protocol.replace(':', '') as 'http' | 'https',
+                  hostname: u.hostname,
+                  pathname: '/**',
+                },
+              ];
+            } catch {
+              return [];
+            }
+          })()
+        : []),
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',

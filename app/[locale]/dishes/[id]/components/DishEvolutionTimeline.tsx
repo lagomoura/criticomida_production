@@ -31,22 +31,22 @@ export default function DishEvolutionTimeline({
   const currencyCode = timeline.currencyCode ?? null;
 
   if (buckets.length === 0) {
-    const html = t.raw('emptyMessage') as string;
     return (
       <section
         aria-labelledby="evolution-heading"
         className="rounded-2xl border border-border-subtle bg-surface-card p-5 sm:p-6"
       >
         <Heading />
-        <p
-          className="mt-3 font-display italic text-base leading-relaxed text-text-secondary"
-          dangerouslySetInnerHTML={{
-            __html: html.replace(
-              '{dish}',
-              `<span class="font-semibold not-italic text-text-primary">${dishName}</span>`,
+        <p className="mt-3 font-display italic text-base leading-relaxed text-text-secondary">
+          {t.rich('emptyMessage', {
+            dish: dishName,
+            strong: (chunks) => (
+              <span className="font-semibold not-italic text-text-primary">
+                {chunks}
+              </span>
             ),
-          }}
-        />
+          })}
+        </p>
       </section>
     );
   }

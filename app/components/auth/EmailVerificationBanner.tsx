@@ -33,12 +33,12 @@ export default function EmailVerificationBanner() {
       role="status"
       className="w-full bg-amber-100 px-4 py-2 text-center font-sans text-sm text-amber-900"
     >
-      <span
-        className="mr-2"
-        dangerouslySetInnerHTML={{
-          __html: t.raw('message').replace('{email}', user.email),
-        }}
-      />
+      <span className="mr-2">
+        {t.rich('message', {
+          email: user.email,
+          strong: (chunks) => <strong>{chunks}</strong>,
+        })}
+      </span>
       {state === 'sent' ? (
         <span className="text-emerald-700">{t('resent')}</span>
       ) : state === 'error' ? (
