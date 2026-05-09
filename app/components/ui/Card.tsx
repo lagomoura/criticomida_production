@@ -16,8 +16,10 @@ const variantClass: Record<Variant, string> = {
   flat: 'rounded-xl border border-border-subtle bg-surface-card',
   elevated:
     'rounded-xl border border-border-subtle bg-surface-card shadow-[var(--shadow-base)]',
+  // rounded-xl añadido para consistencia con flat/elevated.
+  // Si se necesita rectangularidad editorial en el futuro, crear variante "editorial-flush".
   editorial:
-    'border border-border-subtle bg-surface-card shadow-[var(--shadow-base)]',
+    'rounded-xl border border-border-subtle bg-surface-card shadow-[var(--shadow-base)]',
 };
 
 const paddingClass: Record<Padding, string> = {
