@@ -1012,6 +1012,10 @@
     },
     "dishReviewForm": {
       "ariaLabel": "Formulário de resenha",
+      "sectionDish": "O prato",
+      "sectionOpinion": "Sua opinião",
+      "sectionContext": "O contexto",
+      "sectionDetails": "Detalhes",
       "ratingLabel": "Avaliação",
       "wouldOrderAgainLabel": "Pediria de novo?",
       "yes": "Sim",

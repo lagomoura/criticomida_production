@@ -1012,6 +1012,10 @@
     },
     "dishReviewForm": {
       "ariaLabel": "Review form",
+      "sectionDish": "The dish",
+      "sectionOpinion": "Your take",
+      "sectionContext": "The context",
+      "sectionDetails": "Details",
       "ratingLabel": "Rating",
       "wouldOrderAgainLabel": "Would you order it again?",
       "yes": "Yes",

@@ -142,6 +142,24 @@ export function companyToVisitedWith(
   return undefined;
 }
 
+/** Kicker-style section divider. Renders a small uppercase label in Azafrán
+ * with a hairline rule to the right — orients the user without adding noise.
+ * The first section of the form omits the divider entirely (no top rule). */
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <div
+      role="separator"
+      aria-label={label}
+      className="flex items-center gap-3 pt-1"
+    >
+      <span className="shrink-0 font-sans text-[10px] font-semibold uppercase tracking-[0.20em] text-color-azafran">
+        {label}
+      </span>
+      <span className="h-px flex-1 bg-border-subtle" aria-hidden="true" />
+    </div>
+  );
+}
+
 export default function ReviewFormBody({
   value,
   onChange,
@@ -490,6 +508,9 @@ export default function ReviewFormBody({
         disabled={submitting}
       />
 
+      {/* ── Bloque: Tu opinión ─────────────────────────────────────────── */}
+      <SectionDivider label={t('sectionOpinion')} />
+
       {/* 4. Notes — full width, breathes */}
       <div>
         <label
@@ -534,6 +555,9 @@ export default function ReviewFormBody({
         disabled={submitting}
         removeLabel={(item) => `${t('removeCon')} (${item})`}
       />
+
+      {/* ── Bloque: El contexto ────────────────────────────────────────── */}
+      <SectionDivider label={t('sectionContext')} />
 
       {/* 7+8. Portion + meal period — side-by-side on sm+ to save vertical room.
           Each one wraps in its own card so on mobile (stacked) the sections
@@ -645,6 +669,9 @@ export default function ReviewFormBody({
           />
         </div>
       </div>
+
+      {/* ── Bloque: Detalles ───────────────────────────────────────────── */}
+      <SectionDivider label={t('sectionDetails')} />
 
       {/* 11. Tags — free-form chips */}
       <ChipInput
