@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -70,7 +70,34 @@ export default function GhostwriterAssist({
   const [usedPros, setUsedPros] = useState<Set<string>>(new Set());
   const [usedCons, setUsedCons] = useState<Set<string>>(new Set());
   const [blurbApplied, setBlurbApplied] = useState(false);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [progressPct, setProgressPct] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const analyzingSteps =
+    (t.raw('analyzingSteps') as string[] | undefined) ?? [t('analyzing')];
+
+  // Schedule slows toward the end so the last line stays longest if the model lags.
+  useEffect(() => {
+    if (!busy) return;
+    setStepIndex(0);
+    setProgressPct(0);
+    const stepDelaysMs = [2200, 4500, 7500, 11000];
+    const lastIndex = analyzingSteps.length - 1;
+    const rafId = window.requestAnimationFrame(() => setProgressPct(95));
+    const timeoutIds = stepDelaysMs
+      .slice(0, Math.max(0, lastIndex))
+      .map((delay, i) =>
+        window.setTimeout(
+          () => setStepIndex(Math.min(i + 1, lastIndex)),
+          delay,
+        ),
+      );
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      timeoutIds.forEach((id) => window.clearTimeout(id));
+    };
+  }, [busy, analyzingSteps.length]);
 
   async function runAssist(photo: File) {
     setBusy(true);
@@ -171,13 +198,34 @@ export default function GhostwriterAssist({
           )}
 
           {busy && (
-            <div className="inline-flex items-center gap-2 text-sm text-text-muted">
-              <FontAwesomeIcon
-                icon={faCircleNotch}
-                aria-hidden
-                className="h-3.5 w-3.5 animate-spin"
-              />
-              {t('analyzing')}
+            <div className="flex flex-col gap-2">
+              <div className="inline-flex items-center gap-2 text-sm text-text-muted">
+                <FontAwesomeIcon
+                  icon={faCircleNotch}
+                  aria-hidden
+                  className="h-3.5 w-3.5 animate-spin text-color-azafran"
+                />
+                <span
+                  key={stepIndex}
+                  aria-live="polite"
+                  className="motion-safe:animate-[cc-chip-in_280ms_ease-out]"
+                >
+                  {analyzingSteps[stepIndex] ?? analyzingSteps[0]}
+                </span>
+              </div>
+              <div
+                role="progressbar"
+                aria-label={t('analyzingProgressLabel')}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(progressPct)}
+                className="h-1 w-full overflow-hidden rounded-full bg-surface-subtle"
+              >
+                <div
+                  className="h-full rounded-full bg-color-azafran transition-[width] duration-[12000ms] ease-out"
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
             </div>
           )}
 
