@@ -66,7 +66,20 @@ export async function assistWithUpload({
     let detail = res.statusText;
     try {
       const body = await res.json();
-      detail = body.detail || detail;
+      // FastAPI 422 returns `detail` as an array of validation errors:
+      // [{ loc: [...], msg: "...", type: "..." }, ...]. The default
+      // template-literal coercion produced "[object Object]"; flatten it
+      // so the user sees what actually failed.
+      if (Array.isArray(body.detail)) {
+        detail = body.detail
+          .map(
+            (e: { loc?: unknown[]; msg?: string }) =>
+              `${(e.loc ?? []).join('.')}: ${e.msg ?? 'invalid'}`,
+          )
+          .join('; ');
+      } else if (typeof body.detail === 'string') {
+        detail = body.detail;
+      }
     } catch {
       /* not json */
     }
