@@ -80,7 +80,7 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
           >
             <FontAwesomeIcon icon={faPenToSquare} aria-hidden className="h-4 w-4" />
           </button>
-          <span className="font-sans text-[10px] text-text-muted">{t('publish')}</span>
+          <span className="font-sans text-[10px] uppercase tracking-[0.12em] text-text-muted">{t('publish')}</span>
         </li>
 
         <BottomButton
@@ -103,7 +103,7 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
               )}
             >
               <Avatar src={user.avatar_url} name={user.display_name || user.email} size="xs" />
-              <span>{t('profile')}</span>
+              <span className="uppercase tracking-[0.12em]">{t('profile')}</span>
               <ActiveDot active={isActive(`/u/${user.id}`)} />
             </Link>
           </li>
@@ -159,7 +159,7 @@ function BottomItem({
             </Badge>
           )}
         </span>
-        <span>{label}</span>
+        <span className="uppercase tracking-[0.12em]">{label}</span>
         <ActiveDot active={active} />
       </Link>
     </li>
@@ -198,7 +198,7 @@ function BottomButton({
             </Badge>
           )}
         </span>
-        <span>{label}</span>
+        <span className="uppercase tracking-[0.12em]">{label}</span>
         <ActiveDot active={active} />
       </button>
     </li>
