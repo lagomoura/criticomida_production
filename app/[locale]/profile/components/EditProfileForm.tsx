@@ -145,7 +145,12 @@ export default function EditProfileForm() {
             disabled={submitting}
           />
           {error && (
-            <p className="m-0 font-sans text-sm text-action-danger" role="status" aria-live="polite">
+            <p
+              className="m-0 font-sans text-sm text-action-danger"
+              role="alert"
+              aria-live="assertive"
+              aria-atomic="true"
+            >
               {error}
             </p>
           )}
