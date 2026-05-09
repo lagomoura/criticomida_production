@@ -70,6 +70,9 @@
     "myProfile": "Mi perfil",
     "enter": "Entrar",
     "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "signingOut": "Cerrando sesión…",
+    "userMenu": "Menú de usuario",
     "moderation": "Moderación",
     "uncategorized": "Sin categoría"
   },
@@ -1980,6 +1983,7 @@
     "tabForYou": "Para ti",
     "tabFollowing": "Siguiendo",
     "tabMap": "Mapa",
+    "followingAuthPrompt": "Creá tu cuenta para seguir críticos y ver acá lo que reseñan.",
     "sortLabel": "Orden del feed",
     "sortRecent": "Recientes",
     "sortTop": "Mejor puntuadas",

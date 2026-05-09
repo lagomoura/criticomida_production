@@ -70,6 +70,9 @@
     "myProfile": "My profile",
     "enter": "Sign in",
     "signIn": "Sign in",
+    "signOut": "Sign out",
+    "signingOut": "Signing out…",
+    "userMenu": "User menu",
     "moderation": "Moderation",
     "uncategorized": "Uncategorized"
   },
@@ -1980,6 +1983,7 @@
     "tabForYou": "For you",
     "tabFollowing": "Following",
     "tabMap": "Map",
+    "followingAuthPrompt": "Create your account to follow critics and see their reviews here.",
     "sortLabel": "Feed order",
     "sortRecent": "Recent",
     "sortTop": "Top rated",
