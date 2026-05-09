@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import Button from '@/app/components/ui/Button';
+import Modal from '@/app/components/ui/Modal';
 import { useToast } from '@/app/components/ui/Toast';
 import { useDirtyCloseGuard } from '@/app/hooks/useDirtyCloseGuard';
 import {
@@ -66,14 +65,6 @@ export default function OwnerReviewModal({
           : body.trim().length > 0,
       onClose,
     });
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !saving) requestClose();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [saving, requestClose]);
 
   useEffect(() => {
     let cancelled = false;
@@ -174,134 +165,101 @@ export default function OwnerReviewModal({
     }
   };
 
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="owner-review-modal-title"
-      onClick={() => { if (!saving) requestClose(); }}
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[90vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-t-2xl bg-surface-card p-5 shadow-xl sm:rounded-2xl sm:p-6"
-      >
-        <button
-          type="button"
-          aria-label={tModal('closeAction')}
-          onClick={() => { if (!saving) requestClose(); }}
-          className="absolute right-3 top-3 rounded-full p-1.5 text-text-muted hover:bg-surface-subtle"
-        >
-          <FontAwesomeIcon icon={faXmark} className="h-4 w-4" aria-hidden />
-        </button>
+  // Build author label for the Modal description prop
+  const authorLabel = review.is_anonymous
+    ? t('anonymous')
+    : review.user_handle
+      ? `@${review.user_handle}`
+      : review.user_display_name;
 
-        <header className="flex flex-col gap-1 pr-8">
-          <p
-            id="owner-review-modal-title"
-            className="font-display text-xl font-medium"
-          >
-            {review.dish_name}{' '}
-            <span className="font-sans text-sm text-text-muted">
-              ★ {review.rating.toFixed(1)}
-            </span>
-          </p>
-          <p className="font-sans text-xs text-text-muted">
-            {review.is_anonymous
-              ? t('anonymous')
-              : review.user_handle
-                ? `@${review.user_handle}`
-                : review.user_display_name}{' '}
-            · {new Date(review.date_tasted).toLocaleDateString(locale)}
-          </p>
-        </header>
-
-        <ReviewEmojiChips review={review} />
-
-        <p className="whitespace-pre-wrap font-sans text-sm text-text-primary">
-          {review.note}
-        </p>
-
-        <div className="flex flex-col gap-2 border-t border-border-default pt-4">
-          <h3 className="font-display text-base font-medium">
-            {response
-              ? tModal('yourResponseHeading')
-              : tModal('respondHeading')}
-          </h3>
-          {loading ? (
-            <div className="flex items-center justify-center py-4">
-              <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-action-primary border-t-transparent" />
-            </div>
-          ) : (
-            <>
-              {draftSource && (
-                <p className="rounded-md bg-action-primary/10 px-3 py-2 font-sans text-xs text-text-primary">
-                  {draftSource === 'chat'
-                    ? tModal('draftFromChatNotice')
-                    : tModal('draftFromLocalNotice')}
-                </p>
-              )}
-              <textarea
-                value={body}
-                onChange={(e) => handleBodyChange(e.target.value)}
-                rows={4}
-                placeholder={tModal('responsePlaceholder')}
-                className="w-full rounded-md border border-border-default bg-surface-subtle p-3 font-sans text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-canela)]"
-              />
-              {error && (
-                <p className="rounded-md bg-action-danger/10 px-3 py-2 font-sans text-xs text-action-danger">
-                  {error}
-                </p>
-              )}
-              {confirmingDiscard ? (
-                <div className="flex flex-col gap-3 rounded-md border border-action-danger/30 bg-action-danger/5 p-3">
-                  <p className="font-sans text-sm text-text-primary">
-                    {tModal('dirtyCloseWarning')}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={confirmDiscard}
-                    >
-                      {tModal('dirtyCloseConfirm')}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={cancelDiscard}
-                    >
-                      {tModal('dirtyCloseCancel')}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => requestClose()}
-                    disabled={saving}
-                  >
-                    {tModal('closeAction')}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => void handleSave()}
-                    disabled={saving || body.trim().length === 0}
-                  >
-                    {saving
-                      ? tModal('savingAction')
-                      : response
-                        ? tModal('updateAction')
-                        : tModal('respondAction')}
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+  // Footer swaps between confirm-discard banner and normal action buttons
+  const modalFooter = confirmingDiscard ? (
+    <div className="flex w-full flex-col gap-3 rounded-md border border-action-danger/30 bg-action-danger/5 p-3">
+      <p className="font-sans text-sm text-text-primary">
+        {tModal('dirtyCloseWarning')}
+      </p>
+      <div className="flex gap-2">
+        <Button variant="danger" size="sm" onClick={confirmDiscard}>
+          {tModal('dirtyCloseConfirm')}
+        </Button>
+        <Button variant="ghost" size="sm" onClick={cancelDiscard}>
+          {tModal('dirtyCloseCancel')}
+        </Button>
       </div>
     </div>
+  ) : (
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => requestClose()}
+        disabled={saving}
+      >
+        {tModal('closeAction')}
+      </Button>
+      <Button
+        variant="primary"
+        size="sm"
+        onClick={() => void handleSave()}
+        disabled={saving || body.trim().length === 0}
+        loading={saving}
+      >
+        {response ? tModal('updateAction') : tModal('respondAction')}
+      </Button>
+    </>
+  );
+
+  return (
+    <Modal
+      open
+      onClose={requestClose}
+      kicker={tModal('kicker')}
+      title={tModal('title', { dish: review.dish_name })}
+      description={`${authorLabel} · ${new Date(review.date_tasted).toLocaleDateString(locale)}  ★ ${review.rating.toFixed(1)}`}
+      position="bottom-sheet"
+      size="xl"
+      busy={saving}
+      footer={modalFooter}
+    >
+      <ReviewEmojiChips review={review} />
+
+      <p className="mt-3 whitespace-pre-wrap font-sans text-sm text-text-primary">
+        {review.note}
+      </p>
+
+      <div className="mt-4 flex flex-col gap-2 border-t border-border-default pt-4">
+        <h3 className="font-display text-base font-medium">
+          {response ? tModal('yourResponseHeading') : tModal('respondHeading')}
+        </h3>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-4">
+            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-action-primary border-t-transparent" />
+          </div>
+        ) : (
+          <>
+            {draftSource && (
+              <p className="rounded-md bg-action-primary/10 px-3 py-2 font-sans text-xs text-text-primary">
+                {draftSource === 'chat'
+                  ? tModal('draftFromChatNotice')
+                  : tModal('draftFromLocalNotice')}
+              </p>
+            )}
+            <textarea
+              value={body}
+              onChange={(e) => handleBodyChange(e.target.value)}
+              rows={4}
+              placeholder={tModal('responsePlaceholder')}
+              className="w-full rounded-md border border-border-default bg-surface-subtle p-3 font-sans text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-canela)]"
+            />
+            {error && (
+              <p className="rounded-md bg-action-danger/10 px-3 py-2 font-sans text-xs text-action-danger">
+                {error}
+              </p>
+            )}
+          </>
+        )}
+      </div>
+    </Modal>
   );
 }

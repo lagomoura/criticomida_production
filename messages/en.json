@@ -431,7 +431,10 @@
       "publishedDescription": "It's now visible to everyone on the restaurant page.",
       "dirtyCloseWarning": "You have an unpublished response. Sure you want to close?",
       "dirtyCloseConfirm": "Close without publishing",
-      "dirtyCloseCancel": "Keep editing"
+      "dirtyCloseCancel": "Keep editing",
+      "kicker": "Your public response",
+      "title": "{dish}",
+      "description": "by {author}"
     },
     "moreChangesHeading": "More profile changes",
     "moreChangesDescription": "For now the panel only manages photos and responses. If you want to update the reservation URL or report an error in the place's data, contact support and we'll help.",

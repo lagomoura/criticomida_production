@@ -431,7 +431,10 @@
       "publishedDescription": "Agora é visível para todos no perfil do restaurante.",
       "dirtyCloseWarning": "Você tem uma resposta sem publicar. Tem certeza de fechar?",
       "dirtyCloseConfirm": "Fechar sem publicar",
-      "dirtyCloseCancel": "Continuar editando"
+      "dirtyCloseCancel": "Continuar editando",
+      "kicker": "Sua resposta pública",
+      "title": "{dish}",
+      "description": "de {author}"
     },
     "moreChangesHeading": "Aplicar mais mudanças no perfil",
     "moreChangesDescription": "Por enquanto o painel só gerencia fotos e respostas. Se quiser atualizar a URL de reservas ou avisar de um erro nos dados do local, escreva para o suporte e ajudamos.",
