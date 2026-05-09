@@ -15,6 +15,7 @@ import { addToWantToTry, removeFromWantToTry } from '@/app/lib/api/want-to-try';
 import { useToast } from '@/app/components/ui/Toast';
 import { PostCardSkeleton } from '@/app/components/ui/SkeletonPresets';
 import ReportModal from '@/app/components/social/ReportModal';
+import AuthModal from '@/app/components/nav/AuthModal';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { cn } from '@/app/lib/utils/cn';
 import type { FeedSort, FeedType, ReviewPost } from '@/app/lib/types/social';
@@ -58,6 +59,7 @@ export default function FeedClient() {
   const [followingSort, setFollowingSort] = useState<FeedSort>('recent');
   const [cache, setCache] = useState<SlotCache>(INITIAL_CACHE);
   const [reportTarget, setReportTarget] = useState<{ id: string; subject: string } | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   // Tracks which slots we've already fired loadFirstPage for. Lets us trigger
   // load on tab/sort switch without keeping `cache` in the effect deps —
   // depending on `cache` would loop because loadFirstPage immediately writes
@@ -298,6 +300,13 @@ export default function FeedClient() {
           value={activeTab}
           items={tabs}
           onChange={(next) => {
+            // Anónimos que tocan "Siguiendo": disparamos auth modal con
+            // copy contextual y dejamos el tab donde estaba. Convertimos la
+            // curiosidad por la feature social en un prompt de signup.
+            if (!user && next === 'following') {
+              setAuthModalOpen(true);
+              return;
+            }
             tabResolvedRef.current = true;
             setTabResolved(true);
             setActiveTab(next as FeedTabValue);
@@ -314,6 +323,13 @@ export default function FeedClient() {
           onClose={() => setReportTarget(null)}
         />
       )}
+
+      <AuthModal
+        open={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialTab="register"
+        description={t('followingAuthPrompt')}
+      />
 
       {!tabResolved ? (
         <div

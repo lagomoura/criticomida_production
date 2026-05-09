@@ -11,11 +11,13 @@ export interface AuthModalProps {
   open: boolean;
   onClose: () => void;
   initialTab?: AuthTab;
+  /** Optional contextual subtitle (e.g. "Sign in to see your follow feed"). */
+  description?: string;
   /** Called after a successful login or register. */
   onSuccess?: () => void;
 }
 
-export default function AuthModal({ open, onClose, initialTab = 'login', onSuccess }: AuthModalProps) {
+export default function AuthModal({ open, onClose, initialTab = 'login', description, onSuccess }: AuthModalProps) {
   const [tab, setTab] = useState<AuthTab>(initialTab);
   const t = useTranslations('auth');
 
@@ -28,6 +30,7 @@ export default function AuthModal({ open, onClose, initialTab = 'login', onSucce
       open={open}
       onClose={onClose}
       title={tab === 'login' ? t('signIn') : t('createAccount')}
+      description={description}
       size="md"
       position="bottom-sheet"
     >
