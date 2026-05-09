@@ -105,6 +105,15 @@ export default function PostCard({
         />
       </div>
 
+      {/* Media inmediatamente después del header: la foto es el héroe del plato.
+          Convención Letterboxd/Beli: media precede al texto descriptivo.
+          pointer-events-none en feed para que el overlay-link reciba el tap. */}
+      {post.media && post.media.length > 0 && (
+        <div className={cn('relative z-10', overlayEnabled && 'pointer-events-none')}>
+          <PostMedia images={post.media} />
+        </div>
+      )}
+
       <div className="relative z-10">
         <DishDecisionBlock
           dish={post.dish}
@@ -123,12 +132,6 @@ export default function PostCard({
           showExpandToggle={!overlayEnabled}
         />
       </div>
-
-      {post.media && post.media.length > 0 && (
-        <div className={cn('relative z-10', overlayEnabled && 'pointer-events-none')}>
-          <PostMedia images={post.media} />
-        </div>
-      )}
 
       {expanded && post.extras && (
         <div className="relative z-10 border-t border-border-default pt-4">
