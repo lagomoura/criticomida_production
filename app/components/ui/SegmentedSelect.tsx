@@ -27,9 +27,12 @@ interface SegmentedSelectProps<V extends string> {
 }
 
 const TONE_STYLES: Record<NonNullable<SegmentedOption<string>['tone']>, string> = {
-  positive: 'border-color-azafran bg-color-azafran text-text-primary shadow-sm',
-  neutral: 'border-color-azafran bg-color-azafran text-text-primary shadow-sm',
-  negative: 'border-color-paprika bg-color-paprika text-text-inverse shadow-sm',
+  // Albahaca = confirmación/positivo (semánticamente correcto).
+  // Azafrán queda reservado para CTA/acción primaria (tone="neutral").
+  // text-text-inverse (blanco) sobre Albahaca (#3A6645): contraste ~7.5:1 AA.
+  positive: 'border-[color:var(--color-albahaca)] bg-[color:var(--color-albahaca)] text-text-inverse shadow-sm',
+  neutral:  'border-action-primary bg-action-primary text-text-inverse shadow-sm',
+  negative: 'border-[color:var(--color-paprika)] bg-[color:var(--color-paprika)] text-text-inverse shadow-sm',
 };
 
 /** Mobile defaults wrap at 3-col so 4/5-col layouts don't shrink tap targets
