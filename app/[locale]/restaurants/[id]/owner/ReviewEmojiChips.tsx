@@ -216,14 +216,15 @@ export default function ReviewEmojiChips({ review }: Props) {
 
   return (
     <div className="flex flex-wrap items-stretch gap-1" aria-label={t('rowAriaLabel')}>
-      {chips.map((chip) => (
+      {chips.map((chip, i) => (
         <span
           key={chip.key}
           title={chip.label}
           aria-label={chip.label}
-          className={`inline-flex flex-col items-center gap-0 rounded-md px-1.5 py-0.5 ${
+          className={`inline-flex flex-col items-center gap-0 rounded-md px-1.5 py-0.5 motion-safe:animate-[cc-chip-in_180ms_ease-out] motion-safe:[animation-fill-mode:both] ${
             TONE_CLASSES[chip.tone ?? 'neutral']
           }`}
+          style={{ animationDelay: `${i * 40}ms` }}
         >
           <span aria-hidden className="text-base leading-none">
             {chip.emoji}

@@ -5,6 +5,7 @@ import { Link } from '@/app/lib/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
 import { useToast } from '@/app/components/ui/Toast';
+import { OwnerSettingsSkeleton } from '@/app/components/ui/SkeletonPresets';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { ApiError } from '@/app/lib/api/client';
 import { getRestaurant } from '@/app/lib/api/restaurants';
@@ -128,11 +129,7 @@ export default function OwnerSettingsClient({
   }, []);
 
   if (gate.kind === 'checking') {
-    return (
-      <div className="cc-container py-12">
-        <p className="font-sans text-sm text-text-muted">{t('loading')}</p>
-      </div>
-    );
+    return <OwnerSettingsSkeleton />;
   }
 
   if (gate.kind === 'not_signed_in') {

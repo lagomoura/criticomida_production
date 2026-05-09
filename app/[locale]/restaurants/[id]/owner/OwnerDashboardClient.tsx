@@ -7,8 +7,9 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/app/lib/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSliders } from '@fortawesome/free-solid-svg-icons';
+import { faSliders, faCommentDots, faFilter } from '@fortawesome/free-solid-svg-icons';
 import Button from '@/app/components/ui/Button';
+import EmptyState from '@/app/components/ui/EmptyState';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { ApiError } from '@/app/lib/api/client';
 import { getRestaurant } from '@/app/lib/api/restaurants';
@@ -89,6 +90,8 @@ export default function OwnerDashboardClient({
   const [notifyOnReview, setNotifyOnReview] = useState<boolean>(true);
   const [notifySaving, setNotifySaving] = useState(false);
   const [notifyError, setNotifyError] = useState<string | null>(null);
+  /** Id de la foto cuyo botón delete está esperando confirmación inline. */
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   /**
    * Review ids that have an unpublished local draft. Drives the
    * "Borrador" badge on each card so the owner knows which replies
@@ -272,12 +275,13 @@ export default function OwnerDashboardClient({
 
   const handleDeletePhoto = useCallback(
     async (photoId: string) => {
-      if (!confirm(t('photoDeleteConfirm'))) return;
       try {
         await deleteOfficialPhoto(restaurantSlug, photoId);
         setPhotos((prev) => prev.filter((p) => p.id !== photoId));
+        setConfirmingDeleteId(null);
       } catch {
         setPhotoError(t('photoDeleteError'));
+        setConfirmingDeleteId(null);
       }
     },
     [restaurantSlug, t],
@@ -336,7 +340,7 @@ export default function OwnerDashboardClient({
     <div className="cc-container flex flex-col gap-8 py-8">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <div className="flex flex-col gap-1">
-          <p className="font-sans text-xs uppercase tracking-wider text-text-muted">
+          <p className="font-sans text-xs font-semibold uppercase tracking-wider text-action-primary">
             {t('kicker')}
           </p>
           <h1 className="font-display text-3xl font-medium sm:text-4xl">
@@ -423,28 +427,56 @@ export default function OwnerDashboardClient({
         </p>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
-          {photos.map((photo) => (
-            <div
-              key={photo.id}
-              className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-neutral-100"
-            >
-              <Image
-                src={photo.url}
-                alt={photo.alt_text ?? t('photoDefaultAlt')}
-                fill
-                sizes="(max-width: 640px) 50vw, 20vw"
-                className="object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => void handleDeletePhoto(photo.id)}
-                aria-label={t('photoDeleteAction')}
-                className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-xs font-semibold text-white transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+          {photos.map((photo) => {
+            const isConfirming = confirmingDeleteId === photo.id;
+            return (
+              <div
+                key={photo.id}
+                className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-neutral-100"
               >
-                {t('photoDeleteAction')}
-              </button>
-            </div>
-          ))}
+                <Image
+                  src={photo.url}
+                  alt={photo.alt_text ?? t('photoDefaultAlt')}
+                  fill
+                  sizes="(max-width: 640px) 50vw, 20vw"
+                  className="object-cover"
+                />
+                {isConfirming ? (
+                  /* Overlay de confirmación inline — 2-botón, no window.confirm() */
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[var(--color-carbon)]/85 px-2">
+                    <p className="font-sans text-xs font-semibold text-white text-center leading-tight">
+                      {t('photoDeleteInlineConfirm')}
+                    </p>
+                    <div className="flex gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => void handleDeletePhoto(photo.id)}
+                        className="rounded-full bg-action-danger px-2.5 py-1 font-sans text-xs font-semibold text-white transition hover:opacity-90 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                      >
+                        {t('photoDeleteInlineConfirmAction')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmingDeleteId(null)}
+                        className="rounded-full border border-white/40 px-2.5 py-1 font-sans text-xs font-semibold text-white/90 transition hover:bg-white/10 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                      >
+                        {t('photoDeleteInlineCancel')}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmingDeleteId(photo.id)}
+                    aria-label={t('photoDeleteAction')}
+                    className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-xs font-semibold text-white transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                  >
+                    {t('photoDeleteAction')}
+                  </button>
+                )}
+              </div>
+            );
+          })}
           {photos.length < PHOTO_CAP && (
             <label
               className={`flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-border-default bg-surface-subtle text-center font-sans text-xs text-text-muted hover:bg-surface-card ${
@@ -521,9 +553,22 @@ export default function OwnerDashboardClient({
         </div>
 
         {reviews.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border-default p-6 text-center font-sans text-sm text-text-muted">
-            {sentimentFilter !== null ? t('noReviewsForFilter') : t('noReviews')}
-          </p>
+          sentimentFilter !== null ? (
+            <EmptyState
+              icon={<FontAwesomeIcon icon={faFilter} className="h-8 w-8" />}
+              title={t('emptyFilteredTitle')}
+              description={t('emptyFilteredDescription')}
+              action={{ label: t('emptyFilteredAction'), onClick: () => setSentimentFilter(null) }}
+              className="rounded-2xl border border-dashed border-border-default"
+            />
+          ) : (
+            <EmptyState
+              icon={<FontAwesomeIcon icon={faCommentDots} className="h-8 w-8" />}
+              title={t('emptyReviewsTitle')}
+              description={t('emptyReviewsDescription')}
+              className="rounded-2xl border border-dashed border-border-default"
+            />
+          )
         ) : (
           <ul className="flex list-none flex-col gap-2 p-0">
             {reviews.map((review) => (

@@ -255,6 +255,16 @@ body::before {
   }
 }
 
+/* Chip entrance — entrada escalonada de los ReviewEmojiChips del owner.   */
+/* Usado vía motion-safe:animate-[cc-chip-in_180ms_ease-out] con           */
+/* animation-delay por índice. prefers-reduced-motion: chips estáticos.    */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes cc-chip-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
 .text-muted {
   color: var(--neutral-600);
 }

@@ -99,6 +99,61 @@ export function ListItemSkeleton({ className }: { className?: string }) {
 }
 
 /**
+ * Skeleton for the owner/settings (IA preferences) loading state.
+ * Mirrors the page shape: back nav + header + 1 big card (tone + language + kpis) + footer link.
+ */
+export function OwnerSettingsSkeleton({ className }: { className?: string }) {
+  return (
+    <div aria-hidden className={cn('cc-container py-8', className)}>
+      {/* Back nav */}
+      <div className="mb-8">
+        <Skeleton shape="line" width={120} height={14} />
+      </div>
+      {/* Header: kicker + h1 + subtitle */}
+      <div className="mb-8 flex flex-col gap-2">
+        <Skeleton shape="line" width={80} height={10} />
+        <Skeleton shape="line" width={240} height={32} />
+        <Skeleton shape="line" width={200} height={14} />
+      </div>
+      {/* Big settings card */}
+      <div className="mb-8 flex flex-col gap-6 rounded-2xl border border-border-default bg-surface-card p-6">
+        {/* Tone select */}
+        <div className="flex flex-col gap-2">
+          <Skeleton shape="line" width={100} height={14} />
+          <Skeleton shape="line" width={220} height={12} />
+          <Skeleton shape="box" width="100%" height={40} className="rounded-lg" />
+        </div>
+        {/* Language select */}
+        <div className="flex flex-col gap-2">
+          <Skeleton shape="line" width={80} height={14} />
+          <Skeleton shape="line" width={200} height={12} />
+          <Skeleton shape="box" width="100%" height={40} className="rounded-lg" />
+        </div>
+        {/* KPI checkboxes */}
+        <div className="flex flex-col gap-2">
+          <Skeleton shape="line" width={140} height={14} />
+          <Skeleton shape="line" width={260} height={12} />
+          <div className="flex flex-col gap-3 pt-1">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Skeleton shape="box" width={16} height={16} className="rounded" />
+                <Skeleton shape="line" width={180} height={14} />
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Save button */}
+        <div>
+          <Skeleton shape="box" width={120} height={40} className="rounded-lg" />
+        </div>
+      </div>
+      {/* Footer link */}
+      <Skeleton shape="line" width={140} height={14} />
+    </div>
+  );
+}
+
+/**
  * Skeleton for the /settings page loading state.
  * Mirrors the page shape: user header + edit-profile card + 4 option rows.
  */
