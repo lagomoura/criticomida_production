@@ -182,7 +182,7 @@ export default function OwnerSettingsClient({
       </nav>
 
       <header className="flex flex-col gap-1">
-        <p className="font-sans text-xs uppercase tracking-wider text-text-muted">
+        <p className="font-sans text-xs font-semibold uppercase tracking-wider text-action-primary">
           {t('kicker')}
         </p>
         <h1 className="font-display text-3xl font-medium sm:text-4xl">
