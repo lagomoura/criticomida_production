@@ -77,7 +77,16 @@ export default function DishDecisionBlock({
 }
 
 function ScoreBadge({ score, ariaLabel }: { score: number; ariaLabel: string }) {
-  const tone = score >= 4.5 ? 'text-action-secondary' : 'text-text-primary';
+  // Escala 1-5 (API). Tres tonos semánticos:
+  //   < 3   → Páprika (negativo — bajo rendimiento)
+  //   3-4.4 → neutro  (texto primario)
+  //   ≥ 4.5 → Albahaca (positivo — destacado)
+  const tone =
+    score >= 4.5
+      ? 'text-action-secondary'
+      : score < 3
+        ? 'text-action-danger'
+        : 'text-text-primary';
   return (
     <span
       aria-label={ariaLabel}
