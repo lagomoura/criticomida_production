@@ -271,7 +271,7 @@ export default function DishReviewForm({
           <input
             id="review-dish-name"
             type="text"
-            className="w-full rounded-xl border border-border-subtle bg-surface-card px-3.5 py-2.5 font-sans text-sm text-text-primary placeholder:text-text-muted/80 transition-all focus:border-color-azafran focus:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-60"
+            className="w-full rounded-xl border border-border-subtle bg-surface-card px-3.5 py-2.5 font-sans text-base sm:text-sm text-text-primary placeholder:text-text-muted/80 transition-all focus:border-color-azafran focus:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-60"
             value={editableDishName}
             onChange={(e) => setEditableDishName(e.target.value)}
             placeholder={t('dishNamePlaceholder')}
@@ -299,14 +299,14 @@ export default function DishReviewForm({
           type="button"
           onClick={onCancel}
           disabled={submitting}
-          className="inline-flex items-center justify-center rounded-full px-5 py-2.5 font-sans text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-40"
+          className="inline-flex min-h-[44px] items-center justify-center rounded-full px-5 py-2.5 font-sans text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-40"
         >
           {effectiveCancelLabel}
         </button>
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-action-primary px-6 py-2.5 font-sans text-sm font-semibold text-text-inverse shadow-[var(--shadow-base)] transition-all hover:bg-action-primary-hover hover:shadow-[var(--shadow-media)] active:translate-y-[1px] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-action-primary px-6 py-2.5 font-sans text-sm font-semibold text-text-inverse shadow-[var(--shadow-base)] transition-all hover:bg-action-primary-hover hover:shadow-[var(--shadow-media)] active:translate-y-[1px] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting
             ? (isEdit ? t('saving') : t('submitting'))

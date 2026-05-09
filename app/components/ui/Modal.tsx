@@ -31,6 +31,11 @@ export interface ModalProps {
   busy?: boolean;
   /** Hide the X button in the header. */
   hideCloseButton?: boolean;
+  /**
+   * Optional eyebrow text rendered above the title in Azafrán uppercase.
+   * Matches the kicker pattern from PublishReviewModal. Only rendered when present.
+   */
+  kicker?: string;
   className?: string;
 }
 
@@ -53,6 +58,7 @@ export default function Modal({
   position = 'center',
   busy = false,
   hideCloseButton = false,
+  kicker,
   className,
 }: ModalProps) {
   const titleId = useId();
@@ -138,7 +144,7 @@ export default function Modal({
         aria-label={tCommon('closeDialog')}
         onClick={safeClose}
         disabled={busy}
-        className="absolute inset-0 cursor-default bg-black/45 backdrop-blur-sm transition-opacity disabled:cursor-not-allowed"
+        className="absolute inset-0 cursor-default bg-color-carbon/55 backdrop-blur-md transition-opacity disabled:cursor-not-allowed"
       />
       <div
         ref={dialogRef}
@@ -174,6 +180,11 @@ export default function Modal({
           )}
         >
           <div className="flex-1">
+            {kicker && (
+              <p className="mb-1 font-sans text-[10.5px] font-semibold uppercase tracking-[0.22em] text-color-azafran">
+                {kicker}
+              </p>
+            )}
             <h2
               id={titleId}
               className="m-0 font-display text-2xl font-medium leading-tight text-text-primary"
@@ -193,7 +204,7 @@ export default function Modal({
               disabled={busy}
               aria-label={tCommon('close')}
               className={cn(
-                'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
+                'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full',
                 'text-text-muted transition-colors hover:bg-surface-subtle hover:text-text-primary',
                 'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
                 'disabled:opacity-50',

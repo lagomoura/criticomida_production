@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Modal from '@/app/components/ui/Modal';
 import Button from '@/app/components/ui/Button';
+import Skeleton from '@/app/components/ui/Skeleton';
 import { useToast } from '@/app/components/ui/Toast';
 import { getPost } from '@/app/lib/api/posts';
 import type { DishReview } from '@/app/lib/types';
@@ -101,11 +102,14 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [source, setSource] = useState<ReviewPost | null>(null);
+  const [retryNonce, setRetryNonce] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setLoadError(null);
+    setSource(null);
     getPost(postId)
       .then((post) => {
         if (cancelled) return;
@@ -121,7 +125,7 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
     return () => {
       cancelled = true;
     };
-  }, [postId, t]);
+  }, [postId, t, retryNonce]);
 
   const initial = useMemo(() => (source ? postToInitial(source) : null), [source]);
 
@@ -130,25 +134,44 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
 
   function handleSuccess(review: DishReview, newDishName?: string) {
     if (!source) return;
+    setSubmitting(true);
     onUpdated(postId, reviewToOverlay(review, source, newDishName));
     toast.success(t('savedTitle'), t('savedDescription'));
+    setSubmitting(false);
     onClose();
   }
 
   return (
-    <Modal open onClose={onClose} title={title} description={description} size="xl" position="bottom-sheet">
+    <Modal
+      open
+      onClose={onClose}
+      title={title}
+      description={description}
+      size="xl"
+      position="bottom-sheet"
+      busy={submitting}
+      kicker={t('kicker')}
+    >
       {loading ? (
-        <div className="flex justify-center py-10">
-          <span className="inline-block h-7 w-7 animate-spin rounded-full border-2 border-action-primary border-t-transparent" />
+        <div className="flex flex-col gap-3 py-2" aria-label={t('loadingAria')} role="status">
+          <Skeleton shape="box" height={32} className="w-1/3 rounded-xl" />
+          <Skeleton shape="box" height={80} className="rounded-xl" />
+          <Skeleton shape="box" height={44} className="w-2/3 rounded-xl" />
+          <Skeleton shape="box" height={44} className="rounded-xl" />
         </div>
       ) : loadError || !source || !initial ? (
         <div className="flex flex-col items-start gap-3">
           <p className="font-sans text-sm text-action-danger" role="alert">
             {loadError ?? t('loadFailed')}
           </p>
-          <Button variant="outline" size="sm" onClick={onClose}>
-            {t('close')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="primary" size="sm" onClick={() => setRetryNonce((n) => n + 1)}>
+              {t('retryLoad')}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              {t('close')}
+            </Button>
+          </div>
         </div>
       ) : (
         <DishReviewForm

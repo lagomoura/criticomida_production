@@ -3,6 +3,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslations } from 'next-intl';
+import { useRouter } from '@/app/lib/i18n/navigation';
+import { useToast } from '@/app/components/ui/Toast';
 import {
   faXmark,
   faMagnifyingGlass,
@@ -51,6 +53,8 @@ export default function PublishReviewModal({
   onSuccess,
 }: PublishReviewModalProps) {
   const t = useTranslations('restaurant.publishReviewModal');
+  const router = useRouter();
+  const toast = useToast();
   const [query, setQuery] = useState('');
   const [selection, setSelection] = useState<DishSelection | null>(null);
 
@@ -221,6 +225,18 @@ export default function PublishReviewModal({
     if (selection?.kind === 'existing') dish = selection.dish;
     else if (createdDishRef.current) dish = createdDishRef.current;
     if (dish) onSuccess(dish, review);
+    toast.toast({
+      title: t('successTitle'),
+      description: t('successDescription', { dish: dish?.name ?? '' }),
+      variant: 'success',
+      duration: 6000,
+      action: review.id
+        ? {
+            label: t('viewReview'),
+            onClick: () => router.push(`/reviews/${review.id}`),
+          }
+        : undefined,
+    });
     onClose();
   }
 
@@ -295,7 +311,7 @@ export default function PublishReviewModal({
             aria-label={t('close')}
             className={[
               'absolute right-4 top-4 sm:right-5 sm:top-5',
-              'inline-flex h-9 w-9 items-center justify-center rounded-full',
+              'inline-flex h-11 w-11 items-center justify-center rounded-full',
               'text-text-muted transition-all',
               'hover:bg-surface-subtle hover:text-text-primary',
               'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',

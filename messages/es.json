@@ -791,7 +791,10 @@
       "fallbackTitle": "Editar reseña",
       "title": "Editar reseña de {dishName}",
       "loadFailed": "No se pudo cargar la reseña.",
-      "close": "Cerrar"
+      "close": "Cerrar",
+      "retryLoad": "Intentar de nuevo",
+      "kicker": "Editar reseña",
+      "loadingAria": "Cargando reseña"
     }
   },
   "restaurant": {
@@ -996,7 +999,10 @@
       "missingDishError": "Falta seleccionar un plato.",
       "priceTierCheap": "Económico",
       "priceTierMid": "Moderado",
-      "priceTierHigh": "Premium"
+      "priceTierHigh": "Premium",
+      "successTitle": "Reseña publicada",
+      "successDescription": "Tu opinión de {dish} ya está en Palato.",
+      "viewReview": "Ver la reseña"
     },
     "dishReviewForm": {
       "ariaLabel": "Formulario de reseña",

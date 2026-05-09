@@ -791,7 +791,10 @@
       "fallbackTitle": "Edit review",
       "title": "Edit review of {dishName}",
       "loadFailed": "Couldn't load the review.",
-      "close": "Close"
+      "close": "Close",
+      "retryLoad": "Try again",
+      "kicker": "Edit review",
+      "loadingAria": "Loading review"
     }
   },
   "restaurant": {
@@ -996,7 +999,10 @@
       "missingDishError": "You need to select a dish.",
       "priceTierCheap": "Cheap",
       "priceTierMid": "Moderate",
-      "priceTierHigh": "Premium"
+      "priceTierHigh": "Premium",
+      "successTitle": "Review published",
+      "successDescription": "Your review of {dish} is now on Palato.",
+      "viewReview": "View review"
     },
     "dishReviewForm": {
       "ariaLabel": "Review form",
