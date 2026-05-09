@@ -1,4 +1,6 @@
 import { useTranslations } from 'next-intl';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLocationDot, faPhone, faGlobe, faMap } from '@fortawesome/free-solid-svg-icons';
 import { RestaurantDetail } from '@/app/lib/types';
 import OpenStatus from './OpenStatus';
 
@@ -33,7 +35,7 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
   const hours = restaurant.opening_hours;
 
   return (
-    <section className="grid gap-6 rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-white)] p-6 shadow-sm sm:p-8 md:grid-cols-2">
+    <section className="grid gap-6 rounded-3xl border border-border-default bg-surface-card p-6 shadow-sm sm:p-8 md:grid-cols-2">
       <div>
         <header className="mb-4">
           <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)] sm:text-3xl">
@@ -42,7 +44,7 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
         </header>
         <dl className="space-y-3 text-sm">
           <div className="flex items-start gap-3">
-            <span aria-hidden className="mt-0.5">📍</span>
+            <FontAwesomeIcon icon={faLocationDot} className="mt-0.5 h-4 w-4 shrink-0 text-text-muted" aria-hidden />
             <div>
               <dt className="font-semibold text-[var(--color-carbon)]">{t('address')}</dt>
               <dd className="text-[var(--color-carbon-mid)]">{restaurant.location_name}</dd>
@@ -50,7 +52,7 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
           </div>
           {restaurant.phone_number && (
             <div className="flex items-start gap-3">
-              <span aria-hidden className="mt-0.5">📞</span>
+              <FontAwesomeIcon icon={faPhone} className="mt-0.5 h-4 w-4 shrink-0 text-text-muted" aria-hidden />
               <div>
                 <dt className="font-semibold text-[var(--color-carbon)]">{t('phone')}</dt>
                 <dd>
@@ -66,7 +68,7 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
           )}
           {restaurant.website && (
             <div className="flex items-start gap-3">
-              <span aria-hidden className="mt-0.5">🌐</span>
+              <FontAwesomeIcon icon={faGlobe} className="mt-0.5 h-4 w-4 shrink-0 text-text-muted" aria-hidden />
               <div>
                 <dt className="font-semibold text-[var(--color-carbon)]">{t('website')}</dt>
                 <dd>
@@ -84,7 +86,7 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
           )}
           {restaurant.google_maps_url && (
             <div className="flex items-start gap-3">
-              <span aria-hidden className="mt-0.5">🗺️</span>
+              <FontAwesomeIcon icon={faMap} className="mt-0.5 h-4 w-4 shrink-0 text-text-muted" aria-hidden />
               <div>
                 <dt className="font-semibold text-[var(--color-carbon)]">{t('googleMaps')}</dt>
                 <dd>
