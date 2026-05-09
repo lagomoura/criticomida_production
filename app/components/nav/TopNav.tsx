@@ -59,7 +59,12 @@ export default function TopNav({ onOpenAuthModal, unreadCount = 0 }: TopNavProps
           className="flex items-center gap-2 rounded-md no-underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
           <Image src="/img/logosm.png" alt="" width={36} height={36} aria-hidden />
-          <span className="font-display text-xl font-medium text-text-primary">{tCommon('siteName')}</span>
+          {/* Wordmark: gradiente Azafrán → Azafrán-light via background-clip:text
+              según brand-identity-v2.md §4.1. tracking-tight es parte de la escala
+              display (§3.2, letter-spacing -0.01em en H1). */}
+          <span className="bg-gradient-to-r from-[var(--color-azafran)] to-[var(--color-azafran-light)] bg-clip-text font-display text-xl font-medium tracking-tight text-transparent">
+            {tCommon('siteName')}
+          </span>
         </Link>
 
         <ul className="mx-auto flex list-none items-center gap-1 p-0" role="list">
