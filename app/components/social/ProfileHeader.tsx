@@ -82,7 +82,11 @@ export default function ProfileHeader({
         <div className="max-w-2xl">
           <p
             className={[
-              'whitespace-pre-wrap font-display italic text-base leading-relaxed text-text-secondary sm:text-lg',
+              // DM Sans para body de bio: legibilidad sobre display.
+              // Cormorant italic en párrafo largo (3+ líneas) degrada
+              // la lectura (brand-identity-v2.md §3.4: italic reservado
+              // para nombres de platos en reviews y taglines de marca).
+              'whitespace-pre-wrap font-sans text-base leading-relaxed text-text-secondary sm:text-lg',
               !bioExpanded ? 'line-clamp-3' : '',
             ]
               .filter(Boolean)
