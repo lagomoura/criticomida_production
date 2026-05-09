@@ -78,8 +78,8 @@ export default function DishChecklistItem({
       className={
         'overflow-hidden rounded-xl border transition-shadow duration-200 ' +
         (hasReviewed
-          ? 'border-emerald-200 bg-emerald-50/40'
-          : 'border-neutral-200 bg-white')
+          ? 'border-[var(--color-albahaca)]/30 bg-[var(--color-albahaca-pale)]/40'
+          : 'border-[var(--color-carbon)]/10 bg-surface-card')
       }
       aria-label={t('ariaLabel', { name: dish.name })}
     >
@@ -87,7 +87,7 @@ export default function DishChecklistItem({
         <Link
           href={dishHref}
           aria-label={t('viewDishAria', { name: dish.name })}
-          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-amber-50 transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mainPink)] focus-visible:ring-offset-2 sm:h-20 sm:w-20"
+          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-[var(--color-crema-dark)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-azafran)] focus-visible:ring-offset-2 sm:h-20 sm:w-20"
         >
           <Image
             src={imageSrc}
@@ -103,35 +103,35 @@ export default function DishChecklistItem({
           <div className="flex flex-wrap items-start justify-between gap-1">
             <Link
               href={dishHref}
-              className="group/title text-base font-semibold leading-tight text-neutral-900 no-underline hover:text-[var(--mainPink)] focus-visible:outline-none focus-visible:underline focus-visible:decoration-2 focus-visible:underline-offset-4 sm:text-lg"
+              className="group/title text-base font-semibold leading-tight text-text-primary no-underline hover:text-[var(--color-azafran)] focus-visible:outline-none focus-visible:underline focus-visible:decoration-2 focus-visible:underline-offset-4 sm:text-lg"
             >
               <h3 className="inline">{dish.name}</h3>
             </Link>
             {hasReviewed && (
-              <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+              <span className="shrink-0 rounded-full bg-[var(--color-albahaca-pale)] px-2.5 py-0.5 text-xs font-semibold text-[var(--color-albahaca)]">
                 {t('reviewed')}
               </span>
             )}
           </div>
 
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-neutral-600">
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-text-muted">
             {displayRating > 0 ? (
               <>
                 <StarRating value={Math.round(displayRating)} readonly size="sm" />
-                <span className="font-medium text-neutral-800">{displayRating.toFixed(1)}</span>
+                <span className="font-medium text-text-primary">{displayRating.toFixed(1)}</span>
               </>
             ) : (
-              <span className="italic text-neutral-400">{t('noRatings')}</span>
+              <span className="italic text-text-muted">{t('noRatings')}</span>
             )}
             {reviewCount > 0 && (
-              <span className="text-neutral-400">
+              <span className="text-text-muted">
                 · {reviewCount === 1
                   ? t('reviewOne', { count: reviewCount })
                   : t('reviewMany', { count: reviewCount })}
               </span>
             )}
             {dish.price_tier && (
-              <span className="rounded bg-amber-50 px-1.5 py-0.5 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">
+              <span className="rounded bg-[var(--color-azafran-pale)] px-1.5 py-0.5 text-xs font-semibold text-[var(--color-carbon)] ring-1 ring-[var(--color-azafran)]/30">
                 {dish.price_tier}
               </span>
             )}
@@ -144,9 +144,9 @@ export default function DishChecklistItem({
               type="button"
               onClick={() => { setShowForm(true); setExpanded(true); }}
               className={
-                'rounded-lg border-2 border-[var(--mainPink)] bg-white px-3 py-1.5 ' +
-                'text-xs font-semibold text-[var(--mainPink)] transition-colors ' +
-                'hover:bg-[var(--mainPink)] hover:text-white sm:text-sm'
+                'rounded-lg border-2 border-[var(--color-azafran)] bg-surface-card px-3 py-1.5 ' +
+                'text-xs font-semibold text-[var(--color-azafran)] transition-colors ' +
+                'hover:bg-[var(--color-azafran)] hover:text-[var(--color-carbon)] sm:text-sm'
               }
             >
               {hasReviewed ? t('reviewAgain') : t('review')}
@@ -159,7 +159,7 @@ export default function DishChecklistItem({
               aria-expanded={expanded}
               className={
                 'flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium ' +
-                'text-neutral-600 transition-colors hover:bg-neutral-100 sm:text-sm'
+                'text-text-muted transition-colors hover:bg-[var(--color-crema-dark)] sm:text-sm'
               }
             >
               {expanded ? t('hide') : t('viewReviews')}
@@ -178,10 +178,10 @@ export default function DishChecklistItem({
       </div>
 
       {expanded && (
-        <div className="border-t border-neutral-100 px-3 pb-4 pt-3 sm:px-4">
+        <div className="border-t border-[var(--color-carbon)]/8 px-3 pb-4 pt-3 sm:px-4">
           {showForm && user && (
             <div className="mb-4">
-              <p className="mb-2 text-sm font-semibold text-neutral-700">
+              <p className="mb-2 text-sm font-semibold text-text-primary">
                 {hasReviewed
                   ? t('newReviewOf', { name: dish.name })
                   : t('yourReviewOf', { name: dish.name })}
@@ -215,21 +215,21 @@ export default function DishChecklistItem({
                     className={
                       'rounded-xl border p-3 sm:p-4 ' +
                       (isOwn
-                        ? 'border-emerald-200 bg-emerald-50/60'
-                        : 'border-neutral-100 bg-neutral-50')
+                        ? 'border-[var(--color-albahaca)]/30 bg-[var(--color-albahaca-pale)]/60'
+                        : 'border-[var(--color-carbon)]/8 bg-[var(--color-crema-dark)]')
                     }
                   >
                     <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-semibold text-neutral-800">
+                      <span className="text-sm font-semibold text-text-primary">
                         {review.user_display_name ?? t('anonymous')}
                       </span>
                       {isOwn && (
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                        <span className="rounded-full bg-[var(--color-albahaca-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-albahaca)]">
                           {t('yourReviewBadge')}
                         </span>
                       )}
                       <StarRating value={review.rating} readonly size="sm" />
-                      <span className="ml-auto text-xs text-neutral-400">{date}</span>
+                      <span className="ml-auto text-xs text-text-muted">{date}</span>
                     </div>
 
                     <div className="mb-2 flex flex-wrap gap-2">
@@ -238,27 +238,27 @@ export default function DishChecklistItem({
                           className={
                             'rounded-full px-2.5 py-0.5 text-xs font-semibold ' +
                             (review.would_order_again
-                              ? 'bg-emerald-100 text-emerald-700'
-                              : 'bg-red-100 text-red-700')
+                              ? 'bg-[var(--color-albahaca-pale)] text-[var(--color-albahaca)]'
+                              : 'bg-[var(--color-paprika-pale)] text-[var(--color-paprika)]')
                           }
                         >
                           {review.would_order_again ? t('wouldOrderAgain') : t('wouldNotOrderAgain')}
                         </span>
                       )}
                       {review.portion_size && (
-                        <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+                        <span className="rounded-full bg-[var(--color-crema-dark)] px-2.5 py-0.5 text-xs font-semibold text-[var(--color-carbon-soft)]">
                           {t('portion', { label: portionLabels[review.portion_size] ?? review.portion_size })}
                         </span>
                       )}
                       {review.visited_with && (
-                        <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs text-neutral-600">
+                        <span className="rounded-full bg-[var(--color-crema-dark)] px-2.5 py-0.5 text-xs text-text-muted">
                           {t('with', { name: review.visited_with })}
                         </span>
                       )}
                     </div>
 
                     {review.note && (
-                      <p className="mb-2 text-sm leading-relaxed text-neutral-700">
+                      <p className="mb-2 text-sm leading-relaxed text-text-secondary">
                         {review.note}
                       </p>
                     )}
@@ -268,7 +268,7 @@ export default function DishChecklistItem({
                         {pros.map(pc => (
                           <span
                             key={pc.id}
-                            className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-800"
+                            className="rounded border border-[var(--color-albahaca)]/30 bg-[var(--color-albahaca-pale)] px-2 py-0.5 text-xs font-medium text-[var(--color-albahaca)]"
                           >
                             + {pc.text}
                           </span>
@@ -276,7 +276,7 @@ export default function DishChecklistItem({
                         {cons.map(pc => (
                           <span
                             key={pc.id}
-                            className="rounded border border-red-200 bg-red-50 px-2 py-0.5 text-xs font-medium text-red-800"
+                            className="rounded border border-[var(--color-paprika)]/30 bg-[var(--color-paprika-pale)] px-2 py-0.5 text-xs font-medium text-[var(--color-paprika)]"
                           >
                             - {pc.text}
                           </span>
@@ -289,7 +289,7 @@ export default function DishChecklistItem({
                         {review.tags.map(tag => (
                           <span
                             key={tag.id}
-                            className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-amber-200"
+                            className="rounded-full bg-[var(--color-azafran-pale)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-carbon)] ring-1 ring-[var(--color-azafran)]/30"
                           >
                             {tag.tag}
                           </span>
@@ -323,7 +323,7 @@ export default function DishChecklistItem({
             </div>
           ) : (
             !showForm && (
-              <p className="text-sm italic text-neutral-400">
+              <p className="text-sm italic text-text-muted">
                 {t('noReviewsYet')}
               </p>
             )
@@ -334,9 +334,9 @@ export default function DishChecklistItem({
               type="button"
               onClick={() => setShowForm(true)}
               className={
-                'mt-2 rounded-lg border-2 border-[var(--mainPink)] bg-white px-4 py-2 ' +
-                'text-sm font-semibold text-[var(--mainPink)] transition-colors ' +
-                'hover:bg-[var(--mainPink)] hover:text-white'
+                'mt-2 rounded-lg border-2 border-[var(--color-azafran)] bg-surface-card px-4 py-2 ' +
+                'text-sm font-semibold text-[var(--color-azafran)] transition-colors ' +
+                'hover:bg-[var(--color-azafran)] hover:text-[var(--color-carbon)]'
               }
             >
               {t('beFirst')}
