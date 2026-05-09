@@ -1251,7 +1251,9 @@
       "saveError": "Couldn't save the rating.",
       "saving": "Saving…",
       "saved": "Saved!",
-      "save": "Save rating"
+      "save": "Save rating",
+      "savedTitle": "Rating saved",
+      "savedDescription": "Thanks for sharing your experience."
     },
     "notFound": {
       "title": "Restaurant not found",

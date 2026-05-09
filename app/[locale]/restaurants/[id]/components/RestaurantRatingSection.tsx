@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { RatingDimensionKey, RestaurantRatingsResponse } from '@/app/lib/types';
 import { getRestaurantRatings, setRestaurantRatings } from '@/app/lib/api/ratings';
 import { ApiError } from '@/app/lib/api/client';
+import { useToast } from '@/app/components/ui/Toast';
+import Button from '@/app/components/ui/Button';
 import StarRating from './StarRating';
 
 const ALL_DIMENSIONS: RatingDimensionKey[] = [
@@ -34,6 +36,8 @@ export default function RestaurantRatingSection({
 }: RestaurantRatingSectionProps) {
   const t = useTranslations('restaurant.ratingForm');
   const tDim = useTranslations('restaurant.ratings');
+  const { success: toastSuccess } = useToast();
+
   const [ratingsData, setRatingsData] = useState<RestaurantRatingsResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -42,7 +46,6 @@ export default function RestaurantRatingSection({
   );
 
   const [submitting, setSubmitting] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -74,13 +77,11 @@ export default function RestaurantRatingSection({
 
     setSubmitting(true);
     setError(null);
-    setSaved(false);
     try {
       await setRestaurantRatings(restaurantSlug, toSave);
       const updated = await getRestaurantRatings(restaurantSlug);
       setRatingsData(updated);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      toastSuccess(t('savedTitle'), t('savedDescription'));
     } catch (err) {
       setError(err instanceof ApiError ? err.detail : t('saveError'));
     } finally {
@@ -93,21 +94,23 @@ export default function RestaurantRatingSection({
 
   return (
     <section className="mt-10">
-      <h2 className="mb-5 text-xl font-bold text-neutral-900">{t('heading')}</h2>
+      <h2 className="mb-5 font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)]">
+        {t('heading')}
+      </h2>
 
       {loading ? (
         <div className="flex justify-center py-8">
-          <span className="inline-block h-7 w-7 animate-spin rounded-full border-2 border-[var(--mainPink)] border-t-transparent" />
+          <span className="inline-block h-7 w-7 animate-spin rounded-full border-2 border-[var(--color-azafran)] border-t-transparent" />
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
 
-          <div className="cc-card rounded-2xl p-5">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          <div className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-surface-card)] p-5">
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--color-carbon-soft)]">
               {t('averages')}
             </h3>
             {!hasAverages ? (
-              <p className="text-sm text-neutral-400">{t('noAverages')}</p>
+              <p className="text-sm text-[var(--color-text-muted)]">{t('noAverages')}</p>
             ) : (
               <ul className="flex flex-col gap-3">
                 {ALL_DIMENSIONS.map((dim) => {
@@ -116,16 +119,16 @@ export default function RestaurantRatingSection({
                   const pct = (avg / 5) * 100;
                   return (
                     <li key={dim} className="flex items-center gap-3">
-                      <span className="w-32 shrink-0 text-sm font-medium text-neutral-700">
+                      <span className="w-32 shrink-0 text-sm font-medium text-[var(--color-carbon-mid)]">
                         {tDim(DIM_LABEL_KEY[dim])}
                       </span>
-                      <div className="flex-1 overflow-hidden rounded-full bg-neutral-100 h-2">
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--color-crema-dark)]">
                         <div
-                          className="h-2 rounded-full bg-[var(--mainPink)] transition-all duration-500"
+                          className="h-2 rounded-full bg-[var(--color-azafran)] transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className="w-8 shrink-0 text-right text-sm font-semibold text-neutral-700">
+                      <span className="w-8 shrink-0 text-right text-sm font-semibold text-[var(--color-carbon-mid)]">
                         {avg.toFixed(1)}
                       </span>
                     </li>
@@ -135,21 +138,21 @@ export default function RestaurantRatingSection({
             )}
           </div>
 
-          <div className="cc-card rounded-2xl p-5">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          <div className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-surface-card)] p-5">
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--color-carbon-soft)]">
               {t('yourRating')}
             </h3>
 
             {!currentUserId ? (
-              <p className="text-sm text-neutral-400">
+              <p className="text-sm text-[var(--color-text-muted)]">
                 {t('anonPrompt')}
               </p>
             ) : (
               <div className="flex flex-col gap-1">
-                <ul className="flex flex-col gap-3 mb-4">
+                <ul className="mb-4 flex flex-col gap-3">
                   {ALL_DIMENSIONS.map((dim) => (
                     <li key={dim} className="flex items-center gap-3">
-                      <span className="w-32 shrink-0 text-sm font-medium text-neutral-700">
+                      <span className="w-32 shrink-0 text-sm font-medium text-[var(--color-carbon-mid)]">
                         {tDim(DIM_LABEL_KEY[dim])}
                       </span>
                       <StarRating
@@ -162,19 +165,25 @@ export default function RestaurantRatingSection({
                 </ul>
 
                 {error && (
-                  <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+                  <p
+                    className="mb-3 rounded-lg bg-[var(--color-paprika-pale)] px-3 py-2 text-sm text-[var(--color-paprika)]"
+                    role="alert"
+                  >
                     {error}
                   </p>
                 )}
 
-                <button
+                <Button
                   type="button"
-                  className="btn btn-primary btn-sm w-fit"
+                  variant="primary"
+                  size="md"
+                  loading={submitting}
                   onClick={handleSave}
                   disabled={submitting || !hasUserRatings}
+                  className="w-fit"
                 >
-                  {submitting ? t('saving') : saved ? t('saved') : t('save')}
-                </button>
+                  {t('save')}
+                </Button>
               </div>
             )}
           </div>

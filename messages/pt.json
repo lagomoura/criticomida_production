@@ -1251,7 +1251,9 @@
       "saveError": "Não foi possível salvar a avaliação.",
       "saving": "Salvando…",
       "saved": "Salvo!",
-      "save": "Salvar avaliação"
+      "save": "Salvar avaliação",
+      "savedTitle": "Avaliação salva",
+      "savedDescription": "Obrigado por compartilhar sua experiência."
     },
     "notFound": {
       "title": "Restaurante não encontrado",
