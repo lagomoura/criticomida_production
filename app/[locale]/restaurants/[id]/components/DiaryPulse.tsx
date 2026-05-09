@@ -1,7 +1,11 @@
+'use client';
+
 import { useTranslations } from 'next-intl';
 import { Link } from '@/app/lib/i18n/navigation';
 import Image from 'next/image';
 import type { DiaryStats } from '@/app/lib/types/restaurant';
+import { useAuthContext } from '@/app/lib/contexts/AuthContext';
+import Button from '@/app/components/ui/Button';
 
 interface DiaryPulseProps {
   stats: DiaryStats;
@@ -9,6 +13,7 @@ interface DiaryPulseProps {
 
 export default function DiaryPulse({ stats }: DiaryPulseProps) {
   const t = useTranslations('restaurant.diary');
+  const { user } = useAuthContext();
   const hasActivity = stats.unique_visitors > 0 || stats.most_ordered_dish !== null;
 
   if (!hasActivity) {
@@ -20,6 +25,17 @@ export default function DiaryPulse({ stats }: DiaryPulseProps) {
         <p className="mt-2 text-sm text-[var(--color-canela)]">
           {t('emptyDescription')}
         </p>
+        {user && (
+          <div className="mt-4">
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => window.dispatchEvent(new CustomEvent('cc:publish-review'))}
+            >
+              {t('emptyAction')}
+            </Button>
+          </div>
+        )}
       </section>
     );
   }
@@ -96,7 +112,7 @@ export default function DiaryPulse({ stats }: DiaryPulseProps) {
 function Stat({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
   return (
     <div className={`rounded-2xl p-4 ${highlight ? 'bg-[var(--color-azafran)] text-[var(--color-carbon)]' : 'bg-white/5'}`}>
-      <p className={`text-3xl font-semibold ${highlight ? '' : 'text-white'}`}>{value}</p>
+      <p className={`font-display text-3xl font-medium tabular-nums ${highlight ? 'text-[var(--color-carbon)]' : 'text-text-inverse'}`}>{value}</p>
       <p className={`mt-1 text-xs uppercase tracking-wide ${highlight ? 'text-[var(--color-carbon)]/70' : 'text-white/60'}`}>
         {label}
       </p>

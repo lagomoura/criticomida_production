@@ -796,6 +796,10 @@
   },
   "restaurant": {
     "noReviews": "No reviews yet. Be the first to share your experience!",
+    "emptyReviewsTitle": "No reviews yet",
+    "emptyReviewsDescription": "Be the first to share your experience.",
+    "emptyReviewsActionLogged": "Publish first review",
+    "emptyReviewsActionAnon": "Sign in to review",
     "signature": {
       "title": "Signature dishes",
       "subtitle": "Community favorites by score and review volume.",
@@ -806,6 +810,7 @@
     "diary": {
       "emptyTitle": "Be the first to visit",
       "emptyDescription": "When someone logs their visit in the diary, it'll show up here.",
+      "emptyAction": "Publish first review",
       "title": "Place pulse",
       "subtitle": "Who comes by and what they order most.",
       "uniqueVisitors": "Unique visitors",

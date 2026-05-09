@@ -796,6 +796,10 @@
   },
   "restaurant": {
     "noReviews": "Ainda não há resenhas. Seja o primeiro a contar sua experiência!",
+    "emptyReviewsTitle": "Ainda não há resenhas",
+    "emptyReviewsDescription": "Seja o primeiro a contar sua experiência.",
+    "emptyReviewsActionLogged": "Publicar primeira resenha",
+    "emptyReviewsActionAnon": "Entre para resenhar",
     "signature": {
       "title": "Pratos assinatura",
       "subtitle": "Os favoritos da comunidade por pontuação e volume de resenhas.",
@@ -806,6 +810,7 @@
     "diary": {
       "emptyTitle": "Seja o primeiro a visitar",
       "emptyDescription": "Quando alguém registrar sua visita no diário, aparecerá aqui.",
+      "emptyAction": "Publicar primeira resenha",
       "title": "Pulso do lugar",
       "subtitle": "Quem passa por aqui e o que pede mais.",
       "uniqueVisitors": "Visitantes únicos",

@@ -55,7 +55,7 @@ export default function RestaurantActionsBar({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-white)] px-3 py-2 shadow-sm sm:gap-3 sm:px-4">
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-crema-darker)] bg-surface-card px-3 py-2 shadow-sm sm:gap-3 sm:px-4">
       {reservationUrl && (
         <ReservationCTA
           slug={restaurantSlug}
@@ -66,7 +66,7 @@ export default function RestaurantActionsBar({
       <button
         type="button"
         onClick={dispatchPublishReview}
-        className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-azafran)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-canela)]"
+        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-[var(--color-azafran)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-canela)]"
       >
         <span aria-hidden>★</span>
         {t('publishReview')}
@@ -74,7 +74,7 @@ export default function RestaurantActionsBar({
       <button
         type="button"
         onClick={dispatchAddDish}
-        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-azafran)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-azafran)] transition hover:bg-[var(--color-azafran-pale)]"
+        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-[var(--color-azafran)] bg-surface-card px-4 py-2.5 text-sm font-semibold text-[var(--color-azafran)] transition hover:bg-[var(--color-azafran-pale)]"
       >
         <span aria-hidden>＋</span>
         {t('addDish')}
@@ -83,19 +83,24 @@ export default function RestaurantActionsBar({
         type="button"
         onClick={handleSave}
         aria-pressed={saved}
-        className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition ${
+        className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
           saved
             ? 'bg-[var(--color-azafran-pale)] text-[var(--color-canela)]'
-            : 'border border-[var(--color-crema-darker)] bg-white text-[var(--color-carbon)] hover:bg-[var(--color-crema)]'
+            : 'border border-[var(--color-crema-darker)] bg-surface-card text-[var(--color-carbon)] hover:bg-[var(--color-crema)]'
         }`}
       >
-        <span aria-hidden>{saved ? '★' : '☆'}</span>
+        <span
+          aria-hidden
+          className={`motion-safe:transition-transform motion-safe:duration-200 ${saved ? 'motion-safe:scale-125' : 'motion-safe:scale-100'}`}
+        >
+          {saved ? '★' : '☆'}
+        </span>
         {saved ? t('saved') : t('save')}
       </button>
       <button
         type="button"
         onClick={handleShare}
-        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-crema-darker)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-carbon)] transition hover:bg-[var(--color-crema)]"
+        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-[var(--color-crema-darker)] bg-surface-card px-4 py-2.5 text-sm font-semibold text-[var(--color-carbon)] transition hover:bg-[var(--color-crema)]"
       >
         <span aria-hidden>↗</span>
         {shared ? t('copied') : t('share')}

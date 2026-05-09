@@ -27,6 +27,7 @@ import LocationMap from './LocationMap';
 import AddDishModal from './AddDishModal';
 import PublishReviewModal from './PublishReviewModal';
 import ClaimPromptFooter from './ClaimPromptFooter';
+import EmptyState from '@/app/components/ui/EmptyState';
 
 interface DishWithReviews {
   dish: Dish;
@@ -153,8 +154,22 @@ export default function RestaurantPageClient({
               {dishItems.length > 0 ? (
                 <TopReviewsGrid items={dishItems} />
               ) : (
-                <section className="rounded-3xl border border-dashed border-[var(--color-crema-darker)] bg-[var(--color-white)] p-10 text-center text-sm italic text-[var(--color-carbon-soft)]">
-                  {t('noReviews')}
+                <section className="rounded-3xl border border-dashed border-border-default bg-surface-card px-6 py-10">
+                  <EmptyState
+                    title={t('emptyReviewsTitle')}
+                    description={t('emptyReviewsDescription')}
+                    action={
+                      user
+                        ? {
+                            label: t('emptyReviewsActionLogged'),
+                            onClick: () => window.dispatchEvent(new CustomEvent('cc:publish-review')),
+                          }
+                        : {
+                            label: t('emptyReviewsActionAnon'),
+                            href: '/login',
+                          }
+                    }
+                  />
                 </section>
               )}
             </div>
