@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/app/lib/i18n/navigation';
@@ -19,6 +19,9 @@ import { createDish, updateDish } from '@/app/lib/api/dishes';
 import { uploadDishCoverImage } from '@/app/lib/api/images';
 import { getMyReviewsForDish } from '@/app/lib/api/reviews';
 import { Dish, DishReview, PriceTier } from '@/app/lib/types';
+import { useDirtyCloseGuard } from '@/app/hooks/useDirtyCloseGuard';
+import type { ReviewFormBodyValue } from '@/app/components/social/ReviewFormBody';
+import Button from '@/app/components/ui/Button';
 import DishReviewForm from './DishReviewForm';
 
 interface PublishReviewModalProps {
@@ -58,6 +61,23 @@ export default function PublishReviewModal({
   const [query, setQuery] = useState('');
   const [selection, setSelection] = useState<DishSelection | null>(null);
 
+  // Mirror del body del form para el dirty check. Se actualiza vía onBodyChange.
+  const bodyRef = useRef<ReviewFormBodyValue | null>(null);
+
+  const isDirty = useCallback((): boolean => {
+    const b = bodyRef.current;
+    if (!b) return false;
+    return (
+      b.note.trim().length >= 3 ||
+      b.photos.length > 0 ||
+      b.pros.length > 0 ||
+      b.cons.length > 0
+    );
+  }, []);
+
+  const { confirmingDiscard, requestClose, confirmDiscard, cancelDiscard } =
+    useDirtyCloseGuard({ isDirty, onClose });
+
   // Inline new-dish fields.
   const [newDescription, setNewDescription] = useState('');
   const [newPriceTier, setNewPriceTier] = useState<PriceTier | null>(null);
@@ -92,6 +112,8 @@ export default function PublishReviewModal({
       }
       setNewCoverPreview(null);
       createdDishRef.current = null;
+      // Resetear el mirror del body para que el dirty check empiece limpio.
+      bodyRef.current = null;
     }
   }, [show, initialDish]);
 
@@ -134,14 +156,14 @@ export default function PublishReviewModal({
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') requestClose();
     }
     window.addEventListener('keydown', handleKey);
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener('keydown', handleKey);
     };
-  }, [show, onClose]);
+  }, [show, requestClose]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -257,7 +279,7 @@ export default function PublishReviewModal({
       <button
         type="button"
         aria-label={t('close')}
-        onClick={onClose}
+        onClick={requestClose}
         className="absolute inset-0 cursor-default bg-color-carbon/55 backdrop-blur-md transition-opacity motion-safe:animate-[cc-modal-fade-in_180ms_ease-out]"
       />
 
@@ -307,7 +329,7 @@ export default function PublishReviewModal({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={requestClose}
             aria-label={t('close')}
             className={[
               'absolute right-4 top-4 sm:right-5 sm:top-5',
@@ -374,11 +396,48 @@ export default function PublishReviewModal({
                   selection.kind === 'existing' ? previousReview : null
                 }
                 onSuccess={handleReviewSuccess}
-                onCancel={onClose}
+                onCancel={requestClose}
+                onBodyChange={(b) => { bodyRef.current = b; }}
               />
             </div>
           )}
         </div>
+
+        {/* Row 3 (condicional): banner de confirmación de descarte. */}
+        {confirmingDiscard && (
+          <div
+            role="alertdialog"
+            aria-labelledby="publish-discard-title"
+            className={[
+              'shrink-0 border-t border-color-paprika/30 bg-color-paprika-pale px-6 py-4 sm:px-8',
+              'motion-safe:animate-[cc-modal-fade-in_150ms_ease-out]',
+            ].join(' ')}
+          >
+            <p
+              id="publish-discard-title"
+              className="mb-3 font-sans text-sm font-semibold text-color-paprika"
+            >
+              {t('discardConfirmTitle')}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={confirmDiscard}
+              >
+                {t('discardConfirmAction')}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={cancelDiscard}
+                className="text-text-secondary hover:text-text-primary"
+              >
+                {t('discardCancel')}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
     </div>

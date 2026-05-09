@@ -48,9 +48,14 @@ interface DishReviewFormProps {
   submitLabel?: string;
   currencyCode?: string | null;
   previousReview?: DishReview | null;
+  /**
+   * Llamado cada vez que el body del form cambia. El padre lo usa para
+   * detectar si hay datos sin guardar (dirty check para el guard de cierre).
+   */
+  onBodyChange?: (body: ReviewFormBodyValue) => void;
 }
 
-function buildInitialValue(initial?: DishReviewFormInitial): ReviewFormBodyValue {
+export function buildInitialValue(initial?: DishReviewFormInitial): ReviewFormBodyValue {
   if (!initial) {
     return {
       rating: 5,
@@ -113,6 +118,7 @@ export default function DishReviewForm({
   submitLabel,
   currencyCode,
   previousReview,
+  onBodyChange,
 }: DishReviewFormProps) {
   const t = useTranslations('restaurant.dishReviewForm');
   const isEdit = mode === 'edit';
@@ -122,6 +128,11 @@ export default function DishReviewForm({
   const [body, setBody] = useState<ReviewFormBodyValue>(() => buildInitialValue(initial));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function handleBodyChange(nextBody: ReviewFormBodyValue) {
+    setBody(nextBody);
+    onBodyChange?.(nextBody);
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -287,7 +298,7 @@ export default function DishReviewForm({
 
       <ReviewFormBody
         value={body}
-        onChange={setBody}
+        onChange={handleBodyChange}
         dishId={dishId}
         dishName={dishName}
         currencyCode={currencyCode}

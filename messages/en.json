@@ -794,7 +794,10 @@
       "close": "Close",
       "retryLoad": "Try again",
       "kicker": "Edit review",
-      "loadingAria": "Loading review"
+      "loadingAria": "Loading review",
+      "discardConfirmTitle": "Discard changes?",
+      "discardConfirmAction": "Yes, discard",
+      "discardCancel": "Cancel"
     }
   },
   "restaurant": {
@@ -1002,7 +1005,10 @@
       "priceTierHigh": "Premium",
       "successTitle": "Review published",
       "successDescription": "Your review of {dish} is now on Palato.",
-      "viewReview": "View review"
+      "viewReview": "View review",
+      "discardConfirmTitle": "Discard changes?",
+      "discardConfirmAction": "Yes, discard",
+      "discardCancel": "Cancel"
     },
     "dishReviewForm": {
       "ariaLabel": "Review form",

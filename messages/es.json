@@ -794,7 +794,10 @@
       "close": "Cerrar",
       "retryLoad": "Intentar de nuevo",
       "kicker": "Editar reseña",
-      "loadingAria": "Cargando reseña"
+      "loadingAria": "Cargando reseña",
+      "discardConfirmTitle": "¿Descartar cambios?",
+      "discardConfirmAction": "Sí, descartar",
+      "discardCancel": "Cancelar"
     }
   },
   "restaurant": {
@@ -1002,7 +1005,10 @@
       "priceTierHigh": "Premium",
       "successTitle": "Reseña publicada",
       "successDescription": "Tu opinión de {dish} ya está en Palato.",
-      "viewReview": "Ver la reseña"
+      "viewReview": "Ver la reseña",
+      "discardConfirmTitle": "¿Descartar cambios?",
+      "discardConfirmAction": "Sí, descartar",
+      "discardCancel": "Cancelar"
     },
     "dishReviewForm": {
       "ariaLabel": "Formulario de reseña",

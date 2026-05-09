@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Modal from '@/app/components/ui/Modal';
 import Button from '@/app/components/ui/Button';
@@ -9,7 +9,10 @@ import { useToast } from '@/app/components/ui/Toast';
 import { getPost } from '@/app/lib/api/posts';
 import type { DishReview } from '@/app/lib/types';
 import type { ReviewPost } from '@/app/lib/types/social';
+import { useDirtyCloseGuard } from '@/app/hooks/useDirtyCloseGuard';
+import type { ReviewFormBodyValue } from '@/app/components/social/ReviewFormBody';
 import DishReviewForm, {
+  buildInitialValue,
   type DishReviewFormInitial,
 } from '@/app/[locale]/restaurants/[id]/components/DishReviewForm';
 
@@ -105,6 +108,28 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
   const [retryNonce, setRetryNonce] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
+  // Mirror del body del form para el dirty check. Se actualiza vía onBodyChange.
+  const bodyRef = useRef<ReviewFormBodyValue | null>(null);
+  // Snapshot del initial al momento en que se cargó el post.
+  const initialRef = useRef<ReviewFormBodyValue | null>(null);
+
+  const isDirty = useCallback((): boolean => {
+    const current = bodyRef.current;
+    const orig = initialRef.current;
+    if (!current || !orig) return false;
+    return (
+      current.rating !== orig.rating ||
+      current.note.trim() !== orig.note.trim() ||
+      current.photos.length > 0 ||
+      current.existingImages.length !== orig.existingImages.length ||
+      current.pros.length !== orig.pros.length ||
+      current.cons.length !== orig.cons.length
+    );
+  }, []);
+
+  const { confirmingDiscard, requestClose, confirmDiscard, cancelDiscard } =
+    useDirtyCloseGuard({ isDirty, onClose });
+
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -129,6 +154,15 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
 
   const initial = useMemo(() => (source ? postToInitial(source) : null), [source]);
 
+  // Captura el snapshot del initial una vez que se carga el post.
+  // Se usa para comparar con el body actual y detectar cambios.
+  useEffect(() => {
+    if (initial) {
+      initialRef.current = buildInitialValue(initial);
+      bodyRef.current = null; // resetea el mirror para que empiece desde el initial
+    }
+  }, [initial]);
+
   const title = source ? t('title', { dishName: source.dish.name }) : t('fallbackTitle');
   const description = source ? source.dish.restaurantName : undefined;
 
@@ -141,16 +175,46 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
     onClose();
   }
 
+  // Banner de confirmación de descarte — se pasa como footer al Modal cuando está activo.
+  const discardBanner = confirmingDiscard ? (
+    <div
+      role="alertdialog"
+      aria-labelledby="edit-discard-title"
+      className="w-full motion-safe:animate-[cc-modal-fade-in_150ms_ease-out]"
+    >
+      <p
+        id="edit-discard-title"
+        className="mb-3 font-sans text-sm font-semibold text-color-paprika"
+      >
+        {t('discardConfirmTitle')}
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="danger" size="sm" onClick={confirmDiscard}>
+          {t('discardConfirmAction')}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={cancelDiscard}
+          className="text-text-secondary hover:text-text-primary"
+        >
+          {t('discardCancel')}
+        </Button>
+      </div>
+    </div>
+  ) : undefined;
+
   return (
     <Modal
       open
-      onClose={onClose}
+      onClose={requestClose}
       title={title}
       description={description}
       size="xl"
       position="bottom-sheet"
       busy={submitting}
       kicker={t('kicker')}
+      footer={discardBanner}
     >
       {loading ? (
         <div className="flex flex-col gap-3 py-2" aria-label={t('loadingAria')} role="status">
@@ -168,7 +232,7 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
             <Button variant="primary" size="sm" onClick={() => setRetryNonce((n) => n + 1)}>
               {t('retryLoad')}
             </Button>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button variant="ghost" size="sm" onClick={requestClose}>
               {t('close')}
             </Button>
           </div>
@@ -181,7 +245,8 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
           dishId={source.dish.id}
           dishName={source.dish.name}
           onSuccess={handleSuccess}
-          onCancel={onClose}
+          onCancel={requestClose}
+          onBodyChange={(b) => { bodyRef.current = b; }}
         />
       )}
     </Modal>
