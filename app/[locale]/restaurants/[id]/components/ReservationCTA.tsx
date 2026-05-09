@@ -66,7 +66,7 @@ export default function ReservationCTA({
       onClick={handleClick}
       target="_blank"
       rel="noreferrer noopener"
-      className="inline-flex items-center gap-1.5 rounded-full bg-[var(--mainPink,#ef7998)] px-4 py-2 text-sm font-semibold text-white no-underline transition hover:opacity-90"
+      className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-azafran)] px-4 py-2 text-sm font-semibold text-[var(--color-carbon)] no-underline transition hover:bg-[var(--color-canela)] hover:text-white"
       data-testid="reservation-cta"
     >
       <span>{t('label')}</span>

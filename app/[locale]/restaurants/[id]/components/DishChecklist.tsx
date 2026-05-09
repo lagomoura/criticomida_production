@@ -47,17 +47,17 @@ export default function DishChecklist({
         <div>
           <h2
             id="dish-checklist-heading"
-            className="text-xl font-bold text-neutral-900 sm:text-2xl"
+            className="font-display text-xl font-medium text-[var(--color-carbon)] sm:text-2xl"
           >
             {t('heading')}
           </h2>
           {items.length > 0 && (
-            <p className="mt-0.5 text-sm text-neutral-500">
+            <p className="mt-0.5 text-sm text-text-muted">
               {items.length === 1
                 ? t('countOne', { count: items.length })
                 : t('countMany', { count: items.length })}
               {currentUserId && reviewedCount > 0 && (
-                <span className="ml-1 font-semibold text-emerald-600">
+                <span className="ml-1 font-semibold text-[var(--color-albahaca)]">
                   {reviewedCount === 1
                     ? t('reviewedByYou', { count: reviewedCount })
                     : t('reviewedByYouMany', { count: reviewedCount })}
@@ -72,9 +72,9 @@ export default function DishChecklist({
               type="button"
               onClick={dispatchPublishReview}
               className={
-                'flex items-center gap-2 rounded-xl border-2 border-[var(--mainPink)] ' +
-                'bg-[var(--mainPink)] px-4 py-2 text-sm font-semibold text-white ' +
-                'transition-colors hover:opacity-90'
+                'flex items-center gap-2 rounded-xl border-2 border-[var(--color-azafran)] ' +
+                'bg-[var(--color-azafran)] px-4 py-2 text-sm font-semibold text-[var(--color-carbon)] ' +
+                'transition-colors hover:bg-[var(--color-canela)] hover:text-white hover:border-[var(--color-canela)]'
               }
             >
               <span aria-hidden className="text-base leading-none">★</span>
@@ -84,9 +84,9 @@ export default function DishChecklist({
               type="button"
               onClick={dispatchAddDish}
               className={
-                'flex items-center gap-2 rounded-xl border-2 border-[var(--mainPink)] ' +
-                'bg-white px-4 py-2 text-sm font-semibold text-[var(--mainPink)] ' +
-                'transition-colors hover:bg-pink-50'
+                'flex items-center gap-2 rounded-xl border-2 border-[var(--color-azafran)] ' +
+                'bg-surface-card px-4 py-2 text-sm font-semibold text-[var(--color-azafran)] ' +
+                'transition-colors hover:bg-[var(--color-azafran-pale)]'
               }
             >
               <span aria-hidden className="text-base leading-none">+</span>
@@ -98,7 +98,7 @@ export default function DishChecklist({
 
       {user && currentUserId && items.length > 0 && (
         <div
-          className="mb-4 overflow-hidden rounded-full bg-neutral-100"
+          className="mb-4 overflow-hidden rounded-full bg-[var(--color-crema-dark)]"
           role="progressbar"
           aria-valuenow={reviewedCount}
           aria-valuemin={0}
@@ -106,17 +106,17 @@ export default function DishChecklist({
           aria-label={t('progressLabel', { reviewed: reviewedCount, total: items.length })}
         >
           <div
-            className="h-2 rounded-full bg-emerald-400 transition-all duration-500"
+            className="h-2 rounded-full bg-[var(--color-albahaca)] motion-safe:transition-all motion-safe:duration-500"
             style={{ width: `${(reviewedCount / items.length) * 100}%` }}
           />
         </div>
       )}
 
       {items.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-neutral-300 py-12 text-center">
+        <div className="rounded-xl border border-dashed border-border-default py-12 text-center">
           <p className="text-4xl" aria-hidden>🍽️</p>
-          <h3 className="mt-2 font-semibold text-neutral-700">{t('emptyTitle')}</h3>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h3 className="mt-2 font-semibold text-text-primary">{t('emptyTitle')}</h3>
+          <p className="mt-1 text-sm text-text-muted">
             {user ? t('emptyAuth') : t('emptyAnon')}
           </p>
           {user && (
@@ -125,8 +125,8 @@ export default function DishChecklist({
                 type="button"
                 onClick={dispatchPublishReview}
                 className={
-                  'rounded-xl border-2 border-[var(--mainPink)] bg-[var(--mainPink)] px-5 py-2.5 ' +
-                  'font-semibold text-white transition hover:opacity-90'
+                  'rounded-xl border-2 border-[var(--color-azafran)] bg-[var(--color-azafran)] px-5 py-2.5 ' +
+                  'font-semibold text-[var(--color-carbon)] transition hover:opacity-90'
                 }
               >
                 {t('publishFirstReview')}
@@ -135,9 +135,9 @@ export default function DishChecklist({
                 type="button"
                 onClick={dispatchAddDish}
                 className={
-                  'rounded-xl border-2 border-[var(--mainPink)] bg-white px-5 py-2.5 ' +
-                  'font-semibold text-[var(--mainPink)] transition-colors ' +
-                  'hover:bg-pink-50'
+                  'rounded-xl border-2 border-[var(--color-azafran)] bg-surface-card px-5 py-2.5 ' +
+                  'font-semibold text-[var(--color-azafran)] transition-colors ' +
+                  'hover:bg-[var(--color-azafran-pale)]'
                 }
               >
                 {t('addDish')}

@@ -45,9 +45,9 @@ export default function TopReviewsGrid({ items }: TopReviewsGridProps) {
 
   return (
     <section className="mt-10">
-      <h2 className="mb-4 text-xl font-bold text-neutral-900">
+      <h2 className="mb-4 font-display text-2xl font-medium text-[var(--color-carbon)]">
         {t('title')}
-        <span className="ml-2 text-base font-normal text-neutral-400">
+        <span className="ml-2 font-sans text-base font-normal text-text-muted">
           {t('topN', { count: top.length })}
         </span>
       </h2>
@@ -77,7 +77,7 @@ function ReviewCard({ review, dish }: { review: DishReview; dish: Dish }) {
     <Link
       href={`/reviews/${review.id}`}
       aria-label={t('cardAria', { dish: dish.name, author: review.user_display_name ?? t('anonymous') })}
-      className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-neutral-100 shadow-sm no-underline transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mainPink)] focus-visible:ring-offset-2"
+      className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-[var(--color-crema-dark)] shadow-sm no-underline transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-azafran)] focus-visible:ring-offset-2"
     >
       <Image
         src={photoUrl}

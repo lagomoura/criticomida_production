@@ -17,18 +17,18 @@ export default function ClaimPromptFooter({
   if (viewerIsOwner) {
     return (
       <aside
-        className="mt-8 flex flex-col items-center gap-1 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-5 text-center"
+        className="mt-8 flex flex-col items-center gap-1 rounded-2xl border border-[var(--color-albahaca-pale)] bg-[var(--color-albahaca)]/10 px-4 py-5 text-center"
         aria-labelledby="owner-panel-title"
       >
         <p
           id="owner-panel-title"
-          className="font-sans text-sm text-emerald-800"
+          className="font-sans text-sm text-[var(--color-albahaca)]"
         >
           {t('ownerLine')}
         </p>
         <Link
           href={`/restaurants/${restaurantSlug}/owner`}
-          className="font-sans text-sm font-semibold text-emerald-700 no-underline hover:underline"
+          className="font-sans text-sm font-semibold text-[var(--color-albahaca)] no-underline hover:underline"
         >
           {t('ownerCta')}
         </Link>

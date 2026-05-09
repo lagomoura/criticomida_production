@@ -146,7 +146,7 @@ export default function HeroV2({
             />
             {restaurant.is_claimed && (
               <span
-                className="inline-flex items-center gap-1 rounded-full bg-emerald-500/90 px-3 py-1 text-white shadow-sm backdrop-blur"
+                className="inline-flex items-center gap-1 rounded-full bg-[var(--color-albahaca)]/90 px-3 py-1 text-white shadow-sm backdrop-blur"
                 title={t('verifiedTitle')}
               >
                 <span aria-hidden>✓</span>
