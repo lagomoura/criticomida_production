@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from '@/app/lib/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
+import { useToast } from '@/app/components/ui/Toast';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { ApiError } from '@/app/lib/api/client';
 import { getRestaurant } from '@/app/lib/api/restaurants';
@@ -29,7 +30,6 @@ type GateState =
 type SaveState =
   | { kind: 'idle' }
   | { kind: 'saving' }
-  | { kind: 'saved' }
   | { kind: 'error'; message: string };
 
 const TONE_OPTIONS: ChatTone[] = [
@@ -56,6 +56,7 @@ export default function OwnerSettingsClient({
 }: Props) {
   const { user, isLoading: authLoading } = useAuthContext();
   const t = useTranslations('ownerSettings');
+  const toast = useToast();
 
   const [gate, setGate] = useState<GateState>({ kind: 'checking' });
   const [tone, setTone] = useState<ChatTone | ''>('');
@@ -108,19 +109,15 @@ export default function OwnerSettingsClient({
       setTone(updated.tone_preference ?? '');
       setLanguage(updated.language_preference ?? '');
       setKpis(updated.kpi_focus ?? []);
-      setSave({ kind: 'saved' });
-      window.setTimeout(() => {
-        setSave((current) =>
-          current.kind === 'saved' ? { kind: 'idle' } : current,
-        );
-      }, 2400);
+      setSave({ kind: 'idle' });
+      toast.success(t('savedToast'), t('savedToastDescription'));
     } catch (err) {
       setSave({
         kind: 'error',
         message: err instanceof ApiError ? err.message : t('saveError'),
       });
     }
-  }, [tone, language, kpis, restaurantSlug, t]);
+  }, [tone, language, kpis, restaurantSlug, t, toast]);
 
   const toggleKpi = useCallback((value: string) => {
     setKpis((current) =>
@@ -178,6 +175,15 @@ export default function OwnerSettingsClient({
 
   return (
     <div className="cc-container flex flex-col gap-8 py-8">
+      <nav aria-label={t('backToDashboard')}>
+        <Link
+          href={`/restaurants/${restaurantSlug}/owner`}
+          className="inline-flex min-h-[44px] items-center font-sans text-sm text-text-muted no-underline hover:text-text-primary focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+        >
+          {t('backToDashboard')}
+        </Link>
+      </nav>
+
       <header className="flex flex-col gap-1">
         <p className="font-sans text-xs uppercase tracking-wider text-text-muted">
           {t('kicker')}
@@ -205,7 +211,7 @@ export default function OwnerSettingsClient({
             id="tone"
             value={tone}
             onChange={(e) => setTone(e.target.value as ChatTone | '')}
-            className="rounded-lg border border-border-default bg-white px-3 py-2 font-sans text-base sm:text-sm focus:border-[var(--color-canela)] focus:outline-none"
+            className="rounded-lg border border-border-default bg-surface-card px-3 py-2 font-sans text-base sm:text-sm focus:border-[var(--color-canela)] focus:outline-none"
           >
             <option value="">{t('tone.optionDefault')}</option>
             {TONE_OPTIONS.map((value) => (
@@ -232,7 +238,7 @@ export default function OwnerSettingsClient({
             onChange={(e) =>
               setLanguage(e.target.value as ChatLanguage | '')
             }
-            className="rounded-lg border border-border-default bg-white px-3 py-2 font-sans text-base sm:text-sm focus:border-[var(--color-canela)] focus:outline-none"
+            className="rounded-lg border border-border-default bg-surface-card px-3 py-2 font-sans text-base sm:text-sm focus:border-[var(--color-canela)] focus:outline-none"
           >
             <option value="">{t('language.optionDefault')}</option>
             {LANGUAGE_OPTIONS.map((value) => (
@@ -284,15 +290,6 @@ export default function OwnerSettingsClient({
           >
             {save.kind === 'saving' ? t('savingAction') : t('saveAction')}
           </Button>
-          {save.kind === 'saved' && (
-            <span
-              role="status"
-              aria-live="polite"
-              className="font-sans text-xs font-semibold text-emerald-700"
-            >
-              {t('savedToast')}
-            </span>
-          )}
           {save.kind === 'error' && (
             <span
               role="alert"

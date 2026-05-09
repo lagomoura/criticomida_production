@@ -489,6 +489,7 @@
     "saveAction": "Save preferences",
     "savingAction": "Saving…",
     "savedToast": "Preferences saved.",
+    "savedToastDescription": "Your agent preferences have been updated.",
     "saveError": "We couldn't save your preferences. Please try again."
   },
   "claim": {

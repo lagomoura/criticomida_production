@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import Button from '@/app/components/ui/Button';
 import { useToast } from '@/app/components/ui/Toast';
 import { useDirtyCloseGuard } from '@/app/hooks/useDirtyCloseGuard';
@@ -190,7 +192,7 @@ export default function OwnerReviewModal({
           onClick={() => { if (!saving) requestClose(); }}
           className="absolute right-3 top-3 rounded-full p-1.5 text-text-muted hover:bg-surface-subtle"
         >
-          ✕
+          <FontAwesomeIcon icon={faXmark} className="h-4 w-4" aria-hidden />
         </button>
 
         <header className="flex flex-col gap-1 pr-8">

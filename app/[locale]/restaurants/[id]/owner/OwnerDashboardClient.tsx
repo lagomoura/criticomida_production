@@ -52,9 +52,9 @@ const SENTIMENT_FILTERS: { key: SentimentLabel | null; tKey: string }[] = [
 ];
 
 const SENTIMENT_BADGE_CLASSES: Record<SentimentLabel, string> = {
-  positive: 'bg-emerald-100 text-emerald-700',
-  neutral: 'bg-neutral-200 text-neutral-700',
-  negative: 'bg-rose-100 text-rose-700',
+  positive: 'bg-[var(--color-albahaca-pale)] text-[var(--color-albahaca)]',
+  neutral: 'bg-surface-subtle text-text-secondary',
+  negative: 'bg-[var(--color-paprika-pale)] text-[var(--color-paprika)]',
 };
 
 export default function OwnerDashboardClient({
@@ -346,7 +346,7 @@ export default function OwnerDashboardClient({
             {restaurantLocation}
           </p>
           {isAdminViewer && (
-            <p className="mt-2 inline-flex items-center gap-2 self-start rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+            <p className="mt-2 inline-flex items-center gap-2 self-start rounded-full bg-[var(--color-azafran-pale)] px-3 py-1 text-xs font-semibold text-[var(--color-canela)]">
               {t('adminViewerNotice')}
             </p>
           )}
@@ -512,7 +512,7 @@ export default function OwnerDashboardClient({
             aria-pressed={sortByNegativeFirst}
             className={`ml-auto rounded-full px-3 py-1 font-sans text-xs font-semibold transition ${
               sortByNegativeFirst
-                ? 'bg-rose-600 text-white'
+                ? 'bg-action-danger text-text-inverse'
                 : 'bg-surface-subtle text-text-secondary hover:bg-surface-card'
             }`}
           >
@@ -555,11 +555,11 @@ export default function OwnerDashboardClient({
                           </span>
                         )}
                       {review.has_owner_response ? (
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                        <span className="rounded-full bg-[var(--color-albahaca-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-albahaca)]">
                           {t('responded')}
                         </span>
                       ) : (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                        <span className="rounded-full bg-[var(--color-azafran-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-canela)]">
                           {t('notResponded')}
                         </span>
                       )}
