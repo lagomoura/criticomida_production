@@ -17,6 +17,7 @@ import DishAutocomplete, {
 } from '@/app/components/social/DishAutocomplete';
 import ReviewFormBody, {
   companyToVisitedWith,
+  type PhotoEntry,
   type ReviewFormBodyValue,
 } from '@/app/components/social/ReviewFormBody';
 import {
@@ -38,6 +39,8 @@ import {
 
 const MIN_TEXT = 20;
 const MAX_TEXT = 1200;
+
+type UploadStatus = 'pending' | 'uploading' | 'done' | 'error';
 
 const PRICE_TIER_OPTIONS: { value: PriceTier; symbol: string; labelKey: string }[] = [
   { value: '$', symbol: '$', labelKey: 'priceTierCheap' },
@@ -87,6 +90,9 @@ export default function ComposeClient() {
 
   const [prefilling, setPrefilling] = useState(Boolean(prefillDishId));
   const [submitting, setSubmitting] = useState(false);
+  // Tracks upload status per-photo (keyed by PhotoEntry.id) so we can show
+  // granular progress in the submit button while Promise.all runs in parallel.
+  const [uploadProgress, setUploadProgress] = useState<Map<number, UploadStatus>>(new Map());
   const [formError, setFormError] = useState<string | null>(null);
   const [draftRestored, setDraftRestored] = useState(false);
   // Hydration gate for the autosave effect: skip the very first render so we
@@ -212,6 +218,13 @@ export default function ComposeClient() {
       setSubmitting(true);
       setFormError(null);
 
+      // Reset progress so a retry starts clean.
+      if (body.photos.length > 0) {
+        setUploadProgress(
+          new Map(body.photos.map((p) => [p.id, 'pending'])),
+        );
+      }
+
       const restaurant: ComposeRestaurant = {
         placeId: place.place_id,
         name: place.name,
@@ -224,11 +237,24 @@ export default function ComposeClient() {
         phoneNumber: place.phone_number,
       };
 
+      // Tracks each upload individually so the button copy can show live
+      // progress ("Subiendo 2/3 fotos…"). Promise.all is kept — any single
+      // failure aborts the whole submit so we never publish a partial set.
+      const runUpload = async (photo: PhotoEntry, index: number): Promise<string> => {
+        setUploadProgress((prev) => new Map(prev).set(photo.id, 'uploading'));
+        try {
+          const url = await uploadReviewPhoto(user.id, photo.file, index);
+          setUploadProgress((prev) => new Map(prev).set(photo.id, 'done'));
+          return url;
+        } catch (err) {
+          setUploadProgress((prev) => new Map(prev).set(photo.id, 'error'));
+          throw err;
+        }
+      };
+
       try {
         const imageUrls = body.photos.length > 0
-          ? await Promise.all(
-              body.photos.map((p, i) => uploadReviewPhoto(user.id, p.file, i)),
-            )
+          ? await Promise.all(body.photos.map((p, i) => runUpload(p, i)))
           : [];
 
         const prosFiltered = body.pros.map((p) => p.trim()).filter(Boolean);
@@ -320,6 +346,27 @@ export default function ComposeClient() {
     if (noteLength < MIN_TEXT || noteLength > MAX_TEXT) return t('disabledNeedsNote');
     return null;
   }, [submitting, canSubmit, place, dish, noteLength, t]);
+
+  /**
+   * Dynamic copy for the submit button that reflects the current upload phase:
+   *   - idle / no photos: "Publicar reseña" (static label, spinner added by Button)
+   *   - photos uploading: "Subiendo 2/3 foto(s)…"
+   *   - all uploaded, creating post: "Publicando…"
+   */
+  const submitLabel = useMemo(() => {
+    if (!submitting) return t('submit');
+    const total = body.photos.length;
+    if (total === 0) return t('creatingPost');
+    const doneCount = Array.from(uploadProgress.values()).filter(
+      (s) => s === 'done',
+    ).length;
+    // While at least one photo is still pending/uploading, show granular counter.
+    if (doneCount < total) {
+      return t('uploadingPhotos', { done: doneCount, total });
+    }
+    // All photos done — now the createPost call is in flight.
+    return t('creatingPost');
+  }, [submitting, body.photos.length, uploadProgress, t]);
 
   if (authLoading) return <LoadingView />;
 
@@ -522,8 +569,15 @@ export default function ComposeClient() {
               >
                 {t('cancel')}
               </Button>
-              <Button type="submit" variant="primary" size="md" loading={submitting} disabled={!canSubmit}>
-                {t('submit')}
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                loading={submitting}
+                disabled={!canSubmit}
+                aria-label={submitting ? submitLabel : undefined}
+              >
+                {submitLabel}
               </Button>
             </div>
             {submitBlockReason && (
