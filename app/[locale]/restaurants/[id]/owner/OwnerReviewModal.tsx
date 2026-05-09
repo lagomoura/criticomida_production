@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
+import { useToast } from '@/app/components/ui/Toast';
+import { useDirtyCloseGuard } from '@/app/hooks/useDirtyCloseGuard';
 import {
   getOwnerResponse,
   upsertOwnerResponse,
@@ -39,6 +41,7 @@ export default function OwnerReviewModal({
   const t = useTranslations('ownerDashboard');
   const tModal = useTranslations('ownerDashboard.reviewModal');
   const locale = useLocale();
+  const toast = useToast();
   const [response, setResponse] = useState<OwnerResponse | null>(null);
   const [body, setBody] = useState('');
   const [loading, setLoading] = useState(true);
@@ -53,13 +56,22 @@ export default function OwnerReviewModal({
     'chat' | 'local' | null
   >(null);
 
+  const { confirmingDiscard, requestClose, confirmDiscard, cancelDiscard } =
+    useDirtyCloseGuard({
+      isDirty: () =>
+        response
+          ? body.trim() !== response.body.trim()
+          : body.trim().length > 0,
+      onClose,
+    });
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && !saving) requestClose();
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [saving, requestClose]);
 
   useEffect(() => {
     let cancelled = false;
@@ -148,6 +160,10 @@ export default function OwnerReviewModal({
       // so a future open shows the published text, not a stale draft.
       writeLocalDraft(review.id, '');
       setDraftSource(null);
+      toast.success(
+        tModal('publishedTitle'),
+        tModal('publishedDescription'),
+      );
       onResponseSaved?.();
     } catch {
       setError(tModal('saveError'));
@@ -161,7 +177,7 @@ export default function OwnerReviewModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="owner-review-modal-title"
-      onClick={onClose}
+      onClick={() => { if (!saving) requestClose(); }}
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
     >
       <div
@@ -171,7 +187,7 @@ export default function OwnerReviewModal({
         <button
           type="button"
           aria-label={tModal('closeAction')}
-          onClick={onClose}
+          onClick={() => { if (!saving) requestClose(); }}
           className="absolute right-3 top-3 rounded-full p-1.5 text-text-muted hover:bg-surface-subtle"
         >
           ✕
@@ -227,35 +243,59 @@ export default function OwnerReviewModal({
                 onChange={(e) => handleBodyChange(e.target.value)}
                 rows={4}
                 placeholder={tModal('responsePlaceholder')}
-                className="w-full rounded-md border border-border-default bg-surface-subtle p-3 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-canela)]"
+                className="w-full rounded-md border border-border-default bg-surface-subtle p-3 font-sans text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-canela)]"
               />
               {error && (
                 <p className="rounded-md bg-action-danger/10 px-3 py-2 font-sans text-xs text-action-danger">
                   {error}
                 </p>
               )}
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onClose}
-                  disabled={saving}
-                >
-                  {tModal('closeAction')}
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => void handleSave()}
-                  disabled={saving || body.trim().length === 0}
-                >
-                  {saving
-                    ? tModal('savingAction')
-                    : response
-                      ? tModal('updateAction')
-                      : tModal('respondAction')}
-                </Button>
-              </div>
+              {confirmingDiscard ? (
+                <div className="flex flex-col gap-3 rounded-md border border-action-danger/30 bg-action-danger/5 p-3">
+                  <p className="font-sans text-sm text-text-primary">
+                    {tModal('dirtyCloseWarning')}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={confirmDiscard}
+                    >
+                      {tModal('dirtyCloseConfirm')}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={cancelDiscard}
+                    >
+                      {tModal('dirtyCloseCancel')}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => requestClose()}
+                    disabled={saving}
+                  >
+                    {tModal('closeAction')}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => void handleSave()}
+                    disabled={saving || body.trim().length === 0}
+                  >
+                    {saving
+                      ? tModal('savingAction')
+                      : response
+                        ? tModal('updateAction')
+                        : tModal('respondAction')}
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </div>

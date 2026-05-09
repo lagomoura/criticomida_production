@@ -205,7 +205,7 @@ export default function OwnerSettingsClient({
             id="tone"
             value={tone}
             onChange={(e) => setTone(e.target.value as ChatTone | '')}
-            className="rounded-lg border border-border-default bg-white px-3 py-2 font-sans text-sm focus:border-[var(--color-canela)] focus:outline-none"
+            className="rounded-lg border border-border-default bg-white px-3 py-2 font-sans text-base sm:text-sm focus:border-[var(--color-canela)] focus:outline-none"
           >
             <option value="">{t('tone.optionDefault')}</option>
             {TONE_OPTIONS.map((value) => (
@@ -232,7 +232,7 @@ export default function OwnerSettingsClient({
             onChange={(e) =>
               setLanguage(e.target.value as ChatLanguage | '')
             }
-            className="rounded-lg border border-border-default bg-white px-3 py-2 font-sans text-sm focus:border-[var(--color-canela)] focus:outline-none"
+            className="rounded-lg border border-border-default bg-white px-3 py-2 font-sans text-base sm:text-sm focus:border-[var(--color-canela)] focus:outline-none"
           >
             <option value="">{t('language.optionDefault')}</option>
             {LANGUAGE_OPTIONS.map((value) => (

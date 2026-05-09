@@ -438,7 +438,8 @@ export default function OwnerDashboardClient({
               <button
                 type="button"
                 onClick={() => void handleDeletePhoto(photo.id)}
-                className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-xs font-semibold text-white opacity-0 transition group-hover:opacity-100"
+                aria-label={t('photoDeleteAction')}
+                className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-xs font-semibold text-white transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
               >
                 {t('photoDeleteAction')}
               </button>

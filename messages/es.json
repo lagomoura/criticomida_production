@@ -426,7 +426,12 @@
       "savingAction": "Guardando…",
       "saveError": "No pudimos guardar la respuesta. Probá de nuevo.",
       "draftFromChatNotice": "Borrador sugerido por el agente. Editalo o publicá tal cual.",
-      "draftFromLocalNotice": "Recuperamos el borrador que dejaste sin publicar. Continuá donde quedaste."
+      "draftFromLocalNotice": "Recuperamos el borrador que dejaste sin publicar. Continuá donde quedaste.",
+      "publishedTitle": "Respuesta publicada",
+      "publishedDescription": "Ahora es visible para todos en el perfil del restaurante.",
+      "dirtyCloseWarning": "Tenés una respuesta sin publicar. ¿Seguro que querés cerrar?",
+      "dirtyCloseConfirm": "Cerrar sin publicar",
+      "dirtyCloseCancel": "Seguir editando"
     },
     "moreChangesHeading": "Aplicar más cambios al perfil",
     "moreChangesDescription": "Por ahora desde el panel solo gestionás fotos y respuestas. Si querés actualizar la URL de reservas o avisar de un error en los datos del local, escribinos a soporte y te ayudamos.",

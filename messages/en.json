@@ -426,7 +426,12 @@
       "savingAction": "Saving…",
       "saveError": "We couldn't save the reply. Try again.",
       "draftFromChatNotice": "Draft suggested by the agent. Edit it or post it as is.",
-      "draftFromLocalNotice": "We recovered your unpublished draft. Pick up where you left off."
+      "draftFromLocalNotice": "We recovered your unpublished draft. Pick up where you left off.",
+      "publishedTitle": "Response published",
+      "publishedDescription": "It's now visible to everyone on the restaurant page.",
+      "dirtyCloseWarning": "You have an unpublished response. Sure you want to close?",
+      "dirtyCloseConfirm": "Close without publishing",
+      "dirtyCloseCancel": "Keep editing"
     },
     "moreChangesHeading": "More profile changes",
     "moreChangesDescription": "For now the panel only manages photos and responses. If you want to update the reservation URL or report an error in the place's data, contact support and we'll help.",
