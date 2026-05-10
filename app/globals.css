@@ -1524,7 +1524,7 @@ body {
   --neutral-300: #302A22;    /* bordes oscuros */
   --neutral-400: #3E3630;    /* bordes más visibles */
   --neutral-500: #5A5248;    /* muted */
-  --neutral-600: #9A8E84;    /* texto secundario */
+  --neutral-600: #A89A8E;    /* WCAG AA en page/card/subtle (>=5.19:1) */
   --neutral-700: #C5B8AE;    /* texto de soporte */
   --neutral-800: #DDD3C8;    /* texto UI */
   --neutral-900: #F2EDE6;    /* texto principal */
