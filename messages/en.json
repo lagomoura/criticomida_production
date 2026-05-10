@@ -458,7 +458,38 @@
     },
     "moreChangesHeading": "More profile changes",
     "moreChangesDescription": "For now the panel only manages photos and responses. If you want to update the reservation URL or report an error in the place's data, contact support and we'll help.",
-    "backToPublic": "← Back to public profile"
+    "backToPublic": "← Back to public profile",
+    "dishCovers": {
+      "heading": "Your dish photos",
+      "intro": "Each dish can have an official photo shown on the menu card. If you don't set one, we'll use the most recent photo from a diner's review.",
+      "emptyTitle": "No dishes yet",
+      "emptyDescription": "Once someone leaves a review, the dish will show up here for you to set its official photo.",
+      "noCoverHint": "No official photo — we'll show the best review photo",
+      "changeAction": "Change photo",
+      "setAction": "Set photo",
+      "clearAction": "Remove official photo",
+      "clearConfirm": "Go back to the automatic fallback?",
+      "clearError": "Couldn't remove the photo. Please try again.",
+      "saveError": "Couldn't save the photo. Please try again.",
+      "uploadError": "Upload failed. Try a smaller file (< 5 MB).",
+      "reviewsCount": "{count, plural, =0 {No reviews} =1 {1 review} other {# reviews}}",
+      "picker": {
+        "title": "Official photo for {dish}",
+        "tabUpload": "Upload new",
+        "tabReviews": "Pick from reviews",
+        "uploadCta": "Choose file",
+        "uploading": "Uploading…",
+        "uploadHint": "JPG, PNG or WebP. Max 8 MB.",
+        "reviewsEmptyTitle": "No review photos yet",
+        "reviewsEmptyDescription": "Once a diner uploads a photo with their review you'll be able to pick it from here.",
+        "reviewByAnonymous": "Anonymous review",
+        "reviewBy": "By {author}",
+        "reviewRating": "★ {rating}",
+        "promoteAction": "Use this photo",
+        "promoting": "Saving…",
+        "closeAction": "Close"
+      }
+    }
   },
   "ownerSettings": {
     "kicker": "Agent preferences",

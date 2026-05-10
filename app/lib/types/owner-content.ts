@@ -19,3 +19,23 @@ export interface OfficialPhoto {
 export interface OfficialPhotosListResponse {
   items: OfficialPhoto[];
 }
+
+export interface DishCoverState {
+  dish_id: string;
+  cover_image_url: string | null;
+}
+
+export interface DishPhotoCandidate {
+  review_id: string;
+  image_id: string;
+  url: string;
+  alt_text: string | null;
+  review_rating: number;
+  review_created_at: string;
+  user_display_name: string | null;
+  is_anonymous: boolean;
+}
+
+export interface DishPhotoCandidatesResponse {
+  items: DishPhotoCandidate[];
+}

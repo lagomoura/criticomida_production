@@ -458,7 +458,38 @@
     },
     "moreChangesHeading": "Aplicar más cambios al perfil",
     "moreChangesDescription": "Por ahora desde el panel solo gestionás fotos y respuestas. Si querés actualizar la URL de reservas o avisar de un error en los datos del local, escribinos a soporte y te ayudamos.",
-    "backToPublic": "← Volver al perfil público"
+    "backToPublic": "← Volver al perfil público",
+    "dishCovers": {
+      "heading": "Fotos de tus platos",
+      "intro": "Cada plato puede tener una foto oficial que se muestra en el card del menú. Si no asignás una, mostramos la última foto subida por un comensal.",
+      "emptyTitle": "Todavía no hay platos cargados",
+      "emptyDescription": "Cuando alguien cree una reseña, el plato aparecerá acá para que le pongas la foto oficial.",
+      "noCoverHint": "Sin foto oficial — se usa la mejor foto de las reseñas",
+      "changeAction": "Cambiar foto",
+      "setAction": "Asignar foto",
+      "clearAction": "Quitar foto oficial",
+      "clearConfirm": "¿Volver al fallback automático?",
+      "clearError": "No pudimos quitar la foto. Probá de nuevo.",
+      "saveError": "No pudimos guardar la foto. Probá de nuevo.",
+      "uploadError": "No se pudo subir la foto. Intentá con un archivo más chico (< 5 MB).",
+      "reviewsCount": "{count, plural, =0 {Sin reseñas} =1 {1 reseña} other {# reseñas}}",
+      "picker": {
+        "title": "Foto oficial de {dish}",
+        "tabUpload": "Subir nueva",
+        "tabReviews": "Elegir de reseñas",
+        "uploadCta": "Seleccionar archivo",
+        "uploading": "Subiendo…",
+        "uploadHint": "JPG, PNG o WebP. Máximo 8 MB.",
+        "reviewsEmptyTitle": "Sin fotos en reseñas todavía",
+        "reviewsEmptyDescription": "Cuando alguien suba una foto en su reseña, vas a poder elegirla acá.",
+        "reviewByAnonymous": "Reseña anónima",
+        "reviewBy": "Por {author}",
+        "reviewRating": "★ {rating}",
+        "promoteAction": "Usar esta foto",
+        "promoting": "Guardando…",
+        "closeAction": "Cerrar"
+      }
+    }
   },
   "ownerSettings": {
     "kicker": "Preferencias del agente",

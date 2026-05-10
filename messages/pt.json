@@ -458,7 +458,38 @@
     },
     "moreChangesHeading": "Aplicar mais mudanças no perfil",
     "moreChangesDescription": "Por enquanto o painel só gerencia fotos e respostas. Se quiser atualizar a URL de reservas ou avisar de um erro nos dados do local, escreva para o suporte e ajudamos.",
-    "backToPublic": "← Voltar ao perfil público"
+    "backToPublic": "← Voltar ao perfil público",
+    "dishCovers": {
+      "heading": "Fotos dos seus pratos",
+      "intro": "Cada prato pode ter uma foto oficial mostrada no card do menu. Se você não definir uma, usamos a foto mais recente de uma review.",
+      "emptyTitle": "Ainda não há pratos cadastrados",
+      "emptyDescription": "Quando alguém deixar uma review, o prato aparece aqui para você definir a foto oficial.",
+      "noCoverHint": "Sem foto oficial — usamos a melhor foto das reviews",
+      "changeAction": "Trocar foto",
+      "setAction": "Definir foto",
+      "clearAction": "Remover foto oficial",
+      "clearConfirm": "Voltar ao fallback automático?",
+      "clearError": "Não conseguimos remover a foto. Tente de novo.",
+      "saveError": "Não conseguimos salvar a foto. Tente de novo.",
+      "uploadError": "Falha no upload. Tente um arquivo menor (< 5 MB).",
+      "reviewsCount": "{count, plural, =0 {Sem reviews} =1 {1 review} other {# reviews}}",
+      "picker": {
+        "title": "Foto oficial de {dish}",
+        "tabUpload": "Subir nova",
+        "tabReviews": "Escolher das reviews",
+        "uploadCta": "Selecionar arquivo",
+        "uploading": "Enviando…",
+        "uploadHint": "JPG, PNG ou WebP. Máximo 8 MB.",
+        "reviewsEmptyTitle": "Ainda não há fotos em reviews",
+        "reviewsEmptyDescription": "Quando alguém subir uma foto na review, você poderá escolhê-la aqui.",
+        "reviewByAnonymous": "Review anônima",
+        "reviewBy": "Por {author}",
+        "reviewRating": "★ {rating}",
+        "promoteAction": "Usar esta foto",
+        "promoting": "Salvando…",
+        "closeAction": "Fechar"
+      }
+    }
   },
   "ownerSettings": {
     "kicker": "Preferências do agente",

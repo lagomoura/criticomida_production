@@ -27,6 +27,7 @@ import {
 import type { OfficialPhoto } from '@/app/lib/types/owner-content';
 import { listReviewIdsWithDraft } from '@/app/lib/utils/owner-draft';
 import BusinessChatLauncher from '@/app/components/chat/BusinessChatLauncher';
+import DishesCoverManager from './DishesCoverManager';
 import ReviewEmojiChips from './ReviewEmojiChips';
 import OwnerReviewModal from './OwnerReviewModal';
 
@@ -553,6 +554,8 @@ export default function OwnerDashboardClient({
           </p>
         )}
       </section>
+
+      <DishesCoverManager restaurantSlug={restaurantSlug} />
 
       <section className="flex flex-col gap-3">
         <div className="flex items-baseline justify-between">
