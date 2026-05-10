@@ -474,16 +474,6 @@ body {
 }
 /*Global style */
 
-.btn-pink {
-  color: var(--mainPink) !important;
-  border-color: var(--mainPink);
-}
-
-.btn-pink:hover {
-  color: var(--mainPink);
-  background: var(--mainBlack);
-}
-
 .btn-black {
   color: var(--mainBlack);
   border-color: var(--mainBlack);
@@ -492,27 +482,6 @@ body {
 .btn-black:hover {
   color: var(--mainPink);
   background: black;
-}
-/* Nav links */
-
-.toggler-icon {
-  /*muda a cor do icone de menu sandwich */
-  font-size: 2rem;
-  /*1rem aprox 16px */
-  color: var(--mainPink);
-}
-/*barra de navegacao */
-
-.nav-link {
-  color: var(--mainPink);
-  transition: 0.5s ease;
-  font-size: 1.5rem;
-}
-/* barra de navegacao */
-
-.nav-link:hover {
-  /*Muda cor ao passar mouse por cima dos nomes */
-  color: var(--mainBlack);
 }
 /*style icone carrinho */
 
@@ -778,14 +747,6 @@ body {
       border-width: 0.1rem;
   }
 
-  .nav-link {
-      font-size: 1.2rem;
-  }
-
-  .toggler-icon {
-      font-size: 1.5rem;
-  }
-
   .about-text {
       font-size: 1rem;
   }
@@ -826,33 +787,6 @@ body {
   .footer-contact p {
       font-size: 0.9rem;
   }
-}
-
-/* Glassy Navbar */
-.glassy-navbar {
-  background: rgba(248, 244, 238, 0.82);  /* Crema translúcida */
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 24px 0 rgba(26, 23, 20, 0.08);
-  border-radius: 1rem;
-  transition: background 0.3s, box-shadow 0.3s;
-}
-
-/* Brand Animation */
-.brand-animate {
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.brand-animate:hover {
-  transform: scale(1.06);
-}
-.brand-text-animate {
-  font-family: var(--font-display);
-  font-weight: 700;
-  color: var(--color-carbon);
-  transition: color 0.2s;
-}
-.glassy-navbar .brand-text-animate {
-  /* Wordmark en contexto de navbar */
-  color: var(--color-azafran);
 }
 
 /* Nav Link Animation */
@@ -1032,136 +966,6 @@ body {
     opacity 0.2s cubic-bezier(0.4, 2, 0.6, 1);
 }
 
-/* Banner WOW Animations */
-.banner-animate-content {
-  opacity: 0;
-  transform: translateY(40px) scale(0.98);
-  animation: bannerFadeIn 1.1s cubic-bezier(0.4,2,0.6,1) 0.2s forwards;
-}
-@keyframes bannerFadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.banner-btn-animate {
-  background: var(--color-azafran);
-  color: var(--color-white);
-  border: none;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  box-shadow: 0 2px 12px rgba(212, 135, 10, 0.2);
-  transition: transform var(--ease-micro), box-shadow var(--ease-micro), background var(--ease-micro);
-  position: relative;
-  overflow: hidden;
-}
-.banner-btn-animate:hover {
-  background: var(--color-carbon);
-  color: var(--color-white);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(26, 23, 20, 0.2);
-  animation: none;
-}
-
-/* AboutSection WOW Animations */
-.about-text-animate {
-  opacity: 0;
-  transform: translateX(-40px) scale(0.98);
-  animation: aboutTextIn 1.1s cubic-bezier(0.4,2,0.6,1) 0.2s forwards;
-}
-@keyframes aboutTextIn {
-  to {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-  }
-}
-
-.about-img-animate {
-  opacity: 0;
-  transform: translateX(40px) scale(0.98);
-  animation: aboutImgIn 1.1s cubic-bezier(0.4,2,0.6,1) 0.4s forwards;
-}
-@keyframes aboutImgIn {
-  to {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-  }
-}
-
-.about-img-hover {
-  transition: box-shadow var(--ease-content), transform var(--ease-content);
-}
-.about-img-hover:hover {
-  box-shadow: 0 8px 32px 0 rgba(26, 23, 20, 0.14);
-  transform: scale(1.03);
-  z-index: 2;
-}
-
-.about-btn-animate {
-  background: var(--color-carbon);
-  color: var(--color-white);
-  border: none;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  box-shadow: 0 2px 12px rgba(26, 23, 20, 0.15);
-  transition: transform var(--ease-micro), box-shadow var(--ease-micro), background var(--ease-micro);
-  position: relative;
-  overflow: hidden;
-}
-.about-btn-animate:hover {
-  background: var(--color-azafran);
-  color: var(--color-white);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(212, 135, 10, 0.2);
-  animation: none;
-}
-
-/* ReviewsSection WOW Animations */
-.reviews-title-animate {
-  opacity: 0;
-  transform: translateY(-30px);
-  animation: reviewsTitleIn 0.8s cubic-bezier(0.4,2,0.6,1) 0.1s forwards;
-}
-@keyframes reviewsTitleIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.reviews-filters-animate {
-  opacity: 0;
-  transform: translateY(-20px);
-  animation: reviewsFiltersIn 0.7s cubic-bezier(0.4,2,0.6,1) 0.3s forwards;
-}
-@keyframes reviewsFiltersIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.reviews-search-animate {
-  opacity: 0;
-  transform: translateY(-10px);
-  animation: reviewsSearchIn 0.7s cubic-bezier(0.4,2,0.6,1) 0.5s forwards;
-}
-@keyframes reviewsSearchIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.review-card-animate {
-  opacity: 0;
-  transform: translateY(40px) scale(0.98);
-  animation: reviewCardIn 0.8s cubic-bezier(0.4,2,0.6,1) calc(0.6s + var(--review-anim-order, 0) * 0.08s) forwards;
-}
-@keyframes reviewCardIn {
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 .review-card-hover {
   transition: box-shadow 0.3s, transform 0.3s cubic-bezier(0.4,2,0.6,1);
 }
@@ -1240,21 +1044,6 @@ body {
   transition: transform 0.5s cubic-bezier(0.4,2,0.6,1), opacity 0.5s;
 }
 
-/* WOW Animations for ServicesSection */
-.service-card-animate {
-  opacity: 0;
-  transform: translateY(40px) scale(0.98);
-  animation: serviceCardIn 1s cubic-bezier(0.4,2,0.6,1) forwards;
-}
-.service-card-animate:nth-child(1) { animation-delay: 0.2s; }
-.service-card-animate:nth-child(2) { animation-delay: 0.4s; }
-.service-card-animate:nth-child(3) { animation-delay: 0.6s; }
-@keyframes serviceCardIn {
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 .service-card-hover {
   background: rgba(255,255,255,0.10);
   transition: box-shadow 0.3s, transform 0.3s cubic-bezier(0.4,2,0.6,1), background 0.3s;
@@ -1279,80 +1068,6 @@ body {
   60% { transform: scale(0.95) translateY(2px); }
   100% { transform: scale(1) translateY(0); }
 }
-
-/* Footer Glassy/Gradient Background and WOW Animation */
-.footer-glassy {
-  background: linear-gradient(90deg, rgba(239,121,152,0.85) 0%, rgba(249,228,148,0.85) 100%);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 -8px 32px 0 rgba(31, 38, 135, 0.10);
-  border-radius: 2rem 2rem 0 0;
-  color: var(--mainBlack);
-  position: relative;
-  overflow: hidden;
-}
-.wow-footer-animate {
-  opacity: 0;
-  transform: translateY(40px);
-  animation: wowFooterIn 1.2s cubic-bezier(0.4,2,0.6,1) 0.2s forwards;
-}
-@keyframes wowFooterIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.footer-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--mainPink);
-  letter-spacing: 0.05em;
-}
-.footer-copy {
-  font-size: 1.1rem;
-  color: var(--mainBlack);
-  opacity: 0.85;
-}
-.footer-socials {
-  gap: 1.2rem !important;
-}
-.footer-icon-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.18);
-  width: 48px;
-  height: 48px;
-  transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
-  box-shadow: 0 2px 8px rgba(239, 121, 152, 0.10);
-}
-.footer-icon-link:hover, .footer-icon-link:focus {
-  background: linear-gradient(90deg, var(--mainPink), var(--mainYellow));
-  box-shadow: 0 0 0 6px rgba(239, 121, 152, 0.10);
-  transform: scale(1.13) translateY(-2px);
-  outline: none;
-}
-.footer-icon {
-  font-size: 1.6rem;
-  color: var(--mainBlack);
-  transition: color 0.3s, text-shadow 0.3s;
-}
-.footer-icon-link:hover .footer-icon, .footer-icon-link:focus .footer-icon {
-  color: var(--mainWhite);
-  text-shadow: 0 2px 8px var(--mainPink);
-}
-.footer-cta-text {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--mainPink);
-  letter-spacing: 0.03em;
-}
-@media (max-width: 768px) {
-  .footer-title { font-size: 1.4rem; }
-  .footer-copy { font-size: 1rem; }
-  .footer-cta-text { font-size: 1rem; }
-}
-
 
 /* Clean Gallery Image Styles - Image Only Layout */
 .gallery-link {
@@ -1769,21 +1484,6 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-
-  .banner-animate-content,
-  .about-text-animate,
-  .about-img-animate,
-  .reviews-title-animate,
-  .reviews-filters-animate,
-  .reviews-search-animate,
-  .review-card-animate,
-  .service-card-animate,
-  .brand-animate,
-  .brand-text-animate {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
 }
 /* Google Places Autocomplete dropdown — must appear above modals (z-[1050]) */
 .pac-container {
@@ -1834,12 +1534,6 @@ body {
   --mainBlack: #F2EDE6;
   --mainGrey: #252018;
   --yellowTrans: rgba(212, 135, 10, 0.1);
-}
-
-/* Navbar glassy bg: crema translúcido → carbón translúcido en dark */
-.dark .glassy-navbar {
-  background: rgba(30, 26, 22, 0.9);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
 }
 
 /* Review tooltip: blanco → carbón en dark */
