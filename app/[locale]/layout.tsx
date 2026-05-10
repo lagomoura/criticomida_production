@@ -44,6 +44,9 @@ export const viewport: Viewport = {
   // effect on iOS notch / Dynamic Island devices, where the BottomNav and
   // sticky compose footer rely on the inset to clear the home indicator.
   viewportFit: 'cover',
+  // Hint native UA controls (scrollbars, date picker, checkbox) to follow
+  // the active theme — without this, dark mode leaks light-styled native UI.
+  colorScheme: 'light dark',
 };
 
 export function generateStaticParams() {
