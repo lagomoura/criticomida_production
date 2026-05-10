@@ -14,10 +14,41 @@ estado actual, no la historia.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-08
+- **Fecha**: 2026-05-10
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Capa de safety social: block & mute** (migraciones 055 + 056,
+    audit a62a03a). Las dos primitivas que faltaban en el primer
+    release real ya están: `user_blocks` (bidireccional, hard impact)
+    y `user_mutes` (silencioso, unidireccional). Tocan el chatbot en
+    dos lugares:
+    1. **Notificaciones del chatbot heredan el guard.** El servicio
+       `notification_service` ahora chequea
+       `should_deliver_notification` antes de cada `db.add(Notification(...))`,
+       lo que afecta también las notifs que dispara el agente
+       (ej. `mention` cuando el Ghostwriter sugiere arrobar a un
+       crítico, `comment` cuando el Sommelier responde un comentario
+       en nombre del owner). Si el recipient bloqueó al actor o lo
+       muteó, la notif no se crea.
+    2. **Caveat conocido del Sommelier (no bloqueante):**
+       `get_dish_detail` devuelve los `top_reviews` (rating, pilares,
+       texto, pros/cons) ordenados por rating. Esos rows pueden
+       contener texto de reseñas escritas por usuarios bloqueados por
+       el comensal que está chateando. **El agente no atribuye la
+       reseña a un autor — solo parafrasea el contenido**, así que no
+       hay surface de identidad ni vector de doxing/harassment. Para
+       cerrar el caveat 100% habría que filtrar las reviews por
+       `excluded_author_ids_subquery(viewer_id)` dentro de la herramienta.
+       Tracked como follow-up; no afecta `search_dishes` (que devuelve
+       platos, no usuarios).
+    
+    Migración 056 también suma 4 índices hot-path (no afectan el
+    comportamiento del chatbot, solo perf): `ix_follows_following_id`,
+    `ix_notifications_recipient_created`,
+    `ix_notifications_unread (partial)`,
+    `ix_bookmarks_user_created`.
+
   - **Hardening de seguridad del audit completo** (commit 7305ed7
     en backend, 56f9a25 en super-repo). Tres cambios visibles desde
     el chatbot:

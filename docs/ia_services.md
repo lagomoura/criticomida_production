@@ -14,13 +14,38 @@ es un changelog; describe el estado actual.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-08
+- **Fecha**: 2026-05-10
 - **Servicios activos**: agent loop multi-tool, embeddings de
   catálogo, búsqueda híbrida (filtros + KNN), perfil de gustos,
   visión de plato (Ghostwriter + Sommelier multimodal), motor
   editorial de platos, sentiment de reseñas, auto-titulado de
   conversaciones.
-- **Cambios recientes (hardening del audit)** — commit `7305ed7`:
+- **Cambios recientes (capa de safety, audit a62a03a)** —
+  migraciones 055 + 056:
+  - **Notification guard** en `notification_service.py`. Las funciones
+    `record_*_notification` (incluyendo `record_mention_notifications`,
+    que dispara el Ghostwriter cuando sugiere arrobar) ahora chequean
+    `should_deliver_notification(db, recipient_id, actor_id)` antes
+    del `db.add(...)`. El guard lee `user_blocks` (cualquier
+    dirección) y `user_mutes` (recipient → actor) — primitivas nuevas
+    de la migración 055. Cualquier servicio IA que en el futuro emita
+    notificaciones debe pasar por este helper para mantener el
+    invariante de safety.
+  - **Caveat en `get_dish_detail` del Sommelier** (no bloqueante).
+    La tool devuelve los `top_reviews` por rating sin filtrar por
+    bloqueos: el agente ve texto de reviews escritas por usuarios
+    bloqueados por el comensal. **El agente no atribuye la reseña a
+    su autor — solo parafrasea**, por lo que no hay surface de
+    identidad. Para un cierre 100% de la fuga conceptual, sumar
+    `excluded_author_ids_subquery(viewer_id)` (vive en
+    `app/services/safety_service.py`) al `selectinload(Dish.reviews)`
+    de `chat/tools/search.py:394-407`. Tracked como follow-up;
+    `search_dishes` no se ve afectado (devuelve platos, no reviews).
+  - **Caveat en `get_dish_detail` del Business** (intencional).
+    El owner que reseña su propio restaurante puede ver texto de
+    reviews aunque las haya bloqueado en el feed: la tool sirve para
+    diagnóstico de pilares, no para consumo social. Se deja así.
+- **Cambios anteriores (hardening del audit)** — commit `7305ed7`:
   - **Rate-limit por usuario / IP** en cada endpoint que hace
     salida hacia un provider pago. Constantes vivas en
     `backend/app/middleware/rate_limit.py`:
