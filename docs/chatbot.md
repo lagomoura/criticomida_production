@@ -6,7 +6,7 @@ que actualizarse en el mismo PR. No es un changelog: describe el
 estado actual, no la historia.
 
 > Los servicios de IA subyacentes (Gemini embeddings, Gemini Vision,
-> Claude tool use, perfil de gustos, etc.) viven en
+> Gemini tool use, perfil de gustos, etc.) viven en
 > [`ia_services.md`](./ia_services.md). Acá nos enfocamos en el
 > **producto** — qué hace el chatbot desde la perspectiva del usuario.
 
@@ -18,46 +18,50 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
-  - **Migración del agent loop a `google-genai` directo (sale litellm
-    para chat)**. Causa raíz: litellm 1.55.4 transportaba
-    `thoughtSignature` smuggle-ándolo en el id del tool_call con
-    sufijo `__thought__<base64>` y lo desempaquetaba al armar el
-    siguiente request a Vertex. Ese unpack se rompía para tool_calls
-    paralelos en una misma respuesta — el primero llegaba firmado, los
-    siguientes no → Vertex rechazaba con `Function call is missing a
-    thought_signature in functionCall parts ... position N`. Bug
-    timing-dependent (Railway us-east4 → Vertex us-east4 lo gatillaba
-    consistentemente, dev desde Argentina no). Tres intentos de fix
-    al nivel de litellm fallaron (122f97f thinking_budget=0, 69544fa
-    filtro de ids sin sufijo, a96b8f9 cap a 1 tool_call) y se
-    revirtieron en 641d6d1.
+  - **Migración del agent loop a `google-genai` directo — litellm
+    eliminado del backend**. Resumen: el agent loop ahora vive en
+    `backend/app/services/chat/agent_loop.py` como cliente directo
+    de `google-genai`, sin capa intermedia.
 
-    Solución: agent_loop alterno que usa `google-genai` directo
-    (`backend/app/services/chat/agent_loop_gemini.py`). Mismo contrato
-    público que el AgentLoop de litellm, así `chat_service` lo elige
-    por flag `GEMINI_DIRECT`. La firma viaja como field nativo del
-    `Part` de protobuf en lugar de smuggleada en el id. Persistimos
-    `thought_signature` (base64) en el JSONB de
-    `chat_messages.tool_calls` para que el rehidrato en multi-turn
-    también incluya la firma. Tanto B2C (Sommelier/Ghostwriter) como
-    B2B (Business, antes Sonnet vía litellm) corren ahora sobre
-    `gemini-3.1-flash-lite-preview` directo. litellm queda en
-    requirements.txt mientras `GEMINI_DIRECT=false` siga siendo una
-    opción; cuando lo demos por estable lo borramos en un PR aparte.
+    Causa raíz del incidente que disparó el refactor: `litellm 1.55.4`
+    transportaba `thoughtSignature` smuggle-ándolo en el id del
+    tool_call con sufijo `__thought__<base64>` y lo desempaquetaba al
+    armar el siguiente request a Vertex. Ese unpack se rompía para
+    tool_calls paralelos en una misma respuesta — el primero llegaba
+    firmado, los siguientes no → Vertex rechazaba con `Function call
+    is missing a thought_signature in functionCall parts ... position
+    N`. Bug timing-dependent (Railway us-east4 → Vertex us-east4 lo
+    gatillaba consistentemente, dev desde Argentina no). Tres
+    intentos de fix dentro de la capa litellm fallaron (122f97f
+    thinking_budget=0, 69544fa filtro de ids sin sufijo, a96b8f9 cap
+    a 1 tool_call) y se revirtieron en 641d6d1 antes de hacer el
+    bypass completo.
 
-    Detalle adicional: el `function_response` se pasa con el dict del
-    tool al top-level (no envuelto en `{result: ...}`). El wrapper
-    confundía al modelo y le hacía cortar en `search_dishes` sin
-    encadenar `recommend_dishes`, perdiendo las cards con fotos.
+    Diseño del path actual:
 
-    Versiones bumpeadas para que google-genai 1.75 conviva con
-    litellm: `litellm 1.55.4 → 1.75.9`, `httpx 0.27.2 → 0.28.1`.
+    - `agent_loop.py` arma cada functionCall como `Part(
+      function_call=..., thought_signature=...)` — firma como field
+      protobuf nativo, sin trucos en el id.
+    - `chat_messages.tool_calls` (JSONB) persiste
+      `thought_signature` como base64; el rehidrato en multi-turn lo
+      decodea de vuelta a bytes y lo re-attacha al Part. Para
+      conversaciones que arrancaron bajo litellm, `_split_litellm_id`
+      sigue extrayendo el sufijo `__thought__<base64>` y rescatando
+      la firma — la migración no rompe history existente.
+    - `function_response` se manda con el dict del tool al top-level
+      (no envuelto en `{result: ...}`). El wrapper extra hacía que el
+      modelo tratara la data como opaca y cortara el chain de tools
+      (search_dishes sin pasar a recommend_dishes → cards sin fotos).
+    - B2C (Sommelier/Ghostwriter) y B2B (Business — antes Sonnet vía
+      litellm) corren sobre el mismo modelo
+      `gemini-3.1-flash-lite-preview` con el mismo agent loop.
 
-    Verificación end-to-end en prod (Railway, GEMINI_DIRECT=true):
-    sommelier responde con tools + cards + fotos; business responde
-    sin el 400 de thoughtSignature. Commits relevantes: d116381
-    (andamiaje), 8d84e46 (implementación), 264df87 (fix de
-    function_response).
+    Verificación end-to-end en prod: sommelier responde con tools +
+    cards + fotos; business responde sin el 400 de thoughtSignature.
+    Commits del refactor: d116381 (andamiaje), 8d84e46
+    (implementación), 264df87 (fix function_response), 3dc4835
+    (cleanup: borra litellm de requirements.txt, consolida el
+    archivo).
   - **Capa de safety social: block & mute** (migraciones 055 + 056,
     audit a62a03a). Las dos primitivas que faltaban en el primer
     release real ya están: `user_blocks` (bidireccional, hard impact)
@@ -98,7 +102,7 @@ estado actual, no la historia.
        autenticado (o por IP en el caso anónimo del Sommelier).
        `POST /api/dish-reviews/assist` y `/assist/upload` quedan
        capeados a `GHOSTWRITER_ASSIST_LIMIT = 20/hour`. El cap se
-       aplica al provider de litellm sin importar el agente. Ver
+       aplica antes del call a Gemini sin importar el agente. Ver
        `backend/app/middleware/rate_limit.py`.
     2. **SSRF guard en el pipeline multimodal**. El tool
        `identify_dish_from_photo` del Sommelier y el endpoint de
@@ -1020,7 +1024,7 @@ sequenceDiagram
     participant U as Usuario
     participant FE as ChatDrawer
     participant API as /api/chat/stream
-    participant LLM as Claude Haiku
+    participant LLM as Gemini Flash Lite
     participant T as search_dishes
     participant DB as Postgres + pgvector
     U->>FE: Escribe el pedido
@@ -1213,16 +1217,17 @@ semántica, no vocabulario**:
 
 - Cada parámetro categórico se define como **enum estricto** vía un
   modelo Pydantic en `backend/app/services/chat/tools/_schemas.py`.
-  El JSONSchema que viaja a Anthropic incluye `enum: [...]` y
-  `additionalProperties: false`.
+  El JSONSchema que viaja a Gemini (vía
+  `FunctionDeclaration.parameters_json_schema`) incluye `enum: [...]`
+  y `additionalProperties: false`.
 - La descripción del parámetro está en español neutro y describe
   *qué significa* cada valor, no qué palabras lo invocan.
 - La traducción `"todavía no respondí"` / `"haven't replied"` /
   `"ainda não"` → `responded_status='pending'` es trabajo del LLM,
   que ya es nativamente políglota. **No hay tablas de sinónimos en
   los tools.**
-- Si el LLM pasa un valor fuera del enum, Anthropic lo rechaza
-  server-side; si llega igual, `model_validate` levanta
+- Si el LLM pasa un valor fuera del enum, Gemini suele filtrarlo
+  server-side; si igual llega, `model_validate` levanta
   `ValidationError` y el handler retorna `{"error": ..., "details":
   [...]}`. El agent loop reenvía eso al modelo, que corrige y
   reintenta en el mismo turno. **Cero fallback silencioso, cero

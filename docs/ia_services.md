@@ -83,8 +83,8 @@ es un changelog; describe el estado actual.
 
 | Proveedor | Modelo / endpoint | Uso | Variable |
 |-----------|-------------------|-----|----------|
-| Google Gemini (vía `google-genai`) | `gemini-3.1-flash-lite-preview` | Sommelier + Business — agent loop con tools. Activo cuando `GEMINI_DIRECT=true` (default en prod). | `CHAT_MODEL` / `CHAT_MODEL_B2C` / `CHAT_MODEL_B2B` |
-| Anthropic / Gemini (vía `litellm`) | configurable | Path legacy. Solo se usa cuando `GEMINI_DIRECT=false`. Lo mantenemos como red de seguridad mientras validamos el path directo; pendiente de remoción. | mismas vars, prefijo `gemini/` o `anthropic/` |
+| Google Gemini (vía `google-genai`) | `gemini-3.1-flash-lite-preview` | Sommelier + Business — agent loop con tools, streaming, multi-turn, persistencia nativa de `thoughtSignature`. | `CHAT_MODEL` / `CHAT_MODEL_B2C` / `CHAT_MODEL_B2B` (bare model name, sin prefijo) |
+| Google Gemini (vía `google-genai`) | `gemini-3.1-flash-lite-preview` | Editorial blurb del catálogo de platos (one-shot JSON mode) | `EDITORIAL_MODEL` (cae a `CHAT_MODEL`) + `EDITORIAL_API_KEY` (cae a `CHAT_API_KEY` o `GEMINI_API_KEY`) |
 | Google Gemini | `gemini-embedding-2` (768 dims con MRL) | Embeddings de reseñas y dishes para búsqueda semántica | `GEMINI_API_KEY` + `EMBEDDINGS_MODEL` |
 | Google Gemini | `gemini-2.5-flash` | Visión multimodal para Ghostwriter | mismo `GEMINI_API_KEY` |
 | Google Gemini | `gemini-2.5-flash` | Sentiment de reseñas (clasifica el texto en positive/neutral/negative + score) | mismo `GEMINI_API_KEY` |
@@ -337,7 +337,7 @@ JSON-mode es predecible y el `thinking_budget=0` (memoria
 `feedback_gemini_thinking`) elimina la regresión histórica de
 trunc-JSON en Flash 2.5.
 
-### I. Motor editorial de platos — Anthropic `claude-haiku-4-5`
+### I. Motor editorial de platos — Gemini `gemini-3.1-flash-lite-preview`
 
 `backend/app/services/dish_editorial_enricher.py`. Genera una
 mini cápsula editorial sobre cada plato — origen + curiosidad
@@ -345,7 +345,9 @@ cultural — sin referencia al restaurante específico, para
 alimentar el bloque "La historia de este plato" en
 `/dishes/[id]`.
 
-Output JSON (`response_format={"type": "json_object"}`):
+Output JSON (`response_mime_type="application/json"` con
+`thinking_budget=0` para evitar burnear budget en una clasificación
+trivial):
 
 - `origin`: etiqueta corta (≤ 5 palabras) que ubica al plato en
   su tradición — "Cocina napolitana", "Sushi · Edo, Japón",
@@ -360,9 +362,11 @@ Persistencia en `dishes`:
 - `editorial_origin` ← `origin`
 - `editorial_blurb_lang` ← `"es"` (los idiomas adicionales están
   en roadmap)
-- `editorial_blurb_source` ← `"claude"` (uso interno; ya no se
-  expone al usuario, antes formaba parte del attribution
-  "Resumen editorial generado con Claude" que se quitó por DMMT)
+- `editorial_blurb_source` ← `"gemini"` (uso interno; ya no se
+  expone al usuario, antes formaba parte de la attribution editorial
+  que se quitó por DMMT). Filas viejas pueden tener `"claude"` de
+  cuando el enricher corría sobre Anthropic — se reescriben al
+  refrescar.
 - `editorial_prompt_version` ← `EDITORIAL_PROMPT_VERSION`
   (constante en el módulo) — bumpear esta string invalida los
   blurbs viejos sin tener que tocar el contenido.
@@ -377,8 +381,8 @@ primer `cuisine_types` del restaurante en lower (o `''` si no
 hay). Lookup antes de llamar al LLM, upsert después con
 `ON CONFLICT DO UPDATE` para race-safety. Versionada por
 `prompt_version`: cuando bumpea, los lookups de versión vieja
-fallan y caen al LLM. El costo de Anthropic escala con el
-número de **platos distintos**, no con `count(*) FROM dishes`.
+fallan y caen al LLM. El costo escala con el número de **platos
+distintos**, no con `count(*) FROM dishes`.
 
 Funciones expuestas:
 
@@ -401,8 +405,8 @@ Funciones expuestas:
   (solo stale) o `--all` (limpia cache + regenera todo). Útil
   después de bumpear `EDITORIAL_PROMPT_VERSION`.
 
-Degradación: sin `ANTHROPIC_API_KEY` (o `EDITORIAL_API_KEY` /
-`CHAT_API_KEY`), el servicio retorna `False` silenciosamente y
+Degradación: sin `EDITORIAL_API_KEY` (o `CHAT_API_KEY` /
+`GEMINI_API_KEY`), el servicio retorna `False` silenciosamente y
 el bloque simplemente no se renderiza en el frontend.
 
 **Consumidores**: página de detalle de plato
@@ -508,7 +512,7 @@ sequenceDiagram
     participant FE
     participant API as POST /api/chat/stream
     participant Loop as AgentLoop
-    participant LLM as Anthropic
+    participant LLM as Gemini
     participant Tools
     participant DB
     FE->>API: { message, agent, conversation_id }
@@ -722,9 +726,10 @@ implementadas**:
 - **Observabilidad IA**: dashboard de tokens consumidos / latencia /
   tasa de error por modelo. Hoy hay logging estructurado, no
   agregación.
-- **Modelos**: A/B entre `gemini-2.5-flash` vs `claude-haiku-4-5` para
-  el Ghostwriter (sospecha: vision multimodal de Anthropic puede
-  alinear mejor con el tono editorial pero sale más caro).
+- **Modelos**: A/B entre Gemini Flash y Gemini Pro para el Sommelier
+  cuando los volúmenes lo justifiquen (Pro razona mejor en queries
+  con muchos criterios cruzados, Flash es ~5x más barato y más rápido
+  para el caso típico).
 
 Cuando se implemente cualquiera, mover a la sección activa y borrar
 de acá.
