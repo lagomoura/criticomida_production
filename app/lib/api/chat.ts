@@ -168,6 +168,14 @@ export async function* streamChat(
   body: StreamChatRequest,
   signal?: AbortSignal,
 ): AsyncGenerator<StreamEvent> {
+  // FastAPI rechaza `""` como UUID — coercear a null evita un 422 cuando
+  // un caller pasa el prop sin normalizar (e.g. `?scope=` en una URL).
+  const safeBody: StreamChatRequest = {
+    ...body,
+    conversation_id: body.conversation_id || null,
+    restaurant_scope_id: body.restaurant_scope_id || null,
+  };
+
   const res = await fetch(`${BASE_URL}/api/chat/stream`, {
     method: 'POST',
     credentials: 'include',
@@ -175,7 +183,7 @@ export async function* streamChat(
       'Content-Type': 'application/json',
       Accept: 'text/event-stream',
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(safeBody),
     signal,
   });
 
@@ -183,7 +191,7 @@ export async function* streamChat(
     let detail = res.statusText;
     try {
       const errBody = await res.json();
-      detail = errBody.detail || detail;
+      detail = formatApiErrorDetail(errBody.detail) || detail;
     } catch {
       /* not json */
     }
@@ -213,6 +221,33 @@ export async function* streamChat(
     }
   } finally {
     reader.releaseLock();
+  }
+}
+
+// FastAPI 422 devuelve `detail` como array de objetos
+// `{loc, msg, type}`. Stringify directo da
+// `[object Object],[object Object],…` que oculta la causa real;
+// formateamos a `body.<campo>: <msg>` para que el log sea accionable.
+function formatApiErrorDetail(detail: unknown): string | null {
+  if (!detail) return null;
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    return detail
+      .map((e) => {
+        if (e && typeof e === 'object') {
+          const item = e as { loc?: unknown[]; msg?: string };
+          const path = Array.isArray(item.loc) ? item.loc.join('.') : '';
+          return path ? `${path}: ${item.msg ?? ''}` : (item.msg ?? '');
+        }
+        return String(e);
+      })
+      .filter(Boolean)
+      .join('; ');
+  }
+  try {
+    return JSON.stringify(detail);
+  } catch {
+    return null;
   }
 }
 
