@@ -703,7 +703,8 @@
       "expertReviewBadgeAria": "Expert review: the author rated the 3 technical pillars",
       "expertReviewTooltipLead": "Expert review.",
       "expertReviewTooltipBody": "The author rated the 3 technical pillars: presentation, value, and execution. It carries more weight in the Geek Score than a star-only review.",
-      "edited": "edited"
+      "edited": "edited",
+      "anonymous": "Anonymous"
     },
     "postActions": {
       "like": "Like",
@@ -769,6 +770,30 @@
       "errorMessage": "We couldn't send the report. Try again.",
       "submit": "Send report",
       "cancel": "Cancel"
+    },
+    "userActions": {
+      "menuTitle": "Actions on {name}",
+      "reportReview": "Report review",
+      "reportComment": "Report comment",
+      "reportUser": "Report {name}",
+      "mute": "Mute {name}",
+      "muteHint": "You'll stop seeing their content. They won't know.",
+      "block": "Block {name}",
+      "blockHint": "No contact in either direction.",
+      "confirmBlockTitle": "Block {name}?",
+      "confirmBlockDescription": "When you block:",
+      "confirmBlockBullet1": "You'll stop following each other.",
+      "confirmBlockBullet2": "You won't see their reviews, comments, or notifications.",
+      "confirmBlockBullet3": "They can't follow you or reply to you. You can undo this anytime from Account › Privacy.",
+      "confirmBlock": "Block",
+      "blocking": "Blocking…",
+      "back": "Back",
+      "mutedToastTitle": "You muted {name}",
+      "mutedToastDescription": "Undo from Account › Privacy.",
+      "blockedToastTitle": "You blocked {name}",
+      "blockedToastDescription": "Undo from Account › Privacy.",
+      "errorTitle": "We couldn't complete the action",
+      "errorGeneric": "Try again in a few seconds."
     },
     "dishAutocomplete": {
       "label": "Dish",
@@ -1784,6 +1809,9 @@
     "preferencesTitle": "My preferences",
     "preferencesDescription": "Sommelier reply language, response style, and declared restrictions.",
     "preferencesAction": "Edit preferences",
+    "privacyTitle": "Privacy",
+    "privacyDescription": "Users you've muted or blocked.",
+    "privacyAction": "Manage",
     "themeTitle": "Theme",
     "themeDescription": "Toggle between light and dark.",
     "logoutTitle": "Sign out",
@@ -1844,7 +1872,8 @@
       "logout": "Sign out",
       "averageWord": "Average",
       "bioSeeMore": "See more",
-      "bioSeeLess": "See less"
+      "bioSeeLess": "See less",
+      "moreOptions": "More options"
     },
     "editPost": {
       "loadError": "We couldn't load the review. Try again.",
@@ -2125,6 +2154,10 @@
       "title": "My preferences | Palato",
       "description": "Tune your reply language, style and dietary restrictions so the Sommelier knows you better."
     },
+    "privacy": {
+      "title": "Privacy | Palato",
+      "description": "Manage users you've muted or blocked."
+    },
     "mapa": {
       "title": "Map | Palato",
       "description": "Explore Palato dishes and restaurants on the map."
@@ -2240,6 +2273,31 @@
       "hoursLabel": "Hours you usually eat out",
       "hoursHint": "Comma-separated integers 0-23 (e.g. 13, 21)."
     }
+  },
+  "privacy": {
+    "heading": "Privacy",
+    "subtitle": "Manage users you've muted or blocked. You can undo any action at any time.",
+    "tabBlocked": "Blocked",
+    "tabMuted": "Muted",
+    "loading": "Loading…",
+    "loadMore": "Load more",
+    "emptyBlockedTitle": "You haven't blocked anyone",
+    "emptyBlockedDescription": "When you block someone they show up here. Blocking is two-way: neither side sees the other.",
+    "emptyMutedTitle": "You haven't muted anyone",
+    "emptyMutedDescription": "Muting is silent: the other person won't know. You stop seeing their content and notifications.",
+    "rowSince": "Since {date}",
+    "unblock": "Unblock",
+    "unmute": "Unmute",
+    "unblocking": "Unblocking…",
+    "unmuting": "Unmuting…",
+    "unblockedToast": "You unblocked {name}",
+    "unmutedToast": "You unmuted {name}",
+    "errorTitle": "We couldn't complete the action",
+    "errorGeneric": "Try again in a few seconds.",
+    "loadErrorTitle": "We couldn't load the list",
+    "loadErrorAction": "Retry",
+    "anonTitle": "Sign in",
+    "anonDescription": "You need an account to manage blocks and mutes."
   },
   "chat": {
     "title": "Palato Sommelier",

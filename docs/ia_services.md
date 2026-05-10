@@ -31,20 +31,17 @@ es un changelog; describe el estado actual.
     de la migración 055. Cualquier servicio IA que en el futuro emita
     notificaciones debe pasar por este helper para mantener el
     invariante de safety.
-  - **Caveat en `get_dish_detail` del Sommelier** (no bloqueante).
-    La tool devuelve los `top_reviews` por rating sin filtrar por
-    bloqueos: el agente ve texto de reviews escritas por usuarios
-    bloqueados por el comensal. **El agente no atribuye la reseña a
-    su autor — solo parafrasea**, por lo que no hay surface de
-    identidad. Para un cierre 100% de la fuga conceptual, sumar
-    `excluded_author_ids_subquery(viewer_id)` (vive en
-    `app/services/safety_service.py`) al `selectinload(Dish.reviews)`
-    de `chat/tools/search.py:394-407`. Tracked como follow-up;
-    `search_dishes` no se ve afectado (devuelve platos, no reviews).
-  - **Caveat en `get_dish_detail` del Business** (intencional).
-    El owner que reseña su propio restaurante puede ver texto de
-    reviews aunque las haya bloqueado en el feed: la tool sirve para
-    diagnóstico de pilares, no para consumo social. Se deja así.
+  - **Filtro de safety en `get_dish_detail` del Sommelier** — cerrado.
+    `make_get_dish_detail_tool` recibe `user_id` opcional; cuando el
+    comensal está autenticado, el handler dropea de `dish.reviews` las
+    escritas por usuarios que él bloqueó o muteó antes de armar los
+    `top_reviews` que ve el LLM. El filtro se aplica en memoria sobre
+    el resultado del `selectinload` (las reviews por plato son decenas
+    como mucho; reescribir la query no paga). El Business sigue NO
+    propagando `user_id` a esta tool — su `get_dish_detail` es
+    diagnóstico de pilares para el owner, no consumo social.
+    `search_dishes` ya no expone reviews (devuelve platos), así que no
+    requería cambio.
 - **Cambios anteriores (hardening del audit)** — commit `7305ed7`:
   - **Rate-limit por usuario / IP** en cada endpoint que hace
     salida hacia un provider pago. Constantes vivas en

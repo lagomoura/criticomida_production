@@ -10,6 +10,7 @@ import Skeleton from '@/app/components/ui/Skeleton';
 import EmptyState from '@/app/components/ui/EmptyState';
 import ProfileHeader from '@/app/components/social/ProfileHeader';
 import PostCard from '@/app/components/social/PostCard';
+import UserActionsMenu from '@/app/components/social/UserActionsMenu';
 import { getUserProfile, getUserPosts } from '@/app/lib/api/users';
 import { deleteReview } from '@/app/lib/api/reviews';
 import { ApiError } from '@/app/lib/api/client';
@@ -39,6 +40,8 @@ export default function PublicProfileClient({ userId }: Props) {
   const [loggingOut, setLoggingOut] = useState(false);
   const [menuPost, setMenuPost] = useState<ReviewPost | null>(null);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  // Menú ⋯ del header del perfil ajeno (Silenciar / Bloquear / Reportar usuario)
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const t = useTranslations('profile.publicProfile');
 
   const handleLogout = useCallback(async () => {
@@ -181,7 +184,21 @@ export default function PublicProfileClient({ userId }: Props) {
         onEditProfile={() => router.push('/settings')}
         onLogout={() => void handleLogout()}
         logoutLoading={loggingOut}
+        // Solo perfil ajeno con sesión activa: ⋯ ofrece block/mute/report.
+        onOpenMenu={user && !profile.viewerState.isSelf ? () => setProfileMenuOpen(true) : undefined}
       />
+
+      {user && !profile.viewerState.isSelf && profileMenuOpen && (
+        <UserActionsMenu
+          open
+          onClose={() => setProfileMenuOpen(false)}
+          targetUserId={profile.id}
+          targetDisplayName={profile.displayName}
+          targetHandle={profile.handle}
+          onBlocked={() => router.push('/')}
+          onMuted={() => router.push('/')}
+        />
+      )}
 
       <section className="flex flex-col gap-4" aria-labelledby="user-reviews-title">
         <div className="flex flex-wrap items-center justify-between gap-3">

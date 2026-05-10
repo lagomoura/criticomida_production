@@ -197,24 +197,32 @@ export default function CommentItem({
     void onToggleReplies(comment.id);
   }
 
+  // Cuando el autor borró su cuenta (migración 057, SET NULL), el
+  // comment sigue vivo pero `author` viene null. Mostramos "Anónimo"
+  // y el avatar sin imagen — el thread se preserva sin atribución.
+  const anonymousLabel = tPost('anonymous');
+  const authorDisplayName = comment.author?.displayName ?? anonymousLabel;
+  const authorAvatarUrl = comment.author?.avatarUrl ?? null;
+  const authorId = comment.author?.id ?? null;
+
   return (
     <article className="flex items-start gap-3">
-      {onOpenAuthor ? (
+      {onOpenAuthor && authorId ? (
         <button
           type="button"
-          onClick={() => onOpenAuthor(comment.author.id)}
-          aria-label={tPost('openProfileOf', { name: comment.author.displayName })}
+          onClick={() => onOpenAuthor(authorId)}
+          aria-label={tPost('openProfileOf', { name: authorDisplayName })}
           className="shrink-0 rounded-full focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
-          <Avatar src={comment.author.avatarUrl} name={comment.author.displayName} size="sm" />
+          <Avatar src={authorAvatarUrl} name={authorDisplayName} size="sm" />
         </button>
       ) : (
-        <Avatar src={comment.author.avatarUrl} name={comment.author.displayName} size="sm" />
+        <Avatar src={authorAvatarUrl} name={authorDisplayName} size="sm" />
       )}
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
           <span className="truncate font-sans text-sm font-medium text-text-primary">
-            {comment.author.displayName}
+            {authorDisplayName}
           </span>
           <time
             dateTime={comment.createdAt}
@@ -309,10 +317,10 @@ export default function CommentItem({
         {replying && canReply && (
           <div className="mt-2 flex flex-col gap-2">
             <MentionTextarea
-              label={t('replyTo', { name: comment.author.displayName })}
+              label={t('replyTo', { name: authorDisplayName })}
               hideLabel
               placeholder={t('replyPlaceholder', {
-                handle: comment.author.handle ?? comment.author.displayName,
+                handle: comment.author?.handle ?? authorDisplayName,
               })}
               value={replyDraft}
               onChange={setReplyDraft}

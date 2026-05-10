@@ -98,7 +98,11 @@ export interface Comment {
   parentCommentId: string | null;
   createdAt: string;
   updatedAt: string;
-  author: AuthorSummary;
+  /**
+   * null cuando el autor borró su cuenta. El comentario sobrevive
+   * para no romper el hilo; el FE lo renderiza como "Anónimo".
+   */
+  author: AuthorSummary | null;
   text: string;
   /** Cantidad de respuestas activas (0 si es una reply). */
   repliesCount: number;

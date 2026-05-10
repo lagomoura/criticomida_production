@@ -15,6 +15,7 @@ import { addToWantToTry, removeFromWantToTry } from '@/app/lib/api/want-to-try';
 import { useToast } from '@/app/components/ui/Toast';
 import { PostCardSkeleton } from '@/app/components/ui/SkeletonPresets';
 import ReportModal from '@/app/components/social/ReportModal';
+import UserActionsMenu from '@/app/components/social/UserActionsMenu';
 import AuthModal from '@/app/components/nav/AuthModal';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { cn } from '@/app/lib/utils/cn';
@@ -54,11 +55,41 @@ function slotKeyFor(type: FeedType, sort: FeedSort): SlotKey {
   return sort === 'top' ? 'following:top' : 'following:recent';
 }
 
+/**
+ * Optimistic remove de un autor en todos los slots. Lo usamos cuando el
+ * viewer bloquea o silencia: el backend ya filtra al próximo fetch pero
+ * el card actual sigue en pantalla — esto lo barre instantáneamente.
+ */
+function filterOutAuthor(cache: SlotCache, authorId: string): SlotCache {
+  const next: SlotCache = { ...cache };
+  for (const key of Object.keys(next) as SlotKey[]) {
+    const slot = next[key];
+    if (slot.state.status !== 'ready') continue;
+    const filtered = slot.state.posts.filter((p) => p.author.id !== authorId);
+    if (filtered.length === slot.state.posts.length) continue;
+    next[key] = {
+      ...slot,
+      state: { ...slot.state, posts: filtered },
+    };
+  }
+  return next;
+}
+
 export default function FeedClient() {
   const [activeTab, setActiveTab] = useState<FeedTabValue>('for_you');
   const [followingSort, setFollowingSort] = useState<FeedSort>('recent');
   const [cache, setCache] = useState<SlotCache>(INITIAL_CACHE);
   const [reportTarget, setReportTarget] = useState<{ id: string; subject: string } | null>(null);
+  // Menú ⋯ del feed card. Guarda los datos del autor + la review para que
+  // UserActionsMenu pueda ofrecer Reportar reseña + Silenciar/Bloquear al
+  // autor en un solo lugar.
+  const [menuTarget, setMenuTarget] = useState<{
+    reviewId: string;
+    authorId: string;
+    authorDisplayName: string;
+    authorHandle: string | null | undefined;
+    subject: string;
+  } | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   // Tracks which slots we've already fired loadFirstPage for. Lets us trigger
   // load on tab/sort switch without keeping `cache` in the effect deps —
@@ -324,6 +355,29 @@ export default function FeedClient() {
         />
       )}
 
+      {user && menuTarget && (
+        <UserActionsMenu
+          open
+          onClose={() => setMenuTarget(null)}
+          targetUserId={menuTarget.authorId}
+          targetDisplayName={menuTarget.authorDisplayName}
+          targetHandle={menuTarget.authorHandle}
+          reportContext={{
+            entityType: 'review',
+            entityId: menuTarget.reviewId,
+            subject: menuTarget.subject,
+          }}
+          onBlocked={(uid) => {
+            // El backend ya filtra al próximo fetch; igual sacamos las
+            // reviews del autor del slot activo para feedback instantáneo.
+            setCache((prev) => filterOutAuthor(prev, uid));
+          }}
+          onMuted={(uid) => {
+            setCache((prev) => filterOutAuthor(prev, uid));
+          }}
+        />
+      )}
+
       <AuthModal
         open={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
@@ -375,6 +429,24 @@ export default function FeedClient() {
                           : undefined;
                         const subject = post ? `${post.dish.name} @ ${post.dish.restaurantName}` : undefined;
                         setReportTarget({ id: postId, subject: subject ?? '' });
+                      }
+                    : undefined
+                }
+                onOpenMenu={
+                  user
+                    ? (postId) => {
+                        const slot = cache[key];
+                        const post = slot.state.status === 'ready'
+                          ? slot.state.posts.find((p) => p.id === postId)
+                          : undefined;
+                        if (!post) return;
+                        setMenuTarget({
+                          reviewId: post.id,
+                          authorId: post.author.id,
+                          authorDisplayName: post.author.displayName,
+                          authorHandle: post.author.handle,
+                          subject: `${post.dish.name} @ ${post.dish.restaurantName}`,
+                        });
                       }
                     : undefined
                 }

@@ -703,7 +703,8 @@
       "expertReviewBadgeAria": "Reseña experta: el autor evaluó los 3 pilares técnicos",
       "expertReviewTooltipLead": "Reseña experta.",
       "expertReviewTooltipBody": "El autor calificó los 3 pilares técnicos: presentación, costo/beneficio y ejecución. Tiene más peso en el Geek Score que una reseña con solo estrellas.",
-      "edited": "editado"
+      "edited": "editado",
+      "anonymous": "Anónimo"
     },
     "postActions": {
       "like": "Dar like",
@@ -769,6 +770,30 @@
       "errorMessage": "No pudimos enviar el reporte. Probá de nuevo.",
       "submit": "Enviar reporte",
       "cancel": "Cancelar"
+    },
+    "userActions": {
+      "menuTitle": "Acciones sobre {name}",
+      "reportReview": "Reportar reseña",
+      "reportComment": "Reportar comentario",
+      "reportUser": "Reportar a {name}",
+      "mute": "Silenciar a {name}",
+      "muteHint": "Dejás de ver su contenido. No se entera.",
+      "block": "Bloquear a {name}",
+      "blockHint": "Sin contacto en ninguna dirección.",
+      "confirmBlockTitle": "¿Bloquear a {name}?",
+      "confirmBlockDescription": "Al bloquear:",
+      "confirmBlockBullet1": "Dejás de seguirse mutuamente.",
+      "confirmBlockBullet2": "No vas a ver sus reseñas, comentarios ni notificaciones.",
+      "confirmBlockBullet3": "Tampoco puede seguirte ni responderte. Lo podés deshacer cuando quieras desde Cuenta › Privacidad.",
+      "confirmBlock": "Bloquear",
+      "blocking": "Bloqueando…",
+      "back": "Volver",
+      "mutedToastTitle": "Silenciaste a {name}",
+      "mutedToastDescription": "Podés deshacerlo desde Cuenta › Privacidad.",
+      "blockedToastTitle": "Bloqueaste a {name}",
+      "blockedToastDescription": "Podés deshacerlo desde Cuenta › Privacidad.",
+      "errorTitle": "No pudimos completar la acción",
+      "errorGeneric": "Probá de nuevo en unos segundos."
     },
     "dishAutocomplete": {
       "label": "Plato",
@@ -1784,6 +1809,9 @@
     "preferencesTitle": "Mis gustos",
     "preferencesDescription": "Idioma del Sommelier, estilo de respuesta y restricciones declaradas.",
     "preferencesAction": "Editar gustos",
+    "privacyTitle": "Privacidad",
+    "privacyDescription": "Usuarios silenciados y bloqueados.",
+    "privacyAction": "Gestionar",
     "themeTitle": "Tema",
     "themeDescription": "Alterná entre claro y oscuro.",
     "logoutTitle": "Cerrar sesión",
@@ -1844,7 +1872,8 @@
       "logout": "Cerrar sesión",
       "averageWord": "Promedio",
       "bioSeeMore": "Ver más",
-      "bioSeeLess": "Ver menos"
+      "bioSeeLess": "Ver menos",
+      "moreOptions": "Más opciones"
     },
     "editPost": {
       "loadError": "No pudimos cargar la reseña. Probá de nuevo.",
@@ -2125,6 +2154,10 @@
       "title": "Mis gustos | Palato",
       "description": "Editá tu idioma, estilo de respuesta y restricciones para que el Sommelier te conozca mejor."
     },
+    "privacy": {
+      "title": "Privacidad | Palato",
+      "description": "Gestioná los usuarios que silenciaste o bloqueaste."
+    },
     "mapa": {
       "title": "Mapa | Palato",
       "description": "Explorá los platos y restaurantes en Palato sobre el mapa."
@@ -2240,6 +2273,31 @@
       "hoursLabel": "Horas que solés salir a comer",
       "hoursHint": "Separá con coma. Usá enteros 0-23 (por ejemplo 13, 21)."
     }
+  },
+  "privacy": {
+    "heading": "Privacidad",
+    "subtitle": "Gestioná los usuarios que silenciaste o bloqueaste. Podés revertir cualquier acción en cualquier momento.",
+    "tabBlocked": "Bloqueados",
+    "tabMuted": "Silenciados",
+    "loading": "Cargando…",
+    "loadMore": "Cargar más",
+    "emptyBlockedTitle": "No bloqueaste a nadie",
+    "emptyBlockedDescription": "Cuando bloqueás a alguien aparece acá. El bloqueo es bidireccional: ningún lado ve al otro.",
+    "emptyMutedTitle": "No silenciaste a nadie",
+    "emptyMutedDescription": "Silenciar es silencioso: la otra persona no se entera. Dejás de ver su contenido y de recibir sus notificaciones.",
+    "rowSince": "Desde {date}",
+    "unblock": "Desbloquear",
+    "unmute": "Des-silenciar",
+    "unblocking": "Desbloqueando…",
+    "unmuting": "Des-silenciando…",
+    "unblockedToast": "Desbloqueaste a {name}",
+    "unmutedToast": "Des-silenciaste a {name}",
+    "errorTitle": "No pudimos completar la acción",
+    "errorGeneric": "Probá de nuevo en unos segundos.",
+    "loadErrorTitle": "No pudimos cargar la lista",
+    "loadErrorAction": "Reintentar",
+    "anonTitle": "Iniciá sesión",
+    "anonDescription": "Necesitás una cuenta para gestionar bloqueos y silenciados."
   },
   "chat": {
     "title": "Sommelier de Palato",

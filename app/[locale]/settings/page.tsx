@@ -119,6 +119,20 @@ export default function SettingsPage() {
         <span className="font-sans text-sm text-action-primary">{t('preferencesAction')}</span>
       </Link>
 
+      {/* Privacidad — bloqueados y silenciados */}
+      <Link
+        href="/me/privacidad"
+        className="mb-6 flex min-h-[44px] items-center justify-between rounded-2xl border border-border-default bg-surface-card px-4 py-3 no-underline transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+      >
+        <div>
+          <p className="font-sans text-sm font-medium text-text-primary">{t('privacyTitle')}</p>
+          <p className="font-sans text-xs text-text-muted">
+            {t('privacyDescription')}
+          </p>
+        </div>
+        <span className="font-sans text-sm text-action-primary">{t('privacyAction')}</span>
+      </Link>
+
       {/* Theme toggle — pill variant */}
       <div className="mb-6 flex min-h-[44px] items-center justify-between rounded-2xl border border-border-default bg-surface-card px-4 py-3">
         <div>

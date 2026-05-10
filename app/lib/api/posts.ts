@@ -11,12 +11,13 @@ interface CommentDTO {
   parent_comment_id: string | null;
   created_at: string;
   updated_at: string;
+  /** null cuando el autor borró su cuenta (migración 057). */
   author: {
     id: string;
     display_name: string;
     handle: string | null;
     avatar_url: string | null;
-  };
+  } | null;
   body: string;
   replies_count: number;
   likes_count: number;
@@ -44,12 +45,14 @@ function toComment(dto: CommentDTO): Comment {
     parentCommentId: dto.parent_comment_id,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
-    author: {
-      id: dto.author.id,
-      displayName: dto.author.display_name,
-      handle: dto.author.handle,
-      avatarUrl: dto.author.avatar_url,
-    },
+    author: dto.author
+      ? {
+          id: dto.author.id,
+          displayName: dto.author.display_name,
+          handle: dto.author.handle,
+          avatarUrl: dto.author.avatar_url,
+        }
+      : null,
     text: dto.body,
     repliesCount: dto.replies_count ?? 0,
     likesCount: dto.likes_count ?? 0,

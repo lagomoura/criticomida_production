@@ -11,6 +11,7 @@ import PostCard from '@/app/components/social/PostCard';
 import CommentItem from '@/app/components/social/CommentItem';
 import CommentComposer from '@/app/components/social/CommentComposer';
 import ReportModal from '@/app/components/social/ReportModal';
+import UserActionsMenu from '@/app/components/social/UserActionsMenu';
 import OwnerResponseBlock from '@/app/components/social/OwnerResponseBlock';
 import {
   getPost,
@@ -54,6 +55,9 @@ export default function ReviewDetailClient({ postId }: Props) {
     | { kind: 'comment'; id: string; subject: string }
     | null
   >(null);
+  // El menú ⋯ del post ofrece Reportar reseña / Silenciar / Bloquear.
+  // Se abre solo si hay sesión.
+  const [postMenuOpen, setPostMenuOpen] = useState(false);
   const [sharingCard, setSharingCard] = useState(false);
 
   const { posts, setPosts, toggleLike, toggleSave } = usePostsInteraction();
@@ -321,6 +325,10 @@ export default function ReviewDetailClient({ postId }: Props) {
     (commentId: string) => {
       const target = comments.find((c) => c.id === commentId);
       if (!target) return;
+      // Si el autor borró su cuenta no se debería poder reportar el
+      // comentario (can_report sale false del backend), pero defendemos
+      // el sujeto del modal por las dudas.
+      if (!target.author) return;
       const excerpt =
         target.text.length > 80 ? target.text.slice(0, 80) + '…' : target.text;
       setReportTarget({
@@ -408,17 +416,25 @@ export default function ReviewDetailClient({ postId }: Props) {
         onToggleLike={(id, next) => void toggleLike(id, next)}
         onToggleSave={(id, next) => void toggleSave(id, next)}
         onShare={handleShare}
-        onOpenMenu={
-          user
-            ? (id) =>
-                setReportTarget({
-                  kind: 'review',
-                  id,
-                  subject: `${post.dish.name} @ ${post.dish.restaurantName}`,
-                })
-            : undefined
-        }
+        onOpenMenu={user ? () => setPostMenuOpen(true) : undefined}
       />
+
+      {user && postMenuOpen && (
+        <UserActionsMenu
+          open
+          onClose={() => setPostMenuOpen(false)}
+          targetUserId={post.author.id}
+          targetDisplayName={post.author.displayName}
+          targetHandle={post.author.handle}
+          reportContext={{
+            entityType: 'review',
+            entityId: post.id,
+            subject: `${post.dish.name} @ ${post.dish.restaurantName}`,
+          }}
+          onBlocked={() => router.push('/')}
+          onMuted={() => router.push('/')}
+        />
+      )}
 
       <ShareAsCardCTA
         loading={sharingCard}

@@ -2,7 +2,11 @@
 
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRightFromBracket, faUtensils } from '@fortawesome/free-solid-svg-icons';
+import {
+  faEllipsisVertical,
+  faRightFromBracket,
+  faUtensils,
+} from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
@@ -25,6 +29,12 @@ export interface ProfileHeaderProps {
   logoutLoading?: boolean;
   onOpenFollowers?: (userId: string) => void;
   onOpenFollowing?: (userId: string) => void;
+  /**
+   * Abre el menú "⋯" en el header (Reportar / Silenciar / Bloquear).
+   * Solo se renderiza el botón cuando el viewer está logueado Y no es su
+   * propio perfil; eso lo decide el caller con esta prop.
+   */
+  onOpenMenu?: (userId: string) => void;
 }
 
 export default function ProfileHeader({
@@ -36,6 +46,7 @@ export default function ProfileHeader({
   logoutLoading = false,
   onOpenFollowers,
   onOpenFollowing,
+  onOpenMenu,
 }: ProfileHeaderProps) {
   const t = useTranslations('profile.header');
   const tSpec = useTranslations('profile.specialty');
@@ -176,12 +187,24 @@ export default function ProfileHeader({
             )}
           </>
         ) : onFollowToggle ? (
-          <FollowButton
-            userId={profile.id}
-            following={following}
-            loading={followLoading}
-            onToggle={onFollowToggle}
-          />
+          <>
+            <FollowButton
+              userId={profile.id}
+              following={following}
+              loading={followLoading}
+              onToggle={onFollowToggle}
+            />
+            {onOpenMenu && (
+              <button
+                type="button"
+                onClick={() => onOpenMenu(profile.id)}
+                aria-label={t('moreOptions')}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+              >
+                <FontAwesomeIcon icon={faEllipsisVertical} className="h-4 w-4" />
+              </button>
+            )}
+          </>
         ) : null}
       </div>
     </header>
