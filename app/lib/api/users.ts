@@ -135,3 +135,56 @@ export async function unfollowUser(userId: string): Promise<void> {
   }
   await fetchApi(`/api/users/${encodeURIComponent(userId)}/follow`, { method: 'DELETE' });
 }
+
+export interface UserSuggestion {
+  id: string;
+  displayName: string;
+  handle: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  /**
+   * Cantidad de personas que el viewer ya sigue y que también siguen a este
+   * candidato. Señal social principal (peso 3× en el score backend).
+   */
+  sharedFollowers: number;
+  /**
+   * Restaurantes donde tanto el viewer como el candidato reseñaron platos.
+   * Señal de afinidad gastronómica.
+   */
+  sharedRestaurants: number;
+}
+
+interface UserSuggestionDTO {
+  id: string;
+  display_name: string;
+  handle: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  shared_followers: number;
+  shared_restaurants: number;
+}
+
+interface UserSuggestionsPageDTO {
+  items: UserSuggestionDTO[];
+}
+
+export async function getMyUserSuggestions(
+  limit = 10,
+): Promise<UserSuggestion[]> {
+  if (isSocialMockEnabled()) {
+    await mockDelay(300);
+    return [];
+  }
+  const raw = await fetchApi<UserSuggestionsPageDTO>(
+    `/api/users/me/suggestions?limit=${limit}`,
+  );
+  return raw.items.map((dto) => ({
+    id: dto.id,
+    displayName: dto.display_name,
+    handle: dto.handle,
+    avatarUrl: dto.avatar_url,
+    bio: dto.bio,
+    sharedFollowers: dto.shared_followers,
+    sharedRestaurants: dto.shared_restaurants,
+  }));
+}

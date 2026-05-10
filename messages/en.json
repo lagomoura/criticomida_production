@@ -1873,7 +1873,8 @@
       "averageWord": "Average",
       "bioSeeMore": "See more",
       "bioSeeLess": "See less",
-      "moreOptions": "More options"
+      "moreOptions": "More options",
+      "privacy": "Privacy"
     },
     "editPost": {
       "loadError": "We couldn't load the review. Try again.",
@@ -1935,6 +1936,18 @@
       "title": "Steps from where you are",
       "subtitle": "Within {km} km — we mix cuisine, distance, and freshness.",
       "scrollLabel": "Dishes near you"
+    },
+    "peopleYouMayKnow": {
+      "kicker": "For you",
+      "title": "People you may want to follow",
+      "subtitle": "Critics close to your network and to your favorite restaurants.",
+      "scrollLabel": "People to follow",
+      "reasonSharedFollowerOne": "1 mutual",
+      "reasonSharedFollowerMany": "{count} mutuals",
+      "reasonSharedRestaurantOne": "1 restaurant in common",
+      "reasonSharedRestaurantMany": "{count} restaurants in common",
+      "followErrorTitle": "We couldn't update the follow",
+      "followErrorGeneric": "Try again in a few seconds."
     },
     "bestExecution": {
       "kicker": "Technical pillar",

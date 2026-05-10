@@ -5,9 +5,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEllipsisVertical,
   faRightFromBracket,
+  faShieldHalved,
   faUtensils,
 } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/app/lib/i18n/navigation';
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
 import MasteryBadge from '@/app/components/ui/MasteryBadge';
@@ -167,6 +169,13 @@ export default function ProfileHeader({
             <Button variant="outline" size="md" onClick={onEditProfile}>
               {t('editProfile')}
             </Button>
+            <Link
+              href="/me/privacidad"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-border-default px-3 py-2 font-sans text-sm font-medium text-text-primary no-underline transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+            >
+              <FontAwesomeIcon icon={faShieldHalved} className="h-3.5 w-3.5" aria-hidden />
+              {t('privacy')}
+            </Link>
             {onLogout && (
               <span className="ml-1 border-l border-border-subtle pl-3">
                 <button

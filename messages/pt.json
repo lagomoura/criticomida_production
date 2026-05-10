@@ -1873,7 +1873,8 @@
       "averageWord": "Média",
       "bioSeeMore": "Ver mais",
       "bioSeeLess": "Ver menos",
-      "moreOptions": "Mais opções"
+      "moreOptions": "Mais opções",
+      "privacy": "Privacidade"
     },
     "editPost": {
       "loadError": "Não conseguimos carregar a resenha. Tente novamente.",
@@ -1935,6 +1936,18 @@
       "title": "A poucos passos de onde está",
       "subtitle": "Em um raio de {km} km — combinamos cozinha, distância e novidade.",
       "scrollLabel": "Pratos perto de você"
+    },
+    "peopleYouMayKnow": {
+      "kicker": "Para você",
+      "title": "Pessoas que podem te interessar",
+      "subtitle": "Críticos próximos da sua rede e dos seus restaurantes preferidos.",
+      "scrollLabel": "Pessoas para seguir",
+      "reasonSharedFollowerOne": "1 amigo em comum",
+      "reasonSharedFollowerMany": "{count} amigos em comum",
+      "reasonSharedRestaurantOne": "1 restaurante em comum",
+      "reasonSharedRestaurantMany": "{count} restaurantes em comum",
+      "followErrorTitle": "Não conseguimos atualizar o follow",
+      "followErrorGeneric": "Tente novamente em alguns segundos."
     },
     "bestExecution": {
       "kicker": "Pilar técnico",

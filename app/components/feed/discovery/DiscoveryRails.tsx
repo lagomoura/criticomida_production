@@ -11,6 +11,7 @@ import { useToast } from '@/app/components/ui/Toast';
 import NearYouRail from './NearYouRail';
 import BestExecutionRail from './BestExecutionRail';
 import DishDuelRail from './DishDuelRail';
+import PeopleYouMayKnowRail from './PeopleYouMayKnowRail';
 import TrendingRail from './TrendingRail';
 
 export default function DiscoveryRails() {
@@ -59,6 +60,11 @@ export default function DiscoveryRails() {
         radiusKm={lat !== undefined ? 5 : undefined}
         enableWishlist={enableWishlist}
       />
+
+      {/* Personas para vos — solo con sesión: sin viewer no hay FoF ni
+          historial de reseñas para construir candidatos. Si el endpoint
+          devuelve cero, el componente no renderiza nada. */}
+      {user && <PeopleYouMayKnowRail />}
 
       <TrendingRail />
     </div>

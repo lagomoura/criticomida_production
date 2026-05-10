@@ -1869,6 +1869,7 @@
       "expertTooltipBody": "Cantidad de reseñas con los 3 pilares técnicos completos (presentación, costo/beneficio y ejecución). Pondera más en el Geek Score.",
       "specialtyHeading": "Especialidad",
       "editProfile": "Editar perfil",
+      "privacy": "Privacidad",
       "logout": "Cerrar sesión",
       "averageWord": "Promedio",
       "bioSeeMore": "Ver más",
@@ -1935,6 +1936,18 @@
       "title": "A pasos de donde estás",
       "subtitle": "En un radio de {km} km — combinamos cocina, distancia y novedad.",
       "scrollLabel": "Platos cerca de ti"
+    },
+    "peopleYouMayKnow": {
+      "kicker": "Para vos",
+      "title": "Personas que podrían interesarte",
+      "subtitle": "Críticos cercanos a tu red y a tus restaurantes preferidos.",
+      "scrollLabel": "Personas para seguir",
+      "reasonSharedFollowerOne": "1 conocido en común",
+      "reasonSharedFollowerMany": "{count} conocidos en común",
+      "reasonSharedRestaurantOne": "1 restaurante en común",
+      "reasonSharedRestaurantMany": "{count} restaurantes en común",
+      "followErrorTitle": "No pudimos actualizar el follow",
+      "followErrorGeneric": "Probá de nuevo en unos segundos."
     },
     "bestExecution": {
       "kicker": "Pilar técnico",
