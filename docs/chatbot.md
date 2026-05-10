@@ -18,6 +18,46 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Migración del agent loop a `google-genai` directo (sale litellm
+    para chat)**. Causa raíz: litellm 1.55.4 transportaba
+    `thoughtSignature` smuggle-ándolo en el id del tool_call con
+    sufijo `__thought__<base64>` y lo desempaquetaba al armar el
+    siguiente request a Vertex. Ese unpack se rompía para tool_calls
+    paralelos en una misma respuesta — el primero llegaba firmado, los
+    siguientes no → Vertex rechazaba con `Function call is missing a
+    thought_signature in functionCall parts ... position N`. Bug
+    timing-dependent (Railway us-east4 → Vertex us-east4 lo gatillaba
+    consistentemente, dev desde Argentina no). Tres intentos de fix
+    al nivel de litellm fallaron (122f97f thinking_budget=0, 69544fa
+    filtro de ids sin sufijo, a96b8f9 cap a 1 tool_call) y se
+    revirtieron en 641d6d1.
+
+    Solución: agent_loop alterno que usa `google-genai` directo
+    (`backend/app/services/chat/agent_loop_gemini.py`). Mismo contrato
+    público que el AgentLoop de litellm, así `chat_service` lo elige
+    por flag `GEMINI_DIRECT`. La firma viaja como field nativo del
+    `Part` de protobuf en lugar de smuggleada en el id. Persistimos
+    `thought_signature` (base64) en el JSONB de
+    `chat_messages.tool_calls` para que el rehidrato en multi-turn
+    también incluya la firma. Tanto B2C (Sommelier/Ghostwriter) como
+    B2B (Business, antes Sonnet vía litellm) corren ahora sobre
+    `gemini-3.1-flash-lite-preview` directo. litellm queda en
+    requirements.txt mientras `GEMINI_DIRECT=false` siga siendo una
+    opción; cuando lo demos por estable lo borramos en un PR aparte.
+
+    Detalle adicional: el `function_response` se pasa con el dict del
+    tool al top-level (no envuelto en `{result: ...}`). El wrapper
+    confundía al modelo y le hacía cortar en `search_dishes` sin
+    encadenar `recommend_dishes`, perdiendo las cards con fotos.
+
+    Versiones bumpeadas para que google-genai 1.75 conviva con
+    litellm: `litellm 1.55.4 → 1.75.9`, `httpx 0.27.2 → 0.28.1`.
+
+    Verificación end-to-end en prod (Railway, GEMINI_DIRECT=true):
+    sommelier responde con tools + cards + fotos; business responde
+    sin el 400 de thoughtSignature. Commits relevantes: d116381
+    (andamiaje), 8d84e46 (implementación), 264df87 (fix de
+    function_response).
   - **Capa de safety social: block & mute** (migraciones 055 + 056,
     audit a62a03a). Las dos primitivas que faltaban en el primer
     release real ya están: `user_blocks` (bidireccional, hard impact)

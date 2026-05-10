@@ -83,8 +83,8 @@ es un changelog; describe el estado actual.
 
 | Proveedor | Modelo / endpoint | Uso | Variable |
 |-----------|-------------------|-----|----------|
-| Anthropic (vía `litellm`) | `claude-haiku-4-5` (default sugerido) | Sommelier + Ghostwriter — tool loops baratos y rápidos | `CHAT_MODEL` o `CHAT_MODEL_B2C` |
-| Anthropic (vía `litellm`) | `claude-sonnet-4-6` (opt-in) | Business — razonamiento sobre reseñas, citas textuales | `CHAT_MODEL_B2B` (cae a `CHAT_MODEL` si no se setea) |
+| Google Gemini (vía `google-genai`) | `gemini-3.1-flash-lite-preview` | Sommelier + Business — agent loop con tools. Activo cuando `GEMINI_DIRECT=true` (default en prod). | `CHAT_MODEL` / `CHAT_MODEL_B2C` / `CHAT_MODEL_B2B` |
+| Anthropic / Gemini (vía `litellm`) | configurable | Path legacy. Solo se usa cuando `GEMINI_DIRECT=false`. Lo mantenemos como red de seguridad mientras validamos el path directo; pendiente de remoción. | mismas vars, prefijo `gemini/` o `anthropic/` |
 | Google Gemini | `gemini-embedding-2` (768 dims con MRL) | Embeddings de reseñas y dishes para búsqueda semántica | `GEMINI_API_KEY` + `EMBEDDINGS_MODEL` |
 | Google Gemini | `gemini-2.5-flash` | Visión multimodal para Ghostwriter | mismo `GEMINI_API_KEY` |
 | Google Gemini | `gemini-2.5-flash` | Sentiment de reseñas (clasifica el texto en positive/neutral/negative + score) | mismo `GEMINI_API_KEY` |
@@ -99,9 +99,9 @@ graciosamente** en vez de romper:
   saltan en backfill; el sentiment queda `null` y el dashboard del
   owner no rompe — los filtros por sentimiento simplemente no
   matchean reviews sin clasificar.
-- Sin `CHAT_API_KEY` (Anthropic) → el endpoint de chat devuelve un
-  error 502 explícito al frontend (sin esto el bot no tiene cómo
-  responder).
+- Sin `CHAT_API_KEY` (Gemini) → el endpoint de chat cae a
+  `GEMINI_API_KEY` como defensivo; sin ninguna de las dos el bot no
+  tiene cómo responder y devuelve un error explícito.
 - Sin `RESEND_API_KEY` → `send_email` loguea el payload (dry-run) y
   retorna `True`. Útil en dev.
 
