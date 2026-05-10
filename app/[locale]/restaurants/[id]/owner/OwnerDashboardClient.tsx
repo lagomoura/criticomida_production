@@ -58,6 +58,16 @@ const SENTIMENT_BADGE_CLASSES: Record<SentimentLabel, string> = {
   negative: 'bg-[var(--color-paprika-pale)] text-[var(--color-paprika)]',
 };
 
+// Orden numérico para sort de sentimiento: negative → neutral → positive → null
+const SENTIMENT_SORT_ORDER: Record<SentimentLabel, number> = {
+  negative: 0,
+  neutral: 1,
+  positive: 2,
+};
+
+type SortColumn = 'dish_name' | 'rating' | 'sentiment' | 'response' | 'date_tasted';
+type SortDirection = 'asc' | 'desc';
+
 export default function OwnerDashboardClient({
   restaurantSlug,
   restaurantId,
@@ -80,7 +90,8 @@ export default function OwnerDashboardClient({
   const [sentimentFilter, setSentimentFilter] = useState<SentimentLabel | null>(
     null,
   );
-  const [sortByNegativeFirst, setSortByNegativeFirst] = useState(false);
+  const [sortColumn, setSortColumn] = useState<SortColumn>('date_tasted');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [photoBusy, setPhotoBusy] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -118,14 +129,13 @@ export default function OwnerDashboardClient({
     try {
       const reviewsResp = await listOwnerReviews(restaurantSlug, {
         sentiment: sentimentFilter ?? undefined,
-        sort: sortByNegativeFirst ? 'sentiment_asc' : undefined,
       });
       setReviews(reviewsResp.items);
       setPendingCount(reviewsResp.pending_count);
     } catch {
       // Silent — el render decide qué mostrar.
     }
-  }, [restaurantSlug, sentimentFilter, sortByNegativeFirst]);
+  }, [restaurantSlug, sentimentFilter]);
 
   const loadAll = useCallback(async () => {
     try {
@@ -147,6 +157,43 @@ export default function OwnerDashboardClient({
         ? reviews.find((r) => r.id === reviewIdParam) ?? null
         : null,
     [reviewIdParam, reviews],
+  );
+
+  const sortedReviews = useMemo<OwnerReviewItem[]>(() => {
+    const dir = sortDirection === 'asc' ? 1 : -1;
+    return [...reviews].sort((a, b) => {
+      switch (sortColumn) {
+        case 'dish_name':
+          return dir * a.dish_name.localeCompare(b.dish_name);
+        case 'rating':
+          return dir * (a.rating - b.rating);
+        case 'sentiment': {
+          const va = a.sentiment_label != null ? SENTIMENT_SORT_ORDER[a.sentiment_label] : 3;
+          const vb = b.sentiment_label != null ? SENTIMENT_SORT_ORDER[b.sentiment_label] : 3;
+          return dir * (va - vb);
+        }
+        case 'response':
+          // false (sin responder) = 0, true (respondida) = 1
+          return dir * (Number(a.has_owner_response) - Number(b.has_owner_response));
+        case 'date_tasted':
+          return dir * (a.date_tasted < b.date_tasted ? -1 : a.date_tasted > b.date_tasted ? 1 : 0);
+        default:
+          return 0;
+      }
+    });
+  }, [reviews, sortColumn, sortDirection]);
+
+  const handleSortColumn = useCallback(
+    (col: SortColumn) => {
+      if (col === sortColumn) {
+        setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'));
+      } else {
+        setSortColumn(col);
+        // texto: asc por defecto; números/fecha: desc por defecto
+        setSortDirection(col === 'dish_name' ? 'asc' : 'desc');
+      }
+    },
+    [sortColumn],
   );
 
   const openReviewModal = useCallback(
@@ -397,7 +444,7 @@ export default function OwnerDashboardClient({
             className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition disabled:opacity-50 ${
               notifyOnReview
                 ? 'bg-[var(--color-canela)]'
-                : 'bg-neutral-300'
+                : 'bg-surface-subtle'
             }`}
           >
             <span
@@ -432,7 +479,7 @@ export default function OwnerDashboardClient({
             return (
               <div
                 key={photo.id}
-                className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-neutral-100"
+                className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-surface-subtle"
               >
                 <Image
                   src={photo.url}
@@ -444,21 +491,21 @@ export default function OwnerDashboardClient({
                 {isConfirming ? (
                   /* Overlay de confirmación inline — 2-botón, no window.confirm() */
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[var(--color-carbon)]/85 px-2">
-                    <p className="font-sans text-xs font-semibold text-white text-center leading-tight">
+                    <p className="font-sans text-xs font-semibold text-text-inverse text-center leading-tight">
                       {t('photoDeleteInlineConfirm')}
                     </p>
                     <div className="flex gap-1.5">
                       <button
                         type="button"
                         onClick={() => void handleDeletePhoto(photo.id)}
-                        className="rounded-full bg-action-danger px-2.5 py-1 font-sans text-xs font-semibold text-white transition hover:opacity-90 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                        className="rounded-full bg-action-danger px-2.5 py-1 font-sans text-xs font-semibold text-text-inverse transition hover:opacity-90 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                       >
                         {t('photoDeleteInlineConfirmAction')}
                       </button>
                       <button
                         type="button"
                         onClick={() => setConfirmingDeleteId(null)}
-                        className="rounded-full border border-white/40 px-2.5 py-1 font-sans text-xs font-semibold text-white/90 transition hover:bg-white/10 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                        className="rounded-full border border-text-inverse/40 px-2.5 py-1 font-sans text-xs font-semibold text-text-inverse/90 transition hover:bg-text-inverse/10 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                       >
                         {t('photoDeleteInlineCancel')}
                       </button>
@@ -469,7 +516,7 @@ export default function OwnerDashboardClient({
                     type="button"
                     onClick={() => setConfirmingDeleteId(photo.id)}
                     aria-label={t('photoDeleteAction')}
-                    className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-xs font-semibold text-white transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                    className="absolute right-2 top-2 rounded-full bg-[color:var(--color-carbon)]/70 px-2 py-0.5 text-xs font-semibold text-text-inverse transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                   >
                     {t('photoDeleteAction')}
                   </button>
@@ -529,7 +576,7 @@ export default function OwnerDashboardClient({
                   aria-pressed={active}
                   className={`rounded-full px-3 py-1 font-sans text-xs font-semibold transition ${
                     active
-                      ? 'bg-[var(--color-canela)] text-white'
+                      ? 'bg-action-primary text-text-inverse'
                       : 'bg-surface-subtle text-text-secondary hover:bg-surface-card'
                   }`}
                 >
@@ -538,18 +585,6 @@ export default function OwnerDashboardClient({
               );
             })}
           </div>
-          <button
-            type="button"
-            onClick={() => setSortByNegativeFirst((v) => !v)}
-            aria-pressed={sortByNegativeFirst}
-            className={`ml-auto rounded-full px-3 py-1 font-sans text-xs font-semibold transition ${
-              sortByNegativeFirst
-                ? 'bg-action-danger text-text-inverse'
-                : 'bg-surface-subtle text-text-secondary hover:bg-surface-card'
-            }`}
-          >
-            {t('sentimentSortNegativeFirst')}
-          </button>
         </div>
 
         {reviews.length === 0 ? (
@@ -570,62 +605,210 @@ export default function OwnerDashboardClient({
             />
           )
         ) : (
-          <ul className="flex list-none flex-col gap-2 p-0">
-            {reviews.map((review) => (
-              <li key={review.id}>
-                <button
-                  type="button"
-                  onClick={() => openReviewModal(review.id)}
-                  className="flex w-full flex-col gap-1 rounded-2xl border border-border-default bg-surface-card p-4 text-left transition hover:border-[var(--color-canela)] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="font-display text-base text-text-primary">
-                      {review.dish_name}
-                      <span className="ml-2 font-sans text-sm text-text-muted">
-                        ★ {review.rating.toFixed(1)}
-                      </span>
-                    </span>
-                    <div className="flex flex-wrap items-center justify-end gap-1.5">
-                      {review.sentiment_label && (
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-semibold ${SENTIMENT_BADGE_CLASSES[review.sentiment_label]}`}
-                        >
-                          {t(`sentiment_${review.sentiment_label}`)}
+          <>
+            {/* Mobile: cards apiladas — experiencia táctil original */}
+            <ul className="flex list-none flex-col gap-2 p-0 md:hidden">
+              {sortedReviews.map((review) => (
+                <li key={review.id}>
+                  <button
+                    type="button"
+                    onClick={() => openReviewModal(review.id)}
+                    className="flex w-full flex-col gap-1 rounded-2xl border border-border-default bg-surface-card p-4 text-left transition hover:border-[var(--color-canela)] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-display text-base text-text-primary">
+                        {review.dish_name}
+                        <span className="ml-2 font-sans text-sm text-text-muted">
+                          ★ {review.rating.toFixed(1)}
                         </span>
-                      )}
-                      {!review.has_owner_response &&
-                        reviewIdsWithDraft.has(review.id) && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-action-primary/15 px-2 py-0.5 text-xs font-semibold text-action-primary">
-                            {t('draftBadge')}
+                      </span>
+                      <div className="flex flex-wrap items-center justify-end gap-1.5">
+                        {review.sentiment_label && (
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-semibold ${SENTIMENT_BADGE_CLASSES[review.sentiment_label]}`}
+                          >
+                            {t(`sentiment_${review.sentiment_label}`)}
                           </span>
                         )}
-                      {review.has_owner_response ? (
-                        <span className="rounded-full bg-[var(--color-albahaca-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-albahaca)]">
-                          {t('responded')}
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-[var(--color-azafran-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-canela)]">
-                          {t('notResponded')}
-                        </span>
-                      )}
+                        {!review.has_owner_response &&
+                          reviewIdsWithDraft.has(review.id) && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-action-primary/15 px-2 py-0.5 text-xs font-semibold text-action-primary">
+                              {t('draftBadge')}
+                            </span>
+                          )}
+                        {review.has_owner_response ? (
+                          <span className="rounded-full bg-[var(--color-albahaca-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-albahaca)]">
+                            {t('responded')}
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-[var(--color-azafran-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-canela)]">
+                            {t('notResponded')}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <ReviewEmojiChips review={review} />
-                  <p className="line-clamp-2 font-sans text-sm text-text-secondary">
-                    {review.note}
-                  </p>
-                  <p className="font-sans text-xs text-text-muted">
-                    {review.is_anonymous
-                      ? t('anonymous')
-                      : review.user_handle
-                        ? `@${review.user_handle}`
-                        : review.user_display_name}{' '}
-                    · {new Date(review.date_tasted).toLocaleDateString(locale)}
-                  </p>
-                </button>
-              </li>
-            ))}
-          </ul>
+                    <ReviewEmojiChips review={review} />
+                    <p className="line-clamp-2 font-sans text-sm text-text-secondary">
+                      {review.note}
+                    </p>
+                    <p className="font-sans text-xs text-text-muted">
+                      {review.is_anonymous
+                        ? t('anonymous')
+                        : review.user_handle
+                          ? `@${review.user_handle}`
+                          : review.user_display_name}{' '}
+                      · {new Date(review.date_tasted).toLocaleDateString(locale)}
+                    </p>
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            {/* Desktop: tabla densa con sort por columna */}
+            <div className="hidden md:block overflow-x-auto rounded-2xl border border-border-default bg-surface-card">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-surface-subtle">
+                    {(
+                      [
+                        { col: 'dish_name', labelKey: 'tableHeader.dish' },
+                        { col: 'rating', labelKey: 'tableHeader.rating' },
+                        { col: 'sentiment', labelKey: 'tableHeader.sentiment' },
+                        { col: 'response', labelKey: 'tableHeader.response' },
+                        { col: null, labelKey: 'tableHeader.author' },
+                        { col: 'date_tasted', labelKey: 'tableHeader.date' },
+                      ] as { col: SortColumn | null; labelKey: string }[]
+                    ).map(({ col, labelKey }) => {
+                      const isActive = col !== null && sortColumn === col;
+                      const ariaSort = isActive
+                        ? sortDirection === 'asc'
+                          ? ('ascending' as const)
+                          : ('descending' as const)
+                        : col !== null
+                          ? ('none' as const)
+                          : undefined;
+                      return (
+                        <th
+                          key={labelKey}
+                          scope="col"
+                          aria-sort={ariaSort}
+                          className={`px-3 py-2.5 text-left text-xs font-medium uppercase tracking-[0.08em] whitespace-nowrap select-none ${
+                            isActive ? 'text-action-primary' : 'text-text-muted'
+                          } ${col !== null ? 'cursor-pointer hover:text-text-primary' : ''}`}
+                          onClick={col !== null ? () => handleSortColumn(col) : undefined}
+                        >
+                          {col !== null ? (
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-1 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] rounded"
+                              aria-label={`${t(labelKey as Parameters<typeof t>[0])} — ${
+                                isActive && sortDirection === 'asc'
+                                  ? t('sortDesc')
+                                  : t('sortAsc')
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSortColumn(col);
+                              }}
+                            >
+                              {t(labelKey as Parameters<typeof t>[0])}
+                              <span aria-hidden className="text-[10px] leading-none">
+                                {isActive ? (sortDirection === 'asc' ? '▲' : '▼') : '⬦'}
+                              </span>
+                            </button>
+                          ) : (
+                            t(labelKey as Parameters<typeof t>[0])
+                          )}
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedReviews.map((review) => {
+                    const hasDraft =
+                      !review.has_owner_response && reviewIdsWithDraft.has(review.id);
+                    return (
+                      <tr
+                        key={review.id}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`${review.dish_name} — ${t(
+                          review.has_owner_response ? 'responded' : 'notResponded',
+                        )}`}
+                        onClick={() => openReviewModal(review.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            openReviewModal(review.id);
+                          }
+                        }}
+                        className="cursor-pointer border-b border-border-subtle last:border-b-0 transition-colors hover:bg-surface-subtle/60 focus-visible:outline-none focus-visible:[box-shadow:inset_0_0_0_2px_var(--color-canela)]"
+                      >
+                        {/* Plato */}
+                        <td className="px-3 py-2.5 font-display text-[14px] text-text-primary max-w-[180px]">
+                          <span className="block truncate">{review.dish_name}</span>
+                        </td>
+                        {/* Rating */}
+                        <td className="px-3 py-2.5 tabular-nums text-text-primary whitespace-nowrap">
+                          ★ {review.rating.toFixed(1)}
+                        </td>
+                        {/* Sentiment */}
+                        <td className="px-3 py-2.5">
+                          {review.sentiment_label ? (
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-xs font-semibold ${SENTIMENT_BADGE_CLASSES[review.sentiment_label]}`}
+                            >
+                              {t(`sentiment_${review.sentiment_label}`)}
+                            </span>
+                          ) : (
+                            <span className="text-text-muted text-xs">—</span>
+                          )}
+                        </td>
+                        {/* Estado */}
+                        <td className="px-3 py-2.5 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5">
+                            {review.has_owner_response ? (
+                              <span className="rounded-full bg-[var(--color-albahaca-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-albahaca)]">
+                                {t('responded')}
+                              </span>
+                            ) : (
+                              <span className="rounded-full bg-[var(--color-azafran-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-canela)]">
+                                {t('notResponded')}
+                              </span>
+                            )}
+                            {hasDraft && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-action-primary/15 px-2 py-0.5 text-xs font-semibold text-action-primary">
+                                {t('draftBadge')}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        {/* Autor */}
+                        <td className="px-3 py-2.5 text-text-secondary max-w-[120px]">
+                          <span className="block truncate">
+                            {review.is_anonymous
+                              ? t('anonymous')
+                              : review.user_handle
+                                ? `@${review.user_handle}`
+                                : review.user_display_name}
+                          </span>
+                        </td>
+                        {/* Fecha */}
+                        <td className="px-3 py-2.5 tabular-nums text-text-muted whitespace-nowrap text-xs">
+                          {new Date(review.date_tasted).toLocaleDateString(locale, {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </section>
 

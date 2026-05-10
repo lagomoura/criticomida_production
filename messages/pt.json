@@ -372,7 +372,16 @@
     "sentimentFilterPositive": "Positivas",
     "sentimentFilterNeutral": "Neutras",
     "sentimentFilterNegative": "Negativas",
-    "sentimentSortNegativeFirst": "Mais negativas primeiro",
+    "tableHeader": {
+      "dish": "Prato",
+      "rating": "Rating",
+      "sentiment": "Sentimento",
+      "response": "Status",
+      "author": "Autor",
+      "date": "Data"
+    },
+    "sortAsc": "Ordenar ascendente",
+    "sortDesc": "Ordenar descendente",
     "sentiment_positive": "Positiva",
     "sentiment_neutral": "Neutra",
     "sentiment_negative": "Negativa",

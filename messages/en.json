@@ -372,7 +372,16 @@
     "sentimentFilterPositive": "Positive",
     "sentimentFilterNeutral": "Neutral",
     "sentimentFilterNegative": "Negative",
-    "sentimentSortNegativeFirst": "Most negative first",
+    "tableHeader": {
+      "dish": "Dish",
+      "rating": "Rating",
+      "sentiment": "Sentiment",
+      "response": "Status",
+      "author": "Author",
+      "date": "Date"
+    },
+    "sortAsc": "Sort ascending",
+    "sortDesc": "Sort descending",
     "sentiment_positive": "Positive",
     "sentiment_neutral": "Neutral",
     "sentiment_negative": "Negative",
