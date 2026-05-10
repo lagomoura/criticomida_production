@@ -22,9 +22,9 @@ interface Props {
 
 const TONE_CLASSES: Record<Tone, string> = {
   neutral: 'bg-surface-subtle text-text-secondary',
-  positive: 'bg-[var(--color-albahaca-pale)] text-[var(--color-albahaca)] ring-1 ring-[var(--color-albahaca)]/30',
-  negative: 'bg-[var(--color-paprika-pale)] text-[var(--color-paprika)] ring-1 ring-[var(--color-paprika)]/30',
-  warning: 'bg-[var(--color-azafran-pale)] text-[var(--color-canela)] ring-1 ring-[var(--color-azafran)]/30',
+  positive: 'bg-[var(--color-dorado-pale)] text-[var(--color-dorado)] ring-1 ring-[var(--color-dorado)]/30',
+  negative: 'bg-[var(--color-terracota-pale)] text-[var(--color-terracota-deep)] ring-1 ring-[var(--color-terracota-deep)]/30',
+  warning: 'bg-[var(--color-terracota-pale)] text-[var(--color-terracota-deep)] ring-1 ring-[var(--color-terracota)]/30',
 };
 
 /**

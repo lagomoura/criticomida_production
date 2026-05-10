@@ -82,7 +82,7 @@ export default function ProfileHeader({
         <div className="max-w-2xl">
           <p
             className={[
-              // DM Sans para body de bio: legibilidad sobre display.
+              // Inter para body de bio: legibilidad sobre display.
               // Cormorant italic en párrafo largo (3+ líneas) degrada
               // la lectura (brand-identity-v2.md §3.4: italic reservado
               // para nombres de platos en reviews y taglines de marca).
@@ -274,15 +274,15 @@ export default function ProfileHeader({
       >
         <span
           tabIndex={0}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--color-azafran)]/30 bg-[color:var(--color-azafran)]/8 px-3 py-1 font-sans text-xs font-medium text-text-primary"
+          className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--color-terracota)]/30 bg-[color:var(--color-terracota)]/8 px-3 py-1 font-sans text-xs font-medium text-text-primary"
         >
           <FontAwesomeIcon
             icon={faUtensils}
-            className="text-[10px] text-[color:var(--color-azafran)]"
+            className="text-[10px] text-[color:var(--color-terracota)]"
             aria-hidden
           />
           <span>{cat.name}</span>
-          <span className="font-display text-xs font-semibold text-[color:var(--color-azafran)] tabular-nums">
+          <span className="font-display text-xs font-semibold text-[color:var(--color-terracota)] tabular-nums">
             {cat.avgRating.toFixed(1)}
           </span>
         </span>
@@ -309,7 +309,7 @@ function Stat({
         <span
           className={
             accent
-              ? 'font-display text-2xl font-medium tabular-nums text-[color:var(--color-azafran)]'
+              ? 'font-display text-2xl font-medium tabular-nums text-[color:var(--color-terracota)]'
               : 'font-display text-2xl font-medium tabular-nums text-action-primary'
           }
         >

@@ -112,7 +112,7 @@ function TrendingMiniCard({ dish, rank }: { dish: TrendingDish; rank: number }) 
       href={`/dishes/${dish.dishId}`}
       className="flex w-64 shrink-0 snap-start gap-3 rounded-2xl border border-border-subtle bg-surface-card p-3 no-underline hover:border-action-primary"
     >
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-azafran-pale)] font-display text-lg font-bold text-[var(--color-canela)]">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-terracota-pale)] font-display text-lg font-bold text-[var(--color-terracota-deep)]">
         #{rank}
       </div>
       <div className="flex min-w-0 flex-1 flex-col">

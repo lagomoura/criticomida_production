@@ -38,7 +38,7 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
     <section className="grid gap-6 rounded-3xl border border-border-default bg-surface-card p-6 shadow-sm sm:p-8 md:grid-cols-2">
       <div>
         <header className="mb-4">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)] sm:text-3xl">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)] sm:text-3xl">
             {t('title')}
           </h2>
         </header>
@@ -46,19 +46,19 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
           <div className="flex items-start gap-3">
             <FontAwesomeIcon icon={faLocationDot} className="mt-0.5 h-4 w-4 shrink-0 text-text-muted" aria-hidden />
             <div>
-              <dt className="font-semibold text-[var(--color-carbon)]">{t('address')}</dt>
-              <dd className="text-[var(--color-carbon-mid)]">{restaurant.location_name}</dd>
+              <dt className="font-semibold text-[var(--color-espresso)]">{t('address')}</dt>
+              <dd className="text-[var(--color-espresso-mid)]">{restaurant.location_name}</dd>
             </div>
           </div>
           {restaurant.phone_number && (
             <div className="flex items-start gap-3">
               <FontAwesomeIcon icon={faPhone} className="mt-0.5 h-4 w-4 shrink-0 text-text-muted" aria-hidden />
               <div>
-                <dt className="font-semibold text-[var(--color-carbon)]">{t('phone')}</dt>
+                <dt className="font-semibold text-[var(--color-espresso)]">{t('phone')}</dt>
                 <dd>
                   <a
                     href={`tel:${restaurant.phone_number}`}
-                    className="text-[var(--color-azafran)] no-underline hover:underline"
+                    className="text-[var(--color-terracota)] no-underline hover:underline"
                   >
                     {restaurant.phone_number}
                   </a>
@@ -70,13 +70,13 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
             <div className="flex items-start gap-3">
               <FontAwesomeIcon icon={faGlobe} className="mt-0.5 h-4 w-4 shrink-0 text-text-muted" aria-hidden />
               <div>
-                <dt className="font-semibold text-[var(--color-carbon)]">{t('website')}</dt>
+                <dt className="font-semibold text-[var(--color-espresso)]">{t('website')}</dt>
                 <dd>
                   <a
                     href={restaurant.website}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="break-all text-[var(--color-azafran)] no-underline hover:underline"
+                    className="break-all text-[var(--color-terracota)] no-underline hover:underline"
                   >
                     {restaurant.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
                   </a>
@@ -88,13 +88,13 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
             <div className="flex items-start gap-3">
               <FontAwesomeIcon icon={faMap} className="mt-0.5 h-4 w-4 shrink-0 text-text-muted" aria-hidden />
               <div>
-                <dt className="font-semibold text-[var(--color-carbon)]">{t('googleMaps')}</dt>
+                <dt className="font-semibold text-[var(--color-espresso)]">{t('googleMaps')}</dt>
                 <dd>
                   <a
                     href={restaurant.google_maps_url}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="text-[var(--color-azafran)] no-underline hover:underline"
+                    className="text-[var(--color-terracota)] no-underline hover:underline"
                   >
                     {t('directions')}
                   </a>
@@ -107,7 +107,7 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
 
       <div>
         <header className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="font-[family-name:var(--font-display)] text-xl font-medium text-[var(--color-carbon)]">
+          <h3 className="font-[family-name:var(--font-display)] text-xl font-medium text-[var(--color-espresso)]">
             {t('hours')}
           </h3>
           <OpenStatus openingHours={hours} variant="inline" />
@@ -124,8 +124,8 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
                   key={i}
                   className={`flex justify-between gap-3 rounded-lg px-3 py-1.5 ${
                     isToday
-                      ? 'bg-[var(--color-azafran-pale)] font-semibold text-[var(--color-canela)]'
-                      : 'text-[var(--color-carbon-mid)]'
+                      ? 'bg-[var(--color-terracota-pale)] font-semibold text-[var(--color-terracota-deep)]'
+                      : 'text-[var(--color-espresso-mid)]'
                   }`}
                 >
                   <span className="capitalize">{day}</span>
@@ -135,7 +135,7 @@ export default function InfoPanel({ restaurant }: InfoPanelProps) {
             })}
           </ul>
         ) : (
-          <p className="text-sm italic text-[var(--color-carbon-soft)]">
+          <p className="text-sm italic text-[var(--color-espresso-soft)]">
             {t('noHours')}
           </p>
         )}

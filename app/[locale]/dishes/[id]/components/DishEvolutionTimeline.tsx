@@ -104,7 +104,7 @@ function Heading() {
     <div className="flex items-baseline gap-3">
       <FontAwesomeIcon
         icon={faClockRotateLeft}
-        className="text-[color:var(--color-azafran)] text-[1rem]"
+        className="text-[color:var(--color-terracota)] text-[1rem]"
         aria-hidden
       />
       <div>
@@ -220,9 +220,9 @@ function DeltaPill({
     sign === 'up' ? faArrowTrendUp : sign === 'down' ? faArrowTrendDown : faMinus;
   const color =
     sign === 'up'
-      ? 'text-[color:var(--color-albahaca)] bg-[color:var(--color-albahaca-pale)]'
+      ? 'text-[color:var(--color-dorado)] bg-[color:var(--color-dorado-pale)]'
       : sign === 'down'
-        ? 'text-[color:var(--color-paprika)] bg-[color:var(--color-paprika-pale)]'
+        ? 'text-[color:var(--color-terracota-deep)] bg-[color:var(--color-terracota-pale)]'
         : 'text-text-muted bg-surface-subtle';
   const formattedValue = formatValue
     ? formatValue(delta)
@@ -263,7 +263,7 @@ function PillarBar({ label, value }: { label: string; value: number | null | und
       >
         {hasValue && (
           <span
-            className="absolute inset-y-0 left-0 rounded-full bg-[color:var(--color-azafran)]"
+            className="absolute inset-y-0 left-0 rounded-full bg-[color:var(--color-terracota)]"
             style={{ width: `${pct}%` }}
           />
         )}

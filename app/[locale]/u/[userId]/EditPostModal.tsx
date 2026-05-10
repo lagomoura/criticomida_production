@@ -184,7 +184,7 @@ export default function EditPostModal({ postId, onClose, onUpdated }: EditPostMo
     >
       <p
         id="edit-discard-title"
-        className="mb-3 font-sans text-sm font-semibold text-color-paprika"
+        className="mb-3 font-sans text-sm font-semibold text-color-terracota-deep"
       >
         {t('discardConfirmTitle')}
       </p>

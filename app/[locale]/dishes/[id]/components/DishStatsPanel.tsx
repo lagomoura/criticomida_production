@@ -29,27 +29,27 @@ export default function DishStatsPanel({
   const woaTotal = wouldOrderAgain.yes + wouldOrderAgain.no;
 
   return (
-    <section className="rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-white)] p-6 sm:p-8">
+    <section className="rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] p-6 sm:p-8">
       <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)]">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)]">
             {t('heading')}
           </h2>
-          <p className="mt-1 text-sm text-[var(--color-carbon-soft)]">
+          <p className="mt-1 text-sm text-[var(--color-espresso-soft)]">
             {t('subtitle', { count: reviewCount })}
           </p>
         </div>
         <div className="flex items-baseline gap-2">
-          <span className="font-[family-name:var(--font-display)] text-4xl font-medium tabular-nums text-[var(--color-azafran)]">
+          <span className="font-[family-name:var(--font-display)] text-4xl font-medium tabular-nums text-[var(--color-terracota)]">
             {averageScore.toFixed(1)}
           </span>
-          <span className="text-sm text-[var(--color-carbon-soft)]">/ 5</span>
+          <span className="text-sm text-[var(--color-espresso-soft)]">/ 5</span>
         </div>
       </header>
 
       <div className="grid gap-6 md:grid-cols-3">
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-carbon-soft)]">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-espresso-soft)]">
             {t('ratingsHeading')}
           </h3>
           <ul className="mt-3 space-y-1.5">
@@ -58,16 +58,16 @@ export default function DishStatsPanel({
               const pct = totalRatings > 0 ? Math.round((value / totalRatings) * 100) : 0;
               return (
                 <li key={bucket} className="flex items-center gap-2 text-xs">
-                  <span className="w-6 text-right tabular-nums text-[var(--color-carbon-soft)]">
+                  <span className="w-6 text-right tabular-nums text-[var(--color-espresso-soft)]">
                     {bucket}★
                   </span>
                   <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-[var(--color-crema-dark)]">
                     <span
-                      className="absolute inset-y-0 left-0 rounded-full bg-[var(--color-azafran)]"
+                      className="absolute inset-y-0 left-0 rounded-full bg-[var(--color-terracota)]"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <span className="w-8 tabular-nums text-[var(--color-carbon-soft)]">{value}</span>
+                  <span className="w-8 tabular-nums text-[var(--color-espresso-soft)]">{value}</span>
                 </li>
               );
             })}
@@ -75,7 +75,7 @@ export default function DishStatsPanel({
         </div>
 
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-carbon-soft)]">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-espresso-soft)]">
             {t('portionHeading')}
           </h3>
           {totalPortions > 0 ? (
@@ -86,14 +86,14 @@ export default function DishStatsPanel({
                 return (
                   <li key={k}>
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-[var(--color-carbon)]">{t(PORTION_KEYS[k])}</span>
-                      <span className="tabular-nums text-[var(--color-carbon-soft)]">
+                      <span className="text-[var(--color-espresso)]">{t(PORTION_KEYS[k])}</span>
+                      <span className="tabular-nums text-[var(--color-espresso-soft)]">
                         {pct}% · {v}
                       </span>
                     </div>
                     <div className="mt-1 h-2 overflow-hidden rounded-full bg-[var(--color-crema-dark)]">
                       <span
-                        className="block h-full rounded-full bg-[var(--color-canela)]"
+                        className="block h-full rounded-full bg-[var(--color-terracota-deep)]"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -102,32 +102,32 @@ export default function DishStatsPanel({
               })}
             </ul>
           ) : (
-            <p className="mt-3 rounded-2xl border border-dashed border-[var(--color-crema-darker)] px-3 py-3 text-xs text-[var(--color-carbon-soft)]">
+            <p className="mt-3 rounded-2xl border border-dashed border-[var(--color-crema-darker)] px-3 py-3 text-xs text-[var(--color-espresso-soft)]">
               {t('portionEmpty')}
             </p>
           )}
         </div>
 
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-carbon-soft)]">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-espresso-soft)]">
             {t('wouldOrderHeading')}
           </h3>
           {woaTotal > 0 ? (
             <div className="mt-3 space-y-3">
-              <p className="font-[family-name:var(--font-display)] text-4xl font-medium tabular-nums text-[var(--color-albahaca)]">
+              <p className="font-[family-name:var(--font-display)] text-4xl font-medium tabular-nums text-[var(--color-dorado)]">
                 {wouldOrderAgain.pct?.toFixed(0) ?? 0}%
               </p>
               <div className="flex h-3 overflow-hidden rounded-full bg-[var(--color-crema-dark)]">
                 <span
-                  className="bg-[var(--color-albahaca)]"
+                  className="bg-[var(--color-dorado)]"
                   style={{ width: `${(wouldOrderAgain.yes / woaTotal) * 100}%` }}
                 />
                 <span
-                  className="bg-[var(--color-paprika)]"
+                  className="bg-[var(--color-terracota-deep)]"
                   style={{ width: `${(wouldOrderAgain.no / woaTotal) * 100}%` }}
                 />
               </div>
-              <p className="text-xs text-[var(--color-carbon-soft)]">
+              <p className="text-xs text-[var(--color-espresso-soft)]">
                 {t('wouldOrderYes', { yes: wouldOrderAgain.yes })} · {t('wouldOrderNo', { no: wouldOrderAgain.no })}
                 {wouldOrderAgain.noAnswer > 0
                   ? t('wouldOrderNoAnswer', { count: wouldOrderAgain.noAnswer })
@@ -135,7 +135,7 @@ export default function DishStatsPanel({
               </p>
             </div>
           ) : (
-            <p className="mt-3 rounded-2xl border border-dashed border-[var(--color-crema-darker)] px-3 py-3 text-xs text-[var(--color-carbon-soft)]">
+            <p className="mt-3 rounded-2xl border border-dashed border-[var(--color-crema-darker)] px-3 py-3 text-xs text-[var(--color-espresso-soft)]">
               {t('wouldOrderEmpty')}
             </p>
           )}

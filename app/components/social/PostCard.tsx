@@ -70,7 +70,7 @@ export default function PostCard({
         'shadow-[var(--shadow-base)] transition-[transform,box-shadow] duration-[var(--duration-standard)]',
         'motion-safe:[transition-timing-function:var(--ease-standard)]',
         verified
-          ? 'border-[color:var(--color-azafran)]/45'
+          ? 'border-[color:var(--color-terracota)]/45'
           : 'border-border-subtle',
         overlayEnabled && 'hover:-translate-y-[2px] hover:shadow-[var(--shadow-elevated)]',
         className,

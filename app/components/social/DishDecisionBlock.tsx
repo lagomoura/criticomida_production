@@ -70,7 +70,7 @@ export default function DishDecisionBlock({
 
       <div
         aria-hidden
-        className="mt-1 h-px w-12 bg-[color:var(--color-azafran)]/45"
+        className="mt-1 h-px w-12 bg-[color:var(--color-terracota)]/45"
       />
     </div>
   );

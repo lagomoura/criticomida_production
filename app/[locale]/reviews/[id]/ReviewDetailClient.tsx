@@ -536,7 +536,7 @@ interface ShareAsCardCTAProps {
 function ShareAsCardCTA({ loading, onClick }: ShareAsCardCTAProps) {
   const t = useTranslations('reviewDetail');
   return (
-    <div className="flex flex-col items-stretch gap-2 rounded-2xl border border-[var(--color-azafran-pale)] bg-[var(--color-crema)] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+    <div className="flex flex-col items-stretch gap-2 rounded-2xl border border-[var(--color-terracota-pale)] bg-[var(--color-crema)] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
       <div className="flex flex-col gap-1">
         <h3 className="font-display text-base font-semibold text-text-primary">
           {t('shareCardTitle')}

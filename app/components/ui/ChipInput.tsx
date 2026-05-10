@@ -22,8 +22,8 @@ interface ChipInputProps {
 }
 
 const ACTIVE_TONE: Record<NonNullable<ChipInputProps['tone']>, string> = {
-  positive: 'border-transparent bg-color-albahaca text-text-inverse',
-  negative: 'border-transparent bg-color-paprika text-text-inverse',
+  positive: 'border-transparent bg-color-dorado text-text-inverse',
+  negative: 'border-transparent bg-color-terracota-deep text-text-inverse',
   neutral: 'border-transparent bg-action-primary text-text-inverse',
 };
 
@@ -110,7 +110,7 @@ export default function ChipInput({
             // text-base on mobile prevents iOS Safari zoom on focus.
             'h-10 flex-1 rounded-xl border border-border-subtle bg-surface-card px-3.5 font-sans text-base text-text-primary sm:text-sm',
             'placeholder:text-text-muted/80 transition-all',
-            'focus:border-color-azafran focus:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+            'focus:border-color-terracota focus:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
             'disabled:cursor-not-allowed disabled:opacity-60',
           )}
         />
@@ -119,7 +119,7 @@ export default function ChipInput({
           onClick={commitDraft}
           disabled={disabled || !draft.trim()}
           aria-label={t('addChip')}
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border-subtle bg-surface-card text-text-muted transition-colors hover:border-color-azafran hover:text-color-azafran disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border-subtle bg-surface-card text-text-muted transition-colors hover:border-color-terracota hover:text-color-terracota disabled:cursor-not-allowed disabled:opacity-40"
         >
           <span aria-hidden>＋</span>
         </button>
@@ -133,7 +133,7 @@ export default function ChipInput({
               type="button"
               onClick={() => togglePreset(preset)}
               disabled={disabled}
-              className="inline-flex items-center gap-1 rounded-full border border-dashed border-border-default bg-surface-card px-3 py-1 font-sans text-xs text-text-secondary transition-all hover:border-color-azafran hover:bg-color-azafran-pale hover:text-color-canela disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-full border border-dashed border-border-default bg-surface-card px-3 py-1 font-sans text-xs text-text-secondary transition-all hover:border-color-terracota hover:bg-color-terracota-pale hover:text-color-terracota-deep disabled:opacity-40"
             >
               <span aria-hidden>+</span>
               {preset}

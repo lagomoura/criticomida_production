@@ -28,7 +28,7 @@ export default function AboutPage() {
           className="pointer-events-none absolute -right-24 -top-12 h-72 w-72 rounded-full opacity-50 blur-3xl"
           style={{
             background:
-              'radial-gradient(circle at center, var(--color-azafran-light), transparent 70%)',
+              'radial-gradient(circle at center, var(--color-terracota-light), transparent 70%)',
           }}
         />
 

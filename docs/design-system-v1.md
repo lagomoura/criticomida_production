@@ -24,9 +24,9 @@
 ### 1.1 Color
 
 - **Texto**
-  - `text.primary`: `--neutral-900` (Carbón)
+  - `text.primary`: `--neutral-900` (Espresso)
   - `text.secondary`: `--neutral-700`
-  - `text.muted`: `--neutral-600` (Carbón suave)
+  - `text.muted`: `--neutral-600` (Espresso suave)
   - `text.disabled`: `--neutral-500`
 - **Superficies**
   - `surface.page`: `--color-crema`
@@ -36,27 +36,27 @@
   - `border.default`: `--color-crema-darker`
   - `border.subtle`: `--color-crema-dark`
 - **Acción**
-  - `action.primary`: `--color-azafran` (CTAs, links)
-  - `action.secondary`: `--color-albahaca` (confirmaciones, follow activo)
-  - `action.highlight`: `--color-azafran-light` (ratings, guardar, unread)
-  - `action.danger`: `--color-paprika` (errores, report, delete)
+  - `action.primary`: `--color-terracota` (CTAs, links)
+  - `action.secondary`: `--color-dorado` (confirmaciones, follow activo)
+  - `action.highlight`: `--color-terracota-light` (ratings, guardar, unread)
+  - `action.danger`: `--color-terracota-deep` (errores, report, delete)
 - **Estados sociales**
-  - `state.like.on`: `--color-paprika`
-  - `state.save.on`: `--color-azafran`
-  - `state.follow.on`: `--color-albahaca`
+  - `state.like.on`: `--color-terracota-deep`
+  - `state.save.on`: `--color-terracota`
+  - `state.follow.on`: `--color-dorado`
 
 ### 1.2 Tipografía
 
 - **Display (títulos)**: Cormorant Garamond (300/400/500, con itálica)
-- **UI/Body**: DM Sans (300/400/500)
+- **UI/Body**: Inter (300/400/500)
 
 Ambas se cargan vía `next/font/google` en `app/layout.tsx` y se exponen como `var(--font-display)` y `var(--font-sans)`.
 
 **Escala recomendada (social):**
 - `type.title.dish`: Cormorant 500, 20–24px
-- `type.meta`: DM Sans 400, 13px
-- `type.body`: DM Sans 400, 16–17px, line-height 1.6
-- `type.label`: DM Sans 500, 14–16px
+- `type.meta`: Inter 400, 13px
+- `type.body`: Inter 400, 16–17px, line-height 1.6
+- `type.label`: Inter 500, 14–16px
 
 ### 1.3 Radii
 
@@ -111,9 +111,9 @@ Usar la escala de `brand-identity-v2.md` §7.
 **Propósito:** CTAs y acciones.
 
 **Variantes:**
-- `primary` (Azafrán)
-- `secondary` (Albahaca)
-- `outline` (Carbón)
+- `primary` (Terracota)
+- `secondary` (Dorado)
+- `outline` (Espresso)
 - `ghost` (solo texto)
 
 **Tamaños:** `sm` / `md` / `lg`  

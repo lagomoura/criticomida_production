@@ -47,7 +47,7 @@ export default function DishDiscoveryCard({
             {t('noPhoto')}
           </div>
         )}
-        <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-[var(--color-azafran)] px-2 py-1 font-sans text-[0.7rem] font-semibold uppercase tracking-wider text-text-inverse shadow">
+        <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-[var(--color-terracota)] px-2 py-1 font-sans text-[0.7rem] font-semibold uppercase tracking-wider text-text-inverse shadow">
           {Math.round(dish.geekScore)} <span className="opacity-80">{t('geekChip')}</span>
         </span>
       </Link>
@@ -147,7 +147,7 @@ function PillarBar({ avg }: { avg: number | null }) {
   return (
     <span className="block h-1.5 overflow-hidden rounded-full bg-border-subtle">
       <span
-        className="block h-full rounded-full bg-[var(--color-azafran)] transition-[width]"
+        className="block h-full rounded-full bg-[var(--color-terracota)] transition-[width]"
         style={{ width: `${pct}%` }}
       />
     </span>

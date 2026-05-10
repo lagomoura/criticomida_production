@@ -29,7 +29,7 @@ export default function FeedWelcome() {
         className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full opacity-60 blur-3xl"
         style={{
           background:
-            'radial-gradient(circle at center, var(--color-azafran-light), transparent 70%)',
+            'radial-gradient(circle at center, var(--color-terracota-light), transparent 70%)',
         }}
       />
       <div className="relative grid gap-6 p-6 md:grid-cols-[1.4fr_1fr] md:items-center md:p-10">

@@ -83,7 +83,7 @@ export default function ForgotPasswordClient() {
 
       <Link
         href="/"
-        className="font-sans text-sm text-[var(--color-canela)] no-underline hover:underline"
+        className="font-sans text-sm text-[var(--color-terracota-deep)] no-underline hover:underline"
       >
         ← {tCommon('backToHome')}
       </Link>

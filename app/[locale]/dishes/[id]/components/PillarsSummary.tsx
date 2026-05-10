@@ -102,7 +102,7 @@ export default function PillarsSummary({ pillars }: PillarsSummaryProps) {
           </p>
         </div>
         <span
-          className="hidden shrink-0 items-center gap-1.5 rounded-full bg-color-azafran-pale px-3 py-1 font-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-color-canela sm:inline-flex"
+          className="hidden shrink-0 items-center gap-1.5 rounded-full bg-color-terracota-pale px-3 py-1 font-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-color-terracota-deep sm:inline-flex"
           aria-label={t('editorialBadgeAria')}
         >
           <FontAwesomeIcon icon={faCircleCheck} className="h-3 w-3" aria-hidden />

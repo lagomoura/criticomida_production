@@ -27,12 +27,12 @@ interface SegmentedSelectProps<V extends string> {
 }
 
 const TONE_STYLES: Record<NonNullable<SegmentedOption<string>['tone']>, string> = {
-  // Albahaca = confirmación/positivo (semánticamente correcto).
-  // Azafrán queda reservado para CTA/acción primaria (tone="neutral").
-  // text-text-inverse (blanco) sobre Albahaca (#3A6645): contraste ~7.5:1 AA.
-  positive: 'border-[color:var(--color-albahaca)] bg-[color:var(--color-albahaca)] text-text-inverse shadow-sm',
+  // Dorado = confirmación / positivo (premium).
+  // Terracota queda reservado para CTA / acción primaria (tone="neutral").
+  // Terracota-deep para tono negativo / destructivo.
+  positive: 'border-[color:var(--color-dorado)] bg-[color:var(--color-dorado)] text-text-inverse shadow-sm',
   neutral:  'border-action-primary bg-action-primary text-text-inverse shadow-sm',
-  negative: 'border-[color:var(--color-paprika)] bg-[color:var(--color-paprika)] text-text-inverse shadow-sm',
+  negative: 'border-[color:var(--color-terracota-deep)] bg-[color:var(--color-terracota-deep)] text-text-inverse shadow-sm',
 };
 
 /** Mobile defaults wrap at 3-col so 4/5-col layouts don't shrink tap targets

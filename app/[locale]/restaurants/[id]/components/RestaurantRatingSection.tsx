@@ -94,19 +94,19 @@ export default function RestaurantRatingSection({
 
   return (
     <section className="mt-10">
-      <h2 className="mb-5 font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)]">
+      <h2 className="mb-5 font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)]">
         {t('heading')}
       </h2>
 
       {loading ? (
         <div className="flex justify-center py-8">
-          <span className="inline-block h-7 w-7 animate-spin rounded-full border-2 border-[var(--color-azafran)] border-t-transparent" />
+          <span className="inline-block h-7 w-7 animate-spin rounded-full border-2 border-[var(--color-terracota)] border-t-transparent" />
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
 
           <div className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-surface-card)] p-5">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--color-carbon-soft)]">
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--color-espresso-soft)]">
               {t('averages')}
             </h3>
             {!hasAverages ? (
@@ -119,16 +119,16 @@ export default function RestaurantRatingSection({
                   const pct = (avg / 5) * 100;
                   return (
                     <li key={dim} className="flex items-center gap-3">
-                      <span className="w-32 shrink-0 text-sm font-medium text-[var(--color-carbon-mid)]">
+                      <span className="w-32 shrink-0 text-sm font-medium text-[var(--color-espresso-mid)]">
                         {tDim(DIM_LABEL_KEY[dim])}
                       </span>
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--color-crema-dark)]">
                         <div
-                          className="h-2 rounded-full bg-[var(--color-azafran)] transition-all duration-500"
+                          className="h-2 rounded-full bg-[var(--color-terracota)] transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className="w-8 shrink-0 text-right text-sm font-semibold text-[var(--color-carbon-mid)]">
+                      <span className="w-8 shrink-0 text-right text-sm font-semibold text-[var(--color-espresso-mid)]">
                         {avg.toFixed(1)}
                       </span>
                     </li>
@@ -139,7 +139,7 @@ export default function RestaurantRatingSection({
           </div>
 
           <div className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-surface-card)] p-5">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--color-carbon-soft)]">
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--color-espresso-soft)]">
               {t('yourRating')}
             </h3>
 
@@ -152,7 +152,7 @@ export default function RestaurantRatingSection({
                 <ul className="mb-4 flex flex-col gap-3">
                   {ALL_DIMENSIONS.map((dim) => (
                     <li key={dim} className="flex items-center gap-3">
-                      <span className="w-32 shrink-0 text-sm font-medium text-[var(--color-carbon-mid)]">
+                      <span className="w-32 shrink-0 text-sm font-medium text-[var(--color-espresso-mid)]">
                         {tDim(DIM_LABEL_KEY[dim])}
                       </span>
                       <StarRating
@@ -166,7 +166,7 @@ export default function RestaurantRatingSection({
 
                 {error && (
                   <p
-                    className="mb-3 rounded-lg bg-[var(--color-paprika-pale)] px-3 py-2 text-sm text-[var(--color-paprika)]"
+                    className="mb-3 rounded-lg bg-[var(--color-terracota-pale)] px-3 py-2 text-sm text-[var(--color-terracota-deep)]"
                     role="alert"
                   >
                     {error}

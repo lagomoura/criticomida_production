@@ -144,10 +144,10 @@ export default function GhostwriterAssist({
           onClick={handleOpen}
           className={cn(
             'inline-flex w-fit items-center gap-2 rounded-full',
-            'bg-color-azafran px-4 py-2 text-text-inverse',
+            'bg-color-terracota px-4 py-2 text-text-inverse',
             'font-sans text-sm font-semibold',
             'shadow-[var(--shadow-micro)] transition-colors',
-            'hover:bg-color-canela',
+            'hover:bg-color-terracota-deep',
             'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
           )}
         >
@@ -203,7 +203,7 @@ export default function GhostwriterAssist({
                 <FontAwesomeIcon
                   icon={faCircleNotch}
                   aria-hidden
-                  className="h-3.5 w-3.5 animate-spin text-color-azafran"
+                  className="h-3.5 w-3.5 animate-spin text-color-terracota"
                 />
                 <span
                   key={stepIndex}
@@ -222,7 +222,7 @@ export default function GhostwriterAssist({
                 className="h-1 w-full overflow-hidden rounded-full bg-surface-subtle"
               >
                 <div
-                  className="h-full rounded-full bg-color-azafran transition-[width] duration-[12000ms] ease-out"
+                  className="h-full rounded-full bg-color-terracota transition-[width] duration-[12000ms] ease-out"
                   style={{ width: `${progressPct}%` }}
                 />
               </div>
@@ -230,7 +230,7 @@ export default function GhostwriterAssist({
           )}
 
           {error && (
-            <p className="rounded-xl border border-color-paprika/30 bg-color-paprika-pale px-3 py-2 text-sm text-color-paprika">
+            <p className="rounded-xl border border-color-terracota-deep/30 bg-color-terracota-pale px-3 py-2 text-sm text-color-terracota-deep">
               {error}
             </p>
           )}
@@ -350,7 +350,7 @@ export default function GhostwriterAssist({
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="inline-flex w-fit items-center gap-2 self-end rounded-full border border-border-default bg-surface-page px-3 py-1 text-xs font-medium text-text-secondary hover:bg-color-azafran-pale hover:text-text-primary"
+                className="inline-flex w-fit items-center gap-2 self-end rounded-full border border-border-default bg-surface-page px-3 py-1 text-xs font-medium text-text-secondary hover:bg-color-terracota-pale hover:text-text-primary"
               >
                 {t('reanalyze')}
               </button>
@@ -396,8 +396,8 @@ function AppliedRecap({
   rows: Array<{ label: string; text: string }>;
 }) {
   return (
-    <div className="flex flex-col gap-1.5 rounded-xl border border-color-albahaca/25 bg-color-albahaca-pale px-3 py-2.5">
-      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-color-albahaca">
+    <div className="flex flex-col gap-1.5 rounded-xl border border-color-dorado/25 bg-color-dorado-pale px-3 py-2.5">
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-color-dorado">
         <FontAwesomeIcon icon={faCheck} aria-hidden className="h-3 w-3" />
         {title}
       </div>
@@ -438,7 +438,7 @@ function Chip({
           'border-action-primary bg-action-primary/10 text-action-primary hover:bg-action-primary/20',
         !used &&
           !accent &&
-          'border-border-default bg-surface-page text-text-primary hover:bg-color-azafran-pale hover:border-color-azafran/40',
+          'border-border-default bg-surface-page text-text-primary hover:bg-color-terracota-pale hover:border-color-terracota/40',
       )}
     >
       {!used && <FontAwesomeIcon icon={faPlus} aria-hidden className="h-2.5 w-2.5" />}

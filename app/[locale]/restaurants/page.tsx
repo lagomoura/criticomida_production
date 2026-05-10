@@ -30,7 +30,7 @@ export default async function RestaurantsPage({ params }: PageProps) {
         <Link
           href="/#reviews"
           className={
-            'rounded-xl bg-main-pink px-5 py-2.5 text-sm font-semibold ' +
+            'rounded-xl bg-action-primary px-5 py-2.5 text-sm font-semibold ' +
             'text-white no-underline shadow-md hover:opacity-90'
           }
         >
@@ -39,8 +39,8 @@ export default async function RestaurantsPage({ params }: PageProps) {
         <Link
           href="/"
           className={
-            'rounded-xl border border-main-pink/50 px-5 py-2.5 text-sm ' +
-            'font-semibold text-main-pink no-underline hover:bg-main-pink/10'
+            'rounded-xl border border-action-primary/50 px-5 py-2.5 text-sm ' +
+            'font-semibold text-action-primary no-underline hover:bg-action-primary/10'
           }
         >
           {t('goHome')}

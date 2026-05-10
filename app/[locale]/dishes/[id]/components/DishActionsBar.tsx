@@ -91,11 +91,11 @@ export default function DishActionsBar({
     : `/restaurants/${restaurantId}`;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-white)] p-3 shadow-sm">
+    <div className="flex flex-wrap items-center gap-2 rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] p-3 shadow-sm">
       <button
         type="button"
         onClick={handleWriteReview}
-        className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-azafran)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-canela)]"
+        className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-terracota)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-terracota-deep)]"
       >
         {t('writeReview')}
       </button>
@@ -106,8 +106,8 @@ export default function DishActionsBar({
         aria-busy={busy || undefined}
         className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition disabled:opacity-60 ${
           wantToTry
-            ? 'border-[var(--color-azafran)] bg-[var(--color-azafran-pale)] text-[var(--color-canela)]'
-            : 'border-[var(--color-crema-darker)] bg-white text-[var(--color-carbon)] hover:border-[var(--color-azafran)]'
+            ? 'border-[var(--color-terracota)] bg-[var(--color-terracota-pale)] text-[var(--color-terracota-deep)]'
+            : 'border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] text-[var(--color-espresso)] hover:border-[var(--color-terracota)]'
         }`}
       >
         {wantToTry ? t('addedToList') : t('wantToTry')}
@@ -115,13 +115,13 @@ export default function DishActionsBar({
       <button
         type="button"
         onClick={handleShare}
-        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-crema-darker)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-carbon)] transition hover:border-[var(--color-azafran)]"
+        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] px-4 py-2 text-sm font-semibold text-[var(--color-espresso)] transition hover:border-[var(--color-terracota)]"
       >
         {shared ? t('copied') : t('share')}
       </button>
       <a
         href={restaurantHref}
-        className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-[var(--color-crema-darker)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-carbon)] no-underline transition hover:border-[var(--color-azafran)]"
+        className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] px-4 py-2 text-sm font-semibold text-[var(--color-espresso)] no-underline transition hover:border-[var(--color-terracota)]"
       >
         {t('viewRestaurant')}
       </a>

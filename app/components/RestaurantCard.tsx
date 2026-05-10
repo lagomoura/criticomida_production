@@ -60,7 +60,7 @@ export default function RestaurantCard({
       ) : (
         <div
           aria-hidden
-          className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--color-canela)] via-[var(--color-azafran)] to-[var(--color-azafran-light)]"
+          className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--color-terracota-deep)] via-[var(--color-terracota)] to-[var(--color-terracota-light)]"
         >
           <span className="font-display text-6xl font-medium italic text-white/95 drop-shadow-sm sm:text-7xl">
             {name.charAt(0).toUpperCase()}
@@ -98,7 +98,7 @@ export default function RestaurantCard({
         <span
           className={cn(
             'absolute bottom-3 left-3 z-[5] inline-flex items-center gap-1.5 rounded-full',
-            'bg-[var(--color-albahaca)] px-2.5 py-1 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-white',
+            'bg-[var(--color-dorado)] px-2.5 py-1 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-white',
             'shadow-sm',
           )}
         >

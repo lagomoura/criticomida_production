@@ -34,13 +34,13 @@ export default function OpenStatus({ openingHours, variant = 'badge' }: OpenStat
       : t('closed');
 
   const tone = status.isOpen
-    ? 'bg-[var(--color-albahaca-pale)] text-[var(--color-albahaca)]'
-    : 'bg-[var(--color-paprika-pale)] text-[var(--color-paprika)]';
+    ? 'bg-[var(--color-dorado-pale)] text-[var(--color-dorado)]'
+    : 'bg-[var(--color-terracota-pale)] text-[var(--color-terracota-deep)]';
 
   if (variant === 'inline') {
     return (
-      <span className={`inline-flex items-center gap-1 text-sm font-medium ${status.isOpen ? 'text-[var(--color-albahaca)]' : 'text-[var(--color-paprika)]'}`}>
-        <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${status.isOpen ? 'bg-[var(--color-albahaca)]' : 'bg-[var(--color-paprika)]'}`} />
+      <span className={`inline-flex items-center gap-1 text-sm font-medium ${status.isOpen ? 'text-[var(--color-dorado)]' : 'text-[var(--color-terracota-deep)]'}`}>
+        <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${status.isOpen ? 'bg-[var(--color-dorado)]' : 'bg-[var(--color-terracota-deep)]'}`} />
         {label}
       </span>
     );
@@ -48,7 +48,7 @@ export default function OpenStatus({ openingHours, variant = 'badge' }: OpenStat
 
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${tone}`}>
-      <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${status.isOpen ? 'bg-[var(--color-albahaca)]' : 'bg-[var(--color-paprika)]'}`} />
+      <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${status.isOpen ? 'bg-[var(--color-dorado)]' : 'bg-[var(--color-terracota-deep)]'}`} />
       {label}
     </span>
   );

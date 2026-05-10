@@ -50,7 +50,7 @@ export default function GlobalErrorPage({
         style={{
           margin: 0,
           fontFamily: 'system-ui, sans-serif',
-          background: '#fff',
+          background: '#F7F1E8',
         }}
       >
         <main
@@ -72,7 +72,7 @@ export default function GlobalErrorPage({
               margin: 0,
               fontSize: '1.5rem',
               fontWeight: 700,
-              color: '#212529',
+              color: '#2A211C',
             }}
           >
             {s.title}
@@ -81,7 +81,7 @@ export default function GlobalErrorPage({
             style={{
               margin: '0.75rem 0 0',
               fontSize: '1rem',
-              color: '#495057',
+              color: '#7A6A5D',
             }}
           >
             {s.message}
@@ -94,8 +94,8 @@ export default function GlobalErrorPage({
               padding: '0.625rem 1.25rem',
               borderRadius: '0.75rem',
               border: 'none',
-              background: '#ef7998',
-              color: '#fff',
+              background: '#C96A4B',
+              color: '#FFFFFF',
               fontSize: '0.875rem',
               fontWeight: 600,
               cursor: 'pointer',

@@ -53,9 +53,9 @@ const SENTIMENT_FILTERS: { key: SentimentLabel | null; tKey: string }[] = [
 ];
 
 const SENTIMENT_BADGE_CLASSES: Record<SentimentLabel, string> = {
-  positive: 'bg-[var(--color-albahaca-pale)] text-[var(--color-albahaca)]',
+  positive: 'bg-[var(--color-dorado-pale)] text-[var(--color-dorado)]',
   neutral: 'bg-surface-subtle text-text-secondary',
-  negative: 'bg-[var(--color-paprika-pale)] text-[var(--color-paprika)]',
+  negative: 'bg-[var(--color-terracota-pale)] text-[var(--color-terracota-deep)]',
 };
 
 // Orden numérico para sort de sentimiento: negative → neutral → positive → null
@@ -368,7 +368,7 @@ export default function OwnerDashboardClient({
         <div className="flex gap-3">
           <Link
             href={`/restaurants/${restaurantSlug}`}
-            className="text-sm font-semibold text-[var(--color-canela)] no-underline hover:underline"
+            className="text-sm font-semibold text-[var(--color-terracota-deep)] no-underline hover:underline"
           >
             {t('backToRestaurant')}
           </Link>
@@ -397,7 +397,7 @@ export default function OwnerDashboardClient({
             {restaurantLocation}
           </p>
           {isAdminViewer && (
-            <p className="mt-2 inline-flex items-center gap-2 self-start rounded-full bg-[var(--color-azafran-pale)] px-3 py-1 text-xs font-semibold text-[var(--color-canela)]">
+            <p className="mt-2 inline-flex items-center gap-2 self-start rounded-full bg-[var(--color-terracota-pale)] px-3 py-1 text-xs font-semibold text-[var(--color-terracota-deep)]">
               {t('adminViewerNotice')}
             </p>
           )}
@@ -443,7 +443,7 @@ export default function OwnerDashboardClient({
             onClick={() => void handleToggleNotify(!notifyOnReview)}
             className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition disabled:opacity-50 ${
               notifyOnReview
-                ? 'bg-[var(--color-canela)]'
+                ? 'bg-[var(--color-terracota-deep)]'
                 : 'bg-surface-subtle'
             }`}
           >
@@ -490,7 +490,7 @@ export default function OwnerDashboardClient({
                 />
                 {isConfirming ? (
                   /* Overlay de confirmación inline — 2-botón, no window.confirm() */
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[var(--color-carbon)]/85 px-2">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[var(--color-espresso)]/85 dark:bg-[var(--neutral-100)]/85 px-2">
                     <p className="font-sans text-xs font-semibold text-text-inverse text-center leading-tight">
                       {t('photoDeleteInlineConfirm')}
                     </p>
@@ -516,7 +516,7 @@ export default function OwnerDashboardClient({
                     type="button"
                     onClick={() => setConfirmingDeleteId(photo.id)}
                     aria-label={t('photoDeleteAction')}
-                    className="absolute right-2 top-2 rounded-full bg-[color:var(--color-carbon)]/70 px-2 py-0.5 text-xs font-semibold text-text-inverse transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                    className="absolute right-2 top-2 rounded-full bg-[color:var(--color-espresso)]/70 px-2 py-0.5 text-xs font-semibold text-text-inverse transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                   >
                     {t('photoDeleteAction')}
                   </button>
@@ -613,7 +613,7 @@ export default function OwnerDashboardClient({
                   <button
                     type="button"
                     onClick={() => openReviewModal(review.id)}
-                    className="flex w-full flex-col gap-1 rounded-2xl border border-border-default bg-surface-card p-4 text-left transition hover:border-[var(--color-canela)] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                    className="flex w-full flex-col gap-1 rounded-2xl border border-border-default bg-surface-card p-4 text-left transition hover:border-[var(--color-terracota-deep)] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span className="font-display text-base text-text-primary">
@@ -637,11 +637,11 @@ export default function OwnerDashboardClient({
                             </span>
                           )}
                         {review.has_owner_response ? (
-                          <span className="rounded-full bg-[var(--color-albahaca-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-albahaca)]">
+                          <span className="rounded-full bg-[var(--color-dorado-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-dorado)]">
                             {t('responded')}
                           </span>
                         ) : (
-                          <span className="rounded-full bg-[var(--color-azafran-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-canela)]">
+                          <span className="rounded-full bg-[var(--color-terracota-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-terracota-deep)]">
                             {t('notResponded')}
                           </span>
                         )}
@@ -743,7 +743,7 @@ export default function OwnerDashboardClient({
                             openReviewModal(review.id);
                           }
                         }}
-                        className="cursor-pointer border-b border-border-subtle last:border-b-0 transition-colors hover:bg-surface-subtle/60 focus-visible:outline-none focus-visible:[box-shadow:inset_0_0_0_2px_var(--color-canela)]"
+                        className="cursor-pointer border-b border-border-subtle last:border-b-0 transition-colors hover:bg-surface-subtle/60 focus-visible:outline-none focus-visible:[box-shadow:inset_0_0_0_2px_var(--color-terracota-deep)]"
                       >
                         {/* Plato */}
                         <td className="px-3 py-2.5 font-display text-[14px] text-text-primary max-w-[180px]">
@@ -769,11 +769,11 @@ export default function OwnerDashboardClient({
                         <td className="px-3 py-2.5 whitespace-nowrap">
                           <div className="flex items-center gap-1.5">
                             {review.has_owner_response ? (
-                              <span className="rounded-full bg-[var(--color-albahaca-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-albahaca)]">
+                              <span className="rounded-full bg-[var(--color-dorado-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-dorado)]">
                                 {t('responded')}
                               </span>
                             ) : (
-                              <span className="rounded-full bg-[var(--color-azafran-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-canela)]">
+                              <span className="rounded-full bg-[var(--color-terracota-pale)] px-2 py-0.5 text-xs font-semibold text-[var(--color-terracota-deep)]">
                                 {t('notResponded')}
                               </span>
                             )}
@@ -838,7 +838,7 @@ export default function OwnerDashboardClient({
       <footer>
         <Link
           href={`/restaurants/${restaurantSlug}`}
-          className="font-sans text-sm text-[var(--color-canela)] no-underline hover:underline"
+          className="font-sans text-sm text-[var(--color-terracota-deep)] no-underline hover:underline"
         >
           {t('backToPublic')}
         </Link>

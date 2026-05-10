@@ -10,26 +10,26 @@ export default function ProsConsAggregated({ aggregates }: ProsConsAggregatedPro
   const hasAny = aggregates.pros_top.length > 0 || aggregates.cons_top.length > 0;
   if (!hasAny) {
     return (
-      <section className="rounded-3xl border border-dashed border-[var(--color-crema-darker)] bg-[var(--color-white)] p-6 text-center text-sm italic text-[var(--color-carbon-soft)]">
+      <section className="rounded-3xl border border-dashed border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] p-6 text-center text-sm italic text-[var(--color-espresso-soft)]">
         {t('empty')}
       </section>
     );
   }
 
   return (
-    <section className="rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-white)] p-6 shadow-sm sm:p-8">
+    <section className="rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] p-6 shadow-sm sm:p-8">
       <header className="mb-4">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)] sm:text-3xl">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)] sm:text-3xl">
           {t('title')}
         </h2>
-        <p className="mt-1 text-sm text-[var(--color-carbon-soft)]">
+        <p className="mt-1 text-sm text-[var(--color-espresso-soft)]">
           {t('subtitle')}
         </p>
       </header>
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-albahaca)]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-dorado)]">
             {t('pros')}
           </h3>
           {aggregates.pros_top.length > 0 ? (
@@ -37,7 +37,7 @@ export default function ProsConsAggregated({ aggregates }: ProsConsAggregatedPro
               {aggregates.pros_top.map((p) => (
                 <li
                   key={`pro-${p.text}`}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-albahaca-pale)] px-3 py-1 text-sm text-[var(--color-albahaca)]"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-dorado-pale)] px-3 py-1 text-sm text-[var(--color-dorado)]"
                 >
                   <span aria-hidden>✓</span>
                   {p.text}
@@ -48,11 +48,11 @@ export default function ProsConsAggregated({ aggregates }: ProsConsAggregatedPro
               ))}
             </ul>
           ) : (
-            <p className="text-sm italic text-[var(--color-carbon-soft)]">{t('noPros')}</p>
+            <p className="text-sm italic text-[var(--color-espresso-soft)]">{t('noPros')}</p>
           )}
         </div>
         <div>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-paprika)]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-terracota-deep)]">
             {t('cons')}
           </h3>
           {aggregates.cons_top.length > 0 ? (
@@ -60,7 +60,7 @@ export default function ProsConsAggregated({ aggregates }: ProsConsAggregatedPro
               {aggregates.cons_top.map((c) => (
                 <li
                   key={`con-${c.text}`}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-paprika-pale)] px-3 py-1 text-sm text-[var(--color-paprika)]"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-terracota-pale)] px-3 py-1 text-sm text-[var(--color-terracota-deep)]"
                 >
                   <span aria-hidden>!</span>
                   {c.text}
@@ -71,7 +71,7 @@ export default function ProsConsAggregated({ aggregates }: ProsConsAggregatedPro
               ))}
             </ul>
           ) : (
-            <p className="text-sm italic text-[var(--color-carbon-soft)]">{t('noCons')}</p>
+            <p className="text-sm italic text-[var(--color-espresso-soft)]">{t('noCons')}</p>
           )}
         </div>
       </div>

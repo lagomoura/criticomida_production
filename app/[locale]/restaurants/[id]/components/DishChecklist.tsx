@@ -47,7 +47,7 @@ export default function DishChecklist({
         <div>
           <h2
             id="dish-checklist-heading"
-            className="font-display text-xl font-medium text-[var(--color-carbon)] sm:text-2xl"
+            className="font-display text-xl font-medium text-[var(--color-espresso)] sm:text-2xl"
           >
             {t('heading')}
           </h2>
@@ -57,7 +57,7 @@ export default function DishChecklist({
                 ? t('countOne', { count: items.length })
                 : t('countMany', { count: items.length })}
               {currentUserId && reviewedCount > 0 && (
-                <span className="ml-1 font-semibold text-[var(--color-albahaca)]">
+                <span className="ml-1 font-semibold text-[var(--color-dorado)]">
                   {reviewedCount === 1
                     ? t('reviewedByYou', { count: reviewedCount })
                     : t('reviewedByYouMany', { count: reviewedCount })}
@@ -72,9 +72,9 @@ export default function DishChecklist({
               type="button"
               onClick={dispatchPublishReview}
               className={
-                'flex items-center gap-2 rounded-xl border-2 border-[var(--color-azafran)] ' +
-                'bg-[var(--color-azafran)] px-4 py-2 text-sm font-semibold text-[var(--color-carbon)] ' +
-                'transition-colors hover:bg-[var(--color-canela)] hover:text-white hover:border-[var(--color-canela)]'
+                'flex items-center gap-2 rounded-xl border-2 border-[var(--color-terracota)] ' +
+                'bg-[var(--color-terracota)] px-4 py-2 text-sm font-semibold text-[var(--color-espresso)] ' +
+                'transition-colors hover:bg-[var(--color-terracota-deep)] hover:text-white hover:border-[var(--color-terracota-deep)]'
               }
             >
               <span aria-hidden className="text-base leading-none">★</span>
@@ -84,9 +84,9 @@ export default function DishChecklist({
               type="button"
               onClick={dispatchAddDish}
               className={
-                'flex items-center gap-2 rounded-xl border-2 border-[var(--color-azafran)] ' +
-                'bg-surface-card px-4 py-2 text-sm font-semibold text-[var(--color-azafran)] ' +
-                'transition-colors hover:bg-[var(--color-azafran-pale)]'
+                'flex items-center gap-2 rounded-xl border-2 border-[var(--color-terracota)] ' +
+                'bg-surface-card px-4 py-2 text-sm font-semibold text-[var(--color-terracota)] ' +
+                'transition-colors hover:bg-[var(--color-terracota-pale)]'
               }
             >
               <span aria-hidden className="text-base leading-none">+</span>
@@ -106,7 +106,7 @@ export default function DishChecklist({
           aria-label={t('progressLabel', { reviewed: reviewedCount, total: items.length })}
         >
           <div
-            className="h-2 rounded-full bg-[var(--color-albahaca)] motion-safe:transition-all motion-safe:duration-500"
+            className="h-2 rounded-full bg-[var(--color-dorado)] motion-safe:transition-all motion-safe:duration-500"
             style={{ width: `${(reviewedCount / items.length) * 100}%` }}
           />
         </div>
@@ -125,8 +125,8 @@ export default function DishChecklist({
                 type="button"
                 onClick={dispatchPublishReview}
                 className={
-                  'rounded-xl border-2 border-[var(--color-azafran)] bg-[var(--color-azafran)] px-5 py-2.5 ' +
-                  'font-semibold text-[var(--color-carbon)] transition hover:opacity-90'
+                  'rounded-xl border-2 border-[var(--color-terracota)] bg-[var(--color-terracota)] px-5 py-2.5 ' +
+                  'font-semibold text-[var(--color-espresso)] transition hover:opacity-90'
                 }
               >
                 {t('publishFirstReview')}
@@ -135,9 +135,9 @@ export default function DishChecklist({
                 type="button"
                 onClick={dispatchAddDish}
                 className={
-                  'rounded-xl border-2 border-[var(--color-azafran)] bg-surface-card px-5 py-2.5 ' +
-                  'font-semibold text-[var(--color-azafran)] transition-colors ' +
-                  'hover:bg-[var(--color-azafran-pale)]'
+                  'rounded-xl border-2 border-[var(--color-terracota)] bg-surface-card px-5 py-2.5 ' +
+                  'font-semibold text-[var(--color-terracota)] transition-colors ' +
+                  'hover:bg-[var(--color-terracota-pale)]'
                 }
               >
                 {t('addDish')}

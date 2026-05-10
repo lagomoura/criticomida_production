@@ -292,7 +292,7 @@ export default function CommentItem({
                 onClick={handleToggleReplies}
                 disabled={repliesLoading}
                 aria-expanded={repliesExpanded}
-                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-2.5 font-sans text-xs font-medium text-[color:var(--mainPink)] transition-colors hover:bg-surface-subtle disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-2.5 font-sans text-xs font-medium text-[color:var(--color-terracota)] transition-colors hover:bg-surface-subtle disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
               >
                 {repliesExpanded
                   ? t('hideReplies')

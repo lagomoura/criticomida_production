@@ -254,7 +254,7 @@ function CategoryGrid({ entries, viewLabel, formatCount }: CategoryGridProps) {
                 ) : (
                   <div
                     aria-hidden
-                    className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--color-canela)] via-[var(--color-azafran)] to-[var(--color-azafran-light)]"
+                    className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--color-terracota-deep)] via-[var(--color-terracota)] to-[var(--color-terracota-light)]"
                   >
                     <span className="font-display text-7xl font-medium text-white/95 drop-shadow-sm">
                       {label.charAt(0).toUpperCase()}

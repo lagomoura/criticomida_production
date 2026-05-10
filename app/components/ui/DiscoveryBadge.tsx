@@ -11,9 +11,9 @@ export interface DiscoveryBadgeProps {
 
 /** Oro / plata / bronce. #1 es el premio narrativo: el cronista fundador. */
 const STYLE: Record<1 | 2 | 3, string> = {
-  1: 'border-[color:var(--color-azafran)] bg-[color:var(--color-azafran)] text-white',
-  2: 'border-[color:var(--color-carbon-soft)]/40 bg-[color:var(--color-crema-darker)] text-[color:var(--color-carbon-mid)]',
-  3: 'border-[color:var(--color-canela)]/45 bg-[color:var(--color-canela)]/15 text-[color:var(--color-canela)]',
+  1: 'border-[color:var(--color-terracota)] bg-[color:var(--color-terracota)] text-white',
+  2: 'border-[color:var(--color-espresso-soft)]/40 bg-[color:var(--color-crema-darker)] text-[color:var(--color-espresso-mid)]',
+  3: 'border-[color:var(--color-terracota-deep)]/45 bg-[color:var(--color-terracota-deep)]/15 text-[color:var(--color-terracota-deep)]',
 };
 
 const TOOLTIP: Record<1 | 2 | 3, string> = {

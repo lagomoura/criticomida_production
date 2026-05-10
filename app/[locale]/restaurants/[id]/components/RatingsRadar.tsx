@@ -59,13 +59,13 @@ export default function RatingsRadar({ aggregates }: RatingsRadarProps) {
   return (
     <section
       id="ratings"
-      className="rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-white)] p-6 shadow-sm sm:p-8"
+      className="rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] p-6 shadow-sm sm:p-8"
     >
       <header className="mb-4">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)] sm:text-3xl">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)] sm:text-3xl">
           {t('title')}
         </h2>
-        <p className="mt-1 text-sm text-[var(--color-carbon-soft)]">
+        <p className="mt-1 text-sm text-[var(--color-espresso-soft)]">
           {t('subtitle')}
         </p>
       </header>
@@ -100,16 +100,16 @@ export default function RatingsRadar({ aggregates }: RatingsRadarProps) {
             {hasData && (
               <polygon
                 points={polygon}
-                fill="var(--color-azafran)"
+                fill="var(--color-terracota)"
                 fillOpacity={0.18}
-                stroke="var(--color-azafran)"
+                stroke="var(--color-terracota)"
                 strokeWidth={2}
                 strokeLinejoin="round"
               />
             )}
             {hasData &&
               points.map((p, i) => (
-                <circle key={`dot-${i}`} cx={p.x} cy={p.y} r={3.5} fill="var(--color-azafran)" />
+                <circle key={`dot-${i}`} cx={p.x} cy={p.y} r={3.5} fill="var(--color-terracota)" />
               ))}
             {points.map((p, i) => (
               <text
@@ -118,7 +118,7 @@ export default function RatingsRadar({ aggregates }: RatingsRadarProps) {
                 y={p.labelY}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                className="fill-[var(--color-carbon-mid)]"
+                className="fill-[var(--color-espresso-mid)]"
                 fontSize={11}
                 fontWeight={600}
               >
@@ -133,18 +133,18 @@ export default function RatingsRadar({ aggregates }: RatingsRadarProps) {
             const pct = (p.score / MAX_SCORE) * 100;
             return (
               <li key={p.key} className="flex items-center gap-3">
-                <span className="w-32 shrink-0 text-sm font-medium text-[var(--color-carbon-mid)]">
+                <span className="w-32 shrink-0 text-sm font-medium text-[var(--color-espresso-mid)]">
                   {p.label}
                 </span>
                 <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-[var(--color-crema-dark)]">
                   <div
-                    className="h-full rounded-full bg-[var(--color-azafran)]"
+                    className="h-full rounded-full bg-[var(--color-terracota)]"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <span className="w-20 shrink-0 text-right text-sm font-semibold text-[var(--color-carbon)]">
+                <span className="w-20 shrink-0 text-right text-sm font-semibold text-[var(--color-espresso)]">
                   {p.score > 0 ? p.score.toFixed(1) : '–'}
-                  <span className="ml-1 text-xs font-normal text-[var(--color-carbon-soft)]">
+                  <span className="ml-1 text-xs font-normal text-[var(--color-espresso-soft)]">
                     ({p.count})
                   </span>
                 </span>
@@ -155,7 +155,7 @@ export default function RatingsRadar({ aggregates }: RatingsRadarProps) {
       </div>
 
       {!hasData && (
-        <p className="mt-4 text-sm italic text-[var(--color-carbon-soft)]">
+        <p className="mt-4 text-sm italic text-[var(--color-espresso-soft)]">
           {t('noData')}
         </p>
       )}

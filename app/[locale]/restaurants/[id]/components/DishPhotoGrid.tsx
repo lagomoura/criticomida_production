@@ -41,7 +41,7 @@ export default function DishPhotoGrid({ photos, onOpenLightbox }: DishPhotoGridP
           <button
             key={`${photo.url}-${idx}`}
             type="button"
-            className="group relative aspect-square overflow-hidden rounded-xl bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mainPink)]"
+            className="group relative aspect-square overflow-hidden rounded-xl bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-terracota)]"
             onClick={() => onOpenLightbox(idx)}
             aria-label={t('viewLabel', { name: photo.dish_name })}
           >

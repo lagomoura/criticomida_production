@@ -143,7 +143,7 @@ export default function OwnerSettingsClient({
         </p>
         <Link
           href="/login"
-          className="self-start text-sm font-semibold text-[var(--color-canela)] no-underline hover:underline"
+          className="self-start text-sm font-semibold text-[var(--color-terracota-deep)] no-underline hover:underline"
         >
           {t('signInAction')}
         </Link>
@@ -162,7 +162,7 @@ export default function OwnerSettingsClient({
         </p>
         <Link
           href={`/restaurants/${restaurantSlug}`}
-          className="self-start text-sm font-semibold text-[var(--color-canela)] no-underline hover:underline"
+          className="self-start text-sm font-semibold text-[var(--color-terracota-deep)] no-underline hover:underline"
         >
           {t('backToRestaurant')}
         </Link>
@@ -208,7 +208,7 @@ export default function OwnerSettingsClient({
             id="tone"
             value={tone}
             onChange={(e) => setTone(e.target.value as ChatTone | '')}
-            className="rounded-lg border border-border-default bg-surface-card px-3 py-2 font-sans text-base sm:text-sm focus:border-[var(--color-canela)] focus:outline-none"
+            className="rounded-lg border border-border-default bg-surface-card px-3 py-2 font-sans text-base sm:text-sm focus:border-[var(--color-terracota-deep)] focus:outline-none"
           >
             <option value="">{t('tone.optionDefault')}</option>
             {TONE_OPTIONS.map((value) => (
@@ -235,7 +235,7 @@ export default function OwnerSettingsClient({
             onChange={(e) =>
               setLanguage(e.target.value as ChatLanguage | '')
             }
-            className="rounded-lg border border-border-default bg-surface-card px-3 py-2 font-sans text-base sm:text-sm focus:border-[var(--color-canela)] focus:outline-none"
+            className="rounded-lg border border-border-default bg-surface-card px-3 py-2 font-sans text-base sm:text-sm focus:border-[var(--color-terracota-deep)] focus:outline-none"
           >
             <option value="">{t('language.optionDefault')}</option>
             {LANGUAGE_OPTIONS.map((value) => (
@@ -263,7 +263,7 @@ export default function OwnerSettingsClient({
                     type="checkbox"
                     checked={checked}
                     onChange={() => toggleKpi(value)}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-default text-[var(--color-canela)] focus:ring-[var(--color-canela)]"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-default text-[var(--color-terracota-deep)] focus:ring-[var(--color-terracota-deep)]"
                   />
                   <span>
                     <span className="font-medium text-text-primary">

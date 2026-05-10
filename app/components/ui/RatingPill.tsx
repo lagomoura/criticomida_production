@@ -9,7 +9,7 @@ export interface RatingPillProps extends HTMLAttributes<HTMLSpanElement> {
   size?: Size;
   /** Maximum scale (default 10). Affects the "/10" suffix when shown. */
   max?: number;
-  /** Show the "/10" suffix in DM Sans next to the value. Default false. */
+  /** Show the "/10" suffix in Inter next to the value. Default false. */
   showMax?: boolean;
   /** Render as a flat number (no pill background). Default false. */
   bare?: boolean;
@@ -27,8 +27,8 @@ function tone(value: number | null | undefined): { bg: string; fg: string } {
   if (value == null || Number.isNaN(value)) {
     return { bg: 'bg-surface-subtle', fg: 'text-text-muted' };
   }
-  if (value >= 9) return { bg: 'bg-[var(--color-albahaca-pale)]', fg: 'text-[var(--color-albahaca)]' };
-  if (value >= 7) return { bg: 'bg-[var(--color-azafran-pale)]', fg: 'text-[var(--color-azafran)]' };
+  if (value >= 9) return { bg: 'bg-[var(--color-dorado-pale)]', fg: 'text-[var(--color-dorado)]' };
+  if (value >= 7) return { bg: 'bg-[var(--color-terracota-pale)]', fg: 'text-[var(--color-terracota)]' };
   return { bg: 'bg-surface-subtle', fg: 'text-text-secondary' };
 }
 

@@ -25,7 +25,7 @@ export default function MapEmptyRestaurantBody({ pin }: Props) {
   const cuisineLabel = formatCuisine(pin.cuisineTypes, pin.categoryName);
   return (
     <div className="w-[18rem] max-w-[78vw] overflow-x-hidden pb-1.5 font-sans text-text-primary">
-      <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-albahaca-pale)] px-2 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--color-albahaca)]">
+      <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[color:var(--color-dorado-pale)] px-2 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--color-dorado)]">
         <FontAwesomeIcon icon={faSeedling} className="text-[10px]" aria-hidden />
         {t('noReviewsKicker')}
       </div>
@@ -54,7 +54,7 @@ export default function MapEmptyRestaurantBody({ pin }: Props) {
           href={`/restaurants/${pin.slug}`}
           className={cn(
             'inline-flex h-8 items-center justify-center gap-1.5 rounded-md px-3 font-sans text-xs font-semibold no-underline',
-            'bg-[color:var(--color-albahaca)] text-white transition-colors hover:bg-[color:var(--color-albahaca-light)]',
+            'bg-[color:var(--color-dorado)] text-white transition-colors hover:bg-[color:var(--color-dorado-light)]',
             'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
           )}
         >

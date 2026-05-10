@@ -144,7 +144,7 @@ export default function Modal({
         aria-label={tCommon('closeDialog')}
         onClick={safeClose}
         disabled={busy}
-        className="absolute inset-0 cursor-default bg-color-carbon/55 backdrop-blur-md transition-opacity disabled:cursor-not-allowed"
+        className="absolute inset-0 cursor-default bg-color-espresso/55 backdrop-blur-md transition-opacity disabled:cursor-not-allowed"
       />
       <div
         ref={dialogRef}
@@ -181,7 +181,7 @@ export default function Modal({
         >
           <div className="flex-1">
             {kicker && (
-              <p className="mb-1 font-sans text-[10.5px] font-semibold uppercase tracking-[0.22em] text-color-azafran">
+              <p className="mb-1 font-sans text-[10.5px] font-semibold uppercase tracking-[0.22em] text-color-terracota">
                 {kicker}
               </p>
             )}

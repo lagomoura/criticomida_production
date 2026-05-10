@@ -66,7 +66,7 @@ export default function RestaurantActionsBar({
       <button
         type="button"
         onClick={dispatchPublishReview}
-        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-[var(--color-azafran)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-canela)]"
+        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-[var(--color-terracota)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-terracota-deep)]"
       >
         <span aria-hidden>★</span>
         {t('publishReview')}
@@ -74,7 +74,7 @@ export default function RestaurantActionsBar({
       <button
         type="button"
         onClick={dispatchAddDish}
-        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-[var(--color-azafran)] bg-surface-card px-4 py-2.5 text-sm font-semibold text-[var(--color-azafran)] transition hover:bg-[var(--color-azafran-pale)]"
+        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-[var(--color-terracota)] bg-surface-card px-4 py-2.5 text-sm font-semibold text-[var(--color-terracota)] transition hover:bg-[var(--color-terracota-pale)]"
       >
         <span aria-hidden>＋</span>
         {t('addDish')}
@@ -85,8 +85,8 @@ export default function RestaurantActionsBar({
         aria-pressed={saved}
         className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
           saved
-            ? 'bg-[var(--color-azafran-pale)] text-[var(--color-canela)]'
-            : 'border border-[var(--color-crema-darker)] bg-surface-card text-[var(--color-carbon)] hover:bg-[var(--color-crema)]'
+            ? 'bg-[var(--color-terracota-pale)] text-[var(--color-terracota-deep)]'
+            : 'border border-[var(--color-crema-darker)] bg-surface-card text-[var(--color-espresso)] hover:bg-[var(--color-crema)]'
         }`}
       >
         <span
@@ -100,7 +100,7 @@ export default function RestaurantActionsBar({
       <button
         type="button"
         onClick={handleShare}
-        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-[var(--color-crema-darker)] bg-surface-card px-4 py-2.5 text-sm font-semibold text-[var(--color-carbon)] transition hover:bg-[var(--color-crema)]"
+        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-[var(--color-crema-darker)] bg-surface-card px-4 py-2.5 text-sm font-semibold text-[var(--color-espresso)] transition hover:bg-[var(--color-crema)]"
       >
         <span aria-hidden>↗</span>
         {shared ? t('copied') : t('share')}
@@ -110,7 +110,7 @@ export default function RestaurantActionsBar({
           href={googleMapsUrl}
           target="_blank"
           rel="noreferrer noopener"
-          className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-[var(--color-canela)] no-underline transition hover:underline"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-[var(--color-terracota-deep)] no-underline transition hover:underline"
         >
           {t('viewOnGoogleMaps')}
           <span aria-hidden>↗</span>

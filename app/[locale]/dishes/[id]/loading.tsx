@@ -3,7 +3,7 @@ export default function Loading() {
     <main id="main-content" className="cc-container px-4 pb-16 sm:px-6 lg:px-8">
       <section className="-mx-4 mb-8 sm:-mx-6 lg:-mx-8">
         <div className="relative h-72 w-full animate-pulse bg-[var(--color-crema-dark)] sm:h-[22rem] md:h-[26rem]">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--color-carbon)]/20" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--color-espresso)]/20" />
         </div>
       </section>
 
@@ -22,7 +22,7 @@ export default function Loading() {
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}
-            className="h-40 animate-pulse rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-white)]"
+            className="h-40 animate-pulse rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)]"
           />
         ))}
       </div>

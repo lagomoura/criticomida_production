@@ -62,7 +62,7 @@ export default function TopNav({ onOpenAuthModal, unreadCount = 0 }: TopNavProps
           {/* Wordmark: gradiente Azafrán → Azafrán-light via background-clip:text
               según brand-identity-v2.md §4.1. tracking-tight es parte de la escala
               display (§3.2, letter-spacing -0.01em en H1). */}
-          <span className="bg-gradient-to-r from-[var(--color-azafran)] to-[var(--color-azafran-light)] bg-clip-text font-display text-xl font-medium tracking-tight text-transparent">
+          <span className="bg-gradient-to-r from-[var(--color-terracota)] to-[var(--color-terracota-light)] bg-clip-text font-display text-xl font-medium tracking-tight text-transparent">
             {tCommon('siteName')}
           </span>
         </Link>

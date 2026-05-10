@@ -152,7 +152,7 @@ function SectionDivider({ label }: { label: string }) {
       aria-label={label}
       className="flex items-center gap-3 pt-1"
     >
-      <span className="shrink-0 font-sans text-[10px] font-semibold uppercase tracking-[0.20em] text-color-azafran">
+      <span className="shrink-0 font-sans text-[10px] font-semibold uppercase tracking-[0.20em] text-color-terracota">
         {label}
       </span>
       <span className="h-px flex-1 bg-border-subtle" aria-hidden="true" />
@@ -284,7 +284,7 @@ export default function ReviewFormBody({
         </label>
         {value.existingImages.length === 0 && value.photos.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-border-default bg-surface-card px-4 py-7 text-text-muted">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-color-azafran-pale text-color-azafran">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-color-terracota-pale text-color-terracota">
               <FontAwesomeIcon icon={faCamera} className="h-5 w-5" aria-hidden="true" />
             </span>
             <div className="flex flex-col items-center gap-0.5">
@@ -303,7 +303,7 @@ export default function ReviewFormBody({
                   cameraInputRef.current?.click();
                 }}
                 disabled={submitting}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-color-azafran px-3 py-2.5 font-sans text-sm font-semibold text-text-inverse shadow-[var(--shadow-micro)] transition-colors hover:bg-color-canela disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-color-terracota px-3 py-2.5 font-sans text-sm font-semibold text-text-inverse shadow-[var(--shadow-micro)] transition-colors hover:bg-color-terracota-deep disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
               >
                 <FontAwesomeIcon icon={faCamera} className="h-4 w-4" aria-hidden="true" />
                 {t('photoCameraButton')}
@@ -315,7 +315,7 @@ export default function ReviewFormBody({
                   photoInputRef.current?.click();
                 }}
                 disabled={submitting}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border-default bg-surface-page px-3 py-2.5 font-sans text-sm font-semibold text-text-secondary transition-colors hover:border-color-azafran hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border-default bg-surface-page px-3 py-2.5 font-sans text-sm font-semibold text-text-secondary transition-colors hover:border-color-terracota hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
               >
                 {t('photoGalleryButton')}
               </button>
@@ -336,7 +336,7 @@ export default function ReviewFormBody({
                   onClick={() => removeExistingImage(img.id)}
                   disabled={submitting}
                   aria-label={t('removePhoto')}
-                  className="absolute -right-1 -top-1 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-color-paprika text-[15px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                  className="absolute -right-1 -top-1 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-color-terracota-deep text-[15px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-terracota-light focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                 >
                   ×
                 </button>
@@ -355,7 +355,7 @@ export default function ReviewFormBody({
                   onClick={() => removePhoto(photo.id)}
                   disabled={submitting}
                   aria-label={t('removePhoto')}
-                  className="absolute -right-1 -top-1 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-color-paprika text-[15px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-paprika-light focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                  className="absolute -right-1 -top-1 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-color-terracota-deep text-[15px] text-text-inverse shadow-[var(--shadow-base)] hover:bg-color-terracota-light focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                 >
                   ×
                 </button>
@@ -368,7 +368,7 @@ export default function ReviewFormBody({
                 photoInputRef.current?.click();
               }}
               disabled={submitting}
-              className="group flex h-24 w-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border-default bg-surface-card text-text-muted transition-all hover:border-color-azafran hover:bg-color-azafran-pale hover:text-color-azafran disabled:cursor-not-allowed disabled:opacity-50"
+              className="group flex h-24 w-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border-default bg-surface-card text-text-muted transition-all hover:border-color-terracota hover:bg-color-terracota-pale hover:text-color-terracota disabled:cursor-not-allowed disabled:opacity-50"
             >
               <FontAwesomeIcon icon={faCamera} className="h-5 w-5" aria-hidden="true" />
               <span className="text-[10px] font-medium">{t('photoButton')}</span>
@@ -403,11 +403,11 @@ export default function ReviewFormBody({
           attention comes from brand color and clear hierarchy, not motion.
           DMMT: the AI is an offer, not the task — must read lighter than
           the actual review fields. */}
-      <div className="rounded-2xl border border-color-azafran/40 bg-color-azafran-pale p-3.5 shadow-[var(--shadow-base)] dark:bg-[color-mix(in_srgb,var(--color-azafran)_14%,var(--surface-page))] sm:p-4">
+      <div className="rounded-2xl border border-color-terracota/40 bg-color-terracota-pale p-3.5 shadow-[var(--shadow-base)] dark:bg-[color-mix(in_srgb,var(--color-terracota)_14%,var(--surface-page))] sm:p-4">
         <div className="flex items-start gap-3">
           <span
             aria-hidden="true"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-color-azafran text-text-inverse shadow-[var(--shadow-micro)]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-color-terracota text-text-inverse shadow-[var(--shadow-micro)]"
           >
             <FontAwesomeIcon icon={faWandMagicSparkles} className="h-4 w-4" />
           </span>
@@ -466,7 +466,7 @@ export default function ReviewFormBody({
       <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border-subtle bg-surface-card p-2.5 sm:p-3">
         <div>
           <label className="mb-1 block font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-text-secondary">
-            {t('ratingLabel')} <span className="text-color-azafran">*</span>
+            {t('ratingLabel')} <span className="text-color-terracota">*</span>
           </label>
           <StarRating value={value.rating} onChange={(r) => set('rating', r)} size="lg" showValue />
         </div>
@@ -489,8 +489,8 @@ export default function ReviewFormBody({
                   'rounded-full border-2 px-4 py-2.5 font-sans text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] ' +
                   (value.wouldOrderAgain === v
                     ? v
-                      ? 'border-color-albahaca bg-color-albahaca text-text-inverse'
-                      : 'border-color-paprika bg-color-paprika text-text-inverse'
+                      ? 'border-color-dorado bg-color-dorado text-text-inverse'
+                      : 'border-color-terracota-deep bg-color-terracota-deep text-text-inverse'
                     : 'border-border-subtle bg-surface-page text-text-secondary hover:border-border-default hover:bg-surface-subtle')
                 }
               >
@@ -610,7 +610,7 @@ export default function ReviewFormBody({
             onChange={(e) => set('visitedWith', e.target.value)}
             disabled={submitting}
             maxLength={200}
-            className="w-full rounded-xl border border-border-subtle bg-surface-page px-3.5 py-2.5 font-sans text-base sm:text-sm text-text-primary placeholder:text-text-muted/80 transition-all focus:border-color-azafran focus:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-60"
+            className="w-full rounded-xl border border-border-subtle bg-surface-page px-3.5 py-2.5 font-sans text-base sm:text-sm text-text-primary placeholder:text-text-muted/80 transition-all focus:border-color-terracota focus:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-60"
           />
         )}
       </div>
@@ -690,7 +690,7 @@ export default function ReviewFormBody({
           checked={value.isAnonymous}
           onChange={(e) => set('isAnonymous', e.target.checked)}
           disabled={submitting}
-          className="h-4 w-4 rounded border-border-default accent-color-azafran"
+          className="h-4 w-4 rounded border-border-default accent-color-terracota"
         />
         {t('anonymous')}
       </label>
@@ -703,7 +703,7 @@ const inputBase = [
   'w-full rounded-xl border border-border-subtle bg-surface-card',
   'px-3.5 py-2.5 font-sans text-base sm:text-sm text-text-primary',
   'placeholder:text-text-muted/80 transition-all',
-  'focus:border-color-azafran focus:outline-none',
+  'focus:border-color-terracota focus:outline-none',
   'focus-visible:[box-shadow:var(--focus-ring)]',
   'disabled:opacity-60',
 ].join(' ');

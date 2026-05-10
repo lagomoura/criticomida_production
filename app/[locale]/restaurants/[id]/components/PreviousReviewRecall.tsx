@@ -35,7 +35,7 @@ export default function PreviousReviewRecall({
 
   return (
     <section
-      className="rounded-2xl border border-color-azafran/30 bg-color-azafran-pale/40 p-3 sm:p-4"
+      className="rounded-2xl border border-color-terracota/30 bg-color-terracota-pale/40 p-3 sm:p-4"
       aria-label={t('regionLabel')}
     >
       <button
@@ -46,11 +46,11 @@ export default function PreviousReviewRecall({
       >
         <FontAwesomeIcon
           icon={faClockRotateLeft}
-          className="text-[color:var(--color-azafran)] h-4 w-4 shrink-0"
+          className="text-[color:var(--color-terracota)] h-4 w-4 shrink-0"
           aria-hidden
         />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="font-sans text-[10.5px] font-semibold uppercase tracking-[0.16em] text-color-canela">
+          <span className="font-sans text-[10.5px] font-semibold uppercase tracking-[0.16em] text-color-terracota-deep">
             {t('kicker')}
           </span>
           <span className="truncate font-sans text-sm text-text-primary">
@@ -68,7 +68,7 @@ export default function PreviousReviewRecall({
       </button>
 
       {open && (
-        <div className="mt-3 flex flex-col gap-2 border-t border-color-azafran/20 pt-3">
+        <div className="mt-3 flex flex-col gap-2 border-t border-color-terracota/20 pt-3">
           <div className="flex flex-wrap items-center gap-3">
             <StarRating value={Math.round(review.rating)} readonly size="sm" />
             <span className="font-display text-lg font-medium tabular-nums text-text-primary">
@@ -92,7 +92,7 @@ export default function PreviousReviewRecall({
           <button
             type="button"
             onClick={() => router.push(`/reviews/${review.id}`)}
-            className="self-start cursor-pointer rounded-full font-sans text-xs font-semibold text-color-canela hover:text-color-azafran focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+            className="self-start cursor-pointer rounded-full font-sans text-xs font-semibold text-color-terracota-deep hover:text-color-terracota focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
           >
             {t('viewFullReview')} →
           </button>

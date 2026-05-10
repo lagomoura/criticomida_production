@@ -117,7 +117,7 @@ function ComparisonColumn({
     dish.rating !== null ? dish.rating.toFixed(1) : null;
   const ratingClass =
     dish.rating !== null && dish.rating >= 4.5
-      ? 'bg-[var(--color-albahaca)] text-white'
+      ? 'bg-[var(--color-dorado)] text-white'
       : 'bg-surface-subtle text-text-primary';
 
   // Use the canonical ``addToWantToTry`` helper instead of a raw
@@ -196,7 +196,7 @@ function ComparisonColumn({
       className={cn(
         'flex flex-col gap-2 rounded-xl border bg-surface-card p-2',
         highlightLeader
-          ? 'border-action-primary/40 [box-shadow:0_0_0_1px_var(--color-azafran-pale)]'
+          ? 'border-action-primary/40 [box-shadow:0_0_0_1px_var(--color-terracota-pale)]'
           : 'border-border-subtle',
       )}
     >
@@ -261,17 +261,17 @@ function ComparisonColumn({
         <PillarBar
           label={t('pillars.presentation')}
           value={dish.pillar_breakdown.presentation}
-          accent="var(--color-paprika)"
+          accent="var(--color-terracota-deep)"
         />
         <PillarBar
           label={t('pillars.execution')}
           value={dish.pillar_breakdown.execution}
-          accent="var(--color-albahaca)"
+          accent="var(--color-dorado)"
         />
         <PillarBar
           label={t('pillars.value_prop')}
           value={dish.pillar_breakdown.value_prop}
-          accent="var(--color-azafran)"
+          accent="var(--color-terracota)"
         />
       </div>
 
@@ -338,7 +338,7 @@ interface PillarBarProps {
   label: string;
   /** 1-3 scale, or null when no review has rated this pillar yet. */
   value: number | null;
-  /** CSS variable string like ``var(--color-paprika)``. */
+  /** CSS variable string like ``var(--color-terracota-deep)``. */
   accent: string;
 }
 

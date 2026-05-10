@@ -47,8 +47,8 @@ const kindTint: Record<NotificationKind, string> = {
   claim_revoked: 'text-amber-600',
   comment_like: 'text-[var(--state-like-on)]',
   comment_reply: 'text-action-primary',
-  reservation_requested: 'text-[var(--color-canela)]',
-  review_on_owned_restaurant: 'text-[var(--color-canela)]',
+  reservation_requested: 'text-[var(--color-terracota-deep)]',
+  review_on_owned_restaurant: 'text-[var(--color-terracota-deep)]',
   mention: 'text-action-primary',
 };
 

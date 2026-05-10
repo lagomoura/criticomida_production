@@ -75,7 +75,7 @@ export default function ClaimFormClient({
         <div>
           <Link
             href={`/restaurants/${restaurantSlug}`}
-            className="text-sm font-semibold text-[var(--color-canela)] no-underline hover:underline"
+            className="text-sm font-semibold text-[var(--color-terracota-deep)] no-underline hover:underline"
           >
             {t('backToRestaurant', { name: restaurantName })}
           </Link>
@@ -160,7 +160,7 @@ export default function ClaimFormClient({
         <div>
           <Link
             href={`/restaurants/${restaurantSlug}`}
-            className="text-sm font-semibold text-[var(--color-canela)] no-underline hover:underline"
+            className="text-sm font-semibold text-[var(--color-terracota-deep)] no-underline hover:underline"
           >
             {t('backToRestaurantShort')}
           </Link>

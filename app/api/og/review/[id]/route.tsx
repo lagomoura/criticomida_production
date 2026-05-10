@@ -11,11 +11,13 @@ export const runtime = 'nodejs';
 const WIDTH = 1080;
 const HEIGHT = 1920;
 
-const COLOR_CREMA = '#F8F4EE';
-const COLOR_CREMA_DARK = '#EDE7DC';
-const COLOR_CARBON = '#1A1714';
-const COLOR_CARBON_MID = '#5C544A';
-const COLOR_AZAFRAN = '#D4870A';
+// Satori (next/og) no soporta CSS vars — los hex deben coincidir con la paleta
+// canónica en `app/globals.css` (Terracota & Dorado, v2.1).
+const COLOR_CREMA = '#F7F1E8';
+const COLOR_CREMA_DARK = '#EFE4D2';
+const COLOR_ESPRESSO = '#2A211C';
+const COLOR_ESPRESSO_MID = '#7A6A5D';
+const COLOR_TERRACOTA = '#C96A4B';
 
 interface PillarValue {
   presentation: 1 | 2 | 3 | null;
@@ -39,9 +41,9 @@ function pillarLabel(v: 1 | 2 | 3 | null | undefined): string {
 }
 
 function pillarColor(v: 1 | 2 | 3 | null | undefined): string {
-  if (v === 3) return COLOR_AZAFRAN;
-  if (v === 2) return COLOR_CARBON;
-  return COLOR_CARBON_MID;
+  if (v === 3) return COLOR_TERRACOTA;
+  if (v === 2) return COLOR_ESPRESSO;
+  return COLOR_ESPRESSO_MID;
 }
 
 function absoluteUrl(url: string, apiBase: string): string {
@@ -80,7 +82,7 @@ function Star({ filled }: { filled: boolean }) {
     <svg width="64" height="64" viewBox="0 0 24 24" style={{ marginRight: 8 }}>
       <path
         d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-        fill={filled ? COLOR_AZAFRAN : COLOR_CREMA_DARK}
+        fill={filled ? COLOR_TERRACOTA : COLOR_CREMA_DARK}
       />
     </svg>
   );
@@ -103,19 +105,19 @@ function Pillar({
         flex: 1,
         height: 200,
         backgroundColor: '#FFFFFF',
-        border: `2px solid ${value === 3 ? COLOR_AZAFRAN : COLOR_CREMA_DARK}`,
+        border: `2px solid ${value === 3 ? COLOR_TERRACOTA : COLOR_CREMA_DARK}`,
         borderRadius: 12,
         padding: 16,
       }}
     >
       <div
         style={{
-          fontFamily: 'DM Sans',
+          fontFamily: 'Inter',
           fontSize: 18,
           fontWeight: 500,
           letterSpacing: 4,
           textTransform: 'uppercase',
-          color: COLOR_CARBON_MID,
+          color: COLOR_ESPRESSO_MID,
           textAlign: 'center',
         }}
       >
@@ -151,7 +153,7 @@ function FallbackPhoto() {
         fontFamily: 'Cormorant Garamond',
         fontSize: 96,
         fontStyle: 'italic',
-        color: COLOR_AZAFRAN,
+        color: COLOR_TERRACOTA,
       }}
     >
       Sin foto
@@ -177,7 +179,7 @@ function ErrorCard() {
         style={{
           fontFamily: 'Cormorant Garamond',
           fontSize: 96,
-          color: COLOR_CARBON,
+          color: COLOR_ESPRESSO,
           textAlign: 'center',
           lineHeight: 1.1,
         }}
@@ -187,9 +189,9 @@ function ErrorCard() {
       <div
         style={{
           marginTop: 32,
-          fontFamily: 'DM Sans',
+          fontFamily: 'Inter',
           fontSize: 36,
-          color: COLOR_CARBON_MID,
+          color: COLOR_ESPRESSO_MID,
           textAlign: 'center',
         }}
       >
@@ -205,20 +207,20 @@ async function loadFonts(origin: string) {
       if (!r.ok) throw new Error(`Font fetch failed: ${path}`);
       return r.arrayBuffer();
     });
-  const [cormorant, cormorantItalic, cormorantSemi, dmSans, dmSansMedium] =
+  const [cormorant, cormorantItalic, cormorantSemi, inter, interMedium] =
     await Promise.all([
       fetchTtf('/fonts/CormorantGaramond-Regular.ttf'),
       fetchTtf('/fonts/CormorantGaramond-Italic.ttf'),
       fetchTtf('/fonts/CormorantGaramond-SemiBold.ttf'),
-      fetchTtf('/fonts/DMSans-Regular.ttf'),
-      fetchTtf('/fonts/DMSans-Medium.ttf'),
+      fetchTtf('/fonts/Inter-Regular.ttf'),
+      fetchTtf('/fonts/Inter-Medium.ttf'),
     ]);
   return [
     { name: 'Cormorant Garamond', data: cormorant, weight: 400 as const, style: 'normal' as const },
     { name: 'Cormorant Garamond', data: cormorantItalic, weight: 400 as const, style: 'italic' as const },
     { name: 'Cormorant Garamond', data: cormorantSemi, weight: 600 as const, style: 'normal' as const },
-    { name: 'DM Sans', data: dmSans, weight: 400 as const, style: 'normal' as const },
-    { name: 'DM Sans', data: dmSansMedium, weight: 500 as const, style: 'normal' as const },
+    { name: 'Inter', data: inter, weight: 400 as const, style: 'normal' as const },
+    { name: 'Inter', data: interMedium, weight: 500 as const, style: 'normal' as const },
   ];
 }
 
@@ -274,7 +276,7 @@ export async function GET(
           display: 'flex',
           flexDirection: 'column',
           padding: 80,
-          fontFamily: 'DM Sans',
+          fontFamily: 'Inter',
         }}
       >
         {/* Top strip: logo + brand */}
@@ -292,7 +294,7 @@ export async function GET(
               fontFamily: 'Cormorant Garamond',
               fontSize: 44,
               fontWeight: 600,
-              color: COLOR_CARBON,
+              color: COLOR_ESPRESSO,
             }}
           >
             Palato
@@ -330,7 +332,7 @@ export async function GET(
               fontFamily: 'Cormorant Garamond',
               fontSize: 88,
               fontWeight: 600,
-              color: COLOR_CARBON,
+              color: COLOR_ESPRESSO,
               lineHeight: 1.05,
               maxWidth: 920,
             }}
@@ -349,16 +351,16 @@ export async function GET(
                 fontFamily: 'Cormorant Garamond',
                 fontStyle: 'italic',
                 fontSize: 36,
-                color: COLOR_CARBON_MID,
+                color: COLOR_ESPRESSO_MID,
               }}
             >
               en&nbsp;
             </div>
             <div
               style={{
-                fontFamily: 'DM Sans',
+                fontFamily: 'Inter',
                 fontSize: 36,
-                color: COLOR_CARBON_MID,
+                color: COLOR_ESPRESSO_MID,
               }}
             >
               {review.dish.restaurant_name}
@@ -383,7 +385,7 @@ export async function GET(
               fontFamily: 'Cormorant Garamond',
               fontSize: 56,
               fontWeight: 600,
-              color: COLOR_CARBON,
+              color: COLOR_ESPRESSO,
             }}
           >
             {review.score.toFixed(1)}
@@ -418,9 +420,9 @@ export async function GET(
             marginTop: 'auto',
             display: 'flex',
             justifyContent: 'center',
-            fontFamily: 'DM Sans',
+            fontFamily: 'Inter',
             fontSize: 28,
-            color: COLOR_CARBON_MID,
+            color: COLOR_ESPRESSO_MID,
           }}
         >
           {handle ? `@${handle.replace(/^@/, '')}` : 'Reseña anónima'}

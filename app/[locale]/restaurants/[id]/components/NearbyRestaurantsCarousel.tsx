@@ -18,12 +18,12 @@ export default function NearbyRestaurantsCarousel({
   if (items.length === 0) return null;
 
   return (
-    <section className="rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-white)] p-6 shadow-sm sm:p-8">
+    <section className="rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] p-6 shadow-sm sm:p-8">
       <header className="mb-4">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)] sm:text-3xl">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)] sm:text-3xl">
           {t('title')}
         </h2>
-        <p className="mt-1 text-sm text-[var(--color-carbon-soft)]">
+        <p className="mt-1 text-sm text-[var(--color-espresso-soft)]">
           {t('subtitle')}
         </p>
       </header>
@@ -32,9 +32,9 @@ export default function NearbyRestaurantsCarousel({
           <li key={r.id} className="shrink-0 first:ml-2 last:mr-2">
             <Link
               href={`/restaurants/${r.slug}`}
-              className="group flex w-56 flex-col overflow-hidden rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-crema)] no-underline transition hover:border-[var(--color-azafran)]"
+              className="group flex w-56 flex-col overflow-hidden rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-crema)] no-underline transition hover:border-[var(--color-terracota)]"
             >
-              <div className="relative h-32 w-full bg-[var(--color-canela)]">
+              <div className="relative h-32 w-full bg-[var(--color-terracota-deep)]">
                 {(() => {
                   const isStaleJsSdkUrl = (url: string | null) =>
                     !!url && url.includes('/maps/api/place/js/PhotoService');
@@ -68,32 +68,32 @@ export default function NearbyRestaurantsCarousel({
                     </div>
                   );
                 })()}
-                <span className="absolute right-2 top-2 rounded-full bg-[var(--color-carbon)]/85 px-2 py-0.5 text-xs font-semibold text-white">
+                <span className="absolute right-2 top-2 rounded-full bg-[var(--color-espresso)]/85 dark:bg-[var(--neutral-100)]/85 px-2 py-0.5 text-xs font-semibold text-white">
                   {formatDistance(r.distance_km)}
                 </span>
               </div>
               <div className="flex flex-1 flex-col gap-1 p-3">
-                <h3 className="line-clamp-2 font-[family-name:var(--font-display)] text-lg font-medium leading-tight text-[var(--color-carbon)] group-hover:text-[var(--color-azafran)]">
+                <h3 className="line-clamp-2 font-[family-name:var(--font-display)] text-lg font-medium leading-tight text-[var(--color-espresso)] group-hover:text-[var(--color-terracota)]">
                   {r.name}
                 </h3>
-                <p className="line-clamp-1 text-xs text-[var(--color-carbon-soft)]">
+                <p className="line-clamp-1 text-xs text-[var(--color-espresso-soft)]">
                   {r.location_name}
                 </p>
                 <div className="mt-auto flex items-center gap-1.5 text-sm">
                   {Number(r.computed_rating) > 0 ? (
                     <>
-                      <span aria-hidden className="text-[var(--color-azafran)]">★</span>
+                      <span aria-hidden className="text-[var(--color-terracota)]">★</span>
                       <span className="font-semibold">
                         {Number(r.computed_rating).toFixed(1)}
                       </span>
-                      <span className="text-xs text-[var(--color-carbon-soft)]">
+                      <span className="text-xs text-[var(--color-espresso-soft)]">
                         · {r.review_count === 1
                           ? t('reviewOne', { count: r.review_count })
                           : t('reviewMany', { count: r.review_count })}
                       </span>
                     </>
                   ) : (
-                    <span className="text-xs italic text-[var(--color-carbon-soft)]">
+                    <span className="text-xs italic text-[var(--color-espresso-soft)]">
                       {t('noReviews')}
                     </span>
                   )}

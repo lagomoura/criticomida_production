@@ -88,7 +88,7 @@ export default function ReportModal({
         type="button"
         aria-label={tCommon('close')}
         onClick={() => !submitting && onClose()}
-        className="absolute inset-0 cursor-default bg-[color:var(--color-carbon)]/55 backdrop-blur-sm"
+        className="absolute inset-0 cursor-default bg-[color:var(--color-espresso)]/55 backdrop-blur-sm"
       />
       <div
         role="dialog"

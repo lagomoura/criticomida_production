@@ -21,12 +21,12 @@ export default function PhotoMosaic({ photos, totalCount, googlePhotos }: PhotoM
 
   if (photos.length === 0 && validGooglePhotos.length === 0) {
     return (
-      <section className="rounded-3xl border border-dashed border-[var(--color-crema-darker)] bg-[var(--color-white)] p-10 text-center">
+      <section className="rounded-3xl border border-dashed border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] p-10 text-center">
         <p className="text-4xl" aria-hidden>📷</p>
-        <h2 className="mt-3 font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)]">
+        <h2 className="mt-3 font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)]">
           {t('emptyTitle')}
         </h2>
-        <p className="mt-1 text-sm text-[var(--color-carbon-soft)]">
+        <p className="mt-1 text-sm text-[var(--color-espresso-soft)]">
           {t('emptyDescription')}
         </p>
       </section>
@@ -42,10 +42,10 @@ export default function PhotoMosaic({ photos, totalCount, googlePhotos }: PhotoM
     <section id="fotos">
       <header className="mb-4 flex items-end justify-between gap-4">
         <div>
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)] sm:text-3xl">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)] sm:text-3xl">
             {t('title')}
           </h2>
-          <p className="mt-1 text-sm text-[var(--color-carbon-soft)]">
+          <p className="mt-1 text-sm text-[var(--color-espresso-soft)]">
             {totalCount > 0 &&
               (totalCount === 1
                 ? t('communityOne', { count: totalCount })
@@ -62,7 +62,7 @@ export default function PhotoMosaic({ photos, totalCount, googlePhotos }: PhotoM
             <button
               type="button"
               onClick={() => setLightboxIdx(i)}
-              className="group block w-full overflow-hidden rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-crema)] focus:outline-none focus:ring-2 focus:ring-[var(--color-azafran)]"
+              className="group block w-full overflow-hidden rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-crema)] focus:outline-none focus:ring-2 focus:ring-[var(--color-terracota)]"
               aria-label={t('viewLabel', { name: p.dish_name })}
             >
               <Image
@@ -74,16 +74,16 @@ export default function PhotoMosaic({ photos, totalCount, googlePhotos }: PhotoM
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               />
             </button>
-            <p className="mt-1 px-1 text-xs text-[var(--color-carbon-soft)]">
+            <p className="mt-1 px-1 text-xs text-[var(--color-espresso-soft)]">
               {p.review_id ? (
                 <Link
                   href={`/reviews/${p.review_id}`}
-                  className="font-semibold text-[var(--color-carbon-mid)] no-underline hover:underline"
+                  className="font-semibold text-[var(--color-espresso-mid)] no-underline hover:underline"
                 >
                   {p.dish_name}
                 </Link>
               ) : (
-                <span className="font-semibold text-[var(--color-carbon-mid)]">{p.dish_name}</span>
+                <span className="font-semibold text-[var(--color-espresso-mid)]">{p.dish_name}</span>
               )}
               {' · '}
               {p.user_handle ? (
@@ -104,7 +104,7 @@ export default function PhotoMosaic({ photos, totalCount, googlePhotos }: PhotoM
             <button
               type="button"
               onClick={() => setLightboxIdx(ugcGallery.length + i)}
-              className="group block w-full overflow-hidden rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-crema)] focus:outline-none focus:ring-2 focus:ring-[var(--color-azafran)]"
+              className="group block w-full overflow-hidden rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-crema)] focus:outline-none focus:ring-2 focus:ring-[var(--color-terracota)]"
               aria-label={t('viewGooglePhoto')}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -116,7 +116,7 @@ export default function PhotoMosaic({ photos, totalCount, googlePhotos }: PhotoM
               />
             </button>
             <p
-              className="mt-1 flex items-center gap-1 px-1 text-[10px] uppercase tracking-wide text-[var(--color-carbon-soft)]"
+              className="mt-1 flex items-center gap-1 px-1 text-[10px] uppercase tracking-wide text-[var(--color-espresso-soft)]"
               title={g.attribution_html ?? undefined}
             >
               <span aria-hidden>G</span> Google

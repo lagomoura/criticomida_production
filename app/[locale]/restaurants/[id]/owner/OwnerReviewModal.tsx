@@ -250,7 +250,7 @@ export default function OwnerReviewModal({
               onChange={(e) => handleBodyChange(e.target.value)}
               rows={4}
               placeholder={tModal('responsePlaceholder')}
-              className="w-full rounded-md border border-border-default bg-surface-subtle p-3 font-sans text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-canela)]"
+              className="w-full rounded-md border border-border-default bg-surface-subtle p-3 font-sans text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-terracota-deep)]"
             />
             {error && (
               <p className="rounded-md bg-action-danger/10 px-3 py-2 font-sans text-xs text-action-danger">

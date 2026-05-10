@@ -99,8 +99,8 @@ export default function DishTabs({ children, counts }: DishTabsProps) {
                 onClick={() => handleSelect(tab.key)}
                 className={`relative shrink-0 px-4 py-3 text-sm font-semibold transition ${
                   isActive
-                    ? 'text-[var(--color-azafran)]'
-                    : 'text-[var(--color-carbon-soft)] hover:text-[var(--color-carbon)]'
+                    ? 'text-[var(--color-terracota)]'
+                    : 'text-[var(--color-espresso-soft)] hover:text-[var(--color-espresso)]'
                 }`}
               >
                 {tab.label}
@@ -108,8 +108,8 @@ export default function DishTabs({ children, counts }: DishTabsProps) {
                   <span
                     className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs ${
                       isActive
-                        ? 'bg-[var(--color-azafran-pale)] text-[var(--color-canela)]'
-                        : 'bg-[var(--color-crema-dark)] text-[var(--color-carbon-soft)]'
+                        ? 'bg-[var(--color-terracota-pale)] text-[var(--color-terracota-deep)]'
+                        : 'bg-[var(--color-crema-dark)] text-[var(--color-espresso-soft)]'
                     }`}
                   >
                     {count}
@@ -118,7 +118,7 @@ export default function DishTabs({ children, counts }: DishTabsProps) {
                 {isActive && (
                   <span
                     aria-hidden
-                    className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[var(--color-azafran)]"
+                    className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[var(--color-terracota)]"
                   />
                 )}
               </button>

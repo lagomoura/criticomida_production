@@ -46,7 +46,7 @@ export default function MapLayerChips({
             className={cn(
               'inline-flex h-8 items-center gap-1.5 rounded-full border px-3 font-sans text-xs font-medium shadow-sm backdrop-blur transition-colors',
               active
-                ? 'border-[color:var(--color-azafran)] bg-[color:var(--color-azafran)] text-white'
+                ? 'border-[color:var(--color-terracota)] bg-[color:var(--color-terracota)] text-white'
                 : 'border-border-default bg-surface-card/95 text-text-primary hover:bg-surface-subtle',
             )}
           >
@@ -62,7 +62,7 @@ export default function MapLayerChips({
         className={cn(
           'inline-flex h-8 items-center gap-1.5 rounded-full border px-3 font-sans text-xs font-medium shadow-sm backdrop-blur transition-colors',
           chefOnly
-            ? 'border-[color:var(--color-azafran)] bg-[color:var(--color-azafran)] text-white'
+            ? 'border-[color:var(--color-terracota)] bg-[color:var(--color-terracota)] text-white'
             : 'border-border-default bg-surface-card/95 text-text-primary hover:bg-surface-subtle',
         )}
         title={t('chefOnlyTitle')}
@@ -78,7 +78,7 @@ export default function MapLayerChips({
         className={cn(
           'inline-flex h-8 items-center gap-1.5 rounded-full border px-3 font-sans text-xs font-medium shadow-sm backdrop-blur transition-colors',
           includeEmpty
-            ? 'border-[color:var(--color-albahaca)] bg-[color:var(--color-albahaca)] text-white'
+            ? 'border-[color:var(--color-dorado)] bg-[color:var(--color-dorado)] text-white'
             : 'border-border-default bg-surface-card/95 text-text-primary hover:bg-surface-subtle',
           chefOnly && 'opacity-50 cursor-not-allowed',
         )}

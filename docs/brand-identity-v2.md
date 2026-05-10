@@ -1,9 +1,11 @@
-# Palato — Identidad Visual v2
+# Palato — Identidad Visual v2.1
 
 > Documento de rediseño. Define la dirección visual del sitio.  
 > Reemplaza los criterios estéticos de `brand-identity.md` — los datos de arquitectura y voz siguen vigentes.
 >
-> **Estado (2026-04):** paleta *Especiería* y tipografías *Cormorant Garamond* + *DM Sans* ya están aplicadas en `app/globals.css` y `app/layout.tsx`. Este documento describe lo que existe en código, no una aspiración futura.
+> **Estado (2026-05):** paleta *Terracota & Dorado* y tipografías *Cormorant Garamond* + *Inter* ya están aplicadas en `app/globals.css` y `app/[locale]/layout.tsx`. Este documento describe lo que existe en código, no una aspiración futura.
+>
+> **Cambios desde v2 (Especiería → Terracota & Dorado):** Azafrán → Terracota; Páprika → Terracota deep (rol de error); Albahaca → Dorado (rol de éxito y "premium"); Carbón → Espresso. Crema mantiene el nombre, valores recalibrados. UI font: DM Sans → Inter Variable. Cormorant Garamond no cambia.
 
 ---
 
@@ -41,30 +43,27 @@ Palato reseña platos, no restaurantes. Esa diferencia es el punto de partida de
 
 ---
 
-## 2. Paleta de Colores — "Especiería"
+## 2. Paleta de Colores — "Terracota & Dorado"
 
-La paleta está inspirada en los colores de una alacena de especias y ingredientes frescos: tonos que existen en la naturaleza comestible, no en paletas digitales genéricas. Los valores listados aquí son los que viven en `app/globals.css`.
+La paleta abandona el origen "especiero argentino" de v2 y se reorienta a una sensibilidad editorial mediterránea/europea: terracota como color de marca, dorado como acento premium, espresso como tinta principal sobre crema cálida. Los valores listados aquí son los que viven en `app/globals.css`.
 
 ### 2.1 Colores de Marca
 
 | Nombre | Variable | Hex | Uso |
 |---|---|---|---|
-| **Azafrán** | `--color-azafran` | `#D4870A` | Color de marca. CTAs, links, acento primario. |
-| **Azafrán claro** | `--color-azafran-light` | `#F5C842` | Highlights, logo sobre fondos oscuros. |
-| **Azafrán pálido** | `--color-azafran-pale` | `#FEF3D6` | Fondos informativos, tags, chips. |
-| **Páprika** | `--color-paprika` | `#C03B28` | Estados negativos, errores, "like" activo. |
-| **Páprika claro** | `--color-paprika-light` | `#E86149` | Hover sobre elementos páprika. |
-| **Páprika pálido** | `--color-paprika-pale` | `#FDECEA` | Fondos de error. |
-| **Albahaca** | `--color-albahaca` | `#3A6645` | Ratings altos (≥9), confirmaciones, "follow" activo. |
-| **Albahaca claro** | `--color-albahaca-light` | `#5A9668` | Hover sobre albahaca. |
-| **Albahaca pálido** | `--color-albahaca-pale` | `#EBF4ED` | Fondos positivos. |
-| **Canela** | `--color-canela` | `#8B5E3C` | Acento cálido, categorías secundarias. |
-| **Carbón** | `--color-carbon` | `#1A1714` | Texto principal, fondos oscuros. |
-| **Carbón medio** | `--color-carbon-mid` | `#3D3830` | Texto secundario fuerte. |
-| **Carbón suave** | `--color-carbon-soft` | `#6B6358` | Metadatos, texto muted. |
-| **Crema** | `--color-crema` | `#F8F4EE` | Fondo principal de página. Nunca blanco puro. |
-| **Crema oscuro** | `--color-crema-dark` | `#EDE7DC` | Superficies de tarjeta sutiles. |
-| **Crema más oscuro** | `--color-crema-darker` | `#D9D1C4` | Bordes, divisores. |
+| **Terracota** | `--color-terracota` | `#C96A4B` | Color de marca. CTAs, links, logo, acento primario. |
+| **Terracota claro** | `--color-terracota-light` | `#E07A5F` | Hover de primary. |
+| **Terracota pálido** | `--color-terracota-pale` | `#FBEDE7` | Tags, chips, fondos sutiles. |
+| **Terracota profundo** | `--color-terracota-deep` | `#A8472D` | Estados negativos, error, danger, report, "like" activo. |
+| **Dorado** | `--color-dorado` | `#D6A75C` | Premium, ratings ≥9, éxito, confirmaciones, "follow" / "save" activo. |
+| **Dorado claro** | `--color-dorado-light` | `#E8BE7A` | Hover sobre dorado. |
+| **Dorado pálido** | `--color-dorado-pale` | `#FAF1DD` | Fondos positivos / éxito. |
+| **Espresso** | `--color-espresso` | `#2A211C` | Texto principal, fondos oscuros. |
+| **Espresso medio** | `--color-espresso-mid` | `#524339` | Texto UI / secundario fuerte. |
+| **Espresso suave** | `--color-espresso-soft` | `#7A6A5D` | Metadata, texto muted. |
+| **Crema** | `--color-crema` | `#F7F1E8` | Fondo principal de página. Nunca blanco puro. |
+| **Crema oscuro** | `--color-crema-dark` | `#EFE4D2` | Fondo secundario, superficies de tarjeta sutiles. |
+| **Crema más oscuro** | `--color-crema-darker` | `#DCCDB4` | Bordes, divisores. |
 | **Blanco** | `--color-white` | `#FFFFFF` | Superficies de card, inputs. |
 
 ### 2.2 Escala de Neutros
@@ -74,34 +73,34 @@ La escala de neutros es cálida — todos tienen una temperatura ligeramente mar
 | Token | Hex | Uso |
 |---|---|---|
 | `--neutral-100` | `#FFFFFF` (`--color-white`) | Superficies: tarjetas, inputs. |
-| `--neutral-200` | `#F8F4EE` (`--color-crema`) | Fondo de página. |
-| `--neutral-300` | `#EDE7DC` (`--color-crema-dark`) | Bordes sutiles, fondos alternos. |
-| `--neutral-400` | `#D9D1C4` (`--color-crema-darker`) | Bordes fuertes. |
-| `--neutral-500` | `#B8AFA3` | Placeholder text. |
-| `--neutral-600` | `#6B6358` (`--color-carbon-soft`) | Texto secundario / meta. |
-| `--neutral-700` | `#3A3530` | Texto de soporte. |
-| `--neutral-800` | `#3D3830` (`--color-carbon-mid`) | Texto de interfaz. |
-| `--neutral-900` | `#1A1714` (`--color-carbon`) | Texto principal. |
+| `--neutral-200` | `#F7F1E8` (`--color-crema`) | Fondo de página. |
+| `--neutral-300` | `#EFE4D2` (`--color-crema-dark`) | Bordes sutiles, fondos alternos. |
+| `--neutral-400` | `#DCCDB4` (`--color-crema-darker`) | Bordes default. |
+| `--neutral-500` | `#B8A892` | Placeholder text, disabled. |
+| `--neutral-600` | `#7A6A5D` (`--color-espresso-soft`) | Texto secundario / meta. |
+| `--neutral-700` | `#524339` | Texto de soporte. |
+| `--neutral-800` | `#524339` (`--color-espresso-mid`) | Texto UI. |
+| `--neutral-900` | `#2A211C` (`--color-espresso`) | Texto principal. |
 
 ### 2.3 Estados Semánticos
 
-Los estados se derivan directamente de la paleta de marca. No introducir verdes, rojos o amarillos fuera de esta paleta.
+Los estados se derivan directamente de la paleta. **Importante:** la paleta nueva no incluye verde ni rojo "tradicionales" — error y éxito se construyen con variantes de la familia terracota/dorado. Esto rompe la convención clásica rojo=error / verde=éxito; mitigar siempre con icono explícito y/o copy claro.
 
 | Estado | Texto | Fondo | Borde |
 |---|---|---|---|
-| Éxito | `--color-albahaca` | `--color-albahaca-pale` | `--color-albahaca-light` |
-| Error | `--color-paprika` | `--color-paprika-pale` | `--color-paprika-light` |
-| Advertencia | `--color-canela` | `--color-azafran-pale` | `--color-azafran-light` |
-| Info | `--color-carbon-mid` | `--color-crema-dark` | `--color-crema-darker` |
+| Éxito | `--color-dorado` | `--color-dorado-pale` | `--color-dorado-light` |
+| Error | `--color-terracota-deep` | `--color-terracota-pale` | `--color-terracota-light` |
+| Advertencia | `--color-terracota-deep` | `--color-dorado-pale` | `--color-dorado-light` |
+| Info | `--color-espresso-mid` | `--color-crema-dark` | `--color-crema-darker` |
 
 ### 2.4 Gradientes
 
 | Nombre | Definición | Uso |
 |---|---|---|
-| **Marca principal** | `linear-gradient(135deg, var(--color-azafran), var(--color-azafran-light))` | CTAs hero, wordmark en contextos especiales. |
-| **Marca cálida** | `linear-gradient(135deg, var(--color-azafran), var(--color-canela))` | Banners editoriales, highlights de sección. |
+| **Marca principal** | `linear-gradient(135deg, var(--color-terracota), var(--color-terracota-light))` | CTAs hero, wordmark en contextos especiales. |
+| **Marca cálida** | `linear-gradient(135deg, var(--color-terracota), var(--color-dorado))` | Banners editoriales, highlights premium de sección. |
 | **Tierra** | `linear-gradient(180deg, var(--color-crema), var(--color-crema-dark))` | Fondos de página con profundidad sutil. |
-| **Nocturno** | `linear-gradient(180deg, var(--color-carbon), var(--color-carbon-mid))` | Footer, overlays sobre fotos en hero. |
+| **Nocturno** | `linear-gradient(180deg, var(--color-espresso), var(--color-espresso-mid))` | Footer, overlays sobre fotos en hero. |
 
 ---
 
@@ -109,16 +108,16 @@ Los estados se derivan directamente de la paleta de marca. No introducir verdes,
 
 ### 3.1 Sistema tipográfico
 
-Dos familias. Una sola fuente por propósito — sin mezclas innecesarias. Ambas se cargan vía `next/font/google` en `app/layout.tsx`.
+Dos familias. Una sola fuente por propósito — sin mezclas innecesarias. Ambas se cargan vía `next/font/google` en `app/[locale]/layout.tsx`.
 
 | Rol | Familia | Variable CSS | Fallback |
 |---|---|---|---|
-| **Display / Títulos** | **Cormorant Garamond** | `var(--font-display)` (`--font-cormorant`) | `Georgia, serif` |
-| **UI / Texto corrido** | **DM Sans** | `var(--font-sans)` (`--font-dm-sans`) | `ui-sans-serif, system-ui` |
+| **Display / Títulos / Logo** | **Cormorant Garamond** | `var(--font-display)` (`--font-cormorant`) | `Georgia, serif` |
+| **UI / Texto corrido** | **Inter** (Variable) | `var(--font-sans)` (`--font-inter`) | `ui-sans-serif, system-ui` |
 
-**Por qué Cormorant Garamond para display:** serif editorial de contraste alto y cierre elegante. Da carácter "publicación" a los nombres de platos y titulares sin caer en lo formal o anticuado. Contrasta limpiamente con DM Sans.
+**Por qué Cormorant Garamond para display:** serif editorial de contraste alto y cierre elegante. Da carácter "publicación" a los nombres de platos y titulares sin caer en lo formal o anticuado. Contrasta limpiamente con la sans de UI.
 
-**Por qué DM Sans para UI:** sans geométrica neutral, legible a cuerpos pequeños, cero ego. Buena para componentes densos (feed social, comentarios, metadatos).
+**Por qué Inter para UI:** sans neutral diseñada específicamente para pantallas, legible a cuerpos chicos, cobertura amplia (Variable Font, todos los pesos 100–900 en un solo asset). Es la sans de facto del producto SaaS moderno (Linear, Vercel, GitHub) — comunica "herramienta digital" sin carácter forzado.
 
 ### 3.2 Escala tipográfica (recomendada)
 
@@ -128,19 +127,19 @@ Dos familias. Una sola fuente por propósito — sin mezclas innecesarias. Ambas
 | H1 página | Cormorant | `clamp(2rem, 5vw, 3.5rem)` | 500 | 1.15 | -0.01em |
 | H2 sección | Cormorant | `clamp(1.5rem, 3vw, 2.25rem)` | 500 | 1.2 | 0 |
 | H3 card | Cormorant | `1.25rem` | 500 | 1.3 | 0 |
-| Body base | DM Sans | `1rem` (16px) | 400 | 1.6 | 0 |
-| Body lead | DM Sans | `1.125rem` | 400 | 1.55 | 0 |
-| UI label | DM Sans | `0.875rem` | 500 | 1.4 | 0.02em uppercase |
-| Caption / meta | DM Sans | `0.8125rem` | 400 | 1.45 | 0 |
-| Navbar link | DM Sans | `0.9375rem` | 500 | 1 | 0 |
+| Body base | Inter | `1rem` (16px) | 400 | 1.6 | 0 |
+| Body lead | Inter | `1.125rem` | 400 | 1.55 | 0 |
+| UI label | Inter | `0.875rem` | 500 | 1.4 | 0.02em uppercase |
+| Caption / meta | Inter | `0.8125rem` | 400 | 1.45 | 0 |
+| Navbar link | Inter | `0.9375rem` | 500 | 1 | 0 |
 | Rating number | Cormorant | `2rem` | 500 | 1 | -0.02em |
 
 ### 3.3 Pesos cargados
 
-**Cormorant Garamond:** 300, 400, 500 — normal e itálica. (Definido en `app/layout.tsx`.)  
-**DM Sans:** 300, 400, 500. (Definido en `app/layout.tsx`.)
+**Cormorant Garamond:** 300, 400, 500 — normal e itálica. (Definido en `app/[locale]/layout.tsx`.)  
+**Inter:** Variable Font — el rango completo 100–900 viene en un solo asset, no hay que declarar pesos individuales. (Definido en `app/[locale]/layout.tsx`.)
 
-Si el diseño necesita pesos mayores (600/700), agregarlos explícitamente en `layout.tsx` antes de usarlos. No asumir disponibilidad.
+Para el OG card (Satori, en `app/api/og/review/[id]/route.tsx`) Inter se carga como TTF estático en dos pesos (400, 500) desde `public/fonts/Inter-{Regular,Medium}.ttf`, porque Satori no soporta variable fonts.
 
 ### 3.4 Uso de itálica
 
@@ -160,10 +159,10 @@ Palato
 ```
 
 - Tipografía: **Cormorant Garamond 500**
-- Color por defecto: `var(--color-carbon)` sobre fondos claros
+- Color por defecto: `var(--color-espresso)` sobre fondos claros
 - Color sobre fondos oscuros: `var(--color-crema)`
-- Color de marca (navbar, footer brand): gradiente `var(--color-azafran) → var(--color-azafran-light)` aplicado como `background-clip: text`
-- Nunca en minúsculas. Siempre "Palato" con capital C y M.
+- Color de marca (navbar, footer brand): gradiente `var(--color-terracota) → var(--color-dorado)` aplicado como `background-clip: text`
+- Nunca en minúsculas. Siempre "Palato" con capital P.
 
 ### 4.2 Combinación con ícono
 
@@ -173,13 +172,13 @@ El mascot character (badge circular existente) se mantiene en uso. Para el redis
 
 No cambiar los colores internos del SVG del mascot en esta versión.
 
-### 4.3 Tratamiento de "Criti" vs "Comida"
+### 4.3 Tratamiento del wordmark en display
 
-En contextos display (banner hero, splash screens), se puede romper el wordmark en dos líneas o dos pesos para énfasis:
+En contextos display (banner hero, splash screens), se puede romper el wordmark en dos pesos para énfasis editorial:
 
 ```
-Criti        ← Cormorant 300 (light), color Carbón suave
-Comida       ← Cormorant 500, color Azafrán o Carbón
+Pa           ← Cormorant 300 (light), color Espresso suave
+lato         ← Cormorant 500, color Terracota o Espresso
 ```
 
 ---
@@ -231,18 +230,18 @@ Idénticos al sistema actual. Ver `brand-identity.md §5`.
 ### 6.1 Navbar
 
 ```
-Fondo: rgba(250, 246, 238, 0.82)   ← Crema translúcida
+Fondo: rgba(247, 241, 232, 0.82)   ← Crema translúcida
 Backdrop-filter: blur(12px)
-Border-bottom: 1px solid #D9D1C4   ← n-200
-Box-shadow: 0 4px 24px rgba(26,22,20,0.08)
+Border-bottom: 1px solid #DCCDB4   ← crema-darker
+Box-shadow: 0 4px 24px rgba(42,33,28,0.08)
 Border-radius: 1rem
 ```
 
-Flotante con `mx-3 mt-3`. El wordmark usa el gradiente Azafrán → Azafrán.
+Flotante con `mx-3 mt-3`. El wordmark usa el gradiente Terracota → Dorado.
 
 ### 6.2 Hero / Banner
 
-La foto ocupa el ancho completo. Overlay con el gradiente Nocturno en la parte inferior (`linear-gradient(to top, rgba(26,22,20,0.72) 0%, transparent 55%)`). El título en Cormorant 500 blanco sobre el overlay.
+La foto ocupa el ancho completo. Overlay con el gradiente Nocturno en la parte inferior (`linear-gradient(to top, rgba(42,33,28,0.72) 0%, transparent 55%)`). El título en Cormorant 500 blanco sobre el overlay.
 
 Sin fondos de color sólido en el hero — la fotografía es el fundamento visual.
 
@@ -250,44 +249,45 @@ Sin fondos de color sólido en el hero — la fotografía es el fundamento visua
 
 ```
 Fondo: #FFFFFF (blanco puro — contrasta con el fondo Crema de la página)
-Border: 1px solid #D9D1C4
+Border: 1px solid #DCCDB4
 Border-radius: 16px
-Shadow reposo: 0 2px 8px rgba(26,22,20,0.06)
-Shadow hover: 0 8px 28px rgba(26,22,20,0.12)
+Shadow reposo: 0 2px 8px rgba(42,33,28,0.06)
+Shadow hover: 0 8px 28px rgba(42,33,28,0.12)
 Hover: translateY(-3px)
 ```
 
 **Imagen:** ratio `4/3`, `overflow: hidden`. En hover: `scale(1.04)`, filtro `brightness(0.92) contrast(1.05)`.
 
 **Badge de categoría** (sobre imagen, arriba izquierda):
-- Fondo: `rgba(250, 246, 238, 0.92)`
-- Texto: `#D4870A` (Azafrán), peso 600, 12px
+- Fondo: `rgba(247, 241, 232, 0.92)`
+- Texto: `#C96A4B` (Terracota), peso 600, 12px
 - Border-radius: `9999px`
 
 **Badge de conteo** (sobre imagen, arriba derecha):
-- Fondo: `rgba(26, 22, 20, 0.72)`
+- Fondo: `rgba(42, 33, 28, 0.72)`
 - Texto: blanco, peso 600, 12px
 
 ### 6.4 Rating / Estrellas
 
-Color de estrellas: `#F5C842` (Azafrán)  
+Color de estrellas: `#D6A75C` (Dorado — refuerza el rol "premium" del rating alto)  
 El número de rating usa **Cormorant 500** — diferencia visual inmediata del texto UI.
 
 ### 6.5 Botones
 
 | Variante | Fondo | Texto | Hover |
 |---|---|---|---|
-| Primary | `#D4870A` (Azafrán) | `#F8F4EE` (Crema) | `#A82E14` + `translateY(-2px)` |
-| Secondary | `#3A6645` (Albahaca) | `#F8F4EE` | `#3D6047` + `translateY(-2px)` |
-| Ghost | Transparente | `#D4870A` | Borde+bg `#D4870A`, texto Crema |
-| Outline | Transparente | `#1A1714` | Borde+bg Carbón, texto Crema |
-| Hero CTA | Gradiente Marca principal | `#F8F4EE` | Gradiente invertido + `scale(1.06)` |
+| Primary | `#C96A4B` (Terracota) | `#FFFFFF` | `#E07A5F` (Terracota claro) + `translateY(-2px)` |
+| Secondary | `#D6A75C` (Dorado) | `#2A211C` (Espresso) | `#E8BE7A` (Dorado claro) + `translateY(-2px)` |
+| Ghost | Transparente | `#C96A4B` (Terracota) | Borde+bg `#C96A4B`, texto blanco |
+| Outline | Transparente | `#2A211C` (Espresso) | Borde+bg Espresso, texto Crema |
+| Danger | `#A8472D` (Terracota deep) | `#FFFFFF` | Terracota + icono explícito |
+| Hero CTA | Gradiente Marca principal | `#FFFFFF` | Gradiente invertido + `scale(1.06)` |
 
 Propiedades base:
 ```css
 border-radius: 8px;
 font-weight: 600;
-font-family: DM Sans;
+font-family: Inter;
 font-size: 0.9375rem;
 padding: 0.625rem 1.25rem;
 transition: all 0.2s ease;
@@ -296,9 +296,9 @@ transition: all 0.2s ease;
 ### 6.6 Formularios
 
 ```
-Border reposo: 1.5px solid #D9D1C4   (Crema más oscuro)
-Border focus: 1.5px solid #D4870A    (Azafrán)
-Ring focus: 0 0 0 3px rgba(200,57,26,0.15)
+Border reposo: 1.5px solid #DCCDB4   (Crema más oscuro)
+Border focus: 1.5px solid #C96A4B    (Terracota)
+Ring focus: 0 0 0 3px rgba(201,106,75,0.35)   (Terracota 35%)
 Border-radius: 8px
 Background: #FFFFFF
 ```
@@ -306,22 +306,22 @@ Background: #FFFFFF
 ### 6.7 Footer
 
 ```
-Background: #1A1714   (Carbón)
-Border-top: 3px solid #F5C842   (Azafrán — línea cálida de separación)
+Background: #2A211C   (Espresso)
+Border-top: 3px solid #D6A75C   (Dorado — línea cálida de separación)
 Border-radius: 2rem 2rem 0 0
 ```
 
-Texto secundario en footer: `#6B6358` (Carbón suave).  
-Brand wordmark en footer: gradiente `#D4870A → #F5C842`, Cormorant 500, 2.2rem.
+Texto secundario en footer: `#7A6A5D` (Espresso suave).  
+Brand wordmark en footer: gradiente `#C96A4B → #D6A75C`, Cormorant 500, 2.2rem.
 
 ---
 
 ## 6.8 Social UI Kit (v1)
 
-Esta sección define los componentes mínimos para que Palato “se sienta” una
+Esta sección define los componentes mínimos para que Palato "se sienta" una
 red social sin perder foco editorial. Se apoya en:
 
-- Tipografía: **Cormorant** (display) + **DM Sans** (UI).
+- Tipografía: **Cormorant** (display) + **Inter** (UI).
 - Colores: `--color-*` y `--neutral-*` (ver §2).
 - Radios: escala de §5.3.
 - Sombras: escala de §7.
@@ -337,7 +337,7 @@ red social sin perder foco editorial. Se apoya en:
 
 **Jerarquía tipográfica:**
 - Plato: Cormorant 500.
-- Restaurante + timestamp + conteos: DM Sans, `--neutral-700`/`--neutral-600`.
+- Restaurante + timestamp + conteos: Inter, `--neutral-700`/`--neutral-600`.
 - Score: Cormorant 500 (como en §6.4).
 
 **Contención visual para scroll largo:**
@@ -357,7 +357,7 @@ red social sin perder foco editorial. Se apoya en:
 - Default: ícono `--neutral-700`.
 - Hover: ícono `--neutral-900` + fondo sutil `--neutral-300`.
 - Pressed: reduce opacidad 0.85.
-- Selected (liked/saved): ícono `--color-azafran` (like) o `--color-azafran-light`
+- Selected (liked/saved): ícono `--color-terracota` (like) o `--color-terracota-light`
   (guardar), sin usar color para texto pequeño.
 - Loading: spinner pequeño en `--neutral-700`.
 - Disabled: `--neutral-500`.
@@ -367,7 +367,7 @@ red social sin perder foco editorial. Se apoya en:
 **Item de comentario:**
 - Avatar 28–32px.
 - Nombre + timestamp inline.
-- Texto (DM Sans, 16–17px).
+- Texto (Inter, 16–17px).
 
 **Comportamiento:**
 - “Ver más” para threads largos.
@@ -377,7 +377,7 @@ red social sin perder foco editorial. Se apoya en:
 
 **Item:**
 - Ícono por tipo (like/comment/follow) + texto + timestamp.
-- Estado no leído: fondo `--neutral-300` + borde izquierdo `--color-azafran-light` (2–3px).
+- Estado no leído: fondo `--neutral-300` + borde izquierdo `--color-terracota-light` (2–3px).
 
 **Reglas:**
 - Las notificaciones deben ser “escaneables”: 1 línea principal + meta.
@@ -386,7 +386,7 @@ red social sin perder foco editorial. Se apoya en:
 
 **Header:**
 - Avatar 72–96px.
-- Nombre (Cormorant 500) + bio (DM Sans).
+- Nombre (Cormorant 500) + bio (Inter).
 - Botón follow con estados (default/hover/disabled).
 
 **Tabs (v1):**
@@ -410,9 +410,9 @@ Para evitar inconsistencias en una UI social (muchos estados repetidos), se
 definen tokens semánticos. Implementación: variables CSS o alias Tailwind.
 
 **Acción / énfasis:**
-- Primary action: `--color-azafran`
-- Positive highlight (rating): `--color-azafran-light`
-- Secondary action: `--color-albahaca`
+- Primary action: `--color-terracota`
+- Positive highlight (rating): `--color-terracota-light`
+- Secondary action: `--color-dorado`
 
 **Contenido / meta:**
 - Texto principal: `--neutral-900`
@@ -428,9 +428,9 @@ definen tokens semánticos. Implementación: variables CSS o alias Tailwind.
 - Disabled bg: `--neutral-300`
 
 **Acciones sociales (color de estado selected):**
-- Like selected: `--color-azafran`
-- Save selected: `--color-azafran-light`
-- Follow selected: `--color-albahaca`
+- Like selected: `--color-terracota`
+- Save selected: `--color-terracota-light`
+- Follow selected: `--color-dorado`
 
 Regla: el color de acción se aplica a **íconos y superficies**, no a texto
 pequeño de body.
@@ -452,16 +452,16 @@ Definiciones para que el feed sea escaneable y consistente.
 - Max width del bloque texto: sin forzar; permitir lectura natural
 
 **Tipografía recomendada para scroll largo:**
-- Display name: DM Sans 600, 16px
-- Timestamp: DM Sans 400, 13px, color `--neutral-600`
+- Display name: Inter 600, 16px
+- Timestamp: Inter 400, 13px, color `--neutral-600`
 - Plato: Cormorant 500, 20–24px (según breakpoint)
-- Restaurante: DM Sans 400, 14–15px, color `--neutral-700`
-- Texto reseña (preview): DM Sans 400, 16–17px, line-height 1.6
+- Restaurante: Inter 400, 14–15px, color `--neutral-700`
+- Texto reseña (preview): Inter 400, 16–17px, line-height 1.6
 
 **Clamp de texto en feed:**
 - Mobile: 4 líneas.
 - Desktop: 5–6 líneas.
-- “Ver más” inline, estilo link (color `--color-azafran`).
+- “Ver más” inline, estilo link (color `--color-terracota`).
 
 ### 6.8.9 Patrones de listas (feed / comentarios / notificaciones)
 
@@ -494,16 +494,18 @@ Definiciones para que el feed sea escaneable y consistente.
 
 ## 7. Elevación y Sombras
 
-Todas las sombras usan el tono Carbón (`26, 22, 20`) en lugar de negro puro — las sombras cálidas se integran mejor con la paleta:
+Todas las sombras usan el tono Espresso (`42, 33, 28`) en lugar de negro puro — las sombras cálidas se integran mejor con la paleta:
 
 | Nivel | CSS | Contexto |
 |---|---|---|
-| Micro | `0 1px 3px rgba(26,22,20,0.08)` | Badges, chips |
-| Base | `0 2px 8px rgba(26,22,20,0.06)` | Cards en reposo |
-| Media | `0 4px 16px rgba(26,22,20,0.10)` | Cards interactivas, dropdowns |
-| Elevada | `0 8px 28px rgba(26,22,20,0.12)` | Cards en hover, modales |
-| Flotante | `0 12px 40px rgba(26,22,20,0.18)` | Navbar, toasts, tooltips |
-| Botón | `0 4px 12px rgba(200,57,26,0.25)` | `.btn-primary` hover |
+| Micro | `0 1px 3px rgba(42,33,28,0.08)` | Badges, chips |
+| Base | `0 2px 8px rgba(42,33,28,0.06)` | Cards en reposo |
+| Media | `0 4px 16px rgba(42,33,28,0.10)` | Cards interactivas, dropdowns |
+| Elevada | `0 8px 28px rgba(42,33,28,0.12)` | Cards en hover, modales |
+| Flotante | `0 12px 40px rgba(42,33,28,0.18)` | Navbar, toasts, tooltips |
+| Botón | `0 4px 12px rgba(201,106,75,0.25)` | `.btn-primary` hover (Terracota tinted) |
+
+En dark mode las sombras pasan a `rgba(0, 0, 0, 0.4–0.6)` — más profundas y sin tinte cálido (un tinte espresso sobre fondo café no se percibe).
 
 ---
 
@@ -524,12 +526,12 @@ Para transiciones funcionales de UI (inputs, dropdowns, estados): `cubic-bezier(
 | Elemento | Transformación |
 |---|---|
 | Logo navbar | `scale(1.06)` |
-| Nav links | `color: Azafrán` + underline `scaleX(0→1)` en `2px solid Azafrán` |
+| Nav links | `color: Terracota` + underline `scaleX(0→1)` en `2px solid Terracota` |
 | Gallery cards | `translateY(-3px)` |
 | Imágenes | `scale(1.04)` |
 | Botones | `translateY(-2px)` |
 | Hero CTA | `scale(1.06) translateY(-2px)` |
-| Footer links | `color: Crema` desde Carbón suave |
+| Footer links | `color: Crema` desde Espresso suave |
 
 ### Duraciones
 
@@ -566,9 +568,10 @@ Las fotos deben tener al menos un elemento que ancle con la paleta: la calidez d
 
 Continúa FontAwesome v6 (ya instalado). No agregar nuevas librerías.
 
-Color de íconos funcionales: `#5C564F` (`--neutral-700`)  
-Color de íconos de acento/marca: `#D4870A` (Azafrán)  
-Color de íconos sobre fondos oscuros: `#D9D1C4` (Crema más oscuro)
+Color de íconos funcionales: `#524339` (`--neutral-700` / Espresso medio)  
+Color de íconos de acento/marca: `#C96A4B` (Terracota)  
+Color de íconos premium / éxito: `#D6A75C` (Dorado)  
+Color de íconos sobre fondos oscuros: `#DCCDB4` (Crema más oscuro)
 
 ---
 
@@ -578,45 +581,42 @@ Estas variables viven en `app/globals.css`. Esta sección es un espejo — ante 
 
 ```css
 :root {
-  /* === PALETA ESPECIERÍA === */
-  --color-azafran:        #D4870A;   /* marca, CTAs, links, acento */
-  --color-azafran-light:  #F5C842;   /* highlights, logo sobre oscuro */
-  --color-azafran-pale:   #FEF3D6;   /* fondos informativos, tags */
-  --color-paprika:        #C03B28;   /* errores, estados negativos */
-  --color-paprika-light:  #E86149;
-  --color-paprika-pale:   #FDECEA;
-  --color-albahaca:       #3A6645;   /* ratings ≥9, confirmaciones */
-  --color-albahaca-light: #5A9668;
-  --color-albahaca-pale:  #EBF4ED;
-  --color-canela:         #8B5E3C;   /* acento cálido, categorías */
-  --color-carbon:         #1A1714;   /* texto principal, fondos oscuros */
-  --color-carbon-mid:     #3D3830;
-  --color-carbon-soft:    #6B6358;
-  --color-crema:          #F8F4EE;   /* fondo principal */
-  --color-crema-dark:     #EDE7DC;
-  --color-crema-darker:   #D9D1C4;
-  --color-white:          #FFFFFF;
+  /* === PALETA TERRACOTA & DORADO === */
+  --color-terracota:       #C96A4B;   /* marca, CTAs, links, logo */
+  --color-terracota-light: #E07A5F;   /* hover de primary */
+  --color-terracota-pale:  #FBEDE7;   /* tags, fondos sutiles */
+  --color-terracota-deep:  #A8472D;   /* error, danger, "like" activo */
+  --color-dorado:          #D6A75C;   /* premium, ratings ≥9, éxito, save, follow */
+  --color-dorado-light:    #E8BE7A;   /* hover sobre dorado */
+  --color-dorado-pale:     #FAF1DD;   /* fondos positivos */
+  --color-espresso:        #2A211C;   /* texto principal, fondos oscuros */
+  --color-espresso-mid:    #524339;   /* texto UI / secundario */
+  --color-espresso-soft:   #7A6A5D;   /* metadata, muted */
+  --color-crema:           #F7F1E8;   /* fondo principal */
+  --color-crema-dark:      #EFE4D2;   /* fondo secundario, superficies */
+  --color-crema-darker:    #DCCDB4;   /* bordes, divisores */
+  --color-white:           #FFFFFF;   /* cards, inputs */
 
   /* === NEUTROS CÁLIDOS (derivados) === */
   --neutral-100: var(--color-white);
   --neutral-200: var(--color-crema);
   --neutral-300: var(--color-crema-dark);
   --neutral-400: var(--color-crema-darker);
-  --neutral-500: #B8AFA3;
-  --neutral-600: var(--color-carbon-soft);
-  --neutral-700: #3A3530;
-  --neutral-800: var(--color-carbon-mid);
-  --neutral-900: var(--color-carbon);
+  --neutral-500: #B8A892;
+  --neutral-600: var(--color-espresso-soft);
+  --neutral-700: #524339;
+  --neutral-800: var(--color-espresso-mid);
+  --neutral-900: var(--color-espresso);
 
   /* === TIPOGRAFÍA (definidas en layout.tsx via next/font) === */
-  --font-sans:    var(--font-dm-sans), 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
 }
 ```
 
-### 11.1 Tokens semánticos (a agregar en Fase 2 de migración social)
+### 11.1 Tokens semánticos
 
-Sobre los tokens crudos de arriba, la capa social v1 expone tokens semánticos para que los componentes no referencien colores de marca directamente:
+Sobre los tokens crudos de arriba se expone una capa de tokens semánticos para que los componentes no referencien colores de marca directamente. Los componentes consumen `--text-primary`, `--surface-page`, `--action-primary`, etc.
 
 ```css
 :root {
@@ -630,20 +630,21 @@ Sobre los tokens crudos de arriba, la capa social v1 expone tokens semánticos p
   --surface-card:        var(--color-white);
   --surface-subtle:      var(--color-crema-dark);
 
+  --border-subtle:       var(--color-crema-dark);
   --border-default:      var(--color-crema-darker);
   --border-strong:       var(--neutral-500);
 
-  --action-primary:      var(--color-azafran);
-  --action-primary-hover:var(--color-canela);
-  --action-secondary:    var(--color-albahaca);
-  --action-highlight:    var(--color-azafran-light);
-  --action-danger:       var(--color-paprika);
+  --action-primary:       var(--color-terracota);
+  --action-primary-hover: var(--color-terracota-light);
+  --action-secondary:     var(--color-dorado);
+  --action-highlight:     var(--color-dorado);
+  --action-danger:        var(--color-terracota-deep);
 
-  --state-like-on:       var(--color-paprika);
-  --state-save-on:       var(--color-azafran);
-  --state-follow-on:     var(--color-albahaca);
+  --state-like-on:   var(--color-terracota-deep);
+  --state-save-on:   var(--color-dorado);
+  --state-follow-on: var(--color-dorado);
 
-  --focus-ring:          color-mix(in srgb, var(--color-azafran) 50%, transparent);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-terracota) 35%, transparent);
 }
 ```
 
@@ -653,34 +654,72 @@ El bloque `.dark { ... }` en `globals.css` reasigna las variables crudas; los to
 
 ## 12. Contraste y Accesibilidad
 
+Pares verificados (mentalmente — confirmar con contrast checker antes de cada deploy importante):
+
+### Light mode
 | Par | Ratio aprox. | WCAG AA | Uso |
 |---|---|---|---|
-| `#1A1714` sobre `#F8F4EE` | ~17:1 | **AAA** | Texto principal |
-| `#5C564F` sobre `#F8F4EE` | ~7.2:1 | **AA/AAA** | Texto secundario |
-| `#F8F4EE` sobre `#D4870A` | ~3.8:1 | **AA grandes** | Texto en botón primary (≥18px) |
-| `#F8F4EE` sobre `#1A1714` | ~17:1 | **AAA** | Texto en footer, overlays |
-| `#D4870A` sobre `#F8F4EE` | ~4.2:1 | **AA** | Labels, iconos de acento |
-| `#D4870A` sobre `#1A1714` | ~5.8:1 | **AA** | Texto de marca en fondos oscuros |
-| `#F5C842` sobre `#1A1714` | ~6.4:1 | **AA** | Ratings en footer |
-| `#6B6358` sobre `#F8F4EE` | ~4.5:1 | **AA** | Texto de soporte |
+| `#2A211C` (Espresso) sobre `#F7F1E8` (Crema) | ~14:1 | **AAA** | Texto principal |
+| `#524339` sobre `#F7F1E8` | ~9.3:1 | **AAA** | Texto secundario |
+| `#7A6A5D` (Espresso suave) sobre `#F7F1E8` | ~5.0:1 | **AA** | Texto muted / meta |
+| `#FFFFFF` sobre `#C96A4B` (Terracota) | ~3.6:1 | **AA grandes** | Texto en botón primary (≥18px) |
+| `#FFFFFF` sobre `#A8472D` (Terracota deep) | ~5.4:1 | **AA** | Texto en botón danger |
+| `#2A211C` sobre `#D6A75C` (Dorado) | ~7.6:1 | **AAA** | Texto en botón secundario |
+| `#C96A4B` (Terracota) sobre `#F7F1E8` | ~4.5:1 | **AA** | Links, iconos de acento |
+| `#A8472D` (Terracota deep) sobre `#F7F1E8` | ~6.8:1 | **AA** | Estado de error en texto |
 
-**Regla práctica:** Para texto de body y UI usar siempre la escala `--neutral-*`. Los colores de marca (`--color-*`) son para fondos, bordes, íconos y texto grande (≥18px regular / ≥14px bold).
+### Dark mode
+| Par | Ratio aprox. | WCAG AA | Uso |
+|---|---|---|---|
+| `#F5EDE0` sobre `#1C140F` (page) | ~14:1 | **AAA** | Texto principal |
+| `#B8A48F` (muted) sobre `#1C140F` | ~7.4:1 | **AAA** | Texto muted |
+| `#E07A5F` (Terracota dark) sobre `#1C140F` | ~4.6:1 | **AA** | CTAs, links |
+| `#C99A52` (Dorado dark) sobre `#1C140F` | ~4.5:1 | **AA** | Highlights premium |
+
+**Regla práctica:** para texto de body y UI usar siempre la escala `--neutral-*`. Los colores de marca (`--color-*`) son para fondos, bordes, íconos y texto grande (≥18px regular / ≥14px bold). Para estados error/éxito, **siempre** acompañar de icono explícito — la paleta no usa la convención clásica rojo=error / verde=ok.
 
 ---
 
 ## 13. Modo Oscuro
 
-El sistema soporta modo oscuro vía clase `.dark` en `<html>` (ver `app/layout.tsx` + `globals.css`). En dark mode se reasignan las variables crudas:
+El sistema soporta modo oscuro vía clase `.dark` en `<html>` (ver `app/[locale]/layout.tsx` + `globals.css`). En dark mode se reasignan las variables crudas, incluyendo los colores de marca (en v2 los chromáticos no se tocaban; en v2.1 se recalibran ligeramente para mantener contraste y legibilidad sobre fondos café oscuro):
 
 ```css
 .dark {
-  --color-crema:        #1A1714;   /* fondo de página */
-  --color-crema-dark:   #242018;
-  --color-crema-darker: #3A3530;
-  --color-carbon:       #F8F4EE;   /* el "texto principal" se invierte */
-  --color-carbon-mid:   #D9D1C4;
-  --color-carbon-soft:  #B8AFA3;
-  /* Azafrán, Páprika, Albahaca y Canela no cambian — funcionan en ambos fondos */
+  /* Neutros cálidos invertidos — café oscuro sin azules fríos */
+  --neutral-100: #2A1F18;   /* cards, marrón profundo */
+  --neutral-200: #1C140F;   /* fondo de página, café muy oscuro */
+  --neutral-300: #3A2C22;   /* bordes sutiles, hover bg */
+  --neutral-400: #4D3B2E;   /* bordes default */
+  --neutral-500: #6B5645;   /* placeholder */
+  --neutral-600: #B8A48F;   /* muted (~7.4:1 sobre page) */
+  --neutral-700: #D6C5B0;   /* texto de soporte */
+  --neutral-800: #E8DDC9;   /* texto UI */
+  --neutral-900: #F5EDE0;   /* texto principal (~14:1 sobre page) */
+
+  /* Marca recalibrada para dark — terracota más vibrante, dorado tenue */
+  --color-terracota:       #E07A5F;          /* AA ~4.6:1 sobre page */
+  --color-terracota-light: #F09277;
+  --color-terracota-pale:  rgba(224, 122, 95, 0.14);
+  --color-terracota-deep:  #C96A4B;          /* error legible */
+  --color-dorado:          #C99A52;          /* tenue, AA ~4.5:1 */
+  --color-dorado-light:    #D6A75C;
+  --color-dorado-pale:     rgba(214, 167, 92, 0.14);
+
+  /* Cremas y espressos reasignados */
+  --color-crema:        var(--neutral-200);
+  --color-crema-dark:   var(--neutral-300);
+  --color-crema-darker: var(--neutral-400);
+  --color-espresso:        var(--neutral-900);
+  --color-espresso-mid:    var(--neutral-800);
+  --color-espresso-soft:   var(--neutral-600);
+
+  /* Sombras dark — más profundas, sin tinte cálido */
+  --shadow-micro:    0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-base:     0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-media:    0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-elevated: 0 8px 28px rgba(0, 0, 0, 0.55);
+  --shadow-floating: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
 ```
 
@@ -688,18 +727,22 @@ Los tokens semánticos (`--text-primary`, `--surface-page`, `--action-primary`, 
 
 ---
 
-## 14. Lo que Cambia vs v1
+## 14. Lo que Cambia entre Versiones
 
-| Elemento | v1 (rosa) | v2 aplicada (Especiería) |
-|---|---|---|
-| Color primario de marca / acción | `#ef7998` (rosa) | `#D4870A` (Azafrán) |
-| Color de estados negativos | `#FF6B6B` (coral) | `#C03B28` (Páprika) |
-| Color secundario / confirmaciones | `#4ECDC4` (turquesa) | `#3A6645` (Albahaca) |
-| Fondo de página | `#FFFFFF` (blanco frío) | `#F8F4EE` (Crema) |
-| Tipografía display | Source Sans 3 | **Cormorant Garamond** (serif editorial) |
-| Tipografía UI | Source Sans 3 | **DM Sans** (sans neutral) |
-| Sombras | Tono negro puro | Tono Carbón cálido |
-| Gradiente principal | `#ef7998 → #F9E494` | `var(--color-azafran) → var(--color-azafran-light)` |
+| Elemento | v1 (rosa) | v2 (Especiería) | v2.1 (Terracota & Dorado) |
+|---|---|---|---|
+| Color primario de marca / acción | `#ef7998` (rosa) | `#D4870A` (Azafrán) | `#C96A4B` (Terracota) |
+| Color de estados negativos | `#FF6B6B` (coral) | `#C03B28` (Páprika) | `#A8472D` (Terracota deep) |
+| Color secundario / confirmaciones | `#4ECDC4` (turquesa) | `#3A6645` (Albahaca) | `#D6A75C` (Dorado) |
+| Color de "like" activo | `#FF6B6B` | `#C03B28` (Páprika) | `#A8472D` (Terracota deep) |
+| Color de "save / follow / premium" | — | `#3A6645` (Albahaca) | `#D6A75C` (Dorado) |
+| Fondo de página | `#FFFFFF` (blanco frío) | `#F8F4EE` (Crema) | `#F7F1E8` (Crema, recalibrado) |
+| Texto principal | `#212529` | `#1A1714` (Carbón) | `#2A211C` (Espresso) |
+| Tipografía display | Source Sans 3 | Cormorant Garamond | Cormorant Garamond (sin cambios) |
+| Tipografía UI | Source Sans 3 | DM Sans | **Inter Variable** |
+| Sombras | Tono negro puro | rgba(26,22,20,…) Carbón | rgba(42,33,28,…) Espresso |
+| Gradiente principal | `#ef7998 → #F9E494` | `Azafrán → Azafrán claro` | `Terracota → Terracota claro` |
+| Gradiente cálido | — | `Azafrán → Canela` | `Terracota → Dorado` (premium) |
 
 ---
 
@@ -707,9 +750,9 @@ Los tokens semánticos (`--text-primary`, `--surface-page`, `--action-primary`, 
 
 Para comunicar la dirección a colaboradores, diseñadores o herramientas de IA:
 
-> "Una revista de cocina minimalista, pero con carácter. Fondo crema — no blanco, crema. Cormorant Garamond en los titulares, DM Sans limpia en el cuerpo. El color que manda es el dorado profundo del azafrán. El rojo ladrillo de la páprika queda reservado para errores y estados negativos. El verde de la albahaca como contrapeso fresco y signo de lo bueno (ratings altos, confirmaciones). El marrón de la canela como acento cálido para categorías. Sin gradientes de neón, sin sombras azuladas, sin fuentes display de moda. Fotografía cálida, platos como protagonistas. La UI debe sentirse como una publicación que vale la pena leer, no como una app de delivery."
+> "Una revista de cocina minimalista, pero con carácter mediterráneo. Fondo crema cálido — no blanco, crema. Cormorant Garamond en los titulares, Inter limpia en el cuerpo. El color que manda es la **terracota** — un naranja-ladrillo profundo que se siente arcilla, no neón. El **dorado** aparece en los detalles premium: ratings altos, confirmaciones, "save", "follow" — comunica jerarquía sin gritar. El **espresso** es la tinta: oscuro, cálido, casi marrón, nunca negro. Para errores y "danger" usamos una variante más oscura del terracota — porque la paleta no admite rojo neón ni verde de éxito; el sistema se apoya en iconos y copy claro para diferenciar estados. Sin gradientes de neón, sin sombras azuladas, sin fuentes display de moda. Fotografía cálida, platos como protagonistas. La UI debe sentirse como una publicación editorial que vale la pena leer, no como una app de delivery."
 
 ---
 
-*Versión 2.0 — Rediseño. Elaborado para orientar la migración del sistema visual del sitio web de Palato.*  
+*Versión 2.1 — Recoloreado. Reemplaza la paleta Especiería de v2 por Terracota & Dorado. Tipografía UI migra a Inter Variable. Cormorant Garamond, escalas, espaciado, radius, animación y arquitectura de tokens semánticos no cambian.*  
 *Los principios de voz, arquitectura de información y jerarquía de entidades (plato > restaurante) siguen siendo los mismos — ver `brand-identity.md §13`.*

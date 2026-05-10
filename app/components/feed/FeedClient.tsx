@@ -427,7 +427,7 @@ function FollowingSortToggle({ value, onChange }: FollowingSortToggleProps) {
               'inline-flex h-8 items-center rounded-full px-3 font-sans text-xs font-medium transition-colors',
               'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
               active
-                ? 'bg-[color:var(--color-azafran)] text-text-inverse'
+                ? 'bg-[color:var(--color-terracota)] text-text-inverse'
                 : 'text-text-secondary hover:bg-surface-subtle',
             )}
           >

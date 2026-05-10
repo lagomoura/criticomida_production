@@ -280,7 +280,7 @@ export default function PublishReviewModal({
         type="button"
         aria-label={t('close')}
         onClick={requestClose}
-        className="absolute inset-0 cursor-default bg-color-carbon/55 backdrop-blur-md transition-opacity motion-safe:animate-[cc-modal-fade-in_180ms_ease-out]"
+        className="absolute inset-0 cursor-default bg-color-espresso/55 backdrop-blur-md transition-opacity motion-safe:animate-[cc-modal-fade-in_180ms_ease-out]"
       />
 
       <div
@@ -314,7 +314,7 @@ export default function PublishReviewModal({
 
         {/* Header */}
         <header className="relative px-6 pt-5 pb-4 sm:px-8 sm:pt-7 sm:pb-5">
-          <p className="font-sans text-[10.5px] font-semibold uppercase tracking-[0.22em] text-color-azafran">
+          <p className="font-sans text-[10.5px] font-semibold uppercase tracking-[0.22em] text-color-terracota">
             {t('kicker')}
           </p>
           <h2
@@ -409,13 +409,13 @@ export default function PublishReviewModal({
             role="alertdialog"
             aria-labelledby="publish-discard-title"
             className={[
-              'shrink-0 border-t border-color-paprika/30 bg-color-paprika-pale px-6 py-4 sm:px-8',
+              'shrink-0 border-t border-color-terracota-deep/30 bg-color-terracota-pale px-6 py-4 sm:px-8',
               'motion-safe:animate-[cc-modal-fade-in_150ms_ease-out]',
             ].join(' ')}
           >
             <p
               id="publish-discard-title"
-              className="mb-3 font-sans text-sm font-semibold text-color-paprika"
+              className="mb-3 font-sans text-sm font-semibold text-color-terracota-deep"
             >
               {t('discardConfirmTitle')}
             </p>
@@ -491,7 +491,7 @@ function DishPicker({
             'pl-11 pr-4 py-3 font-sans text-base text-text-primary',
             'placeholder:text-text-muted/80',
             'transition-all',
-            'focus:border-color-azafran focus:bg-surface-card focus:outline-none',
+            'focus:border-color-terracota focus:bg-surface-card focus:outline-none',
             'focus-visible:[box-shadow:var(--focus-ring)]',
           ].join(' ')}
           placeholder={isMenuEmpty ? t('searchEmpty') : t('searchPlaceholder')}
@@ -513,12 +513,12 @@ function DishPicker({
                     'group relative flex w-full items-center gap-3 overflow-hidden',
                     'rounded-2xl border border-border-subtle bg-surface-page px-3 py-2.5 text-left',
                     'transition-all',
-                    'hover:border-color-azafran hover:bg-color-azafran-pale hover:shadow-[var(--shadow-micro)]',
+                    'hover:border-color-terracota hover:bg-color-terracota-pale hover:shadow-[var(--shadow-micro)]',
                     'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
                   ].join(' ')}
                 >
                   <span
-                    className="absolute left-0 top-0 h-full w-0.5 bg-color-azafran opacity-0 transition-opacity group-hover:opacity-100"
+                    className="absolute left-0 top-0 h-full w-0.5 bg-color-terracota opacity-0 transition-opacity group-hover:opacity-100"
                     aria-hidden
                   />
                   <DishThumb url={dish.cover_image_url} />
@@ -528,7 +528,7 @@ function DishPicker({
                     </p>
                     <div className="mt-0.5 flex items-center gap-2">
                       {dish.price_tier && (
-                        <span className="font-display text-sm font-semibold text-color-canela">
+                        <span className="font-display text-sm font-semibold text-color-terracota-deep">
                           {dish.price_tier}
                         </span>
                       )}
@@ -543,7 +543,7 @@ function DishPicker({
                   </div>
                   <FontAwesomeIcon
                     icon={faChevronRight}
-                    className="h-3 w-3 text-text-muted transition-all group-hover:translate-x-0.5 group-hover:text-color-azafran"
+                    className="h-3 w-3 text-text-muted transition-all group-hover:translate-x-0.5 group-hover:text-color-terracota"
                     aria-hidden
                   />
                 </button>
@@ -561,25 +561,25 @@ function DishPicker({
             onClick={onPickNew}
             className={[
               'group flex w-full items-center gap-3 overflow-hidden',
-              'rounded-2xl border-2 border-dashed border-color-azafran bg-color-azafran-pale px-4 py-3 text-left',
-              'transition-all hover:bg-color-azafran-pale hover:shadow-[var(--shadow-micro)]',
+              'rounded-2xl border-2 border-dashed border-color-terracota bg-color-terracota-pale px-4 py-3 text-left',
+              'transition-all hover:bg-color-terracota-pale hover:shadow-[var(--shadow-micro)]',
               'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
             ].join(' ')}
           >
-            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-color-azafran text-text-inverse">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-color-terracota text-text-inverse">
               <FontAwesomeIcon icon={faPlus} className="h-4 w-4" aria-hidden />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="m-0 font-sans text-[10.5px] font-semibold uppercase tracking-[0.16em] text-color-azafran">
+              <p className="m-0 font-sans text-[10.5px] font-semibold uppercase tracking-[0.16em] text-color-terracota">
                 {t('createNewDish')}
               </p>
-              <p className="mt-0.5 truncate font-sans text-[15px] font-semibold text-color-canela">
+              <p className="mt-0.5 truncate font-sans text-[15px] font-semibold text-color-terracota-deep">
                 {query.trim()}
               </p>
             </div>
             <FontAwesomeIcon
               icon={faChevronRight}
-              className="h-3 w-3 text-color-canela transition-all group-hover:translate-x-0.5"
+              className="h-3 w-3 text-color-terracota-deep transition-all group-hover:translate-x-0.5"
               aria-hidden
             />
           </button>
@@ -640,7 +640,7 @@ function SelectedDishCard({
       {kind === 'existing' ? (
         <DishThumb url={coverUrl} />
       ) : (
-        <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-color-azafran text-text-inverse">
+        <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-color-terracota text-text-inverse">
           <FontAwesomeIcon icon={faPlus} className="h-4 w-4" aria-hidden />
         </span>
       )}
@@ -651,14 +651,14 @@ function SelectedDishCard({
               'inline-flex items-center rounded-full px-2 py-0.5',
               'font-sans text-[10px] font-semibold uppercase tracking-[0.12em]',
               kind === 'existing'
-                ? 'bg-color-albahaca-pale text-color-albahaca'
-                : 'bg-color-azafran-pale text-color-canela',
+                ? 'bg-color-dorado-pale text-color-dorado'
+                : 'bg-color-terracota-pale text-color-terracota-deep',
             ].join(' ')}
           >
             {kind === 'existing' ? t('fromMenuBadge') : t('newBadge')}
           </span>
           {priceTier && (
-            <span className="font-display text-sm font-semibold text-color-canela">
+            <span className="font-display text-sm font-semibold text-color-terracota-deep">
               {priceTier}
             </span>
           )}
@@ -711,7 +711,7 @@ function NewDishInlineFields({
     'w-full rounded-xl border border-border-subtle bg-surface-card',
     'px-4 py-3 font-sans text-base text-text-primary',
     'placeholder:text-text-muted/80 transition-all',
-    'focus:border-color-azafran focus:outline-none',
+    'focus:border-color-terracota focus:outline-none',
     'focus-visible:[box-shadow:var(--focus-ring)]',
   ].join(' ');
 
@@ -753,7 +753,7 @@ function NewDishInlineFields({
                     'rounded-xl border-2 px-3 py-2 transition-all',
                     'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
                     isSelected
-                      ? 'border-color-azafran bg-color-azafran-pale text-color-canela shadow-[var(--shadow-micro)]'
+                      ? 'border-color-terracota bg-color-terracota-pale text-color-terracota-deep shadow-[var(--shadow-micro)]'
                       : 'border-border-subtle bg-surface-card text-text-secondary hover:border-border-default hover:bg-surface-subtle',
                   ].join(' ')}
                 >
@@ -787,13 +787,13 @@ function NewDishInlineFields({
               </button>
             </div>
           ) : (
-            <label className="group flex h-[88px] w-[88px] cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border-default bg-surface-card transition-all hover:border-color-azafran hover:bg-color-azafran-pale">
+            <label className="group flex h-[88px] w-[88px] cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border-default bg-surface-card transition-all hover:border-color-terracota hover:bg-color-terracota-pale">
               <FontAwesomeIcon
                 icon={faImage}
-                className="h-5 w-5 text-text-muted transition-colors group-hover:text-color-azafran"
+                className="h-5 w-5 text-text-muted transition-colors group-hover:text-color-terracota"
                 aria-hidden
               />
-              <span className="font-sans text-[10px] font-medium text-text-muted group-hover:text-color-canela">
+              <span className="font-sans text-[10px] font-medium text-text-muted group-hover:text-color-terracota-deep">
                 {t('uploadPhoto')}
               </span>
               <input type="file" accept="image/*" className="sr-only" onChange={onCoverChange} />

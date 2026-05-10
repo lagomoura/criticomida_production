@@ -8,14 +8,14 @@
 
 ## Contexto del proyecto (ancla)
 
-Palato es una red social editorial centrada en **platos** (no restaurantes). El principio no-negociable es *plato > restaurante*. Estamos en plena migración del modelo "guía editorial" al modelo "feed + conversación" (spec social v1). La identidad visual v2 (Especiería + Cormorant Garamond + DM Sans) ya está aplicada en código.
+Palato es una red social editorial centrada en **platos** (no restaurantes). El principio no-negociable es *plato > restaurante*. Estamos en plena migración del modelo "guía editorial" al modelo "feed + conversación" (spec social v1). La identidad visual v2.1 (Terracota & Dorado + Cormorant Garamond + Inter Variable) ya está aplicada en código.
 
 ---
 
 ## Estado de implementación — lo que YA está hecho
 
 ### Identidad visual y design system
-- `brand-identity-v2.md` reconciliado con `globals.css` (paleta Especiería, Cormorant + DM Sans cargadas vía `next/font`).
+- `brand-identity-v2.md` reconciliado con `globals.css` (paleta Terracota & Dorado v2.1, Cormorant + Inter Variable cargadas vía `next/font`).
 - Tokens semánticos expuestos como variables CSS y utilidades Tailwind (`--text-*`, `--surface-*`, `--action-*`, `--state-*-on`, `--focus-ring`).
 - Modo oscuro vía clase `.dark` + anti-flicker script.
 - `prefers-reduced-motion` respetado en `globals.css:1824`.

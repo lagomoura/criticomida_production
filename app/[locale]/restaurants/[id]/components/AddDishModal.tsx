@@ -192,7 +192,7 @@ export default function AddDishModal({
         aria-label={t('close')}
         onClick={() => !submitting && onClose()}
         disabled={submitting}
-        className="absolute inset-0 cursor-default bg-color-carbon/55 backdrop-blur-md transition-opacity motion-safe:animate-[cc-modal-fade-in_180ms_ease-out] disabled:cursor-wait"
+        className="absolute inset-0 cursor-default bg-color-espresso/55 backdrop-blur-md transition-opacity motion-safe:animate-[cc-modal-fade-in_180ms_ease-out] disabled:cursor-wait"
       />
 
       {/* Sheet / Modal */}
@@ -223,7 +223,7 @@ export default function AddDishModal({
 
         {/* Header */}
         <header className="relative px-6 pt-5 pb-4 sm:px-7 sm:pt-7 sm:pb-5">
-          <p className="font-sans text-[10.5px] font-semibold uppercase tracking-[0.22em] text-color-azafran">
+          <p className="font-sans text-[10.5px] font-semibold uppercase tracking-[0.22em] text-color-terracota">
             {t('kicker')}
           </p>
           <h2
@@ -318,7 +318,7 @@ export default function AddDishModal({
               {error && (
                 <div
                   role="alert"
-                  className="rounded-xl border border-color-paprika/30 bg-color-paprika-pale px-4 py-3 text-sm font-medium text-color-paprika"
+                  className="rounded-xl border border-color-terracota-deep/30 bg-color-terracota-pale px-4 py-3 text-sm font-medium text-color-terracota-deep"
                 >
                   {error}
                 </div>
@@ -326,7 +326,7 @@ export default function AddDishModal({
               {warning && (
                 <div
                   role="status"
-                  className="rounded-xl border border-color-azafran/30 bg-color-azafran-pale px-4 py-3 text-sm font-medium text-color-canela"
+                  className="rounded-xl border border-color-terracota/30 bg-color-terracota-pale px-4 py-3 text-sm font-medium text-color-terracota-deep"
                 >
                   {warning}
                 </div>
@@ -343,9 +343,9 @@ export default function AddDishModal({
                 disabled={submitting || !name.trim() || hasExactDuplicate}
                 className={[
                   'inline-flex items-center justify-center gap-2 rounded-full',
-                  'border-2 border-color-azafran bg-surface-card px-5 py-2.5',
-                  'font-sans text-sm font-semibold text-color-canela',
-                  'transition-all hover:bg-color-azafran-pale',
+                  'border-2 border-color-terracota bg-surface-card px-5 py-2.5',
+                  'font-sans text-sm font-semibold text-color-terracota-deep',
+                  'transition-all hover:bg-color-terracota-pale',
                   'active:translate-y-[1px]',
                   'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
                   'disabled:cursor-not-allowed disabled:opacity-50',
@@ -399,7 +399,7 @@ const inputClass = [
   'px-4 py-3 font-sans text-base text-text-primary',
   'placeholder:text-text-muted/80',
   'transition-all',
-  'focus:border-color-azafran focus:bg-surface-card focus:outline-none',
+  'focus:border-color-terracota focus:bg-surface-card focus:outline-none',
   'focus-visible:[box-shadow:var(--focus-ring)]',
   'disabled:opacity-60',
 ].join(' ');
@@ -420,7 +420,7 @@ function Field({
       <label className="mb-1.5 flex items-baseline justify-between gap-2">
         <span className="font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-text-secondary">
           {label}
-          {required && <span className="ml-1 text-color-azafran" aria-hidden>*</span>}
+          {required && <span className="ml-1 text-color-terracota" aria-hidden>*</span>}
         </span>
         {hint && (
           <span className="font-sans text-[10.5px] uppercase tracking-[0.1em] text-text-muted">
@@ -453,7 +453,7 @@ function DuplicatesHint({
       className={[
         'mt-2 overflow-hidden rounded-xl border bg-surface-card transition-colors',
         exact
-          ? 'border-color-azafran bg-color-azafran-pale'
+          ? 'border-color-terracota bg-color-terracota-pale'
           : 'border-border-subtle',
       ].join(' ')}
     >
@@ -462,7 +462,7 @@ function DuplicatesHint({
           icon={faStar}
           className={[
             'h-3 w-3',
-            exact ? 'text-color-azafran' : 'text-text-muted',
+            exact ? 'text-color-terracota' : 'text-text-muted',
           ].join(' ')}
           aria-hidden
         />
@@ -478,7 +478,7 @@ function DuplicatesHint({
               onClick={() => onPick(d)}
               className={[
                 'group flex w-full items-center gap-3 px-3.5 py-2.5 text-left',
-                'transition-colors hover:bg-color-azafran-pale/50',
+                'transition-colors hover:bg-color-terracota-pale/50',
                 'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
               ].join(' ')}
             >
@@ -504,7 +504,7 @@ function DuplicatesHint({
                   </p>
                 )}
               </div>
-              <span className="font-sans text-[11px] font-semibold text-color-canela transition-transform group-hover:translate-x-0.5">
+              <span className="font-sans text-[11px] font-semibold text-color-terracota-deep transition-transform group-hover:translate-x-0.5">
                 {t('reviewIt')}
               </span>
             </button>
@@ -532,7 +532,7 @@ function CoverPhotoField({
       <div className="relative h-44 overflow-hidden rounded-2xl border border-border-subtle bg-surface-page">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={preview} alt="" className="h-full w-full object-cover" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-color-carbon/55 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-color-espresso/55 to-transparent" />
         <button
           type="button"
           onClick={onClear}
@@ -550,7 +550,7 @@ function CoverPhotoField({
           <FontAwesomeIcon icon={faTrashCan} className="h-3 w-3" aria-hidden />
           {t('remove')}
         </button>
-        <div className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-surface-card/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-color-azafran backdrop-blur">
+        <div className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-surface-card/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-color-terracota backdrop-blur">
           <FontAwesomeIcon icon={faImage} className="h-3 w-3" aria-hidden />
           {t('photoLoaded')}
         </div>
@@ -595,9 +595,9 @@ function CoverPhotoField({
         <label
           className={[
             'group inline-flex cursor-pointer items-center gap-2 rounded-full',
-            'border-2 border-color-azafran bg-surface-card px-4 py-2.5',
-            'font-sans text-sm font-semibold text-color-canela',
-            'transition-all hover:bg-color-azafran-pale',
+            'border-2 border-color-terracota bg-surface-card px-4 py-2.5',
+            'font-sans text-sm font-semibold text-color-terracota-deep',
+            'transition-all hover:bg-color-terracota-pale',
             'active:translate-y-[1px]',
             'focus-within:outline-none focus-within:[box-shadow:var(--focus-ring)]',
           ].join(' ')}

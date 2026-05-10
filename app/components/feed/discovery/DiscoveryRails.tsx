@@ -83,11 +83,11 @@ function GeoCTA({ status, onRequest }: GeoCTAProps) {
     status === 'denied' ? t('bodyDenied') : t('bodyRequest');
 
   return (
-    <section className="flex flex-col items-start gap-3 rounded-2xl border border-[var(--color-azafran-pale)] bg-[var(--color-crema)] p-4 sm:flex-row sm:items-center sm:justify-between">
+    <section className="flex flex-col items-start gap-3 rounded-2xl border border-[var(--color-terracota-pale)] bg-[var(--color-crema)] p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-start gap-3">
         <FontAwesomeIcon
           icon={faLocationCrosshairs}
-          className="mt-1 h-5 w-5 text-[var(--color-azafran)]"
+          className="mt-1 h-5 w-5 text-[var(--color-terracota)]"
           aria-hidden
         />
         <div>

@@ -420,7 +420,7 @@ export default function ComposeClient() {
         <div
           role="status"
           aria-live="polite"
-          className="flex items-start gap-3 rounded-2xl border border-color-azafran/40 bg-color-azafran-pale px-3.5 py-3 shadow-[var(--shadow-micro)]"
+          className="flex items-start gap-3 rounded-2xl border border-color-terracota/40 bg-color-terracota-pale px-3.5 py-3 shadow-[var(--shadow-micro)]"
         >
           <div className="flex flex-1 flex-col gap-0.5">
             <p className="m-0 font-sans text-sm font-semibold text-text-primary">
@@ -433,7 +433,7 @@ export default function ComposeClient() {
           <button
             type="button"
             onClick={handleDiscardDraft}
-            className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-border-default bg-surface-card px-3 font-sans text-xs font-semibold text-text-secondary hover:border-color-paprika hover:text-color-paprika focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+            className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-border-default bg-surface-card px-3 font-sans text-xs font-semibold text-text-secondary hover:border-color-terracota-deep hover:text-color-terracota-deep focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
           >
             <FontAwesomeIcon icon={faXmark} className="h-3 w-3" aria-hidden />
             {t('draftDiscard')}
@@ -510,7 +510,7 @@ export default function ComposeClient() {
                         'rounded-xl border-2 px-3 py-2 transition-all',
                         'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
                         isSelected
-                          ? 'border-color-azafran bg-color-azafran-pale text-color-canela shadow-[var(--shadow-micro)]'
+                          ? 'border-color-terracota bg-color-terracota-pale text-color-terracota-deep shadow-[var(--shadow-micro)]'
                           : 'border-border-subtle bg-surface-card text-text-secondary hover:border-border-default hover:bg-surface-subtle',
                       ].join(' ')}
                     >

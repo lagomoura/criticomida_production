@@ -47,7 +47,7 @@ export default function AddMenuModal({
           'my-auto flex w-full max-w-full flex-col sm:max-w-lg'
         }
       >
-        <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
+        <div className="flex flex-col overflow-hidden rounded-2xl bg-[var(--color-surface-card)] shadow-xl">
           <div className="modal-header flex items-center justify-between border-b border-neutral-200 px-5 pb-3 pt-4">
             <h5 className="modal-title m-0 flex items-center text-lg font-semibold">
               <span className="mr-2 text-xl" aria-hidden>

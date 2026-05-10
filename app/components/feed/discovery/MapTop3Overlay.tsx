@@ -62,7 +62,7 @@ export default function MapTop3Overlay({ pins, sort, onSelect }: Props) {
         aria-expanded={!collapsed}
         className="flex w-full items-center gap-2 border-b border-border-default px-3 py-2 text-left font-sans text-xs font-semibold text-text-primary hover:bg-surface-subtle"
       >
-        <FontAwesomeIcon icon={faTrophy} className="text-[color:var(--color-azafran)] text-xs" aria-hidden />
+        <FontAwesomeIcon icon={faTrophy} className="text-[color:var(--color-terracota)] text-xs" aria-hidden />
         <span className="flex-1 truncate">{SORT_LABEL[sort]}</span>
         <FontAwesomeIcon
           icon={collapsed ? faChevronDown : faChevronUp}
@@ -87,7 +87,7 @@ export default function MapTop3Overlay({ pins, sort, onSelect }: Props) {
                     className={cn(
                       'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold',
                       idx === 0
-                        ? 'bg-[color:var(--color-azafran)] text-white'
+                        ? 'bg-[color:var(--color-terracota)] text-white'
                         : 'bg-surface-subtle text-text-primary',
                     )}
                   >
@@ -110,7 +110,7 @@ export default function MapTop3Overlay({ pins, sort, onSelect }: Props) {
                       {pin.name}
                     </div>
                   </div>
-                  <span className="shrink-0 rounded-full bg-[color:var(--color-azafran-pale)] px-1.5 py-0.5 font-sans text-[11px] font-semibold text-[color:var(--color-azafran)]">
+                  <span className="shrink-0 rounded-full bg-[color:var(--color-terracota-pale)] px-1.5 py-0.5 font-sans text-[11px] font-semibold text-[color:var(--color-terracota)]">
                     {sort === 'trending'
                       ? `${Math.round(score)}↑`
                       : sort === 'value_prop'

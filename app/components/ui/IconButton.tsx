@@ -90,11 +90,11 @@ function selectedClassesFor(intent: IconButtonIntent, selected: boolean): string
   if (!selected) return 'text-text-muted';
   switch (intent) {
     case 'like':
-      return 'text-[var(--state-like-on)] bg-[color:var(--color-paprika-pale)] hover:bg-[color:var(--color-paprika-pale)]';
+      return 'text-[var(--state-like-on)] bg-[color:var(--color-terracota-pale)] hover:bg-[color:var(--color-terracota-pale)]';
     case 'save':
-      return 'text-[var(--state-save-on)] bg-[color:var(--color-azafran-pale)] hover:bg-[color:var(--color-azafran-pale)]';
+      return 'text-[var(--state-save-on)] bg-[color:var(--color-terracota-pale)] hover:bg-[color:var(--color-terracota-pale)]';
     case 'follow':
-      return 'text-[var(--state-follow-on)] bg-[color:var(--color-albahaca-pale)] hover:bg-[color:var(--color-albahaca-pale)]';
+      return 'text-[var(--state-follow-on)] bg-[color:var(--color-dorado-pale)] hover:bg-[color:var(--color-dorado-pale)]';
     default:
       return 'text-text-primary';
   }

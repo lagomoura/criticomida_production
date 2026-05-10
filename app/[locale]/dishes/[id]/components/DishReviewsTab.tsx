@@ -59,11 +59,11 @@ export default function DishReviewsTab({
 
   if (posts.length === 0) {
     return (
-      <section className="rounded-3xl border border-dashed border-[var(--color-crema-darker)] bg-[var(--color-white)] p-10 text-center">
-        <p className="font-[family-name:var(--font-display)] text-xl text-[var(--color-carbon)]">
+      <section className="rounded-3xl border border-dashed border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] p-10 text-center">
+        <p className="font-[family-name:var(--font-display)] text-xl text-[var(--color-espresso)]">
           {t('emptyTitle')}
         </p>
-        <p className="mt-1 text-sm text-[var(--color-carbon-soft)]">
+        <p className="mt-1 text-sm text-[var(--color-espresso-soft)]">
           {t('emptyDescription')}
         </p>
       </section>
@@ -73,28 +73,28 @@ export default function DishReviewsTab({
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)]">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)]">
           {t('heading', { count: posts.length })}
         </h2>
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          <label className="inline-flex items-center gap-1.5 text-xs text-[var(--color-carbon-soft)]">
+          <label className="inline-flex items-center gap-1.5 text-xs text-[var(--color-espresso-soft)]">
             {t('sortLabel')}
             <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value as SortKey)}
-              className="rounded-full border border-[var(--color-crema-darker)] bg-white px-2 py-1 text-xs text-[var(--color-carbon)]"
+              className="rounded-full border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] px-2 py-1 text-xs text-[var(--color-espresso)]"
             >
               <option value="recent">{t('sortRecent')}</option>
               <option value="best">{t('sortBest')}</option>
               <option value="worst">{t('sortWorst')}</option>
             </select>
           </label>
-          <label className="inline-flex items-center gap-1.5 text-xs text-[var(--color-carbon-soft)]">
+          <label className="inline-flex items-center gap-1.5 text-xs text-[var(--color-espresso-soft)]">
             <input
               type="checkbox"
               checked={withPhotosOnly}
               onChange={(e) => setWithPhotosOnly(e.target.checked)}
-              className="accent-[var(--color-azafran)]"
+              className="accent-[var(--color-terracota)]"
             />
             {t('withPhotosOnly')}
           </label>
@@ -123,7 +123,7 @@ export default function DishReviewsTab({
             type="button"
             onClick={handleLoadMore}
             disabled={loading}
-            className="rounded-full border border-[var(--color-crema-darker)] bg-white px-5 py-2 text-sm font-semibold text-[var(--color-carbon)] transition hover:border-[var(--color-azafran)] disabled:opacity-50"
+            className="rounded-full border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] px-5 py-2 text-sm font-semibold text-[var(--color-espresso)] transition hover:border-[var(--color-terracota)] disabled:opacity-50"
           >
             {loading ? t('loading') : t('loadMore')}
           </button>

@@ -17,18 +17,18 @@ export default function ClaimPromptFooter({
   if (viewerIsOwner) {
     return (
       <aside
-        className="mt-8 flex flex-col items-center gap-1 rounded-2xl border border-[var(--color-albahaca-pale)] bg-[var(--color-albahaca)]/10 px-4 py-5 text-center"
+        className="mt-8 flex flex-col items-center gap-1 rounded-2xl border border-[var(--color-dorado-pale)] bg-[var(--color-dorado)]/10 px-4 py-5 text-center"
         aria-labelledby="owner-panel-title"
       >
         <p
           id="owner-panel-title"
-          className="font-sans text-sm text-[var(--color-albahaca)]"
+          className="font-sans text-sm text-[var(--color-dorado)]"
         >
           {t('ownerLine')}
         </p>
         <Link
           href={`/restaurants/${restaurantSlug}/owner`}
-          className="font-sans text-sm font-semibold text-[var(--color-albahaca)] no-underline hover:underline"
+          className="font-sans text-sm font-semibold text-[var(--color-dorado)] no-underline hover:underline"
         >
           {t('ownerCta')}
         </Link>
@@ -42,7 +42,7 @@ export default function ClaimPromptFooter({
 
   return (
     <aside
-      className="mt-8 flex flex-col items-center gap-1 rounded-2xl border border-dashed border-[var(--color-crema-darker)] bg-[var(--color-white)] px-4 py-5 text-center"
+      className="mt-8 flex flex-col items-center gap-1 rounded-2xl border border-dashed border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] px-4 py-5 text-center"
       aria-labelledby="claim-prompt-title"
     >
       <p
@@ -53,7 +53,7 @@ export default function ClaimPromptFooter({
       </p>
       <Link
         href={`/restaurants/${restaurantSlug}/claim`}
-        className="font-sans text-sm font-semibold text-[var(--color-canela)] no-underline hover:underline"
+        className="font-sans text-sm font-semibold text-[var(--color-terracota-deep)] no-underline hover:underline"
       >
         {t('promptCta')}
       </Link>

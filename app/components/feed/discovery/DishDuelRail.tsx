@@ -146,7 +146,7 @@ export default function DishDuelRail({
           {items.map((dish, idx) => (
             <div key={dish.dishId} className="relative">
               {idx === 0 && (
-                <span className="absolute -top-2 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-[color:var(--color-albahaca)] px-2.5 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-text-inverse shadow">
+                <span className="absolute -top-2 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-[color:var(--color-dorado)] px-2.5 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-text-inverse shadow">
                   {t('winner')}
                 </span>
               )}

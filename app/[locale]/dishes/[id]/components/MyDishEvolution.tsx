@@ -81,7 +81,7 @@ export default function MyDishEvolution({
       <header className="flex items-baseline gap-3">
         <FontAwesomeIcon
           icon={faClockRotateLeft}
-          className="text-[color:var(--color-azafran)] text-[1rem]"
+          className="text-[color:var(--color-terracota)] text-[1rem]"
           aria-hidden
         />
         <div>
@@ -245,7 +245,7 @@ function VisitCard({
               <button
                 type="button"
                 onClick={() => setNoteExpanded((v) => !v)}
-                className="ml-1 inline font-semibold text-color-azafran hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                className="ml-1 inline font-semibold text-color-terracota hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
               >
                 {noteExpanded ? t('noteCollapse') : t('noteReadMore')}
               </button>
@@ -258,7 +258,7 @@ function VisitCard({
         <button
           type="button"
           onClick={() => router.push(`/reviews/${review.id}`)}
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full font-sans text-[11px] font-semibold text-color-canela hover:text-color-azafran focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full font-sans text-[11px] font-semibold text-color-terracota-deep hover:text-color-terracota focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
           <FontAwesomeIcon icon={faPenToSquare} className="h-2.5 w-2.5" aria-hidden />
           {t('viewVisit')}
@@ -293,7 +293,7 @@ function PillarLine({
       >
         {hasValue && (
           <span
-            className="absolute inset-y-0 left-0 rounded-full bg-[color:var(--color-azafran)]"
+            className="absolute inset-y-0 left-0 rounded-full bg-[color:var(--color-terracota)]"
             style={{ width: `${pct}%` }}
           />
         )}
@@ -307,8 +307,8 @@ function PillarLine({
           className={cn(
             'h-2.5 w-2.5 shrink-0',
             delta > 0
-              ? 'text-[color:var(--color-albahaca)]'
-              : 'text-[color:var(--color-paprika)]',
+              ? 'text-[color:var(--color-dorado)]'
+              : 'text-[color:var(--color-terracota-deep)]',
           )}
           title={t('pillarDeltaTooltipChange', { delta })}
           aria-label={t('pillarDeltaTooltipChange', { delta })}
@@ -335,9 +335,9 @@ function DeltaPill({
     sign === 'up' ? faArrowTrendUp : sign === 'down' ? faArrowTrendDown : faMinus;
   const color =
     sign === 'up'
-      ? 'text-[color:var(--color-albahaca)] bg-[color:var(--color-albahaca-pale)]'
+      ? 'text-[color:var(--color-dorado)] bg-[color:var(--color-dorado-pale)]'
       : sign === 'down'
-        ? 'text-[color:var(--color-paprika)] bg-[color:var(--color-paprika-pale)]'
+        ? 'text-[color:var(--color-terracota-deep)] bg-[color:var(--color-terracota-pale)]'
         : 'text-text-muted bg-surface-subtle';
   const formattedValue = formatValue
     ? formatValue(delta)

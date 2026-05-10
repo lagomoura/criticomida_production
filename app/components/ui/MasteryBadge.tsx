@@ -21,11 +21,11 @@ const ICON: Record<MasteryLevel, typeof faSeedling> = {
 
 const STYLE: Record<MasteryLevel, string> = {
   apprentice:
-    'border-[color:var(--color-canela)]/35 bg-[color:var(--color-canela)]/10 text-[color:var(--color-canela)]',
+    'border-[color:var(--color-terracota-deep)]/35 bg-[color:var(--color-terracota-deep)]/10 text-[color:var(--color-terracota-deep)]',
   sommelier:
-    'border-[color:var(--color-azafran)]/40 bg-[color:var(--color-azafran)]/12 text-[color:var(--color-azafran)]',
+    'border-[color:var(--color-terracota)]/40 bg-[color:var(--color-terracota)]/12 text-[color:var(--color-terracota)]',
   master:
-    'border-[color:var(--color-azafran)] bg-[color:var(--color-azafran)] text-white shadow-[0_1px_0_rgba(0,0,0,0.05)]',
+    'border-[color:var(--color-terracota)] bg-[color:var(--color-terracota)] text-white shadow-[0_1px_0_rgba(0,0,0,0.05)]',
 };
 
 export default function MasteryBadge({

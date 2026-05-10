@@ -17,13 +17,13 @@ export default function EditorialSummaryCard({ summary, lang }: EditorialSummary
       <div className="flex items-start gap-4">
         <span
           aria-hidden
-          className="mt-1 hidden h-10 w-1 rounded-full bg-[var(--color-azafran)] sm:block"
+          className="mt-1 hidden h-10 w-1 rounded-full bg-[var(--color-terracota)] sm:block"
         />
         <div>
-          <p className="font-[family-name:var(--font-display)] text-xl italic leading-relaxed text-[var(--color-carbon-mid)] sm:text-2xl">
+          <p className="font-[family-name:var(--font-display)] text-xl italic leading-relaxed text-[var(--color-espresso-mid)] sm:text-2xl">
             “{summary}”
           </p>
-          <p className="mt-3 text-xs uppercase tracking-wide text-[var(--color-carbon-soft)]">
+          <p className="mt-3 text-xs uppercase tracking-wide text-[var(--color-espresso-soft)]">
             {t('footer')}
           </p>
         </div>

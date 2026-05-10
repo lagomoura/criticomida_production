@@ -64,7 +64,7 @@ export default function FollowButton({
         sizeClass[size],
         following
           ? showUnfollow
-            ? 'border border-action-danger bg-transparent text-action-danger hover:bg-[color:var(--color-paprika-pale)]'
+            ? 'border border-action-danger bg-transparent text-action-danger hover:bg-[color:var(--color-terracota-pale)]'
             : 'border border-border-strong bg-transparent text-text-primary hover:border-action-danger'
           : 'bg-action-primary text-text-inverse hover:bg-action-primary-hover',
       )}

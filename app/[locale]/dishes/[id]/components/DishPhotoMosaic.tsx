@@ -35,11 +35,11 @@ export default function DishPhotoMosaic({ photos }: DishPhotoMosaicProps) {
 
   if (photos.length === 0) {
     return (
-      <section className="rounded-3xl border border-dashed border-[var(--color-crema-darker)] bg-[var(--color-white)] p-10 text-center">
-        <p className="font-[family-name:var(--font-display)] text-xl text-[var(--color-carbon)]">
+      <section className="rounded-3xl border border-dashed border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] p-10 text-center">
+        <p className="font-[family-name:var(--font-display)] text-xl text-[var(--color-espresso)]">
           {t('emptyTitle')}
         </p>
-        <p className="mt-1 text-sm text-[var(--color-carbon-soft)]">
+        <p className="mt-1 text-sm text-[var(--color-espresso-soft)]">
           {t('emptyDescription')}
         </p>
       </section>
@@ -51,10 +51,10 @@ export default function DishPhotoMosaic({ photos }: DishPhotoMosaicProps) {
   return (
     <section>
       <header className="mb-4">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)]">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)]">
           {t('title')}
         </h2>
-        <p className="mt-1 text-sm text-[var(--color-carbon-soft)]">
+        <p className="mt-1 text-sm text-[var(--color-espresso-soft)]">
           {t('subtitle', { count: photos.length })}
         </p>
       </header>
@@ -64,7 +64,7 @@ export default function DishPhotoMosaic({ photos }: DishPhotoMosaicProps) {
             key={p.id}
             type="button"
             onClick={() => setLightboxIdx(i)}
-            className="group relative block w-full overflow-hidden rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-crema)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-azafran)]"
+            className="group relative block w-full overflow-hidden rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-crema)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-terracota)]"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -74,7 +74,7 @@ export default function DishPhotoMosaic({ photos }: DishPhotoMosaicProps) {
               className="h-auto w-full object-cover transition group-hover:scale-[1.02]"
             />
             {p.isCover && (
-              <span className="absolute left-2 top-2 rounded-full bg-[var(--color-azafran)]/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+              <span className="absolute left-2 top-2 rounded-full bg-[var(--color-terracota)]/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
                 {t('coverBadge')}
               </span>
             )}

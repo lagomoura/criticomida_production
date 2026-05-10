@@ -22,7 +22,7 @@ export default function CategoryEmptyState({
       </p>
       <h1 className="mb-3 text-2xl font-bold text-neutral-900 md:text-3xl">
         {t('emptyTitle')}{' '}
-        <span className="text-primary-coral">{categoryLabel}</span>
+        <span className="text-action-primary">{categoryLabel}</span>
       </h1>
       <p className="mb-8 text-base leading-relaxed text-neutral-600">
         {t('emptyDescription')}

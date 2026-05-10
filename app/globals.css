@@ -7,100 +7,74 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Tokens canónicos: docs/brand-identity-v2.md (Especiería).
+ * Tokens canónicos: docs/brand-identity-v2.md (Paleta Terracota & Dorado, v2.1).
  * Cualquier color/sombra/radio/easing en componentes consume estos tokens.
  * Cambios aquí impactan todo el sistema — coordinar con el doc.
  */
 :root {
-  /* ── Nueva paleta v2 — Especiería ── */
-  --color-azafran:        #D4870A;   /* Azafrán: color de marca, CTAs, links, acento */
-  --color-azafran-light:  #F5C842;   /* Azafrán claro: highlights, logo sobre oscuro */
-  --color-azafran-pale:   #FEF3D6;   /* Azafrán pálido: fondos informativos, tags */
-  --color-paprika:        #C03B28;   /* Páprika: errores, estados negativos */
-  --color-paprika-light:  #E86149;   /* Páprika claro: hover sobre elementos páprika */
-  --color-paprika-pale:   #FDECEA;   /* Páprika pálido: fondos de estados negativos */
-  --color-albahaca:       #3A6645;   /* Albahaca: ratings ≥9, confirmaciones */
-  --color-albahaca-light: #5A9668;   /* Albahaca claro: hover sobre albahaca */
-  --color-albahaca-pale:  #EBF4ED;   /* Albahaca pálido: fondos positivos */
-  --color-canela:         #8B5E3C;   /* Canela: acento cálido, categorías */
-  --color-carbon:         #1A1714;   /* Carbón: texto principal, fondos oscuros */
-  --color-carbon-mid:     #3D3830;   /* Carbón medio: texto secundario fuerte */
-  --color-carbon-soft:    #6B6358;   /* Carbón suave: metadatos, texto muted */
-  --color-crema:          #F8F4EE;   /* Crema: fondo principal */
-  --color-crema-dark:     #EDE7DC;   /* Crema oscuro: fondos de tarjetas */
-  --color-crema-darker:   #D9D1C4;   /* Crema más oscuro: bordes, divisores */
-  --color-white:          #FFFFFF;   /* Blanco puro: superficies de tarjetas */
+  /* ── Paleta v2.1 — Terracota & Dorado ── */
+  --color-terracota:       #C96A4B;   /* Terracota: color de marca, CTAs, links, logo */
+  --color-terracota-light: #E07A5F;   /* Terracota claro: hover de primary */
+  --color-terracota-pale:  #FBEDE7;   /* Terracota pálido: tags, fondos sutiles */
+  --color-terracota-deep:  #A8472D;   /* Terracota profundo: error / danger / report */
+  --color-dorado:          #D6A75C;   /* Dorado: premium, ratings ≥9, éxito, save, follow */
+  --color-dorado-light:    #E8BE7A;   /* Dorado claro: hover sobre dorado */
+  --color-dorado-pale:     #FAF1DD;   /* Dorado pálido: fondos de éxito */
+  --color-espresso:        #2A211C;   /* Espresso: texto principal, fondos oscuros */
+  --color-espresso-mid:    #524339;   /* Espresso medio: texto UI / secundario */
+  --color-espresso-soft:   #7A6A5D;   /* Espresso suave: metadata, muted */
+  --color-crema:           #F7F1E8;   /* Crema: fondo principal de página */
+  --color-crema-dark:      #EFE4D2;   /* Crema oscuro: superficie sutil, fondo secundario */
+  --color-crema-darker:    #DCCDB4;   /* Crema más oscuro: bordes, divisores */
+  --color-white:           #FFFFFF;   /* Blanco puro: superficies de tarjetas, inputs */
 
-  /* ── Aliases legacy (DEPRECATED) ── */
-  /* No usar en código nuevo. Migrar a tokens semánticos:                       */
-  /*   bg-main-pink     → bg-action-primary                                     */
-  /*   text-main-black  → text-text-primary                                     */
-  /*   bg-main-white    → bg-surface-card                                       */
-  /*   bg-main-grey     → bg-surface-subtle                                     */
-  /* Mantenidos solo para evitar regresiones; remover en pasada Fase 4.         */
-  --mainPink:    var(--color-azafran);
-  --mainYellow:  var(--color-azafran-light);
-  --mainWhite:   var(--color-white);
-  --mainBlack:   var(--color-carbon);
-  --yellowTrans: rgba(212, 135, 10, 0.12);
-  --mainGrey:    var(--color-crema-dark);
+  /* ── Neutros cálidos (escala derivada) ── */
+  --neutral-100: var(--color-white);          /* superficies: tarjetas, inputs */
+  --neutral-200: var(--color-crema);          /* fondo de página */
+  --neutral-300: var(--color-crema-dark);     /* bordes sutiles, hover bg */
+  --neutral-400: var(--color-crema-darker);   /* bordes default */
+  --neutral-500: #B8A892;                     /* placeholder, disabled */
+  --neutral-600: var(--color-espresso-soft);  /* texto secundario, muted */
+  --neutral-700: #524339;                     /* texto de soporte */
+  --neutral-800: var(--color-espresso-mid);   /* texto UI */
+  --neutral-900: var(--color-espresso);       /* texto principal */
 
-  /* ── Sistema funcional — remapeado a nueva paleta ── */
-  --primary-coral:   var(--color-carbon);         /* botón primario → Carbón */
-  --primary-sage:    var(--color-albahaca);        /* secundario → Albahaca */
-  --primary-saffron: var(--color-azafran);         /* ratings/stars → Azafrán */
-  --accent-mint:     var(--color-albahaca-light);
-  --accent-berry:    var(--color-paprika);
-  --accent-citrus:   var(--color-azafran-light);
-
-  /* ── Neutros cálidos ── */
-  --neutral-100: var(--color-white);        /* superficies: tarjetas, inputs */
-  --neutral-200: var(--color-crema);        /* fondo de página */
-  --neutral-300: var(--color-crema-dark);   /* bordes sutiles */
-  --neutral-400: var(--color-crema-darker); /* bordes, muted */
-  --neutral-500: #B8AFA3;
-  --neutral-600: var(--color-carbon-soft);  /* texto secundario */
-  --neutral-700: #3A3530;                   /* texto de soporte */
-  --neutral-800: var(--color-carbon-mid);   /* texto UI */
-  --neutral-900: var(--color-carbon);       /* texto principal */
-
-  /* ── Tokens semánticos (capa de consumo para componentes sociales) ── */
-  /* Los tokens --text-* y --surface-* se apoyan en --neutral-* porque esa     */
-  /* escala ya se invierte en .dark; los --action-* usan --color-* de marca    */
-  /* (cromáticos, no cambian en dark). Ver docs/brand-identity-v2.md §11.1.   */
+  /* ── Tokens semánticos (capa de consumo para componentes) ── */
+  /* Los --text-* y --surface-* se apoyan en --neutral-* porque esa escala se */
+  /* invierte en .dark; los --action-* usan --color-* de marca (cromáticos).  */
 
   /* Texto */
-  --text-primary:   var(--neutral-900);   /* cuerpo principal, títulos */
-  --text-secondary: var(--neutral-700);   /* subtítulos, labels */
-  --text-muted:     var(--neutral-600);   /* metadata, timestamps, hint */
+  --text-primary:   var(--neutral-900);
+  --text-secondary: var(--neutral-700);
+  --text-muted:     var(--neutral-600);
   --text-disabled:  var(--neutral-500);
-  --text-inverse:   var(--color-white);   /* sobre fondos de marca (azafrán/páprika); fijo en ambos temas */
+  --text-inverse:   var(--color-white);   /* sobre fondos de marca; fijo en ambos temas */
 
   /* Superficies */
-  --surface-page:   var(--neutral-200);   /* fondo de página */
-  --surface-card:   var(--neutral-100);   /* cards, modales, inputs */
-  --surface-subtle: var(--neutral-300);   /* hover bg, chips, dividers sutiles */
-  --surface-raised: var(--neutral-100);   /* card con sombra (= card, sema redundante) */
+  --surface-page:   var(--neutral-200);
+  --surface-card:   var(--neutral-100);
+  --surface-subtle: var(--neutral-300);
+  --surface-raised: var(--neutral-100);
 
   /* Bordes */
   --border-subtle:  var(--neutral-300);
   --border-default: var(--neutral-400);
   --border-strong:  var(--neutral-500);
 
-  /* Acciones — siempre cromáticos (no invierten en dark) */
-  --action-primary:       var(--color-azafran);       /* CTAs, links, énfasis */
-  --action-primary-hover: var(--color-canela);        /* hover de primary */
-  --action-secondary:     var(--color-albahaca);      /* confirmaciones, follow activo */
-  --action-highlight:     var(--color-azafran-light); /* ratings, unread, guardar */
-  --action-danger:        var(--color-paprika);       /* errores, report, delete */
+  /* Acciones — cromáticos (cambian sutilmente en dark, ver .dark) */
+  --action-primary:       var(--color-terracota);        /* CTAs, links, énfasis */
+  --action-primary-hover: var(--color-terracota-light);  /* hover de primary */
+  --action-secondary:     var(--color-dorado);           /* confirmaciones, follow activo */
+  --action-highlight:     var(--color-dorado);           /* ratings, save, premium */
+  --action-danger:        var(--color-terracota-deep);   /* errores, report, delete */
 
   /* Estados sociales (selected = activo) */
-  --state-like-on:   var(--color-paprika);
-  --state-save-on:   var(--color-azafran);
-  --state-follow-on: var(--color-albahaca);
+  --state-like-on:   var(--color-terracota-deep);
+  --state-save-on:   var(--color-dorado);
+  --state-follow-on: var(--color-dorado);
 
   /* Focus ring (consumir como box-shadow) */
-  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-azafran) 35%, transparent);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-terracota) 35%, transparent);
 
   /* ── Radius (significado semántico, no solo tamaño) ── */
   --radius-none: 0;
@@ -112,12 +86,12 @@
   --radius-2xl:  32px;   /* footer, secciones grandes */
   --radius-full: 9999px; /* pills (ratings, location, categorías) */
 
-  /* ── Sombras warm-tinted (Carbón rgba en lugar de negro) ── */
-  --shadow-micro:    0 1px 3px rgba(26, 22, 20, 0.08);   /* badges, chips */
-  --shadow-base:     0 2px 8px rgba(26, 22, 20, 0.06);   /* cards en reposo */
-  --shadow-media:    0 4px 16px rgba(26, 22, 20, 0.10);  /* dropdowns, cards interactivas */
-  --shadow-elevated: 0 8px 28px rgba(26, 22, 20, 0.12);  /* hover, modales */
-  --shadow-floating: 0 12px 40px rgba(26, 22, 20, 0.18); /* navbar, toasts, tooltips */
+  /* ── Sombras warm-tinted (Espresso rgba en lugar de negro) ── */
+  --shadow-micro:    0 1px 3px rgba(42, 33, 28, 0.08);   /* badges, chips */
+  --shadow-base:     0 2px 8px rgba(42, 33, 28, 0.06);   /* cards en reposo */
+  --shadow-media:    0 4px 16px rgba(42, 33, 28, 0.10);  /* dropdowns, cards interactivas */
+  --shadow-elevated: 0 8px 28px rgba(42, 33, 28, 0.12);  /* hover, modales */
+  --shadow-floating: 0 12px 40px rgba(42, 33, 28, 0.18); /* navbar, toasts, tooltips */
 
   /* ── Easings firma ── */
   --ease-spoon:    cubic-bezier(0.34, 1.56, 0.64, 1);  /* overshoot bounce, marca */
@@ -131,17 +105,21 @@
 }
 
 @theme inline {
-  /* ── Aliases legacy (mantienen utilidades Tailwind existentes) ── */
-  --color-main-pink: var(--mainPink);
-  --color-main-yellow: var(--mainYellow);
-  --color-main-black: var(--mainBlack);
-  --color-main-white: var(--mainWhite);
-  --color-main-grey: var(--mainGrey);
-  --color-primary-coral: var(--primary-coral);
-  --color-primary-sage: var(--primary-sage);
-  --color-primary-saffron: var(--primary-saffron);
-  --color-accent-berry: var(--accent-berry);
-  --color-accent-mint: var(--accent-mint);
+  /* ── Paleta nueva expuesta como utilidades Tailwind ── */
+  /*    Generan: bg-terracota, text-espresso, border-crema-darker, etc.       */
+  --color-terracota:       var(--color-terracota);
+  --color-terracota-light: var(--color-terracota-light);
+  --color-terracota-pale:  var(--color-terracota-pale);
+  --color-terracota-deep:  var(--color-terracota-deep);
+  --color-dorado:          var(--color-dorado);
+  --color-dorado-light:    var(--color-dorado-light);
+  --color-dorado-pale:     var(--color-dorado-pale);
+  --color-espresso:        var(--color-espresso);
+  --color-espresso-mid:    var(--color-espresso-mid);
+  --color-espresso-soft:   var(--color-espresso-soft);
+  --color-crema:           var(--color-crema);
+  --color-crema-dark:      var(--color-crema-dark);
+  --color-crema-darker:    var(--color-crema-darker);
   /* ── Neutrales cálidos ── */
   --color-neutral-100: var(--neutral-100);
   --color-neutral-200: var(--neutral-200);
@@ -171,8 +149,8 @@
   --color-action-secondary:     var(--action-secondary);
   --color-action-highlight:     var(--action-highlight);
   --color-action-danger:        var(--action-danger);
-  /* ── Tipografía v2 ── */
-  --font-sans: var(--font-dm-sans), 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  /* ── Tipografía v2.1 ── */
+  --font-sans: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
 
   /* ── Sombras (utilidades Tailwind: shadow-micro, shadow-elevated, etc.) ── */
@@ -274,11 +252,11 @@ body::before {
 }
 
 .text-success {
-  color: var(--color-albahaca);
+  color: var(--color-dorado);
 }
 
 .text-danger {
-  color: var(--color-paprika);
+  color: var(--color-terracota-deep);
 }
 
 .list-unstyled {
@@ -313,7 +291,7 @@ body::before {
 
 .form-select:focus {
   outline: none;
-  border-color: var(--color-azafran);
+  border-color: var(--color-terracota);
   box-shadow: 0 0 0 3px rgba(212, 135, 10, 0.12);
 }
 
@@ -380,35 +358,35 @@ body::before {
 
 .btn-outline-primary {
   background: transparent;
-  color: var(--primary-coral);
-  border: 2px solid var(--primary-coral);
+  color: var(--action-primary);
+  border: 2px solid var(--action-primary);
 }
 
 .btn-outline-primary:hover {
-  background: var(--primary-coral);
+  background: var(--action-primary);
   color: var(--neutral-100);
 }
 
 .btn-outline-danger {
   background: transparent;
-  color: var(--color-paprika);
-  border: 2px solid var(--color-paprika);
+  color: var(--color-terracota-deep);
+  border: 2px solid var(--color-terracota-deep);
 }
 
 .btn-outline-danger:hover {
-  background: var(--color-paprika);
+  background: var(--color-terracota-deep);
   color: var(--color-white);
 }
 
 .btn-gradient {
-  background: var(--color-azafran);
+  background: var(--color-terracota);
   color: var(--color-white);
   border: none;
   box-shadow: 0 2px 12px 0 rgba(212, 135, 10, 0.2);
 }
 
 .btn-gradient:hover {
-  background: var(--color-carbon);
+  background: var(--color-espresso);
   filter: none;
   transform: translateY(-1px);
 }
@@ -458,45 +436,45 @@ body::before {
 }
 
 .alert-danger {
-  background: var(--color-paprika-pale);
-  color: var(--color-paprika);
+  background: var(--color-terracota-pale);
+  color: var(--color-terracota-deep);
   border: 1px solid rgba(192, 59, 40, 0.2);
 }
 
 body {
   font-family: var(--font-sans);
-  font-size: 1rem;   /* DM Sans 300–400 reads well at 16px */
+  font-size: 1rem;   /* Inter 400 reads well at 16px */
   line-height: 1.65;
 }
 
 #header {
-  background-color: var(--mainGrey);
+  background-color: var(--color-crema-dark);
 }
 /*Global style */
 
 .btn-black {
-  color: var(--mainBlack);
-  border-color: var(--mainBlack);
+  color: var(--color-espresso);
+  border-color: var(--color-espresso);
 }
 
 .btn-black:hover {
-  color: var(--mainPink);
+  color: var(--color-terracota);
   background: black;
 }
 /*style icone carrinho */
 
 .cart-info_icon {
   /*muda cor de icone carrinho em descanso */
-  color: var(--mainBlack);
+  color: var(--color-espresso);
   cursor: pointer;
   /* faz imagem da mao quando passa o mouse em cima do icone*/
 }
 /* icone do carrinho */
 
 .cart-info {
-  border: 0.1rem solid var(--mainBlack);
+  border: 0.1rem solid var(--color-espresso);
   /*minimo de borda possivel */
-  color: var(--mainBlack);
+  color: var(--color-espresso);
   border-radius: 0.5rem;
   /* quanto redonda e a borda */
   padding: 0.4rem 0.6rem;
@@ -507,15 +485,15 @@ body {
 /* icone do carrinho */
 
 .cart-info:hover {
-  background: var(--mainPink);
-  border-color: var(--mainPink);
+  background: var(--color-terracota);
+  border-color: var(--color-terracota);
   /*cor da borda quando passa o mouse */
-  color: var(--mainWhite);
+  color: var(--color-white);
   /* cor do texto quando passa o mouse */
 }
 /* Deixa carrinho branco no hover */
 .cart-info:hover .cart-info_icon {
-  color: var(--mainWhite);
+  color: var(--color-white);
 }
 
 .max-height {
@@ -535,7 +513,7 @@ body {
 }
 
 .banner {
-  color: var(--mainWhite);
+  color: var(--color-white);
   margin-top: -4rem;
 }
 
@@ -550,13 +528,13 @@ body {
 
 .banner-link {
   font-size: 1.5rem;
-  color: var(--mainBlack);
-  border: 0.2rem solid var(--mainBlack);
+  color: var(--color-espresso);
+  border: 0.2rem solid var(--color-espresso);
 }
 
 .banner-link:hover {
-  background: var(--mainBlack);
-  color: var(--mainPink);
+  background: var(--color-espresso);
+  color: var(--color-terracota);
 }
 /*about section */
 
@@ -580,7 +558,7 @@ body {
   left: -1.7rem;
   width: 100%;
   height: 100%;
-  outline: 0.5rem solid var(--mainYellow);
+  outline: 0.5rem solid var(--color-dorado);
   /*cria a linha*/
   z-index: -1;
   /*deixa atras da imagem*/
@@ -594,12 +572,12 @@ body {
 /* our reviews */
 
 .reviews {
-  background: var(--mainYellow);
+  background: var(--color-dorado);
 }
 
 .search-box {
-  background: var(--mainPink);
-  color: var(--mainBlack);
+  background: var(--color-terracota);
+  color: var(--color-espresso);
 }
 
 .single-item {
@@ -633,7 +611,7 @@ body {
   bottom: 0;
   right: 0;
   padding: 0.75rem;
-  background: var(--mainPink);
+  background: var(--color-terracota);
   border-top-left-radius: 2rem;
   /* forma arredondado da borda inferior esquerda */
   transition: transform 0.6s ease-in-out;
@@ -646,12 +624,12 @@ body {
 }
 
 .review-item-icon:hover {
-  color: var(--mainWhite);
+  color: var(--color-white);
 }
 /* Servicses section */
 
 .services {
-  color: var(--mainWhite);
+  color: var(--color-white);
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
     url('/img/services.jpg');
   background-size: cover;
@@ -683,31 +661,31 @@ body {
 /* footer */
 
 .footer-title {
-  background: var(--mainBlack);
+  background: var(--color-espresso);
 }
 
 .footer-contact {
-  background: var(--mainGrey);
+  background: var(--color-crema-dark);
 }
 
 .footer-icon {
   font-size: 1.5rem;
-  color: var(--mainWhite);
+  color: var(--color-white);
   transition: 0.3s ease-in-out;
 }
 
 .footer-icon:hover {
-  color: var(--mainPink);
+  color: var(--color-terracota);
 }
 
 .footer-icons {
   font-size: 1rem;
-  color: var(--mainBlack);
+  color: var(--color-espresso);
   transition: 0.3s ease-in-out;
 }
 
 .footer-icons:hover {
-  color: var(--mainPink);
+  color: var(--color-terracota);
 }
 /*Cart styles*/
 
@@ -802,13 +780,13 @@ body {
   bottom: -2px;
   width: 100%;
   height: 1.5px;
-  background: var(--color-azafran);
+  background: var(--color-terracota);
   transform: scaleX(0);
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   transform-origin: left;
 }
 .navlink-animate:hover {
-  color: var(--color-azafran);
+  color: var(--color-terracota);
   transform: none;
 }
 .navlink-animate:hover::after {
@@ -836,12 +814,12 @@ body {
 
 /* Primary Button — Carbón */
 .btn-primary {
-  background: var(--color-carbon);
+  background: var(--color-espresso);
   color: var(--color-white);
 }
 
 .btn-primary:hover {
-  background: var(--color-carbon-mid);
+  background: var(--color-espresso-mid);
   transform: translateY(-1px);
   box-shadow: 0 4px 16px rgba(26, 23, 20, 0.2);
 }
@@ -849,12 +827,12 @@ body {
 /* Secondary Button — Transparente con borde Carbón */
 .btn-secondary {
   background: transparent;
-  color: var(--color-carbon);
-  border: 1.5px solid var(--color-carbon);
+  color: var(--color-espresso);
+  border: 1.5px solid var(--color-espresso);
 }
 
 .btn-secondary:hover {
-  background: var(--color-carbon);
+  background: var(--color-espresso);
   color: var(--color-white);
   transform: translateY(-1px);
 }
@@ -862,13 +840,13 @@ body {
 /* Ghost Button */
 .btn-ghost {
   background: transparent;
-  color: var(--color-carbon-soft);
+  color: var(--color-espresso-soft);
   border: 1.5px solid var(--color-crema-darker);
 }
 
 .btn-ghost:hover {
-  border-color: var(--color-azafran);
-  color: var(--color-azafran);
+  border-color: var(--color-terracota);
+  color: var(--color-terracota);
   transform: translateY(-1px);
 }
 
@@ -890,14 +868,14 @@ body {
 }
 
 .filter-btn.active {
-  background: var(--color-carbon);
+  background: var(--color-espresso);
   color: var(--color-white);
-  border-color: var(--color-carbon);
+  border-color: var(--color-espresso);
 }
 
 /* Banner/CTA Button */
 .banner-link {
-  background: linear-gradient(135deg, var(--primary-coral), var(--accent-berry));
+  background: linear-gradient(135deg, var(--action-primary), var(--action-danger));
   color: var(--neutral-100);
   padding: 1rem 2rem;
   font-weight: 700;
@@ -921,15 +899,15 @@ body {
 }
 
 .form-control:focus {
-  border-color: var(--color-azafran);
+  border-color: var(--color-terracota);
   box-shadow: 0 0 0 3px rgba(212, 135, 10, 0.12);
   outline: none;
 }
 
 /* Category Badges */
 .review-category-badge {
-  background: var(--color-azafran-pale);
-  color: var(--color-azafran);
+  background: var(--color-terracota-pale);
+  color: var(--color-terracota);
   border: 1px solid rgba(212, 135, 10, 0.2);
   border-radius: var(--radius-sm);
   padding: 0.35rem 0.75rem;
@@ -952,7 +930,7 @@ body {
 }
 
 .review-sort-dropdown:focus {
-  border-color: var(--color-azafran);
+  border-color: var(--color-terracota);
   box-shadow: 0 0 0 3px rgba(212, 135, 10, 0.12);
   outline: none;
 }
@@ -984,7 +962,7 @@ body {
   transition: color 0.3s, transform 0.3s;
 }
 .review-card-hover:hover .review-icon-animate {
-  color: var(--color-azafran);
+  color: var(--color-terracota);
   transform: scale(1.2) rotate(-10deg);
   animation: reviewIconPulse 0.5s;
 }
@@ -1004,7 +982,7 @@ body {
   min-width: 180px;
   max-width: 90%;
   background: rgba(255,255,255,0.97);
-  color: var(--mainBlack);
+  color: var(--color-espresso);
   font-size: 1rem;
   font-weight: 500;
   padding: 0.7em 1.2em;
@@ -1142,7 +1120,7 @@ body {
   left: 12px;
   z-index: 5;
   background: rgba(255, 255, 255, 0.95);
-  color: var(--primary-coral);
+  color: var(--action-primary);
   font-weight: 700;
   font-size: 0.9rem;
   padding: 0.4em 0.8em;
@@ -1178,7 +1156,7 @@ body {
 }
 
 .gallery-image-container:hover .gallery-category-badge {
-  background: var(--color-azafran);
+  background: var(--color-terracota);
   color: var(--color-white);
   transform: scale(1.05);
 }
@@ -1225,7 +1203,7 @@ body {
   font-size: 1.25rem;
   font-family: var(--font-display);
   font-weight: 500;
-  color: var(--color-carbon);
+  color: var(--color-espresso);
   margin-bottom: 0.5rem;
   line-height: 1.25;
 }
@@ -1260,7 +1238,7 @@ body {
 }
 
 .rating-stars {
-  color: var(--primary-saffron);
+  color: var(--action-highlight);
   font-size: 1rem;
 }
 
@@ -1351,7 +1329,7 @@ body {
 }
 .wow-filters-animate .form-control:focus,
 .wow-filters-animate .form-select:focus {
-  border-color: var(--color-azafran);
+  border-color: var(--color-terracota);
   box-shadow: 0 0 0 3px rgba(212, 135, 10, 0.12);
   outline: none;
 }
@@ -1361,14 +1339,14 @@ body {
   font-weight: 600;
 }
 .wow-filters-animate input[type="range"] {
-  accent-color: var(--color-azafran);
+  accent-color: var(--color-terracota);
   width: 100px;
   margin-top: 2px;
   background: transparent;
   height: 2.5px;
 }
 .wow-filters-animate input[type="range"]::-webkit-slider-thumb {
-  background: var(--color-azafran);
+  background: var(--color-terracota);
   border-radius: 50%;
   width: 18px;
   height: 18px;
@@ -1377,10 +1355,10 @@ body {
   transition: background 0.2s;
 }
 .wow-filters-animate input[type="range"]:focus::-webkit-slider-thumb {
-  background: var(--color-carbon);
+  background: var(--color-espresso);
 }
 .wow-filters-animate input[type="range"]::-moz-range-thumb {
-  background: var(--color-azafran);
+  background: var(--color-terracota);
   border-radius: 50%;
   width: 18px;
   height: 18px;
@@ -1389,10 +1367,10 @@ body {
   transition: background 0.2s;
 }
 .wow-filters-animate input[type="range"]:focus::-moz-range-thumb {
-  background: var(--color-carbon);
+  background: var(--color-espresso);
 }
 .wow-filters-animate input[type="range"]::-ms-thumb {
-  background: var(--color-azafran);
+  background: var(--color-terracota);
   border-radius: 50%;
   width: 18px;
   height: 18px;
@@ -1401,7 +1379,7 @@ body {
   transition: background 0.2s;
 }
 .wow-filters-animate input[type="range"]:focus::-ms-thumb {
-  background: var(--color-carbon);
+  background: var(--color-espresso);
 }
 .wow-filters-animate .btn-ghost.btn-sm {
   border-radius: 0.8em;
@@ -1417,14 +1395,14 @@ body {
 }
 .wow-filters-animate .btn-ghost.btn-sm:hover,
 .wow-filters-animate .btn-ghost.btn-sm.active {
-  background: var(--color-carbon);
+  background: var(--color-espresso);
   color: var(--color-white);
-  border-color: var(--color-carbon);
+  border-color: var(--color-espresso);
   box-shadow: 0 2px 8px rgba(26, 23, 20, 0.1);
 }
 .wow-filters-animate .ms-2 {
   font-weight: 500;
-  color: var(--color-azafran);
+  color: var(--color-terracota);
   font-size: 1.08em;
 }
 @media (max-width: 768px) {
@@ -1438,25 +1416,25 @@ body {
 
 
 .back-main-btn {
-  background: var(--color-carbon);
+  background: var(--color-espresso);
   color: var(--color-white) !important;
   border: none;
   box-shadow: 0 4px 16px rgba(26, 23, 20, 0.12);
   transition: background var(--ease-micro), transform var(--ease-micro);
 }
 .back-main-btn:hover, .back-main-btn:focus {
-  background: var(--color-azafran);
+  background: var(--color-terracota);
   color: var(--color-white) !important;
   transform: translateY(-1px);
 }
 .category-header-title {
   font-family: var(--font-display);
-  color: var(--color-carbon);
+  color: var(--color-espresso);
   letter-spacing: -0.01em;
   margin-left: 0.5em;
 }
 .text-gradient-accent {
-  color: var(--color-azafran);
+  color: var(--color-terracota);
 }
 
 /* Plate Card Image Hover Effects */
@@ -1518,71 +1496,89 @@ body {
 .dark {
   color-scheme: dark;
 
-  /* Neutros cálidos invertidos — sin azules fríos */
-  --neutral-100: #1E1A16;    /* superficies oscuras */
-  --neutral-200: #252018;    /* fondo de página oscuro */
-  --neutral-300: #302A22;    /* bordes oscuros */
-  --neutral-400: #3E3630;    /* bordes más visibles */
-  --neutral-500: #5A5248;    /* muted */
-  --neutral-600: #A89A8E;    /* WCAG AA en page/card/subtle (>=5.19:1) */
-  --neutral-700: #C5B8AE;    /* texto de soporte */
-  --neutral-800: #DDD3C8;    /* texto UI */
-  --neutral-900: #F2EDE6;    /* texto principal */
+  /* Neutros cálidos invertidos — café oscuro sin azules fríos */
+  --neutral-100: #2A1F18;    /* cards, marrón profundo */
+  --neutral-200: #1C140F;    /* fondo de página, café muy oscuro */
+  --neutral-300: #3A2C22;    /* bordes sutiles, hover bg */
+  --neutral-400: #4D3B2E;    /* bordes default */
+  --neutral-500: #6B5645;    /* placeholder, disabled */
+  --neutral-600: #B8A48F;    /* muted, AA contra page (~7.4:1) */
+  --neutral-700: #D6C5B0;    /* texto de soporte */
+  --neutral-800: #E8DDC9;    /* texto UI */
+  --neutral-900: #F5EDE0;    /* texto principal, ~14:1 contra page */
 
-  /* Legacy vars */
-  --mainWhite: #1E1A16;
-  --mainBlack: #F2EDE6;
-  --mainGrey: #252018;
-  --yellowTrans: rgba(212, 135, 10, 0.1);
+  /* Marca recalibrada para dark — terracota más vibrante, dorado tenue */
+  --color-terracota:       #E07A5F;   /* AA ~4.6:1 sobre page */
+  --color-terracota-light: #F09277;
+  --color-terracota-pale:  rgba(224, 122, 95, 0.14);
+  --color-terracota-deep:  #C96A4B;   /* error legible, sube luminancia */
+  --color-dorado:          #C99A52;   /* tenue, AA ~4.5:1 sobre page */
+  --color-dorado-light:    #D6A75C;
+  --color-dorado-pale:     rgba(214, 167, 92, 0.14);
+
+  /* Crema tokens reasignados (cards y superficies) */
+  --color-crema:        var(--neutral-200);
+  --color-crema-dark:   var(--neutral-300);
+  --color-crema-darker: var(--neutral-400);
+  --color-espresso:        var(--neutral-900);
+  --color-espresso-mid:    var(--neutral-800);
+  --color-espresso-soft:   var(--neutral-600);
+
+  /* Sombras dark — más profundas, sin tinte cálido */
+  --shadow-micro:    0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-base:     0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-media:    0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-elevated: 0 8px 28px rgba(0, 0, 0, 0.55);
+  --shadow-floating: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
 
-/* Review tooltip: blanco → carbón en dark */
+/* Review tooltip: blanco → marrón profundo en dark */
 .dark .review-description-tooltip {
-  background: rgba(37, 32, 24, 0.97);
+  background: color-mix(in srgb, var(--neutral-100) 97%, transparent);
   color: var(--neutral-900);
 }
 
-/* Alert-danger: páprika legible sobre fondo oscuro */
+/* Alert-danger: terracota-deep legible sobre fondo oscuro */
 .dark .alert-danger {
-  background: rgba(192, 59, 40, 0.12);
-  color: var(--color-paprika-light);
-  border-color: rgba(192, 59, 40, 0.3);
+  background: color-mix(in srgb, var(--color-terracota-deep) 14%, transparent);
+  color: var(--color-terracota-light);
+  border-color: color-mix(in srgb, var(--color-terracota-deep) 32%, transparent);
 }
 
 /* Status colors adjusted for dark backgrounds */
 .dark .text-success {
-  color: var(--color-albahaca-light);
+  color: var(--color-dorado-light);
 }
 .dark .text-danger {
-  color: var(--color-paprika-light);
+  color: var(--color-terracota-light);
 }
 
 /* Inputs and selects with hardcoded white bg */
 .dark .form-control,
 .dark .form-select,
 .dark .review-sort-dropdown {
-  background-color: var(--neutral-200);
+  background-color: var(--neutral-100);
   color: var(--neutral-900);
-  border-color: var(--neutral-300);
+  border-color: var(--neutral-400);
   color-scheme: dark;
 }
 
 /* Gallery cards with hardcoded white */
 .dark .gallery-card,
 .dark .gallery-card-info {
-  background: var(--neutral-200);
+  background: var(--neutral-100);
   border-color: var(--neutral-300);
 }
 
 /* Gallery category badge: hardcoded white bg */
 .dark .gallery-category-badge {
-  background: rgba(37, 38, 43, 0.95);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--neutral-100) 92%, transparent);
+  border-color: color-mix(in srgb, var(--neutral-900) 10%, transparent);
 }
 
 /* Filters panel */
 .dark .wow-filters-animate {
-  background: rgba(37, 30, 22, 0.88);
+  background: color-mix(in srgb, var(--neutral-100) 88%, transparent);
   border-color: var(--neutral-300);
 }
 .dark .wow-filters-animate .form-control,
@@ -1605,5 +1601,5 @@ body {
   background: var(--neutral-200);
 }
 .dark .reviews {
-  background: rgba(212, 135, 10, 0.08);
+  background: color-mix(in srgb, var(--color-terracota) 10%, transparent);
 }

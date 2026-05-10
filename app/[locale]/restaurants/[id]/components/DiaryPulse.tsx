@@ -18,11 +18,11 @@ export default function DiaryPulse({ stats }: DiaryPulseProps) {
 
   if (!hasActivity) {
     return (
-      <section className="rounded-3xl bg-[var(--color-azafran-pale)] p-6 text-center sm:p-8">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)]">
+      <section className="rounded-3xl bg-[var(--color-terracota-pale)] p-6 text-center sm:p-8">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)]">
           {t('emptyTitle')}
         </h2>
-        <p className="mt-2 text-sm text-[var(--color-canela)]">
+        <p className="mt-2 text-sm text-[var(--color-terracota-deep)]">
           {t('emptyDescription')}
         </p>
         {user && (
@@ -41,7 +41,7 @@ export default function DiaryPulse({ stats }: DiaryPulseProps) {
   }
 
   return (
-    <section className="rounded-3xl bg-[var(--color-carbon)] p-6 text-white sm:p-8">
+    <section className="rounded-3xl bg-[var(--color-espresso)] p-6 text-white dark:bg-[var(--neutral-100)] sm:p-8">
       <header className="mb-5">
         <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium sm:text-3xl">
           {t('title')}
@@ -62,7 +62,7 @@ export default function DiaryPulse({ stats }: DiaryPulseProps) {
           <span className="text-white/70">{t('mostReviewed')}</span>
           <Link
             href={`/dishes/${stats.most_ordered_dish.id}`}
-            className="font-semibold text-[var(--color-azafran-light)] no-underline hover:underline"
+            className="font-semibold text-[var(--color-terracota-light)] no-underline hover:underline"
           >
             {stats.most_ordered_dish.name}
           </Link>
@@ -92,10 +92,10 @@ export default function DiaryPulse({ stats }: DiaryPulseProps) {
                       alt={v.display_name}
                       width={36}
                       height={36}
-                      className="h-9 w-9 rounded-full border-2 border-[var(--color-carbon)] object-cover ring-1 ring-white/30"
+                      className="h-9 w-9 rounded-full border-2 border-[var(--color-espresso)] object-cover ring-1 ring-white/30"
                     />
                   ) : (
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-[var(--color-carbon)] bg-[var(--color-canela)] text-sm font-semibold text-white ring-1 ring-white/30">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-[var(--color-espresso)] bg-[var(--color-terracota-deep)] text-sm font-semibold text-white ring-1 ring-white/30">
                       {v.display_name.slice(0, 1).toUpperCase()}
                     </span>
                   )}
@@ -111,9 +111,9 @@ export default function DiaryPulse({ stats }: DiaryPulseProps) {
 
 function Stat({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
   return (
-    <div className={`rounded-2xl p-4 ${highlight ? 'bg-[var(--color-azafran)] text-[var(--color-carbon)]' : 'bg-white/5'}`}>
-      <p className={`font-display text-3xl font-medium tabular-nums ${highlight ? 'text-[var(--color-carbon)]' : 'text-text-inverse'}`}>{value}</p>
-      <p className={`mt-1 text-xs uppercase tracking-wide ${highlight ? 'text-[var(--color-carbon)]/70' : 'text-white/60'}`}>
+    <div className={`rounded-2xl p-4 ${highlight ? 'bg-[var(--color-terracota)] text-[var(--color-espresso)]' : 'bg-white/5'}`}>
+      <p className={`font-display text-3xl font-medium tabular-nums ${highlight ? 'text-[var(--color-espresso)]' : 'text-text-inverse'}`}>{value}</p>
+      <p className={`mt-1 text-xs uppercase tracking-wide ${highlight ? 'text-[var(--color-espresso)]/70' : 'text-white/60'}`}>
         {label}
       </p>
     </div>

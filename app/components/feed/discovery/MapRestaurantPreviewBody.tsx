@@ -74,7 +74,7 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
                 <span
                   tabIndex={0}
                   aria-label={t('previewChefBadgeAria')}
-                  className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-azafran)] px-2 py-0.5 text-[10px] font-semibold text-white shadow"
+                  className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-terracota)] px-2 py-0.5 text-[10px] font-semibold text-white shadow"
                 >
                   <FontAwesomeIcon icon={faStar} className="text-[9px]" aria-hidden /> {t('previewChefBadgeChip')}
                 </span>
@@ -94,7 +94,7 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
                 <span
                   tabIndex={0}
                   aria-label={t('previewGemBadgeAria')}
-                  className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-albahaca)] px-2 py-0.5 text-[10px] font-semibold text-white shadow"
+                  className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-dorado)] px-2 py-0.5 text-[10px] font-semibold text-white shadow"
                 >
                   <FontAwesomeIcon icon={faGem} className="text-[9px]" aria-hidden /> {t('previewGemBadgeChip')}
                 </span>
@@ -129,7 +129,7 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
           <span
             tabIndex={0}
             aria-label={t('previewGeekScoreAria', { score: Math.round(pin.topGeekScore) })}
-            className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--color-azafran)]/12 px-2 py-0.5 font-display text-sm font-semibold leading-none text-[color:var(--color-azafran)] tabular-nums"
+            className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--color-terracota)]/12 px-2 py-0.5 font-display text-sm font-semibold leading-none text-[color:var(--color-terracota)] tabular-nums"
           >
             <span aria-hidden className="text-[11px]">✦</span>
             {Math.round(pin.topGeekScore)}
@@ -141,14 +141,14 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
       </div>
 
       {(pin.hasChefBadge || pin.hasGemBadge) && (
-        <div className="mt-2.5 rounded-lg border border-[color:var(--color-azafran)]/25 bg-[color:var(--color-azafran-pale)]/50 p-2">
+        <div className="mt-2.5 rounded-lg border border-[color:var(--color-terracota)]/25 bg-[color:var(--color-terracota-pale)]/50 p-2">
           <div className="mb-1 font-sans text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
             {t('previewBadgesHeading')}
           </div>
           <div className="flex flex-col gap-1.5">
             {pin.hasChefBadge && (
               <BadgeRow
-                tone="azafran"
+                tone="terracota"
                 icon={faStar}
                 title={t('chefBadge')}
                 description={t('previewChefBadgeRowDescription')}
@@ -156,7 +156,7 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
             )}
             {pin.hasGemBadge && (
               <BadgeRow
-                tone="albahaca"
+                tone="dorado"
                 icon={faGem}
                 title={t('gemBadge')}
                 description={t('previewGemBadgeRowDescription')}
@@ -168,7 +168,7 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
 
       <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-muted">
         <span className="inline-flex items-center gap-1 font-semibold text-text-primary">
-          <FontAwesomeIcon icon={faStar} className="text-[10px] text-[color:var(--color-azafran)]" aria-hidden />
+          <FontAwesomeIcon icon={faStar} className="text-[10px] text-[color:var(--color-terracota)]" aria-hidden />
           {pin.computedRating.toFixed(1)}
         </span>
         {pin.reviewCount > 0 && (
@@ -235,7 +235,7 @@ export default function MapRestaurantPreviewBody({ pin, onClose }: Props) {
 }
 
 interface BadgeRowProps {
-  tone: 'azafran' | 'albahaca';
+  tone: 'terracota' | 'dorado';
   icon: typeof faStar;
   title: string;
   description: string;
@@ -243,9 +243,9 @@ interface BadgeRowProps {
 
 function BadgeRow({ tone, icon, title, description }: BadgeRowProps) {
   const dotClass =
-    tone === 'azafran'
-      ? 'bg-[color:var(--color-azafran)]'
-      : 'bg-[color:var(--color-albahaca)]';
+    tone === 'terracota'
+      ? 'bg-[color:var(--color-terracota)]'
+      : 'bg-[color:var(--color-dorado)]';
   return (
     <div className="flex items-start gap-2">
       <span
@@ -316,7 +316,7 @@ function DishHighlightRow({ label, labelIcon, dish, pillar, noDataLabel }: DishH
       href={`/dishes/${dish.dishId}`}
       className={cn(
         baseClass,
-        'group cursor-pointer no-underline transition-colors hover:bg-surface-card hover:border-[color:var(--color-azafran)]/40',
+        'group cursor-pointer no-underline transition-colors hover:bg-surface-card hover:border-[color:var(--color-terracota)]/40',
         'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
       )}
     >
@@ -328,8 +328,8 @@ function DishHighlightRow({ label, labelIcon, dish, pillar, noDataLabel }: DishH
 function PillarPill({ pillar, value }: { pillar: 'execution' | 'value'; value: number | null }) {
   if (value === null) return null;
   const tone = pillar === 'execution'
-    ? 'bg-[color:var(--color-azafran-pale)] text-[color:var(--color-azafran)]'
-    : 'bg-[color:var(--color-albahaca-pale)] text-[color:var(--color-albahaca)]';
+    ? 'bg-[color:var(--color-terracota-pale)] text-[color:var(--color-terracota)]'
+    : 'bg-[color:var(--color-dorado-pale)] text-[color:var(--color-dorado)]';
   return (
     <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold', tone)}>
       {value.toFixed(1)}

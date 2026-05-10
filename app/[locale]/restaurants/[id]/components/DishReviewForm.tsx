@@ -282,7 +282,7 @@ export default function DishReviewForm({
           <input
             id="review-dish-name"
             type="text"
-            className="w-full rounded-xl border border-border-subtle bg-surface-card px-3.5 py-2.5 font-sans text-base sm:text-sm text-text-primary placeholder:text-text-muted/80 transition-all focus:border-color-azafran focus:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-60"
+            className="w-full rounded-xl border border-border-subtle bg-surface-card px-3.5 py-2.5 font-sans text-base sm:text-sm text-text-primary placeholder:text-text-muted/80 transition-all focus:border-color-terracota focus:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:opacity-60"
             value={editableDishName}
             onChange={(e) => setEditableDishName(e.target.value)}
             placeholder={t('dishNamePlaceholder')}
@@ -327,7 +327,7 @@ export default function DishReviewForm({
 
       {error && (
         <p
-          className="m-0 rounded-xl border border-color-paprika/30 bg-color-paprika-pale px-3 py-2 font-sans text-sm font-medium text-color-paprika"
+          className="m-0 rounded-xl border border-color-terracota-deep/30 bg-color-terracota-pale px-3 py-2 font-sans text-sm font-medium text-color-terracota-deep"
           role="alert"
         >
           {error}

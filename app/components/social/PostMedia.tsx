@@ -53,7 +53,7 @@ export default function PostMedia({ images, className }: PostMediaProps) {
         <figure key={i} className="relative aspect-square overflow-hidden rounded-lg bg-surface-subtle">
           <Image src={img.url} alt={img.alt ?? ''} fill sizes="(min-width: 640px) 160px, 50vw" className="object-cover" />
           {i === visible.length - 1 && extra > 0 && (
-            <span className="absolute inset-0 flex items-center justify-center bg-[color:var(--color-carbon)]/55 font-sans text-lg font-medium text-text-inverse">
+            <span className="absolute inset-0 flex items-center justify-center bg-[color:var(--color-espresso)]/55 font-sans text-lg font-medium text-text-inverse">
               +{extra}
             </span>
           )}

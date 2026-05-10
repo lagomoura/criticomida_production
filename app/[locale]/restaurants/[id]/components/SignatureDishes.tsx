@@ -15,20 +15,20 @@ export default function SignatureDishes({ items, totalDishes }: SignatureDishesP
   }
 
   return (
-    <section className="rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-white)] p-6 shadow-sm sm:p-8">
+    <section className="rounded-3xl border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] p-6 shadow-sm sm:p-8">
       <header className="mb-5 flex items-end justify-between gap-4">
         <div>
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-carbon)] sm:text-3xl">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium text-[var(--color-espresso)] sm:text-3xl">
             {t('title')}
           </h2>
-          <p className="mt-1 text-sm text-[var(--color-carbon-soft)]">
+          <p className="mt-1 text-sm text-[var(--color-espresso-soft)]">
             {t('subtitle')}
           </p>
         </div>
         {totalDishes > items.length && (
           <a
             href="?tab=platos#platos"
-            className="shrink-0 text-sm font-semibold text-[var(--color-azafran)] no-underline hover:underline"
+            className="shrink-0 text-sm font-semibold text-[var(--color-terracota)] no-underline hover:underline"
           >
             {t('viewAll', { count: totalDishes })}
           </a>
@@ -40,7 +40,7 @@ export default function SignatureDishes({ items, totalDishes }: SignatureDishesP
           <li key={dish.id}>
             <Link
               href={`/dishes/${dish.id}`}
-              className="group flex h-full overflow-hidden rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-crema)] no-underline transition hover:border-[var(--color-azafran)]"
+              className="group flex h-full overflow-hidden rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-crema)] no-underline transition hover:border-[var(--color-terracota)]"
             >
               <div className="relative h-32 w-32 shrink-0 sm:h-40 sm:w-40">
                 {dish.cover_image_url ? (
@@ -61,22 +61,22 @@ export default function SignatureDishes({ items, totalDishes }: SignatureDishesP
                     />
                   )
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-[var(--color-canela)] text-3xl text-white/70">
+                  <div className="flex h-full w-full items-center justify-center bg-[var(--color-terracota-deep)] text-3xl text-white/70">
                     🍽️
                   </div>
                 )}
               </div>
               <div className="flex flex-1 flex-col justify-between p-4">
                 <div>
-                  <h3 className="font-[family-name:var(--font-display)] text-xl font-medium text-[var(--color-carbon)] group-hover:text-[var(--color-azafran)]">
+                  <h3 className="font-[family-name:var(--font-display)] text-xl font-medium text-[var(--color-espresso)] group-hover:text-[var(--color-terracota)]">
                     {dish.name}
                   </h3>
                   <div className="mt-1 flex items-center gap-2 text-sm">
-                    <span aria-hidden className="text-[var(--color-azafran)]">★</span>
-                    <span className="font-semibold text-[var(--color-carbon)]">
+                    <span aria-hidden className="text-[var(--color-terracota)]">★</span>
+                    <span className="font-semibold text-[var(--color-espresso)]">
                       {Number(dish.computed_rating).toFixed(1)}
                     </span>
-                    <span className="text-[var(--color-carbon-soft)]">
+                    <span className="text-[var(--color-espresso-soft)]">
                       · {dish.review_count === 1
                         ? t('reviewOne', { count: dish.review_count })
                         : t('reviewMany', { count: dish.review_count })}
@@ -84,10 +84,10 @@ export default function SignatureDishes({ items, totalDishes }: SignatureDishesP
                   </div>
                 </div>
                 {dish.best_quote && (
-                  <blockquote className="mt-2 line-clamp-3 font-[family-name:var(--font-display)] text-sm italic text-[var(--color-carbon-mid)]">
+                  <blockquote className="mt-2 line-clamp-3 font-[family-name:var(--font-display)] text-sm italic text-[var(--color-espresso-mid)]">
                     “{dish.best_quote}”
                     {dish.best_quote_author && (
-                      <span className="mt-1 block font-sans text-xs not-italic text-[var(--color-carbon-soft)]">
+                      <span className="mt-1 block font-sans text-xs not-italic text-[var(--color-espresso-soft)]">
                         — {dish.best_quote_author}
                       </span>
                     )}

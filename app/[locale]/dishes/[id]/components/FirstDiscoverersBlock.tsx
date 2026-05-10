@@ -28,10 +28,10 @@ export default function FirstDiscoverersBlock({
   return (
     <section
       aria-labelledby="discoverers-heading"
-      className="rounded-2xl border border-[color:var(--color-azafran)]/30 bg-[color:var(--color-azafran-pale)]/40 p-5 sm:p-6"
+      className="rounded-2xl border border-[color:var(--color-terracota)]/30 bg-[color:var(--color-terracota-pale)]/40 p-5 sm:p-6"
     >
       <header>
-        <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--color-azafran)]">
+        <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--color-terracota)]">
           {t('kicker')}
         </p>
         <h2

@@ -24,9 +24,9 @@ interface PillarConfig {
 }
 
 const TONE_STYLES: Record<PillarOption['tone'], string> = {
-  negative: 'border-color-paprika bg-color-paprika text-text-inverse shadow-sm',
-  neutral: 'border-color-azafran bg-color-azafran text-text-primary shadow-sm',
-  positive: 'border-color-albahaca bg-color-albahaca text-text-inverse shadow-sm',
+  negative: 'border-color-terracota-deep bg-color-terracota-deep text-text-inverse shadow-sm',
+  neutral: 'border-color-terracota bg-color-terracota text-text-primary shadow-sm',
+  positive: 'border-color-dorado bg-color-dorado text-text-inverse shadow-sm',
 };
 
 function vibrateOnce(ms = 12) {
@@ -128,7 +128,7 @@ export default function TechnicalPillars({
             </h3>
             <p className="m-0 font-sans text-xs text-text-muted">
               {t('explanationLead')}
-              <span className="font-semibold text-color-azafran">{t('expertBadge')}</span>
+              <span className="font-semibold text-color-terracota">{t('expertBadge')}</span>
               {t('explanationTrail')}
             </p>
           </div>

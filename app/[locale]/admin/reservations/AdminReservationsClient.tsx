@@ -177,7 +177,7 @@ export default function AdminReservationsClient() {
                     </p>
                   </div>
                   {restaurant.has_reservation && (
-                    <span className="rounded-full bg-[var(--mainPink,#ef7998)] px-2 py-0.5 text-xs font-semibold text-white">
+                    <span className="rounded-full bg-[color:var(--color-terracota,#C96A4B)] px-2 py-0.5 text-xs font-semibold text-white">
                       {t('activeBadge', { provider: restaurant.reservation_provider ?? '—' })}
                     </span>
                   )}

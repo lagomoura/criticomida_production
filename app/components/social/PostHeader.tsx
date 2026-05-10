@@ -50,7 +50,7 @@ export default function PostHeader({
             }
           >
             <span
-              className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--color-azafran)]/12 px-1.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-[0.1em] text-[color:var(--color-azafran)]"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--color-terracota)]/12 px-1.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-[0.1em] text-[color:var(--color-terracota)]"
               aria-label={t('expertReviewBadgeAria')}
               tabIndex={0}
             >

@@ -21,7 +21,7 @@ export default function DishHeroV2({ dish, reviewsCount, photosCount }: DishHero
 
   return (
     <section className="relative -mx-4 mb-8 sm:-mx-6 lg:-mx-8">
-      <div className="relative h-80 w-full overflow-hidden bg-[var(--color-carbon)] sm:h-[24rem] md:h-[28rem]">
+      <div className="relative h-80 w-full overflow-hidden bg-[var(--color-espresso)] dark:bg-[var(--neutral-100)] sm:h-[24rem] md:h-[28rem]">
         {cover ? (
           <Image
             src={cover}
@@ -33,9 +33,9 @@ export default function DishHeroV2({ dish, reviewsCount, photosCount }: DishHero
             unoptimized
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-azafran-pale)] to-[var(--color-canela)]/40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-terracota-pale)] to-[var(--color-terracota-deep)]/40" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-carbon)]/90 via-[var(--color-carbon)]/35 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-espresso)]/90 via-[var(--color-espresso)]/35 to-transparent" />
 
         <div className="absolute inset-x-0 top-0 px-4 pt-4 sm:px-6 sm:pt-5 lg:px-8">
           <Breadcrumb
@@ -49,7 +49,7 @@ export default function DishHeroV2({ dish, reviewsCount, photosCount }: DishHero
 
         <div className="cc-container absolute inset-x-0 bottom-0 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8">
           {dish.isSignature && (
-            <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-[var(--color-azafran-light)]">
+            <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-[var(--color-terracota-light)]">
               {t('signature')}
             </p>
           )}

@@ -18,7 +18,7 @@ export default function DishDiaryPulse({ diary, dishName }: DishDiaryPulseProps)
   if (reviewsTotal === 0) return null;
 
   return (
-    <section className="rounded-3xl bg-[var(--color-carbon)] p-6 text-white sm:p-8">
+    <section className="rounded-3xl bg-[var(--color-espresso)] dark:bg-[var(--neutral-100)] p-6 text-white sm:p-8">
       <header className="mb-5">
         <h2 className="font-[family-name:var(--font-display)] text-2xl font-medium">
           {t('title')}
@@ -41,11 +41,11 @@ export default function DishDiaryPulse({ diary, dishName }: DishDiaryPulseProps)
             {reviewsTotal}
           </p>
         </div>
-        <div className="rounded-2xl bg-[var(--color-azafran)]/20 p-4 ring-1 ring-[var(--color-azafran)]/40">
-          <p className="text-xs uppercase tracking-wider text-[var(--color-azafran)]">
+        <div className="rounded-2xl bg-[var(--color-terracota)]/20 p-4 ring-1 ring-[var(--color-terracota)]/40">
+          <p className="text-xs uppercase tracking-wider text-[var(--color-terracota)]">
             {t('last7Days')}
           </p>
-          <p className="mt-1 font-[family-name:var(--font-display)] text-3xl font-medium tabular-nums text-[var(--color-azafran)]">
+          <p className="mt-1 font-[family-name:var(--font-display)] text-3xl font-medium tabular-nums text-[var(--color-terracota)]">
             {reviewsLast7d}
           </p>
         </div>
@@ -68,7 +68,7 @@ export default function DishDiaryPulse({ diary, dishName }: DishDiaryPulseProps)
                     className="h-6 w-6 rounded-full object-cover"
                   />
                 ) : (
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-azafran)]/30 text-[10px] font-semibold text-[var(--color-azafran)]">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-terracota)]/30 text-[10px] font-semibold text-[var(--color-terracota)]">
                     {initials(u.displayName)}
                   </span>
                 )}

@@ -131,7 +131,7 @@ estado actual, no la historia.
       en una no bloquea la otra.
     - Sección **Quiero probar** arriba en mosaico: grid responsive
       2/3/4 cols (mobile→desktop), tiles cuadrados con foto, badge
-      de rating Albahaca, nombre + restaurante, botón ``×`` overlay
+      de rating Dorado, nombre + restaurante, botón ``×`` overlay
       en hover para sacar de la lista (idempotente). Click en el
       tile → ``/dishes/{id}``.
     - Sección **Reseñas guardadas** abajo: mismo `FeedList` que
@@ -162,7 +162,7 @@ estado actual, no la historia.
     fallback.
     (2) **Confusión `/saved` ↔ `/me/quiero-probar`**. Dos features
     distintos (reviews bookmarked vs dishes wishlist) sin link
-    cruzado. Fix: banner Azafrán-tinted en `/saved` que linkea a
+    cruzado. Fix: banner Terracota-tinted en `/saved` que linkea a
     `/me/quiero-probar` cuando el comensal busca su lista de
     "Quiero probar" en el lugar equivocado. i18n keys
     `saved.wantToTryLink.{title,subtitle}` en es/en/pt.
@@ -283,11 +283,11 @@ estado actual, no la historia.
     de `recommend_dishes`. Frontend
     `app/components/chat/cards/ComparisonCard.tsx`: grid
     responsive (2 cols mobile, 2-4 cols desktop según count). Cada
-    columna: foto cuadrada, badge rating Albahaca cuando ≥4.5,
-    barras proporcionales por pilar (Páprika/Albahaca/Azafrán
+    columna: foto cuadrada, badge rating Dorado cuando ≥4.5,
+    barras proporcionales por pilar (Terracota deep/Dorado/Terracota
     sobre escala 1-3), 2 pros + 2 cons, CTAs Guardar / Ver en
     mapa. La columna líder (primer uuid pasado) recibe ring
-    Azafrán para señalizar "esta es la principal recomendación".
+    Terracota para señalizar "esta es la principal recomendación".
     `MessageList`: handler dedicado + lo agrega a
     `TOOLS_WITH_OWN_CARD`. i18n en es/en/pt: `chat.comparisonCard.*`
     y `chat.tools.{pending,completed}.compare_dishes`. 8 unit tests

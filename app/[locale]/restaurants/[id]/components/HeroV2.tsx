@@ -65,7 +65,7 @@ export default function HeroV2({
 
   return (
     <section className="relative -mx-4 mb-8 sm:-mx-6 lg:-mx-8">
-      <div className="relative h-72 w-full overflow-hidden bg-[var(--color-carbon)] sm:h-[22rem] md:h-[26rem]">
+      <div className="relative h-72 w-full overflow-hidden bg-[var(--color-espresso)] dark:bg-[var(--neutral-100)] sm:h-[22rem] md:h-[26rem]">
         {cover ? (
           <Image
             src={cover}
@@ -97,9 +97,9 @@ export default function HeroV2({
             className="object-cover"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-canela)] to-[var(--color-carbon)]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-terracota-deep)] to-[var(--color-espresso)]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-[var(--color-carbon)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-[var(--color-espresso)]" />
 
         <div className="absolute inset-x-0 top-0 px-4 pt-4 sm:px-6 sm:pt-5 lg:px-8">
           <Breadcrumb
@@ -116,7 +116,7 @@ export default function HeroV2({
             {restaurant.category && (
               <Link
                 href={`/categorias/${restaurant.category.slug}`}
-                className="rounded-full bg-[var(--color-azafran)] px-3 py-1 text-white no-underline transition hover:bg-[var(--color-canela)]"
+                className="rounded-full bg-[var(--color-terracota)] px-3 py-1 text-white no-underline transition hover:bg-[var(--color-terracota-deep)]"
               >
                 {restaurant.category.name}
               </Link>
@@ -146,7 +146,7 @@ export default function HeroV2({
             />
             {restaurant.is_claimed && (
               <span
-                className="inline-flex items-center gap-1 rounded-full bg-[var(--color-albahaca)]/90 px-3 py-1 text-white shadow-sm backdrop-blur"
+                className="inline-flex items-center gap-1 rounded-full bg-[var(--color-dorado)]/90 px-3 py-1 text-white shadow-sm backdrop-blur"
                 title={t('verifiedTitle')}
               >
                 <span aria-hidden>✓</span>
