@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import * as Sentry from '@sentry/nextjs';
 
 const STRINGS: Record<string, { title: string; message: string; retry: string }> = {
   es: {
@@ -38,6 +39,7 @@ export default function GlobalErrorPage({
   reset: () => void;
 }) {
   useEffect(() => {
+    Sentry.captureException(error);
     console.error(error);
   }, [error]);
 

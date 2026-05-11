@@ -8,9 +8,25 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { User } from '../types';
 import * as authApi from '../api/auth';
 import { clearSessionCookies } from '../api/client';
+
+// Sin email — postura conservadora. id correlaciona con eventos del BE,
+// handle es el público y role permite filtrar issues por segmento (admin
+// vs critic vs user) sin compartir PII con el vendor.
+function syncSentryUser(user: User | null) {
+  if (user) {
+    Sentry.setUser({
+      id: user.id,
+      username: user.handle ?? undefined,
+      segment: user.role,
+    });
+  } else {
+    Sentry.setUser(null);
+  }
+}
 
 interface AuthContextType {
   user: User | null;
@@ -39,9 +55,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const currentUser = await authApi.getCurrentUser();
       setUser(currentUser);
+      syncSentryUser(currentUser);
     } catch {
       await clearSessionCookies();
       setUser(null);
+      syncSentryUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -54,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     function handleAuthCleared() {
       setUser(null);
+      syncSentryUser(null);
     }
     window.addEventListener('auth:cleared', handleAuthCleared);
     return () => window.removeEventListener('auth:cleared', handleAuthCleared);
@@ -63,11 +82,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await authApi.login(email, password);
     const currentUser = await authApi.getCurrentUser();
     setUser(currentUser);
+    syncSentryUser(currentUser);
   };
 
   const logout = async () => {
     await authApi.logout();
     setUser(null);
+    syncSentryUser(null);
   };
 
   const register = async (
@@ -79,11 +100,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await authApi.login(email, password);
     const currentUser = await authApi.getCurrentUser();
     setUser(currentUser);
+    syncSentryUser(currentUser);
   };
 
   const refreshUser = useCallback(async () => {
     const currentUser = await authApi.getCurrentUser();
     setUser(currentUser);
+    syncSentryUser(currentUser);
   }, []);
 
   return (

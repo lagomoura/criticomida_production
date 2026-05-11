@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/app/lib/i18n/navigation';
 
@@ -15,6 +16,7 @@ export default function ErrorPage({
   const tCommon = useTranslations('common');
 
   useEffect(() => {
+    Sentry.captureException(error);
     console.error(error);
   }, [error]);
 

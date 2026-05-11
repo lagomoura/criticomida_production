@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { withSentryConfig } from '@sentry/nextjs';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
@@ -186,4 +187,25 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// next-intl debe correr primero (lee i18n/request.ts), después Sentry envuelve
+// todo para inyectar el build-time plugin de source maps + tree-shaking.
+export default withSentryConfig(withNextIntl(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  // Hace que el upload tome también los chunks compartidos del cliente.
+  widenClientFileUpload: true,
+  // Bypass de ad-blockers: el SDK manda eventos vía /monitoring (mismo
+  // origen) en lugar del endpoint de Sentry directo. El middleware.ts
+  // matcher excluye esta ruta para que next-intl no la intercepte.
+  tunnelRoute: '/monitoring',
+  // Logging del plugin: silencioso fuera de CI.
+  silent: !process.env.CI,
+  // Reemplaza al deprecated `disableLogger`. Es webpack-only — si en el
+  // futuro migramos a Turbopack, este bloque hay que removerlo.
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
+});
