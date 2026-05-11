@@ -1851,6 +1851,26 @@
       "savedTitle": "Changes saved",
       "savedDescription": "Your public profile has been updated."
     },
+    "avatar": {
+      "change": "Change photo",
+      "remove": "Remove photo",
+      "removeConfirm": "Remove your profile photo?",
+      "removeAction": "Remove",
+      "cancel": "Cancel",
+      "uploading": "Uploading…",
+      "savedTitle": "Photo updated",
+      "removedTitle": "Photo removed",
+      "errorTooLarge": "Image exceeds 8 MB",
+      "errorBadFormat": "Unsupported format. Use JPG, PNG or WebP",
+      "errorUpload": "We couldn't upload your photo. Try again",
+      "crop": {
+        "title": "Adjust your photo",
+        "description": "Drag and zoom to choose how it looks in your avatar.",
+        "zoom": "Zoom",
+        "done": "Done",
+        "cancel": "Cancel"
+      }
+    },
     "logoutConfirm": "Sign out of your account?",
     "logoutConfirmAction": "Yes, sign out",
     "logoutCancel": "Cancel",

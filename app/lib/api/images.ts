@@ -64,3 +64,26 @@ export async function uploadChatPhoto(
   });
   return result.url;
 }
+
+/**
+ * Sube la foto de perfil del usuario y devuelve su URL relativa
+ * (`/uploads/...`). El backend exige que ``entity_id`` sea el id del
+ * usuario autenticado (un usuario solo puede subir avatar para sí
+ * mismo); pasamos siempre el ``userId`` del current_user.
+ *
+ * La URL devuelta debe luego enviarse a ``PATCH /api/users/me`` con
+ * ``{ avatar_url: url }`` para que aparezca como avatar en toda la
+ * app — el componente ``<Avatar>`` cae a iniciales mientras
+ * ``avatar_url`` sea ``null``.
+ */
+export async function uploadUserAvatar(file: File, userId: string): Promise<string> {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('entity_type', 'user_avatar');
+  form.append('entity_id', userId);
+  const result = await fetchApi<{ url: string }>('/api/images/upload', {
+    method: 'POST',
+    body: form,
+  });
+  return result.url;
+}

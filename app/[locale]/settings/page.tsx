@@ -7,10 +7,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/app/lib/hooks/useAuth';
+import AvatarUploader from '@/app/[locale]/profile/components/AvatarUploader';
 import EditProfileForm from '@/app/[locale]/profile/components/EditProfileForm';
 import ThemeToggle from '@/app/components/ThemeToggle';
 import Button from '@/app/components/ui/Button';
-import Avatar from '@/app/components/ui/Avatar';
 import { useToast } from '@/app/components/ui/Toast';
 import { SettingsSkeleton } from '@/app/components/ui/SkeletonPresets';
 
@@ -64,19 +64,14 @@ export default function SettingsPage() {
 
   return (
     <main id="main-content" className="cc-container py-10 md:py-14">
-      {/* User header — display only, cursor-default signals non-interactivity */}
-      <div className="mb-8 flex flex-wrap items-center gap-4 cursor-default select-none">
-        <Avatar
-          name={user!.display_name}
-          src={user!.avatar_url}
-          size="lg"
-          className="bg-action-primary/10 text-action-primary"
-        />
-        <div>
+      {/* User header — el avatar es interactivo (upload/quitar foto). */}
+      <div className="mb-8 flex flex-wrap items-start gap-4">
+        <AvatarUploader user={user!} />
+        <div className="min-w-0 flex-1">
           <h1 className="font-display text-2xl font-medium text-text-primary md:text-3xl">
             {t('title')}
           </h1>
-          <div className="mt-0.5 flex items-center gap-2">
+          <div className="mt-0.5 flex flex-wrap items-center gap-2">
             {/* User display name with Cormorant for editorial moment */}
             <span className="font-display text-xl italic text-text-primary">
               {user!.display_name}

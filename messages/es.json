@@ -1851,6 +1851,26 @@
       "savedTitle": "Cambios guardados",
       "savedDescription": "Tu perfil público fue actualizado."
     },
+    "avatar": {
+      "change": "Cambiar foto",
+      "remove": "Quitar foto",
+      "removeConfirm": "¿Quitar tu foto de perfil?",
+      "removeAction": "Quitar",
+      "cancel": "Cancelar",
+      "uploading": "Subiendo…",
+      "savedTitle": "Foto actualizada",
+      "removedTitle": "Foto quitada",
+      "errorTooLarge": "La imagen supera los 8 MB",
+      "errorBadFormat": "Formato no soportado. Usá JPG, PNG o WebP",
+      "errorUpload": "No pudimos subir tu foto. Probá de nuevo",
+      "crop": {
+        "title": "Ajustá tu foto",
+        "description": "Movela y hacé zoom para elegir cómo se ve en tu avatar.",
+        "zoom": "Zoom",
+        "done": "Listo",
+        "cancel": "Cancelar"
+      }
+    },
     "logoutConfirm": "¿Salir de tu cuenta?",
     "logoutConfirmAction": "Sí, salir",
     "logoutCancel": "Cancelar",
