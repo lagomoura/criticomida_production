@@ -359,7 +359,7 @@ function Stat({
       <button
         type="button"
         onClick={onClick}
-        className="rounded-md text-left transition-colors hover:[&_dd>span:first-child]:text-action-primary-hover focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+        className="cursor-pointer rounded-md text-left transition-colors hover:[&_dd>span:first-child]:text-action-primary-hover focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
       >
         {content}
       </button>

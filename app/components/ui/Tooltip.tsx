@@ -154,7 +154,11 @@ export default function Tooltip({
         // inline — los inline no respetan max-width y el texto multiline
         // se estira en una sola línea larga.
         'pointer-events-none inline-block rounded-md px-2 py-1 font-sans text-xs font-medium',
-        'bg-text-primary text-text-inverse shadow-[var(--shadow-elevated)]',
+        // `text-text-inverse` está hardcodeado a blanco en ambos temas; en dark
+        // el fondo (`bg-text-primary`) se vuelve claro → texto blanco ilegible.
+        // `text-surface-page` invierte correctamente con `text-primary` y mantiene
+        // contraste alto en light y dark.
+        'bg-text-primary text-surface-page shadow-[var(--shadow-elevated)]',
         'motion-safe:animate-[tooltip-in_140ms_var(--ease-standard)]',
         multiline
           ? 'w-max max-w-[18rem] whitespace-normal text-left leading-snug'
