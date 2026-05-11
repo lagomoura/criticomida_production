@@ -184,6 +184,8 @@ export default function PublicProfileClient({ userId }: Props) {
         onEditProfile={() => router.push('/settings')}
         onLogout={() => void handleLogout()}
         logoutLoading={loggingOut}
+        onOpenFollowers={(id) => router.push(`/u/${id}/followers`)}
+        onOpenFollowing={(id) => router.push(`/u/${id}/following`)}
         // Solo perfil ajeno con sesión activa: ⋯ ofrece block/mute/report.
         onOpenMenu={user && !profile.viewerState.isSelf ? () => setProfileMenuOpen(true) : undefined}
       />

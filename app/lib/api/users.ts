@@ -1,9 +1,15 @@
 import { fetchApi } from './client';
 import { isSocialMockEnabled, mockDelay } from './_mocks';
-import { mockGetUserProfile, mockGetUserPosts } from './_mocks/users';
+import {
+  mockGetUserProfile,
+  mockGetUserPosts,
+  mockGetFollowers,
+  mockGetFollowing,
+} from './_mocks/users';
 import { toReviewPost, type FeedItemDTO } from './feed';
 import type {
   CursorPage,
+  FollowerSummary,
   MasteryLevel,
   PublicUserProfile,
   ReviewPost,
@@ -134,6 +140,67 @@ export async function unfollowUser(userId: string): Promise<void> {
     return;
   }
   await fetchApi(`/api/users/${encodeURIComponent(userId)}/follow`, { method: 'DELETE' });
+}
+
+interface FollowerSummaryDTO {
+  id: string;
+  display_name: string;
+  handle: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  created_at: string;
+  viewer_following: boolean | null;
+}
+
+interface FollowersPageDTO {
+  items: FollowerSummaryDTO[];
+  next_cursor: string | null;
+}
+
+function toFollowerSummary(dto: FollowerSummaryDTO): FollowerSummary {
+  return {
+    id: dto.id,
+    displayName: dto.display_name,
+    handle: dto.handle,
+    avatarUrl: dto.avatar_url,
+    bio: dto.bio,
+    createdAt: dto.created_at,
+    viewerFollowing: dto.viewer_following,
+  };
+}
+
+export async function getFollowers(
+  idOrHandle: string,
+  cursor?: string | null,
+  limit = 20,
+): Promise<CursorPage<FollowerSummary>> {
+  if (isSocialMockEnabled()) {
+    await mockDelay();
+    return mockGetFollowers(idOrHandle, cursor ?? null);
+  }
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (cursor) params.set('cursor', cursor);
+  const raw = await fetchApi<FollowersPageDTO>(
+    `/api/users/${encodeURIComponent(idOrHandle)}/followers?${params.toString()}`,
+  );
+  return { items: raw.items.map(toFollowerSummary), nextCursor: raw.next_cursor };
+}
+
+export async function getFollowing(
+  idOrHandle: string,
+  cursor?: string | null,
+  limit = 20,
+): Promise<CursorPage<FollowerSummary>> {
+  if (isSocialMockEnabled()) {
+    await mockDelay();
+    return mockGetFollowing(idOrHandle, cursor ?? null);
+  }
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (cursor) params.set('cursor', cursor);
+  const raw = await fetchApi<FollowersPageDTO>(
+    `/api/users/${encodeURIComponent(idOrHandle)}/following?${params.toString()}`,
+  );
+  return { items: raw.items.map(toFollowerSummary), nextCursor: raw.next_cursor };
 }
 
 export interface UserSuggestion {

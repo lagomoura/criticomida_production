@@ -1,4 +1,9 @@
-import type { CursorPage, PublicUserProfile, ReviewPost } from '@/app/lib/types/social';
+import type {
+  CursorPage,
+  FollowerSummary,
+  PublicUserProfile,
+  ReviewPost,
+} from '@/app/lib/types/social';
 import { mockGetAllPosts } from './feed';
 
 const PROFILES: Record<string, PublicUserProfile> = {
@@ -95,6 +100,55 @@ export function mockGetUserProfile(userId: string): PublicUserProfile {
 export function mockGetUserPosts(userId: string): CursorPage<ReviewPost> {
   return {
     items: mockGetAllPosts().filter((p) => p.author.id === userId),
+    nextCursor: null,
+  };
+}
+
+function profileToFollowerSummary(
+  p: PublicUserProfile,
+  viewerFollowing: boolean | null,
+): FollowerSummary {
+  return {
+    id: p.id,
+    displayName: p.displayName,
+    handle: p.handle ?? null,
+    avatarUrl: p.avatarUrl ?? null,
+    bio: p.bio ?? null,
+    createdAt: new Date().toISOString(),
+    viewerFollowing,
+  };
+}
+
+function buildFollowList(
+  excludeId: string,
+  viewerFollowingFn: (index: number) => boolean | null,
+): FollowerSummary[] {
+  return Object.values(PROFILES)
+    .filter((p) => p.id !== excludeId)
+    .map((p, i) => profileToFollowerSummary(p, viewerFollowingFn(i)));
+}
+
+export function mockGetFollowers(
+  userId: string,
+  cursor: string | null,
+): CursorPage<FollowerSummary> {
+  // El mock no pagina: si el cliente vuelve con cursor, no hay más.
+  if (cursor) return { items: [], nextCursor: null };
+  // Simula viewer logueado típico: sigue a algunos pero no a todos.
+  return {
+    items: buildFollowList(userId, (i) => i % 2 === 0),
+    nextCursor: null,
+  };
+}
+
+export function mockGetFollowing(
+  userId: string,
+  cursor: string | null,
+): CursorPage<FollowerSummary> {
+  if (cursor) return { items: [], nextCursor: null };
+  // /following del propio viewer: todos vienen como "siguiendo".
+  return {
+    items: buildFollowList(userId, () => true),
     nextCursor: null,
   };
 }
