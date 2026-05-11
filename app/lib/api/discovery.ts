@@ -4,6 +4,10 @@ import type {
   DiscoveryDishPage,
   DiscoverySort,
   DishDuel,
+  DuelFallbackReason,
+  DuelFamily,
+  DuelPillar,
+  DuelRoot,
   PriceTier,
 } from '@/app/lib/types/social';
 import type {
@@ -46,7 +50,33 @@ interface DiscoveryDishPageDTO {
 
 interface DishDuelDTO {
   category: string | null;
+  root: string | null;
+  family: string | null;
+  pillar: DuelPillar | null;
   items: DiscoveryDishItemDTO[];
+  fallback_reason: DuelFallbackReason | null;
+}
+
+interface DuelRootItemDTO {
+  root: string;
+  restaurant_count: number;
+  recent_reviews: number;
+  sample_name: string;
+}
+
+interface DuelRootsResponseDTO {
+  items: DuelRootItemDTO[];
+}
+
+interface DuelFamilyItemDTO {
+  family: string;
+  restaurant_count: number;
+  recent_reviews: number;
+  sample_name: string;
+}
+
+interface DuelFamiliesResponseDTO {
+  items: DuelFamilyItemDTO[];
 }
 
 function toItem(dto: DiscoveryDishItemDTO): DiscoveryDishItem {
@@ -108,20 +138,98 @@ export async function discoverDishes(
 }
 
 export interface DishDuelParams {
-  category: string;
+  /** Familia semántica (ej. "burger"). Default del rail nuevo. */
+  family?: string;
+  /** Raíz exacta del plato (ej. "sorrentinos"). Más estricto que family. */
+  root?: string;
+  /** Pilar a duelar. Default backend: 'value_prop'. */
+  pillar?: DuelPillar;
+  /** Filtro adicional opcional por categoría de restaurante (slug). */
+  category?: string;
   lat?: number;
   lng?: number;
   radiusKm?: number;
 }
 
-export async function getDishDuel(params: DishDuelParams): Promise<DishDuel> {
-  const qs = new URLSearchParams({ category: params.category });
+export async function getDishDuel(params: DishDuelParams = {}): Promise<DishDuel> {
+  const qs = new URLSearchParams();
+  if (params.family) qs.set('family', params.family);
+  if (params.root) qs.set('root', params.root);
+  if (params.pillar) qs.set('pillar', params.pillar);
+  if (params.category) qs.set('category', params.category);
   if (params.lat !== undefined) qs.set('lat', String(params.lat));
   if (params.lng !== undefined) qs.set('lng', String(params.lng));
   if (params.radiusKm !== undefined) qs.set('radius_km', String(params.radiusKm));
 
-  const raw = await fetchApi<DishDuelDTO>(`/api/dishes/duel?${qs}`);
-  return { category: raw.category, items: raw.items.map(toItem) };
+  const raw = await fetchApi<DishDuelDTO>(
+    `/api/dishes/duel${qs.toString() ? `?${qs}` : ''}`,
+  );
+  return {
+    category: raw.category,
+    root: raw.root,
+    family: raw.family,
+    pillar: raw.pillar,
+    items: raw.items.map(toItem),
+    fallbackReason: raw.fallback_reason,
+  };
+}
+
+export interface DuelFamiliesParams {
+  category?: string;
+  limit?: number;
+  minRestaurants?: number;
+  recentDays?: number;
+}
+
+export async function getDuelFamilies(
+  params: DuelFamiliesParams = {},
+): Promise<DuelFamily[]> {
+  const qs = new URLSearchParams();
+  if (params.category) qs.set('category', params.category);
+  if (params.limit !== undefined) qs.set('limit', String(params.limit));
+  if (params.minRestaurants !== undefined)
+    qs.set('min_restaurants', String(params.minRestaurants));
+  if (params.recentDays !== undefined)
+    qs.set('recent_days', String(params.recentDays));
+
+  const raw = await fetchApi<DuelFamiliesResponseDTO>(
+    `/api/dishes/duel/families${qs.toString() ? `?${qs}` : ''}`,
+  );
+  return raw.items.map((it) => ({
+    family: it.family,
+    restaurantCount: it.restaurant_count,
+    recentReviews: it.recent_reviews,
+    sampleName: it.sample_name,
+  }));
+}
+
+export interface DuelRootsParams {
+  category?: string;
+  limit?: number;
+  minRestaurants?: number;
+  recentDays?: number;
+}
+
+export async function getDuelRoots(
+  params: DuelRootsParams = {},
+): Promise<DuelRoot[]> {
+  const qs = new URLSearchParams();
+  if (params.category) qs.set('category', params.category);
+  if (params.limit !== undefined) qs.set('limit', String(params.limit));
+  if (params.minRestaurants !== undefined)
+    qs.set('min_restaurants', String(params.minRestaurants));
+  if (params.recentDays !== undefined)
+    qs.set('recent_days', String(params.recentDays));
+
+  const raw = await fetchApi<DuelRootsResponseDTO>(
+    `/api/dishes/duel/roots${qs.toString() ? `?${qs}` : ''}`,
+  );
+  return raw.items.map((it) => ({
+    root: it.root,
+    restaurantCount: it.restaurant_count,
+    recentReviews: it.recent_reviews,
+    sampleName: it.sample_name,
+  }));
 }
 
 interface MapDishHighlightDTO {

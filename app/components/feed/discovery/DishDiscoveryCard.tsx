@@ -6,12 +6,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import WantToTryButton from '@/app/components/dishes/WantToTryButton';
-import type { DiscoveryDishItem } from '@/app/lib/types/social';
+import type { DiscoveryDishItem, DuelPillar } from '@/app/lib/types/social';
 
 export interface DishDiscoveryCardProps {
   dish: DiscoveryDishItem;
   /** Habilita el CTA Quiero probarlo (hide cuando hay viewer anónimo). */
   onToggleWantToTry?: (dishId: string, next: boolean) => void;
+  /** Pilar a destacar visualmente (ring dorado) en el card. Usado por el duelo. */
+  highlightedPillar?: DuelPillar;
 }
 
 /**
@@ -26,10 +28,12 @@ export interface DishDiscoveryCardProps {
 export default function DishDiscoveryCard({
   dish,
   onToggleWantToTry,
+  highlightedPillar,
 }: DishDiscoveryCardProps) {
   const t = useTranslations('discovery.card');
+  const ratingHighlighted = highlightedPillar === 'overall_rating';
   return (
-    <article className="flex w-72 shrink-0 flex-col gap-3 rounded-2xl border border-border-subtle bg-surface-card p-3 shadow-sm">
+    <article className="flex w-full shrink-0 flex-col gap-3 rounded-2xl border border-border-subtle bg-surface-card p-3 shadow-sm sm:w-72">
       <Link
         href={`/dishes/${dish.dishId}`}
         className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-surface-subtle"
@@ -68,11 +72,17 @@ export default function DishDiscoveryCard({
         </Link>
       </div>
 
-      <PillarMiniBars dish={dish} t={t} />
+      <PillarMiniBars dish={dish} t={t} highlightedPillar={highlightedPillar} />
 
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-3 font-sans text-xs text-text-muted">
-          <span>
+          <span
+            className={
+              ratingHighlighted
+                ? 'inline-flex items-center gap-1 rounded-full bg-[var(--color-dorado)]/15 px-2 py-0.5 font-semibold text-text-primary ring-1 ring-[var(--color-dorado)]'
+                : undefined
+            }
+          >
             <span aria-hidden>★</span> {dish.computedRating.toFixed(1)}
           </span>
           <span>{t('reviews', { count: dish.reviewCount })}</span>
@@ -109,36 +119,65 @@ function formatDistance(km: number): string {
 function PillarMiniBars({
   dish,
   t,
+  highlightedPillar,
 }: {
   dish: DiscoveryDishItem;
   t: ReturnType<typeof useTranslations<'discovery.card'>>;
+  highlightedPillar?: DuelPillar;
 }) {
-  const pillars: Array<{ label: string; avg: number | null; n: number }> = [
-    { label: t('pillarExec'), avg: dish.pillars.executionAvg, n: dish.pillars.executionN },
-    { label: t('pillarValue'), avg: dish.pillars.valuePropAvg, n: dish.pillars.valuePropN },
-    { label: t('pillarPres'), avg: dish.pillars.presentationAvg, n: dish.pillars.presentationN },
+  const pillars: Array<{
+    key: DuelPillar;
+    label: string;
+    avg: number | null;
+    n: number;
+  }> = [
+    {
+      key: 'execution',
+      label: t('pillarExec'),
+      avg: dish.pillars.executionAvg,
+      n: dish.pillars.executionN,
+    },
+    {
+      key: 'value_prop',
+      label: t('pillarValue'),
+      avg: dish.pillars.valuePropAvg,
+      n: dish.pillars.valuePropN,
+    },
+    {
+      key: 'presentation',
+      label: t('pillarPres'),
+      avg: dish.pillars.presentationAvg,
+      n: dish.pillars.presentationN,
+    },
   ];
   return (
     <div className="flex gap-2">
-      {pillars.map((p) => (
-        <div
-          key={p.label}
-          className="flex flex-1 flex-col gap-1 rounded-lg border border-border-subtle bg-surface-subtle px-2 py-1.5"
-        >
-          <span className="font-sans text-[0.65rem] uppercase tracking-wider text-text-muted">
-            {p.label}
-          </span>
-          <PillarBar avg={p.avg} />
-          <span className="font-sans text-[0.65rem] text-text-muted">
-            {p.avg !== null ? p.avg.toFixed(1) : '—'}/3 · {p.n}
-          </span>
-        </div>
-      ))}
+      {pillars.map((p) => {
+        const active = highlightedPillar === p.key;
+        return (
+          <div
+            key={p.key}
+            className={
+              active
+                ? 'flex flex-1 flex-col gap-1 rounded-lg border border-[var(--color-dorado)] bg-[var(--color-dorado)]/10 px-2 py-1.5 ring-1 ring-[var(--color-dorado)]/40'
+                : 'flex flex-1 flex-col gap-1 rounded-lg border border-border-subtle bg-surface-subtle px-2 py-1.5'
+            }
+          >
+            <span className="font-sans text-[0.65rem] uppercase tracking-wider text-text-muted">
+              {p.label}
+            </span>
+            <PillarBar avg={p.avg} active={active} />
+            <span className="font-sans text-[0.65rem] text-text-muted">
+              {p.avg !== null ? p.avg.toFixed(1) : '—'}/3 · {p.n}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-function PillarBar({ avg }: { avg: number | null }) {
+function PillarBar({ avg, active = false }: { avg: number | null; active?: boolean }) {
   if (avg === null) {
     return <span className="block h-1.5 rounded-full bg-border-subtle" />;
   }
@@ -147,7 +186,11 @@ function PillarBar({ avg }: { avg: number | null }) {
   return (
     <span className="block h-1.5 overflow-hidden rounded-full bg-border-subtle">
       <span
-        className="block h-full rounded-full bg-[var(--color-terracota)] transition-[width]"
+        className={
+          active
+            ? 'block h-full rounded-full bg-[var(--color-dorado)] transition-[width]'
+            : 'block h-full rounded-full bg-[var(--color-terracota)] transition-[width]'
+        }
         style={{ width: `${pct}%` }}
       />
     </span>

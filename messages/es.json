@@ -1928,6 +1928,40 @@
       "emptyOtherDescription": "Cuando este usuario publique algo, lo vas a ver acá.",
       "emptySelfAction": "Publicar reseña"
     },
+    "followers": {
+      "title": "Seguidores",
+      "titleOfHandle": "Seguidores de @{handle}",
+      "titleOfDisplayName": "Seguidores de {displayName}",
+      "titleSelf": "Tus seguidores",
+      "ariaBack": "Volver al perfil",
+      "backToProfile": "Volver al perfil",
+      "backToFeed": "Volver al feed",
+      "ownerNotFoundTitle": "Perfil no encontrado",
+      "loadError": "No pudimos cargar la lista. Probá de nuevo en un momento.",
+      "loadMoreError": "No se pudieron cargar más resultados.",
+      "tryAgain": "Intentar de nuevo",
+      "emptyOtherTitle": "Todavía no tiene seguidores",
+      "emptyOtherDescription": "Cuando alguien lo siga, vas a verlo acá.",
+      "emptySelfTitle": "Nadie te sigue todavía",
+      "emptySelfDescription": "Publicá tus primeras reseñas para empezar a construir tu voz crítica."
+    },
+    "following": {
+      "title": "Seguidos",
+      "titleOfHandle": "Cuentas que sigue @{handle}",
+      "titleOfDisplayName": "Cuentas que sigue {displayName}",
+      "titleSelf": "Cuentas que seguís",
+      "ariaBack": "Volver al perfil",
+      "backToProfile": "Volver al perfil",
+      "backToFeed": "Volver al feed",
+      "ownerNotFoundTitle": "Perfil no encontrado",
+      "loadError": "No pudimos cargar la lista. Probá de nuevo en un momento.",
+      "loadMoreError": "No se pudieron cargar más resultados.",
+      "tryAgain": "Intentar de nuevo",
+      "emptyOtherTitle": "Aún no sigue a nadie",
+      "emptyOtherDescription": "Cuando empiece a seguir críticos, vas a verlos acá.",
+      "emptySelfTitle": "Todavía no seguís a nadie",
+      "emptySelfDescription": "Buscá críticos y restaurantes para armar tu feed."
+    },
     "specialty": {
       "masterHeadline": "Autoridad en {name}: {count, plural, one {# reseña} other {# reseñas}} detrás de cada opinión.",
       "sommelierHeadline": "Voz reconocida en {name}, con {count, plural, one {# reseña} other {# reseñas}} de oficio.",
@@ -1978,10 +2012,55 @@
     },
     "duel": {
       "kicker": "Duelo de platos",
-      "title": "Mano a mano por costo/beneficio",
-      "subtitle": "Los dos mejores de la categoría según el pilar de costo/beneficio.",
-      "categoryLabel": "Categoría del duelo",
-      "winner": "Ganador costo/beneficio"
+      "title": {
+        "value_prop": "Mano a mano por costo/beneficio",
+        "execution": "Mano a mano por ejecución técnica",
+        "presentation": "Mano a mano por presentación",
+        "overall_rating": "Mano a mano por estrellas"
+      },
+      "subtitle": "El mismo plato, enfrentado en restaurantes distintos.",
+      "vs": "VS",
+      "rootLabel": "Plato a duelar",
+      "pillarLabel": "Pilar del duelo",
+      "pillarValueProp": "Costo/Beneficio",
+      "pillarExecution": "Ejecución",
+      "pillarPresentation": "Presentación",
+      "pillarOverallRating": "Estrellas",
+      "winner": {
+        "value_prop": "Ganador costo/beneficio",
+        "execution": "Mejor ejecución",
+        "presentation": "Mejor presentación",
+        "overall_rating": "Más estrellas"
+      },
+      "rootSampleSuffix": "· {count} lugares",
+      "familyLabel": "Familia del duelo",
+      "noFamilyHint": "Aún no hay 2 restaurantes con el mismo tipo de plato. Sumá reseñas y volvé.",
+      "fallbackUniqueRestaurant": {
+        "title": "Por ahora solo {restaurantName} tiene {familyName}.",
+        "cta": "Probá otra familia"
+      },
+      "families": {
+        "burger": "Hamburguesas",
+        "sandwich": "Sándwiches",
+        "milanesa": "Milanesas",
+        "pizza": "Pizzas",
+        "pasta-rellena": "Pasta rellena",
+        "pasta": "Pastas",
+        "empanadas": "Empanadas",
+        "parrilla": "Parrilla",
+        "sushi": "Sushi",
+        "ramen": "Ramen",
+        "mexicano": "Mexicana",
+        "mediterraneo": "Mediterránea",
+        "postres": "Postres",
+        "ensaladas": "Ensaladas",
+        "cerveza": "Cervezas",
+        "cafe": "Café",
+        "pollo": "Pollo",
+        "risotto": "Risotto",
+        "paella": "Paella",
+        "pescado": "Pescado"
+      }
     },
     "trending": {
       "kicker": "Tendencias de nicho",
@@ -2161,6 +2240,12 @@
     },
     "profile": {
       "title": "Perfil | Palato"
+    },
+    "followers": {
+      "title": "Seguidores | Palato"
+    },
+    "following": {
+      "title": "Seguidos | Palato"
     },
     "compose": {
       "title": "Nueva reseña | Palato"

@@ -54,12 +54,11 @@ export default function DiscoveryRails() {
         enableWishlist={enableWishlist}
       />
 
-      <DishDuelRail
-        lat={lat}
-        lng={lng}
-        radiusKm={lat !== undefined ? 5 : undefined}
-        enableWishlist={enableWishlist}
-      />
+      {/* Duelo: rail EDITORIAL, no geográfico. Los contendientes vienen del
+          país entero — si filtráramos por radio del usuario, casi nunca habría
+          2 restaurantes con la misma familia dentro de 5 km y el carrusel
+          mostraría puros empty states. */}
+      <DishDuelRail enableWishlist={enableWishlist} />
 
       {/* Personas para vos — solo con sesión: sin viewer no hay FoF ni
           historial de reseñas para construir candidatos. Si el endpoint

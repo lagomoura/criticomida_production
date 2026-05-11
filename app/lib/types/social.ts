@@ -147,6 +147,23 @@ export interface CursorPage<T> {
   nextCursor: string | null;
 }
 
+export interface FollowerSummary {
+  id: string;
+  displayName: string;
+  handle: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  /** ISO datetime when the follow edge was created. */
+  createdAt: string;
+  /**
+   * null → viewer anónimo (no se filtra info del grafo).
+   * boolean → viewer autenticado: true si ya sigue a este usuario.
+   * Para el viewer dentro de su propia lista siempre es false (no hay
+   * self-follow), y el componente debe ocultar el botón comparando IDs.
+   */
+  viewerFollowing: boolean | null;
+}
+
 export interface DishSearchResult {
   id: string;
   name: string;
@@ -346,9 +363,42 @@ export interface DiscoveryDishPage {
   items: DiscoveryDishItem[];
 }
 
+/** Pilares por los que el usuario puede elegir duelar dos platos. */
+export type DuelPillar =
+  | 'value_prop'
+  | 'execution'
+  | 'presentation'
+  | 'overall_rating';
+
+export type DuelFallbackReason =
+  | 'root_unique_restaurant'
+  | 'root_not_found'
+  | 'family_unique_restaurant'
+  | 'family_not_found';
+
 export interface DishDuel {
   category: string | null;
+  root: string | null;
+  family: string | null;
+  pillar: DuelPillar | null;
   items: DiscoveryDishItem[];
+  fallbackReason: DuelFallbackReason | null;
+}
+
+/** Raíz semántica de plato con suficientes contendientes para alimentar el selector. */
+export interface DuelRoot {
+  root: string;
+  restaurantCount: number;
+  recentReviews: number;
+  sampleName: string;
+}
+
+/** Familia semántica que agrupa platos del mismo "tipo" (burger, pizza, ...). */
+export interface DuelFamily {
+  family: string;
+  restaurantCount: number;
+  recentReviews: number;
+  sampleName: string;
 }
 
 // --- Wishlist 'Quiero probarlo' ---

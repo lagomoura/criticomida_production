@@ -1928,6 +1928,40 @@
       "emptyOtherDescription": "When this user posts something, you'll see it here.",
       "emptySelfAction": "Post review"
     },
+    "followers": {
+      "title": "Followers",
+      "titleOfHandle": "Followers of @{handle}",
+      "titleOfDisplayName": "Followers of {displayName}",
+      "titleSelf": "Your followers",
+      "ariaBack": "Back to profile",
+      "backToProfile": "Back to profile",
+      "backToFeed": "Back to feed",
+      "ownerNotFoundTitle": "Profile not found",
+      "loadError": "We couldn't load the list. Try again in a moment.",
+      "loadMoreError": "Couldn't load more results.",
+      "tryAgain": "Try again",
+      "emptyOtherTitle": "No followers yet",
+      "emptyOtherDescription": "Once someone follows them, they'll show up here.",
+      "emptySelfTitle": "Nobody follows you yet",
+      "emptySelfDescription": "Post your first reviews to start building your critical voice."
+    },
+    "following": {
+      "title": "Following",
+      "titleOfHandle": "Accounts @{handle} follows",
+      "titleOfDisplayName": "Accounts {displayName} follows",
+      "titleSelf": "Accounts you follow",
+      "ariaBack": "Back to profile",
+      "backToProfile": "Back to profile",
+      "backToFeed": "Back to feed",
+      "ownerNotFoundTitle": "Profile not found",
+      "loadError": "We couldn't load the list. Try again in a moment.",
+      "loadMoreError": "Couldn't load more results.",
+      "tryAgain": "Try again",
+      "emptyOtherTitle": "Not following anyone yet",
+      "emptyOtherDescription": "Once they start following critics, you'll see them here.",
+      "emptySelfTitle": "You aren't following anyone yet",
+      "emptySelfDescription": "Search for critics and restaurants to shape your feed."
+    },
     "specialty": {
       "masterHeadline": "Authority on {name}: {count, plural, one {# review} other {# reviews}} behind every opinion.",
       "sommelierHeadline": "Recognized voice on {name}, with {count, plural, one {# review} other {# reviews}} of craft.",
@@ -1978,10 +2012,55 @@
     },
     "duel": {
       "kicker": "Dish duel",
-      "title": "Head-to-head on value",
-      "subtitle": "The two best in the category by the value-for-money pillar.",
-      "categoryLabel": "Duel category",
-      "winner": "Value winner"
+      "title": {
+        "value_prop": "Head-to-head on value",
+        "execution": "Head-to-head on technique",
+        "presentation": "Head-to-head on presentation",
+        "overall_rating": "Head-to-head on stars"
+      },
+      "subtitle": "Same dish, faced off across restaurants.",
+      "vs": "VS",
+      "rootLabel": "Dish to duel",
+      "pillarLabel": "Duel pillar",
+      "pillarValueProp": "Value",
+      "pillarExecution": "Technique",
+      "pillarPresentation": "Presentation",
+      "pillarOverallRating": "Stars",
+      "winner": {
+        "value_prop": "Value winner",
+        "execution": "Best technique",
+        "presentation": "Best presentation",
+        "overall_rating": "Most stars"
+      },
+      "rootSampleSuffix": "· {count} places",
+      "familyLabel": "Duel family",
+      "noFamilyHint": "No two restaurants share a dish family yet. Add more reviews and come back.",
+      "fallbackUniqueRestaurant": {
+        "title": "Only {restaurantName} has {familyName} for now.",
+        "cta": "Try another family"
+      },
+      "families": {
+        "burger": "Burgers",
+        "sandwich": "Sandwiches",
+        "milanesa": "Milanesas",
+        "pizza": "Pizzas",
+        "pasta-rellena": "Filled pasta",
+        "pasta": "Pastas",
+        "empanadas": "Empanadas",
+        "parrilla": "Grill",
+        "sushi": "Sushi",
+        "ramen": "Ramen",
+        "mexicano": "Mexican",
+        "mediterraneo": "Mediterranean",
+        "postres": "Desserts",
+        "ensaladas": "Salads",
+        "cerveza": "Beers",
+        "cafe": "Coffee",
+        "pollo": "Chicken",
+        "risotto": "Risotto",
+        "paella": "Paella",
+        "pescado": "Fish"
+      }
     },
     "trending": {
       "kicker": "Niche trends",
@@ -2161,6 +2240,12 @@
     },
     "profile": {
       "title": "Profile | Palato"
+    },
+    "followers": {
+      "title": "Followers | Palato"
+    },
+    "following": {
+      "title": "Following | Palato"
     },
     "compose": {
       "title": "New review | Palato"
