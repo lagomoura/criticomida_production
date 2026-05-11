@@ -20,7 +20,7 @@ import Badge from '@/app/components/ui/Badge';
 import Button from '@/app/components/ui/Button';
 import ThemeToggle from '@/app/components/ThemeToggle';
 import LanguageSwitcher from '@/app/components/i18n/LanguageSwitcher';
-import UserMenu from '@/app/components/nav/UserMenu';
+import Avatar from '@/app/components/ui/Avatar';
 import { cn } from '@/app/lib/utils/cn';
 
 export interface TopNavProps {
@@ -98,7 +98,28 @@ export default function TopNav({ onOpenAuthModal, unreadCount = 0 }: TopNavProps
           />
           {user ? (
             <li>
-              <UserMenu active={isActive(`/u/${user.id}`)} />
+              <Link
+                href={`/u/${user.id}`}
+                aria-label={t('myProfile')}
+                aria-current={isActive(`/u/${user.id}`) ? 'page' : undefined}
+                className={cn(
+                  'group relative inline-flex h-10 items-center gap-2 rounded-md px-2 no-underline transition-colors',
+                  'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                  isActive(`/u/${user.id}`) ? 'text-action-primary' : 'text-text-secondary hover:text-text-primary',
+                )}
+              >
+                <Avatar src={user.avatar_url} name={user.display_name || user.email} size="sm" />
+                <span className="font-sans text-sm text-text-primary">
+                  {user.display_name?.split(' ')[0] ?? t('profile')}
+                </span>
+                <span
+                  aria-hidden
+                  className={cn(
+                    'pointer-events-none absolute inset-x-2 bottom-1 h-[2px] rounded-full bg-action-primary transition-transform origin-left',
+                    isActive(`/u/${user.id}`) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-50',
+                  )}
+                />
+              </Link>
             </li>
           ) : null}
         </ul>
