@@ -8,6 +8,7 @@ import { NotificationProvider } from '../lib/contexts/NotificationContext';
 import { ToastProvider } from './ui/Toast';
 import ChatLauncher from './chat/ChatLauncher';
 import NavShell from './nav/NavShell';
+import TourProvider from './tour/TourProvider';
 
 export default function Providers({ children }: { children: ReactNode }) {
   const t = useTranslations('nav');
@@ -16,16 +17,18 @@ export default function Providers({ children }: { children: ReactNode }) {
       <ToastProvider>
         <AuthProvider>
           <NotificationProvider>
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-action-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-text-inverse focus:shadow-lg"
-            >
-              {t('skipToContent')}
-            </a>
-            <NavShell />
-            {/* pb = 64px (BottomNav height) en mobile; 0 en md+ (TopNav es sticky sin solape) */}
-            <div className="pb-16 md:pb-0">{children}</div>
-            <ChatLauncher />
+            <TourProvider>
+              <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-action-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-text-inverse focus:shadow-lg"
+              >
+                {t('skipToContent')}
+              </a>
+              <NavShell />
+              {/* pb = 64px (BottomNav height) en mobile; 0 en md+ (TopNav es sticky sin solape) */}
+              <div className="pb-16 md:pb-0">{children}</div>
+              <ChatLauncher />
+            </TourProvider>
           </NotificationProvider>
         </AuthProvider>
       </ToastProvider>

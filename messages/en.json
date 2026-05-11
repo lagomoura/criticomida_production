@@ -2635,5 +2635,54 @@
     "metaTitle": "{name} · Palato",
     "metaDescription": "A curated route of {count} dishes on Palato.",
     "metaOgDescription": "{count} hand-picked dishes on Palato."
+  },
+  "tour": {
+    "buttons": {
+      "next": "Next",
+      "back": "Back",
+      "skip": "Skip tour",
+      "finish": "Done",
+      "start": "Start"
+    },
+    "progress": "Step {current} of {total}",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to Palato",
+        "body": "An editorial take on the food that matters. Here are the essentials in 30 seconds."
+      },
+      "feedTabs": {
+        "title": "Your feed",
+        "body": "‘For you’ is the editorial curation; ‘Following’ is the reviews of the people you care about; ‘Map’ helps you discover nearby."
+      },
+      "dishDuel": {
+        "title": "Dish duel",
+        "body": "Two versions of the same dish, judged by the community. Palato's signature piece."
+      },
+      "discoveryGeo": {
+        "title": "Discover",
+        "body": "Near you, best execution and what's trending. Three ways to find your next meal."
+      },
+      "publish": {
+        "title": "Publish your review",
+        "body": "Photo, dish, restaurant and a couple of lines. Your take matters here."
+      },
+      "notifications": {
+        "title": "Your notifications",
+        "body": "Likes, comments and new followers. No spam."
+      },
+      "profile": {
+        "title": "Your profile",
+        "body": "Reviews, lists, followers and following — all in one place."
+      },
+      "closing": {
+        "title": "All set",
+        "body": "To see it again, head to Preferences → Guided tour."
+      }
+    },
+    "settings": {
+      "heading": "Guided tour",
+      "subtitle": "Replay the walkthrough of Palato's main features.",
+      "restart": "Replay the tour"
+    }
   }
 }

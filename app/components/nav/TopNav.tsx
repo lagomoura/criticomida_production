@@ -71,7 +71,7 @@ export default function TopNav({ onOpenAuthModal, unreadCount = 0 }: TopNavProps
           <NavLink href="/" icon={faHouse} label={t('home')} active={isActive('/')} />
           <NavLink href="/search" icon={faMagnifyingGlass} label={t('search')} active={isActive('/search')} />
           <NavLink href="/trending" icon={faArrowTrendUp} label={t('trending')} active={isActive('/trending')} />
-          <li>
+          <li data-tour-id="publish">
             <button
               type="button"
               onClick={handleCompose}
@@ -95,9 +95,10 @@ export default function TopNav({ onOpenAuthModal, unreadCount = 0 }: TopNavProps
             badge={unreadCount > 0 ? unreadCount : undefined}
             requiresAuth={!user && !isLoading}
             onRequireAuth={onOpenAuthModal}
+            tourId="notifications"
           />
           {user ? (
-            <li>
+            <li data-tour-id="profile">
               <Link
                 href={`/u/${user.id}`}
                 aria-label={t('myProfile')}
@@ -178,6 +179,7 @@ function NavLink({
   badge,
   requiresAuth,
   onRequireAuth,
+  tourId,
 }: {
   href: string;
   icon: typeof faHouse;
@@ -186,6 +188,7 @@ function NavLink({
   badge?: number;
   requiresAuth?: boolean;
   onRequireAuth?: () => void;
+  tourId?: string;
 }) {
   const className = cn(
     'group relative inline-flex h-10 items-center gap-2 rounded-md px-3 font-sans text-sm transition-colors',
@@ -214,7 +217,7 @@ function NavLink({
 
   if (requiresAuth) {
     return (
-      <li>
+      <li data-tour-id={tourId}>
         <button type="button" onClick={onRequireAuth} className={className}>
           {content}
         </button>
@@ -223,7 +226,7 @@ function NavLink({
   }
 
   return (
-    <li>
+    <li data-tour-id={tourId}>
       <Link href={href} aria-current={active ? 'page' : undefined} className={className}>
         {content}
       </Link>

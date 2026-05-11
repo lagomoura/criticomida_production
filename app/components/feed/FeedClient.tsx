@@ -19,6 +19,7 @@ import UserActionsMenu from '@/app/components/social/UserActionsMenu';
 import AuthModal from '@/app/components/nav/AuthModal';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { cn } from '@/app/lib/utils/cn';
+import { TOUR_REQUIRE_FEED_TAB_EVENT } from '@/app/components/tour/tour-steps';
 import type { FeedSort, FeedType, ReviewPost } from '@/app/lib/types/social';
 
 /**
@@ -220,6 +221,24 @@ export default function FeedClient() {
     void loadFirstPage(activeTab, followingSort);
   }, [activeTab, followingSort, loadFirstPage]);
 
+  // Tour: si un step necesita un tab específico (e.g. `dish_duel` solo
+  // existe en 'for_you'), el TourProvider despacha este evento antes
+  // de mostrarlo. Es idempotente — si ya está en ese tab, el setState
+  // no genera re-render.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ tabId?: string }>).detail;
+      const tabId = detail?.tabId;
+      if (tabId === 'for_you' || tabId === 'following' || tabId === 'map') {
+        tabResolvedRef.current = true;
+        setTabResolved(true);
+        setActiveTab(tabId);
+      }
+    };
+    document.addEventListener(TOUR_REQUIRE_FEED_TAB_EVENT, handler);
+    return () => document.removeEventListener(TOUR_REQUIRE_FEED_TAB_EVENT, handler);
+  }, []);
+
   // Tab por defecto basado en si el usuario sigue a alguien: si ya hay al
   // menos un follow, abrir directo en 'Siguiendo'; si no, dejar 'Para ti'.
   // Anónimos y errores de red caen al default actual ('for_you').
@@ -321,7 +340,7 @@ export default function FeedClient() {
   return (
     <section className="cc-container flex flex-col gap-6 py-6">
       <FeedWelcome />
-      <header className="flex flex-col gap-2">
+      <header data-tour-id="feed_tabs" className="flex flex-col gap-2">
         <h1 className="sr-only">{t('heading')}</h1>
         <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-text-muted">
           {t('kicker')}

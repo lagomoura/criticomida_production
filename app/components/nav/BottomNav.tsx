@@ -66,7 +66,7 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
         <BottomItem href="/" icon={faHouse} label={t('home')} active={isActive('/')} />
         <BottomItem href="/search" icon={faMagnifyingGlass} label={t('search')} active={isActive('/search')} />
 
-        <li className="flex flex-col items-center justify-center gap-0.5">
+        <li data-tour-id="publish" className="flex flex-col items-center justify-center gap-0.5">
           <button
             type="button"
             onClick={handleCompose}
@@ -89,10 +89,11 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
           active={isActive('/notifications')}
           badge={unreadCount > 0 ? unreadCount : undefined}
           onClick={handleNotifications}
+          tourId="notifications"
         />
 
         {user ? (
-          <li>
+          <li data-tour-id="profile">
             <Link
               href={`/u/${user.id}`}
               aria-label={t('myProfile')}
@@ -108,7 +109,7 @@ export default function BottomNav({ onOpenAuthModal, unreadCount = 0 }: BottomNa
             </Link>
           </li>
         ) : (
-          <BottomButton icon={faRightToBracket} label={t('enter')} active={false} onClick={handleProfile} />
+          <BottomButton icon={faRightToBracket} label={t('enter')} active={false} onClick={handleProfile} tourId="profile" />
         )}
       </ul>
     </nav>
@@ -172,15 +173,17 @@ function BottomButton({
   active,
   badge,
   onClick,
+  tourId,
 }: {
   icon: IconDefinition;
   label: string;
   active: boolean;
   badge?: number;
   onClick: () => void;
+  tourId?: string;
 }) {
   return (
-    <li>
+    <li data-tour-id={tourId}>
       <button
         type="button"
         onClick={onClick}

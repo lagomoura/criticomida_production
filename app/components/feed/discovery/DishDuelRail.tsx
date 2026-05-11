@@ -187,6 +187,7 @@ export default function DishDuelRail({ enableWishlist }: DishDuelRailProps) {
   if (families !== null && families.length === 0) return null;
 
   return (
+    <div data-tour-id="dish_duel">
     <Rail
       kicker={t('kicker')}
       title={titleText}
@@ -271,6 +272,7 @@ export default function DishDuelRail({ enableWishlist }: DishDuelRailProps) {
         </div>
       </div>
     </Rail>
+    </div>
   );
 }
 

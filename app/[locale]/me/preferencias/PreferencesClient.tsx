@@ -15,6 +15,8 @@ import {
   type TasteProfileRead,
   type UserChatPreference,
 } from '@/app/lib/api/userPreferences';
+import { useTour } from '@/app/components/tour/useTour';
+import { HOME_TOUR } from '@/app/components/tour/tour-steps';
 
 const LANGUAGE_OPTIONS: ChatLanguage[] = ['es', 'en', 'pt'];
 const STYLE_OPTIONS: ChatResponseStyle[] = ['editorial', 'concise', 'warm'];
@@ -55,7 +57,9 @@ type SaveState =
  */
 export default function PreferencesClient() {
   const t = useTranslations('preferences');
+  const tTour = useTranslations('tour');
   const { user, isLoading: authLoading } = useAuthContext();
+  const { restart: restartTour } = useTour();
 
   const [load, setLoad] = useState<LoadState>({ kind: 'checking' });
   const [save, setSave] = useState<SaveState>({ kind: 'idle' });
@@ -285,6 +289,25 @@ export default function PreferencesClient() {
             className="mt-1 rounded-md border border-border-default bg-surface-card px-3 py-2 text-sm text-text-primary focus:outline-none focus:[box-shadow:var(--focus-ring)]"
           />
         </label>
+      </section>
+
+      {/* ── Tour guiado ─────────────────────────────────────────────── */}
+      <section className="flex flex-col gap-3 rounded-2xl border border-border-subtle bg-surface-card p-5">
+        <h2 className="font-display text-xl text-text-primary">
+          {tTour('settings.heading')}
+        </h2>
+        <p className="text-sm text-text-muted">
+          {tTour('settings.subtitle')}
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            void restartTour(HOME_TOUR.id);
+          }}
+          className="mt-1 inline-flex items-center justify-center self-start rounded-full border border-border-strong bg-transparent px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+        >
+          {tTour('settings.restart')}
+        </button>
       </section>
 
       {/* ── Footer ─────────────────────────────────────────────────── */}

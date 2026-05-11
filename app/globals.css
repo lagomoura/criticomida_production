@@ -1317,6 +1317,12 @@ body {
   from { transform: translateY(8px) scale(0.97); opacity: 0; }
   to   { transform: translateY(0) scale(1); opacity: 1; }
 }
+
+/* Product tour: entrada del tooltip card con overshoot sutil (--ease-spoon). */
+@keyframes palato-tour-tooltip-in {
+  from { transform: scale(0.94); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
 .wow-filters-animate .form-control,
 .wow-filters-animate .form-select {
   border-radius: 0.8em;

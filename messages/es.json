@@ -2635,5 +2635,54 @@
     "metaTitle": "{name} · Palato",
     "metaDescription": "Una ruta curada de {count} platos en Palato.",
     "metaOgDescription": "{count} platos seleccionados en Palato."
+  },
+  "tour": {
+    "buttons": {
+      "next": "Siguiente",
+      "back": "Atrás",
+      "skip": "Saltar tour",
+      "finish": "Terminar",
+      "start": "Empezar"
+    },
+    "progress": "Paso {current} de {total}",
+    "steps": {
+      "welcome": {
+        "title": "Bienvenido a Palato",
+        "body": "Una mirada editorial a la comida que importa. Te muestro lo esencial en 30 segundos."
+      },
+      "feedTabs": {
+        "title": "Tu feed",
+        "body": "‘Para ti’ es la curaduría editorial; ‘Siguiendo’, las reseñas de quienes te interesan; ‘Mapa’, descubrir cerca tuyo."
+      },
+      "dishDuel": {
+        "title": "Duelo de platos",
+        "body": "Dos versiones del mismo plato enfrentadas por la comunidad. La pieza distintiva de Palato."
+      },
+      "discoveryGeo": {
+        "title": "Descubrir",
+        "body": "Cerca tuyo, mejor ejecución y lo que está sonando. Tres formas de encontrar tu próxima comida."
+      },
+      "publish": {
+        "title": "Publicá tu reseña",
+        "body": "Foto, plato, restaurante y un par de líneas. Tu opinión cuenta acá."
+      },
+      "notifications": {
+        "title": "Tus notificaciones",
+        "body": "Likes, comentarios y nuevos seguidores. Sin spam."
+      },
+      "profile": {
+        "title": "Tu perfil",
+        "body": "Reseñas, listas, seguidores y seguidos — todo en un solo lugar."
+      },
+      "closing": {
+        "title": "Listo",
+        "body": "Para volver a verlo, andá a Preferencias → Recorrido guiado."
+      }
+    },
+    "settings": {
+      "heading": "Recorrido guiado",
+      "subtitle": "Volver a ver la presentación de las funcionalidades principales de Palato.",
+      "restart": "Volver a ver el recorrido"
+    }
   }
 }

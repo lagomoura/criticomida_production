@@ -38,21 +38,27 @@ export default function DiscoveryRails() {
         <GeoCTA status={status} onRequest={request} />
       )}
 
-      {status === 'granted' && lat !== undefined && lng !== undefined && (
-        <NearYouRail
+      {/* Bloque "descubrir" agrupado para el tour: el step `discovery_geo`
+          hace spotlight sobre estos tres rails de descubrimiento juntos. */}
+      <div data-tour-id="discovery_geo" className="flex flex-col gap-8">
+        {status === 'granted' && lat !== undefined && lng !== undefined && (
+          <NearYouRail
+            lat={lat}
+            lng={lng}
+            radiusKm={15}
+            enableWishlist={enableWishlist}
+          />
+        )}
+
+        <BestExecutionRail
           lat={lat}
           lng={lng}
-          radiusKm={15}
+          radiusKm={lat !== undefined ? 5 : undefined}
           enableWishlist={enableWishlist}
         />
-      )}
 
-      <BestExecutionRail
-        lat={lat}
-        lng={lng}
-        radiusKm={lat !== undefined ? 5 : undefined}
-        enableWishlist={enableWishlist}
-      />
+        <TrendingRail />
+      </div>
 
       {/* Duelo: rail EDITORIAL, no geográfico. Los contendientes vienen del
           país entero — si filtráramos por radio del usuario, casi nunca habría
@@ -64,8 +70,6 @@ export default function DiscoveryRails() {
           historial de reseñas para construir candidatos. Si el endpoint
           devuelve cero, el componente no renderiza nada. */}
       {user && <PeopleYouMayKnowRail />}
-
-      <TrendingRail />
     </div>
   );
 }
