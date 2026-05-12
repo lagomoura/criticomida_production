@@ -20,23 +20,33 @@ export default function MobileTopBar() {
       className="sticky top-0 z-40 border-b border-border-default bg-surface-page/95 md:hidden"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
-      <div className="flex h-14 items-center justify-between px-4">
+      <div className="flex h-[3.85rem] items-center justify-between px-4">
         <Link
           href="/"
           aria-label={t('siteName')}
           className="flex items-center rounded-md no-underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
-          {/* Wordmark Palato horizontal trimmed. Mismo asset que TopNav
-              — pill negro de marca, ahora con letras legibles a 28px de
-              alto (~120px de ancho). */}
+          {/* Wordmark Palato horizontal (1183x218 cropeado al bbox). Fondo
+              alpha=0. Experimento +10%: navbar h-[3.85rem] (61.6px) +
+              logo h-[2.2rem] (35.2px). Si no convence, volver a navbar
+              h-14 + logo h-8. */}
           <Image
-            src="/img/palato_logo_horizontal_trim.png"
+            src="/img/palato_logo_horizontal_trim_light.png"
             alt=""
-            width={238}
-            height={56}
+            width={1183}
+            height={218}
             priority
             aria-hidden
-            className="h-7 w-auto"
+            className="block h-[2.2rem] w-auto dark:hidden"
+          />
+          <Image
+            src="/img/palato_logo_horizontal_trim_dark.png"
+            alt=""
+            width={1183}
+            height={218}
+            priority
+            aria-hidden
+            className="hidden h-[2.2rem] w-auto dark:block"
           />
         </Link>
 

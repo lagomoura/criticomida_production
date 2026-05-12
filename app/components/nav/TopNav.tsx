@@ -52,25 +52,34 @@ export default function TopNav({ onOpenAuthModal, unreadCount = 0 }: TopNavProps
     <header className="sticky top-0 z-40 hidden border-b border-border-default bg-surface-page/85 backdrop-blur md:block">
       <nav
         aria-label={t('mainNavigation')}
-        className="cc-container flex h-16 items-center gap-3"
+        className="cc-container flex h-[4.4rem] items-center gap-3"
       >
         <Link
           href="/"
           aria-label={tCommon('siteName')}
           className="flex items-center rounded-md no-underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
-          {/* Wordmark Palato horizontal trimmed (1263x298, aspect 4.24:1).
-              Versión recortada del horizontal original para sacarle ~80%
-              del bezel negro vertical — así a 36px de alto el wordmark
-              ocupa ~150px de ancho y las letras son legibles. */}
+          {/* Wordmark Palato horizontal (1183x218 tras crop al bbox del ink,
+              aspect 5.43:1). Fondo alpha=0 — se funde con el navbar.
+              Experimento +10%: navbar h-[4.4rem] (70.4px) + logo h-11
+              (44px). Si no convence, volver a navbar h-16 + logo h-10. */}
           <Image
-            src="/img/palato_logo_horizontal_trim.png"
+            src="/img/palato_logo_horizontal_trim_light.png"
             alt=""
-            width={306}
-            height={72}
+            width={1183}
+            height={218}
             priority
             aria-hidden
-            className="h-9 w-auto"
+            className="block h-11 w-auto dark:hidden"
+          />
+          <Image
+            src="/img/palato_logo_horizontal_trim_dark.png"
+            alt=""
+            width={1183}
+            height={218}
+            priority
+            aria-hidden
+            className="hidden h-11 w-auto dark:block"
           />
         </Link>
 
