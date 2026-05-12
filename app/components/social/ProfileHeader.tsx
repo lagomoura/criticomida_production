@@ -135,6 +135,7 @@ export default function ProfileHeader({
         {profile.reputation && profile.reputation.verifiedReviewCount > 0 && (
           <Tooltip
             multiline
+            portal
             label={
               <>
                 <strong className="font-semibold">{t('expertTooltipLead')}</strong>{' '}

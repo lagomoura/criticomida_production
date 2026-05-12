@@ -50,7 +50,7 @@ export default function Tooltip({
   const id = useId();
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<
-    { top: number; left: number; resolvedSide: Side } | null
+    { top: number; left: number; resolvedSide: Side; offsetX: number } | null
   >(null);
   const wrapperRef = useRef<HTMLSpanElement | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -64,6 +64,9 @@ export default function Tooltip({
     // que el tooltip se renderice fuera del viewport (un problema típico de
     // pines cerca del borde del mapa).
     const TIP_HEIGHT = multiline ? 120 : 36;
+    // Solo aplicamos clamping horizontal en multiline (max-w-[18rem] = 288px).
+    // Para single-line, el ancho depende del texto y suele ser corto.
+    const TIP_WIDTH = multiline ? 288 : 0;
     const MARGIN = 8;
     let resolvedSide: Side = side;
     if (side === 'top' && rect.top < TIP_HEIGHT + MARGIN) {
@@ -75,7 +78,7 @@ export default function Tooltip({
       resolvedSide = 'top';
     }
 
-    const x = rect.left + rect.width / 2;
+    const centerX = rect.left + rect.width / 2;
     const top =
       resolvedSide === 'top'
         ? rect.top
@@ -87,8 +90,25 @@ export default function Tooltip({
         ? rect.left
         : resolvedSide === 'right'
           ? rect.right
-          : x;
-    setCoords({ top, left, resolvedSide });
+          : centerX;
+
+    // Clamping horizontal para tooltips top/bottom: si el trigger está cerca
+    // del borde del viewport, el tooltip centrado (-50%) se sale de pantalla.
+    // Computamos un offsetX que mueve el tooltip hacia adentro del viewport
+    // sin desanclarlo del trigger. Lo aplicamos solo cuando hay un ancho
+    // estimable (multiline).
+    let offsetX = 0;
+    if ((resolvedSide === 'top' || resolvedSide === 'bottom') && TIP_WIDTH > 0) {
+      const halfTip = TIP_WIDTH / 2;
+      const minCenter = MARGIN + halfTip;
+      const maxCenter = window.innerWidth - MARGIN - halfTip;
+      if (minCenter <= maxCenter) {
+        const clampedCenter = Math.max(minCenter, Math.min(maxCenter, centerX));
+        offsetX = clampedCenter - centerX;
+      }
+    }
+
+    setCoords({ top, left, resolvedSide, offsetX });
   }, [side, multiline]);
 
   const show = useCallback(() => {
@@ -186,9 +206,9 @@ export default function Tooltip({
               left: coords.left,
               transform:
                 coords.resolvedSide === 'top'
-                  ? 'translate(-50%, calc(-100% - 8px))'
+                  ? `translate(calc(-50% + ${coords.offsetX}px), calc(-100% - 8px))`
                   : coords.resolvedSide === 'bottom'
-                    ? 'translate(-50%, 8px)'
+                    ? `translate(calc(-50% + ${coords.offsetX}px), 8px)`
                     : coords.resolvedSide === 'left'
                       ? 'translate(calc(-100% - 8px), -50%)'
                       : 'translate(8px, -50%)',
