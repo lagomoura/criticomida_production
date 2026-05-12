@@ -159,15 +159,32 @@ export default function ChatDrawer({
     await loadConversation(id);
   };
 
-  // Focus input on open + cancel any in-flight stream on close.
+  // Focus input on open (or when returning from history view) + cancel
+  // any in-flight stream on close. Toggling the history panel must NOT
+  // abort the stream — only closing the drawer does.
   useEffect(() => {
-    if (open) {
+    if (open && !historyOpen) {
       // Defer to next tick so the drawer is visible before focusing.
       const t = setTimeout(() => inputRef.current?.focus(), 50);
       return () => clearTimeout(t);
     }
-    abort();
-  }, [open, abort]);
+    if (!open) abort();
+  }, [open, historyOpen, abort]);
+
+  // Re-focus the composer when a stream finishes so the user can keep
+  // typing the next turn without clicking back into the textarea. The
+  // textarea is `disabled` while streaming, which strips focus; React
+  // re-enables it on completion but does not restore focus.
+  const wasStreamingRef = useRef(isStreaming);
+  useEffect(() => {
+    const wasStreaming = wasStreamingRef.current;
+    wasStreamingRef.current = isStreaming;
+    if (wasStreaming && !isStreaming && open && !historyOpen) {
+      // Defer a tick so React finishes re-enabling the textarea.
+      const t = setTimeout(() => inputRef.current?.focus(), 0);
+      return () => clearTimeout(t);
+    }
+  }, [isStreaming, open, historyOpen]);
 
   // Close on Escape.
   useEffect(() => {
@@ -463,7 +480,10 @@ export default function ChatDrawer({
                 type="button"
                 onClick={onAttachClick}
                 disabled={
-                  isUploading || isStreaming || Boolean(attachedPhotoUrl)
+                  isUploading ||
+                  isStreaming ||
+                  historyOpen ||
+                  Boolean(attachedPhotoUrl)
                 }
                 title={t('attachPhoto')}
                 aria-label={t('attachPhoto')}
@@ -504,7 +524,7 @@ export default function ChatDrawer({
                 'disabled:opacity-60',
               )}
               style={{ minHeight: '38px', maxHeight: '120px' }}
-              disabled={isStreaming || isUploading}
+              disabled={isStreaming || isUploading || historyOpen}
               aria-label={t('placeholder')}
             />
             <button
@@ -512,7 +532,8 @@ export default function ChatDrawer({
               disabled={
                 (!input.trim() && !attachedPhotoUrl) ||
                 isStreaming ||
-                isUploading
+                isUploading ||
+                historyOpen
               }
               className={cn(
                 'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
