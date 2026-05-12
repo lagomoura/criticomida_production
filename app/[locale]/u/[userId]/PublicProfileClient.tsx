@@ -35,7 +35,7 @@ export default function PublicProfileClient({ userId }: Props) {
   const [viewState, setViewState] = useState<ViewState>({ status: 'loading' });
   const { posts, setPosts, toggleLike, toggleSave } = usePostsInteraction();
   const { loading: followLoading, toggle: toggleFollow } = useFollowToggle();
-  const { user, logout } = useAuthContext();
+  const { user, isLoading: isAuthLoading, logout } = useAuthContext();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const [menuPost, setMenuPost] = useState<ReviewPost | null>(null);
@@ -43,6 +43,14 @@ export default function PublicProfileClient({ userId }: Props) {
   // Menú ⋯ del header del perfil ajeno (Silenciar / Bloquear / Reportar usuario)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const t = useTranslations('profile.publicProfile');
+
+  // Acceso al perfil público requiere sesión: anon → /login con next al perfil
+  // actual para que vuelvan acá después de autenticarse.
+  useEffect(() => {
+    if (isAuthLoading) return;
+    if (user) return;
+    router.replace(`/login?next=${encodeURIComponent(`/u/${userId}`)}`);
+  }, [isAuthLoading, user, router, userId]);
 
   const handleLogout = useCallback(async () => {
     setLoggingOut(true);
@@ -125,8 +133,12 @@ export default function PublicProfileClient({ userId }: Props) {
   }, [userId, user, setPosts, t]);
 
   useEffect(() => {
+    // No disparamos el fetch hasta saber que hay sesión; si no la hay, el
+    // efecto de arriba ya está redirigiendo a /login.
+    if (isAuthLoading) return;
+    if (!user) return;
     void load();
-  }, [load]);
+  }, [isAuthLoading, user, load]);
 
   const handleFollow = useCallback(
     async (targetId: string, next: boolean) => {

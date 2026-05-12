@@ -63,9 +63,19 @@ export default function ReviewDetailClient({ postId }: Props) {
   const { posts, setPosts, toggleLike, toggleSave } = usePostsInteraction();
   const post = posts[0];
 
-  const { user } = useAuthContext();
+  const { user, isLoading: isAuthLoading } = useAuthContext();
   const router = useRouter();
   const toast = useToast();
+
+  const isOwnPost = Boolean(user && post && user.id === post.author.id);
+
+  // Acceso a la reseña requiere sesión: anon → /login con next al post actual
+  // para que vuelvan acá después de autenticarse.
+  useEffect(() => {
+    if (isAuthLoading) return;
+    if (user) return;
+    router.replace(`/login?next=${encodeURIComponent(`/reviews/${postId}`)}`);
+  }, [isAuthLoading, user, router, postId]);
 
   const load = useCallback(async () => {
     setViewState({ status: 'loading' });
@@ -90,8 +100,12 @@ export default function ReviewDetailClient({ postId }: Props) {
   }, [postId, setPosts, t]);
 
   useEffect(() => {
+    // No disparamos el fetch hasta saber que hay sesión; si no la hay, el
+    // efecto de arriba ya está redirigiendo a /login.
+    if (isAuthLoading) return;
+    if (!user) return;
     void load();
-  }, [load]);
+  }, [isAuthLoading, user, load]);
 
   const handleShare = useCallback((id: string) => {
     if (typeof navigator !== 'undefined' && navigator.share) {
@@ -112,22 +126,40 @@ export default function ReviewDetailClient({ postId }: Props) {
           type: 'image/png',
         });
         const dishLabel = post?.dish.name ?? t('fallbackShareLabel');
-        if (
+
+        // En mobile production iOS/Android, la espera del fetch + sharp pierde
+        // la "transient activation" del tap original y `navigator.share` rechaza
+        // con NotAllowedError. Probamos share; si falla por algo distinto a
+        // cancelación del usuario, caemos al descargar/abrir blob.
+        const canTryShare =
           typeof navigator !== 'undefined' &&
           typeof navigator.canShare === 'function' &&
-          navigator.canShare({ files: [file] })
-        ) {
-          await navigator.share({ files: [file], title: dishLabel });
-        } else {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = file.name;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(url);
+          navigator.canShare({ files: [file] });
+
+        if (canTryShare) {
+          try {
+            await navigator.share({ files: [file], title: dishLabel });
+            return;
+          } catch (err) {
+            if (err instanceof DOMException && err.name === 'AbortError') {
+              return;
+            }
+            // Cualquier otro error (NotAllowedError, DataError, etc.) → fallback.
+          }
         }
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name;
+        // iOS Safari ignora `download` y abre la imagen en la misma pestaña;
+        // `target=_blank` evita perder la pestaña actual del usuario.
+        a.target = '_blank';
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
       } catch (err) {
         if (
           !(err instanceof DOMException && err.name === 'AbortError')
@@ -436,10 +468,13 @@ export default function ReviewDetailClient({ postId }: Props) {
         />
       )}
 
-      <ShareAsCardCTA
-        loading={sharingCard}
-        onClick={() => void handleShareCard(post.id)}
-      />
+      {/* Solo el autor puede generar la tarjeta de su propia reseña. */}
+      {isOwnPost && (
+        <ShareAsCardCTA
+          loading={sharingCard}
+          onClick={() => void handleShareCard(post.id)}
+        />
+      )}
 
       {reportTarget && (
         <ReportModal
