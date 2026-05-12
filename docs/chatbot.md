@@ -14,10 +14,54 @@ estado actual, no la historia.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-10
+- **Fecha**: 2026-05-12
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Fix — `search_dishes` no encontraba platos por nombre concreto
+    aunque existieran en el catálogo** (incidente reportado en prod:
+    "algun ceviche para recomendar?" → "no encontré platos que
+    coincidan con 'ceviche'", siendo que el ceviche tenía review
+    registrada).
+
+    Causa raíz: `search_dishes` solo tenía `semantic_query` para
+    matching por contenido, no un filtro duro por nombre. Cuando el
+    LLM pedía `semantic_query='ceviche'` con `limit=3`, la SQL
+    ordenaba por `cosine_distance ASC` con `nullslast()` y devolvía
+    el top 3 — pero ese top 3 podía no incluir el ceviche real
+    cuando:
+    (a) `embed_query` retornaba `None` (Gemini caído o sin
+    `GEMINI_API_KEY`) → fallback a `computed_rating DESC, review_count
+    DESC` → top 3 = mejor rankeados del catálogo entero, no ceviches;
+    (b) el ceviche existía pero su embedding estaba sin generar /
+    desactualizado → `nullslast()` lo dejaba último → `limit=3` lo
+    cortaba afuera.
+
+    En ambos casos el LLM veía top 3 sin ceviche y, correctamente per
+    Regla #9 del prompt ("si todos los matches son ruido, NO llames
+    recommend_dishes — decílo"), se auto-censuraba. El comensal sentía
+    que el bot mentía aunque el LLM hacía lo que el prompt mandaba.
+
+    Fix: agregar `name_contains` a `SearchDishesInput` — filtro SQL
+    AND acento-insensible contra `dishes.name_normalized` (columna
+    generada `lower(f_unaccent(name))`, ya existe desde migración
+    020, indexada con gin_trgm). "ceviche" matchea "Ceviche de
+    pescado" y "Cevíches mixtos" sin tocar acentos ni casing. El
+    `semantic_query` sigue siendo opcional y aditivo: con
+    `name_contains=ceviche` + `semantic_query='para almuerzo
+    refrescante'`, primero filtra por nombre, después re-rankea por
+    embedding dentro del subset.
+
+    El prompt del Sommelier instruye explícitamente: cuando el
+    comensal nombre un plato/bebida concreto ("ceviche", "ramen",
+    "milanesa", "café", "risotto"), usar `name_contains=<nombre>` +
+    `limit=3`. NO usar `name_contains` para moods o categorías
+    ("comida confort") — eso sigue siendo `semantic_query`.
+
+    Tests: 3 nuevos casos en
+    `tests/unit/test_sommelier_tool_schemas.py` pinean el contrato
+    (canonical + aliases `plato` / `dish_name`). Total 303 unit tests
+    pasando.
   - **Migración del agent loop a `google-genai` directo — litellm
     eliminado del backend**. Resumen: el agent loop ahora vive en
     `backend/app/services/chat/agent_loop.py` como cliente directo
@@ -878,7 +922,8 @@ es un panel derecho de ~440px.
 | Capacidad | Tool subyacente | Notas |
 |-----------|-----------------|-------|
 | Saludo personalizado por `display_name` | — | Auto cuando hay sesión iniciada. |
-| Buscar platos con filtros estructurados | `search_dishes` | Barrio (substring de `location_name`), ciudad, bbox geográfico, mínimos por pilar (1-3), categoría, `max_price_tier`. |
+| Buscar platos con filtros estructurados | `search_dishes` | Barrio (substring de `location_name`), ciudad, bbox geográfico, mínimos por pilar (1-3), categoría, `max_price_tier`, `name_contains`. |
+| Buscar por nombre de plato concreto | `search_dishes(name_contains)` | Filtro SQL AND acento-insensible contra `dishes.name_normalized` (columna generada `lower(f_unaccent(name))`). Garantiza que el resultado contiene el nombre pedido aunque el embedding del plato esté ruidoso o sin generar — el `semantic_query` solo no alcanza para este caso. El LLM lo activa cuando el comensal nombre un plato/bebida ("ceviche", "ramen", "café"). |
 | Re-rankear semánticamente con un "mood" | `search_dishes(semantic_query)` | El LLM extrae filtros duros, KNN sobre embeddings dentro del subset. Cae a ranking estructurado si Gemini no está configurado. |
 | Mostrar detalle de un plato (top reseñas + pros/cons) | `get_dish_detail` | Para profundizar antes de decidir. |
 | Guardar plato en deseados | `add_to_wishlist` | Reusa `WantToTryDish`; idempotente. Requiere login. |
