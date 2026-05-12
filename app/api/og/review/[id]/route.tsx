@@ -279,26 +279,15 @@ export async function GET(
           fontFamily: 'Inter',
         }}
       >
-        {/* Top strip: logo + brand */}
+        {/* Top strip: wordmark Palato (asset light, fondo crema). El asset
+            ya incluye el texto, así que no se repite. */}
         <div style={{ display: 'flex', alignItems: 'center', height: 80 }}>
           <img
-            src={`${origin}/img/logosm.png`}
-            width={64}
-            height={64}
-            alt=""
-            style={{ borderRadius: 12 }}
+            src={`${origin}/img/palato_logo_light.png`}
+            height={80}
+            alt="Palato"
+            style={{ height: 80, width: 'auto' }}
           />
-          <div
-            style={{
-              marginLeft: 20,
-              fontFamily: 'Cormorant Garamond',
-              fontSize: 44,
-              fontWeight: 600,
-              color: COLOR_ESPRESSO,
-            }}
-          >
-            Palato
-          </div>
         </div>
 
         {/* Foto del plato (cuadrada) */}
