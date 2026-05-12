@@ -935,6 +935,7 @@ desde el panel del Ghostwriter se inserta automáticamente al post
 | Identificar ingredientes visibles | mismo | Hasta 6 ingredientes únicos (sin enumerar variantes del mismo). |
 | Sugerir un *plating style* | mismo | Enum: `minimalist|family-style|deconstructed|rustic|classic`. |
 | Sugerir una frase editorial corta | mismo | 1-2 frases, ≤200 caracteres, tono Palato (sin "delicioso", "espectacular"). |
+| Imitar la voz del autor en el blurb | `user_style_service.fetch_style_samples` | Inyecta al system prompt las últimas 5 notas del usuario (≥30 chars, excluye mismo `dish_id`). Solo afecta `editorial_blurb`; degrada si el user no tiene reseñas previas. |
 | Sugerir 0-2 pros y 0-2 cons | mismo | Bullets puntuales ≤60 caracteres c/u. |
 | Distinguir tags inéditos vs ya en draft | endpoint `/assist` | El backend devuelve `new_tags` filtrando contra el `draft_text` del usuario. |
 | Tolerar respuesta truncada de Gemini | parser custom | Si `finishReason=MAX_TOKENS`, reconstruimos JSON parcial cerrando comillas/brackets. |

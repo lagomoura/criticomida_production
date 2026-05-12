@@ -185,6 +185,14 @@ Robustez:
 - Normaliza siempre antes de devolver: dedupe de tags, lowercase,
   límite de items, plating style fuera del enum se convierte en
   `null`.
+- **Blurb con voz del autor**: el endpoint del Ghostwriter inyecta al
+  `system_instruction` las últimas 5 notas del usuario (≥30 chars,
+  excluyendo el mismo `dish_id` para evitar auto-cita) vía
+  `backend/app/services/user_style_service.py:fetch_style_samples`.
+  El addendum acota el alcance a `editorial_blurb` — tags, ingredients,
+  plating, pros y cons siguen siendo observacionales sobre la foto.
+  Cuando el usuario no tiene reseñas previas suficientemente largas, el
+  bloque se omite y el comportamiento es idéntico al original.
 
 **Consumidores**:
 
