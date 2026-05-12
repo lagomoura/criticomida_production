@@ -14,13 +14,49 @@ es un changelog; describe el estado actual.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-10
+- **Fecha**: 2026-05-12
 - **Servicios activos**: agent loop multi-tool, embeddings de
   catálogo, búsqueda híbrida (filtros + KNN), perfil de gustos,
   visión de plato (Ghostwriter + Sommelier multimodal), motor
   editorial de platos, sentiment de reseñas, auto-titulado de
   conversaciones.
-- **Cambios recientes (capa de safety, audit a62a03a)** —
+- **Cambios recientes (backfill_sentiment vía Batch API)** —
+  `backend/app/scripts/backfill_sentiment.py` ahora corre por
+  default contra `client.aio.batches.create(model=gemini-2.5-flash,
+  src=[InlinedRequest])`, con SLA de 24h y ~50% menos costo que el
+  path sync. Comparte `build_sentiment_user_prompt` /
+  `build_sentiment_config` / `parse_sentiment_response` con el live,
+  así el output es bit-equivalente. Flags `--sync`, `--limit`,
+  `--reanalyze`, `--resume`. Detalle completo en la sección G.
+- **Cambios recientes (unificación sobre `google-genai` SDK)** —
+  migración del transporte y del parsing en los 5 servicios de Gemini:
+  - **Transporte único**: `embeddings_service`, `sentiment_service`,
+    `vision_service` y `chat_title_service` dejaron de hablar REST
+    crudo con `httpx`. Ahora todos pasan por `google-genai`
+    (`client.aio.models.generate_content` / `embed_content`), igual
+    que `dish_editorial_enricher` y el `agent_loop`. Cada servicio
+    expone un `_get_client()` lazy que devuelve `None` cuando
+    `GEMINI_API_KEY` está ausente — la degradación graciosa se
+    mantiene idéntica a la del path anterior.
+  - **Parsing tipado con `response_schema`**: `sentiment_service`,
+    `chat_title_service`, `vision_service` y `dish_editorial_enricher`
+    le pasan a Gemini un `BaseModel` (`_SentimentSchema`,
+    `_TitleSchema`, `_VisionSchema`, `_EditorialSchema`) y leen
+    `response.parsed` ya instanciado. Se eliminó el `json.loads` +
+    validación defensiva de cada servicio. Las normalizaciones
+    semánticas (clip de longitud, dedupe de tags, coerce label↔score,
+    drop de `plating_style` fuera del set) siguen vivas como helpers
+    *post-parse*, no como recuperación de JSON roto.
+  - **Errores**: cada servicio captura `(genai_errors.APIError,
+    httpx.HTTPError)` en `_PROVIDER_ERRORS` y degrada (None / dict
+    vacío). El SDK envuelve la mayoría de los errores de transporte
+    en `APIError`; mantenemos `httpx.HTTPError` por las conexiones
+    rotas que pueden filtrarse antes del wrap.
+  - **`thinking_budget=0`** se conserva donde ya lo teníamos
+    (sentiment, chat_title, editorial). La memoria
+    `feedback_gemini_thinking` sigue siendo invariante: Flash 2.5 en
+    JSON-mode corto necesita budget cero para no truncar.
+- **Cambios anteriores (capa de safety, audit a62a03a)** —
   migraciones 055 + 056:
   - **Notification guard** en `notification_service.py`. Las funciones
     `record_*_notification` (incluyendo `record_mention_notifications`,
@@ -311,9 +347,43 @@ Visibilidad: el campo es **interno**. Sólo se serializa en
 `list_reviews` (chatbot Business). `DishReviewResponse`
 (público) no lo expone.
 
-Script one-shot: `python -m app.scripts.backfill_sentiment`. Acepta
-`--reanalyze` para re-clasificar todo el corpus después de un cambio
-material de prompt.
+Script one-shot: `python -m app.scripts.backfill_sentiment`. **Por
+defecto corre vía Gemini Batch API** (`client.aio.batches.create`,
+modelo `gemini-2.5-flash`), que tiene SLA de 24h pero cuesta ~50%
+menos por request que el path sync. El script:
+
+1. Toma snapshot de las reviews objetivo (id + note + rating) en una
+   sesión corta y la cierra; la sesión NO queda abierta mientras el
+   batch espera.
+2. Construye un `InlinedRequest` por review reusando
+   `build_sentiment_user_prompt` y `build_sentiment_config` del
+   servicio — ambas paths comparten prompt + schema exactos, así el
+   backfill nunca sesga la distribución de labels vs el live.
+3. Envía en chunks de 1000 (cada chunk = 1 batch job, logueado por
+   `display_name` y `name`).
+4. Pollea cada 60s, log de progreso, máx 25h. Si el operador mata el
+   proceso, el `name` ya está en stdout y se puede resumir con
+   `--resume batches/<name>`.
+5. Al estado terminal, walks `batch.dest.inlined_responses` en
+   lockstep con los snapshots. **Importante**: en el path de batch
+   `response.parsed` viene `None` (el SDK sólo post-procesa el
+   `response_schema` en el sync path); `parse_sentiment_response`
+   tiene un fallback que valida el JSON crudo de `response.text`
+   contra `_SentimentSchema`, así el output es bit-equivalente al
+   sync.
+6. Si la longitud de respuestas no coincide con los requests
+   (`PARTIALLY_SUCCEEDED`), el script REHÚSA persistir y loguea — el
+   mapping por posición se rompería y mis-labelearía reviews.
+
+Flags:
+
+- `--reanalyze`: re-clasifica todo el corpus, igual que antes.
+- `--limit N`: procesa sólo las primeras N reviews. Útil para smoke.
+- `--sync`: cae al path legacy (Semaphore de 5, request por review).
+  Necesario si el modelo target no soporta Batch en algún momento.
+- `--resume batches/<name>`: pollea un batch ya creado en vez de
+  crear uno nuevo. El snapshot tiene que matchear (mismas flags que
+  la corrida original).
 
 **Consumidores**:
 
