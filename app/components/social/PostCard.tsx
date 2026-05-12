@@ -110,7 +110,7 @@ export default function PostCard({
           pointer-events-none en feed para que el overlay-link reciba el tap. */}
       {post.media && post.media.length > 0 && (
         <div className={cn('relative z-10', overlayEnabled && 'pointer-events-none')}>
-          <PostMedia images={post.media} />
+          <PostMedia images={post.media} priority={expanded} />
         </div>
       )}
 
