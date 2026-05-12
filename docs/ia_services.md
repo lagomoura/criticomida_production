@@ -20,6 +20,23 @@ es un changelog; describe el estado actual.
   visión de plato (Ghostwriter + Sommelier multimodal), motor
   editorial de platos, sentiment de reseñas, auto-titulado de
   conversaciones.
+- **Cambios recientes (context caching en agent_loop)** —
+  `_ensure_cached_content` corre al inicio de cada `run()` y crea
+  un `cachedContents/...` server-side cuando el prefijo
+  (`system_instruction` + `tools`) supera ~4000 chars (~1024 tokens,
+  el mínimo de Gemini). Mediciones de referencia: Sommelier ~18K
+  tok, Business ~12K tok, Ghostwriter ~2.9K tok. Cuando hay cache
+  activa cada `generate_content` paga ~25% por esos tokens en vez
+  de 100%. TTL 30 min, registry process-local keyed por
+  `sha256(model + system + tools)`. Kill switch:
+  `AGENT_LOOP_CACHE_DISABLED=1`. Detalle en sección A.
+- **Cambios recientes (token guard en agent_loop)** —
+  `_truncate_contents_to_fit` corre al inicio de cada iteración del
+  loop cuando `len(contents) > 12`. Cap default 800K tokens,
+  bloques atómicos (`function_call` ↔ `function_response` siempre
+  van juntos), última row nunca se droppea, fallo de
+  `count_tokens` degrada a passthrough. Sección A del catálogo
+  tiene el detalle completo.
 - **Cambios recientes (backfill_sentiment vía Batch API)** —
   `backend/app/scripts/backfill_sentiment.py` ahora corre por
   default contra `client.aio.batches.create(model=gemini-2.5-flash,
@@ -156,6 +173,59 @@ agnóstico de framework (sin LangChain/LangGraph). Implementa:
   `tool_result`, `input_tokens`, `output_tokens`.
 - Cancellation cooperativo: el cliente puede abortar el `fetch`
   intermedio y la sesión queda consistente.
+- **Context caching server-side** (`_ensure_cached_content`): al
+  inicio de cada `run()`, si el prefijo
+  (`system_instruction` + `tools` serializados) supera 4000 chars,
+  intentamos `client.aio.caches.create(...)` con TTL 30 min. La
+  cache se identifica por `sha256(model + system + tools)` y vive
+  en un dict process-local — sobrevive a través de turnos y de
+  conversaciones que comparten exactamente el mismo prefijo
+  (mismo agente + mismo user_block + mismos prefs). Cada
+  iteración del loop usa `cached_content=<name>` en
+  `GenerateContentConfig` y OMITE `system_instruction` + `tools`
+  (vienen del cache, a ~25% del costo normal). Fallback inline si
+  cache create falla o el prefijo está por debajo del mínimo.
+  Mediciones de referencia (tokens cacheables):
+  - Sommelier (`gemini-3.1-flash-lite-preview`): system ~11.8K +
+    tools (12) ≈ **18K tok**
+  - Business (`gemini-3.1-flash-lite-preview`): system ~6.6K +
+    tools (10) ≈ **12K tok**
+  - Ghostwriter (`gemini-3.1-flash-lite-preview`): system ~0.5K
+    + tools (4) ≈ **2.9K tok**
+
+  Kill switch: `AGENT_LOOP_CACHE_DISABLED=1` en el environment
+  fuerza el path inline en todos los turnos (debug, regresión,
+  comparación A/B). Trade-off conocido: el `user_block` y los
+  `prefs_block` que se concatenan al `load_agent_prompt` en
+  `chat_service` son per-user, así que cada usuario genera su
+  propio cache. Cardinality acotada por el TTL de 30 min — si
+  cache storage se vuelve costo, el next move es factor el
+  `user_block` fuera de `system_instruction` y meterlo como
+  primer user message.
+- **Guard de ventana de contexto** (`_truncate_contents_to_fit`):
+  antes de cada iteración del loop, si `len(contents) > 12`,
+  llamamos a `client.aio.models.count_tokens(...)` incluyendo
+  `system_instruction` + `tools`. Cuando el total supera el cap
+  (default 800K, ~80% de 1M), agrupamos los contents en **bloques
+  atómicos** y droppeamos del frente hasta que cae bajo el cap. Un
+  bloque es:
+  - Una row regular (user text o model text) — bloque de tamaño 1.
+  - Un par `(model function_call, user function_response)` —
+    bloque de tamaño 2. Gemini rechaza orphan halves, así que la
+    truncación NUNCA parte un par.
+
+  Invariantes:
+  - El último bloque (la pregunta del usuario en el turno actual)
+    nunca se droppea.
+  - `system_instruction` va separado en `GenerateContentConfig` y
+    queda intacto.
+  - Si `count_tokens` falla (network/quota), seguimos con los
+    `contents` originales y dejamos que el live call surface el
+    error real — no inventamos truncado a ciegas.
+
+  Performance: el `count_tokens` no consume quota pago pero suma
+  ~100 ms por iteración cuando el guard arranca. Por eso el
+  threshold de 12 rows — turnos cortos no pagan el costo.
 
 **Consumidores**: chatbot (3 agentes).
 

@@ -18,6 +18,31 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Context caching server-side en el agent loop**
+    (`_ensure_cached_content` en `agent_loop.py`). Al inicio de
+    cada `run()`, si el prefijo (`system_instruction` +
+    `tools`) supera ~4000 chars, creamos un `cachedContents/...`
+    en Gemini con TTL 30 min. Cada iteración usa
+    `cached_content=<name>` y omite system + tools (vienen del
+    cache, a ~25% del costo). Mediciones:
+    Sommelier ~18K tok cacheables, Business ~12K, Ghostwriter
+    ~2.9K. Registry process-local keyed por sha256 del prefijo —
+    se reusa a través de turnos y conversaciones idénticas; cae
+    de vuelta a inline ante cualquier fallo. Kill switch:
+    `AGENT_LOOP_CACHE_DISABLED=1`. Detalle en `ia_services.md`
+    sección A.
+  - **Guard de ventana de contexto en el agent loop**
+    (`_truncate_contents_to_fit` en `agent_loop.py`). Antes de cada
+    iteración, si la historia acumulada (incluyendo tool_calls +
+    tool_responses) pasa de 12 rows, llamamos a
+    `client.aio.models.count_tokens(...)` con `system_instruction`
+    + `tools`. Si el total supera 800K (~80% del 1M nominal),
+    droppeamos bloques desde el frente preservando la atomicidad
+    de los pares `function_call` ↔ `function_response` y la última
+    row (la pregunta del turno actual). Si `count_tokens` falla,
+    seguimos con los `contents` originales — el guard es
+    best-effort y nunca bloquea la respuesta al usuario. Detalle
+    completo en `ia_services.md` sección A.
   - **Fix — `search_dishes` no encontraba platos por nombre concreto
     aunque existieran en el catálogo** (incidente reportado en prod:
     "algun ceviche para recomendar?" → "no encontré platos que
