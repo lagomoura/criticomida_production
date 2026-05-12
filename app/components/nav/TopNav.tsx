@@ -56,15 +56,22 @@ export default function TopNav({ onOpenAuthModal, unreadCount = 0 }: TopNavProps
       >
         <Link
           href="/"
-          className="flex items-center gap-2 rounded-md no-underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+          aria-label={tCommon('siteName')}
+          className="flex items-center rounded-md no-underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
-          <Image src="/img/logosm.png" alt="" width={36} height={36} aria-hidden />
-          {/* Wordmark: gradiente Azafrán → Azafrán-light via background-clip:text
-              según brand-identity-v2.md §4.1. tracking-tight es parte de la escala
-              display (§3.2, letter-spacing -0.01em en H1). */}
-          <span className="bg-gradient-to-r from-[var(--color-terracota)] to-[var(--color-terracota-light)] bg-clip-text font-display text-xl font-medium tracking-tight text-transparent">
-            {tCommon('siteName')}
-          </span>
+          {/* Wordmark Palato horizontal trimmed (1263x298, aspect 4.24:1).
+              Versión recortada del horizontal original para sacarle ~80%
+              del bezel negro vertical — así a 36px de alto el wordmark
+              ocupa ~150px de ancho y las letras son legibles. */}
+          <Image
+            src="/img/palato_logo_horizontal_trim.png"
+            alt=""
+            width={306}
+            height={72}
+            priority
+            aria-hidden
+            className="h-9 w-auto"
+          />
         </Link>
 
         <ul className="mx-auto flex list-none items-center gap-1 p-0" role="list">

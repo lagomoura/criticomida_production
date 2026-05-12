@@ -23,12 +23,21 @@ export default function MobileTopBar() {
       <div className="flex h-14 items-center justify-between px-4">
         <Link
           href="/"
-          className="flex items-center gap-2 rounded-md no-underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+          aria-label={t('siteName')}
+          className="flex items-center rounded-md no-underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
-          <Image src="/img/logosm.png" alt="" width={28} height={28} aria-hidden />
-          <span className="font-display text-lg font-medium text-text-primary">
-            {t('siteName')}
-          </span>
+          {/* Wordmark Palato horizontal trimmed. Mismo asset que TopNav
+              — pill negro de marca, ahora con letras legibles a 28px de
+              alto (~120px de ancho). */}
+          <Image
+            src="/img/palato_logo_horizontal_trim.png"
+            alt=""
+            width={238}
+            height={56}
+            priority
+            aria-hidden
+            className="h-7 w-auto"
+          />
         </Link>
 
         <div className="flex items-center gap-1">
