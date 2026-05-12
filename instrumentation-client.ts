@@ -1,3 +1,9 @@
+// Sentry client init — canonical file en @sentry/nextjs v8+ (estamos en v10).
+// Esta es la inicialización del SDK en el browser; el server/edge inician
+// desde instrumentation.ts → sentry.{server,edge}.config.ts.
+// `sentry.client.config.ts` era el patrón legacy de v7 y está deliberadamente
+// ausente: la SDK actual auto-detecta este archivo por nombre vía el hook
+// de instrumentación de Next.js 15. No agregar el legacy o se duplica el init.
 import * as Sentry from '@sentry/nextjs';
 
 // Vercel inyecta NEXT_PUBLIC_VERCEL_ENV (production | preview | development)

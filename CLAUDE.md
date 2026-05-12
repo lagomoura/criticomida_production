@@ -51,7 +51,7 @@ When you want dev to mirror prod again, run a fresh `pg_dump` against Railway's 
 
 Frontend env files (Next.js convention):
 - `.env.development` — committed, no secrets, dev defaults.
-- `.env.development.local` — gitignored, dev keys (Google Maps, fal.ai, Gemini).
+- `.env.development.local` — gitignored, dev keys (Google Maps, Gemini).
 - `.env.example` — committed template.
 - Vercel UI — prod values (`NEXT_PUBLIC_API_URL=<railway>`, plus all `NEXT_PUBLIC_*` keys and any server-side keys).
 

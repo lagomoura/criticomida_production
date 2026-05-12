@@ -46,17 +46,8 @@ type: project
 ### "Otros" category is internal-only (hidden from public UI)
 - The "Otros" category exists in the DB (`slug='otros'`, `display_order=99`) and works as an internal staging bucket
 - It is **not shown** in category cards (ReviewsSection), filter buttons, or the AddRestaurantModal category dropdown
-- When a user with role `admin` adds a restaurant and needs a new category, the modal has an inline "Nueva categoría" flow:
-  - Duplicate-checks by name/slug against existing categories
-  - Generates a cover image via fal.ai FLUX-schnell (`POST /api/generate-category-image` — a Next.js route exception)
-  - Creates the category (`POST /api/categories` — admin-only), then creates the restaurant
-  - Requires `FAL_KEY` env var; if absent the image step is silently skipped
+- Category creation lives in `app/[locale]/admin/categorias/AdminCategoriasClient.tsx` (admin-only). The form takes `image_url` as plain text input — no auto-generation. Admin pastes the URL of an image already hosted somewhere.
 - Non-admin users only see existing categories (no "Otros" option visible to them either)
-
-### `app/api/generate-category-image/route.ts` — exception to no-API-routes rule
-- The project architecture says "no Next.js API route handlers"
-- This one file is a deliberate exception: it proxies fal.ai image generation to avoid exposing `FAL_KEY` in the browser
-- Env var: `FAL_KEY` — get at fal.ai/dashboard/keys
 
 ### Creating dishes requires `admin` or `critic` role
 - `POST /api/restaurants/{slug}/dishes` requires `require_role(admin, critic)` 

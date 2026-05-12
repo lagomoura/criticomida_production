@@ -54,9 +54,6 @@ Vercel **no** lee archivos del repo para prod — todas las variables se setean 
 | `NEXT_PUBLIC_API_URL`             | `http://localhost:8002`                  | `https://criticomida-backend-production.up.railway.app`       | Browser-exposed. |
 | `NEXT_PUBLIC_SOCIAL_MOCK`         | `true`                                   | `false`                                                       | Cuando es `true` la UI de feed usa mocks. |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | dev key                                  | prod key                                                      | Browser-exposed. Restringir por dominio en Google Cloud. |
-| `FAL_KEY`                         | dev key                                  | prod key                                                      | Server-side. fal.ai. |
-| `CHAT_MODEL`                      | `gemini/gemini-2.5-flash`                | igual                                                         | Modelo de litellm. |
-| `CHAT_API_KEY`                    | dev key                                  | prod key                                                      | Server-side. |
 
 ---
 
@@ -89,9 +86,13 @@ Vercel **no** lee archivos del repo para prod — todas las variables se setean 
 | `APP_ENV`                         | `development`                                              | `production`                                            |       |
 | `COOKIE_SECURE`                   | `false`                                                    | `true`                                                  | `Secure` cookies requieren HTTPS — sólo prod. |
 | `CORS_ORIGINS`                    | `http://localhost:3000,...`                                | `https://<vercel-app>.vercel.app`                       | Coma-separado. |
-| `CHAT_MODEL` / `CHAT_API_KEY`     | dev keys                                                   | prod keys                                               | litellm. |
+| `CHAT_MODEL` / `CHAT_API_KEY`     | dev keys                                                   | prod keys                                               | `google-genai` directo (Gemini AI Studio). Bare model name, sin prefijo. |
+| `CHAT_MODEL_B2C` / `CHAT_MODEL_B2B` | opcional (vacío)                                         | opcional (vacío)                                        | Override per-agent. Si está vacío cae a `CHAT_MODEL`. |
+| `GEMINI_API_KEY`                  | dev key                                                    | prod key                                                | Embeddings + vision. Sin esto el bot cae a structured-only ranking. |
 | `GOOGLE_PLACES_API_KEY`           | dev key                                                    | prod key                                                | Restringir por IP/referrer si se puede. |
-| `FAL_KEY`                         | dev key                                                    | prod key                                                | fal.ai. |
+| `FAL_KEY`                         | dev key                                                    | prod key                                                | fal.ai. Solo usada por scripts de seed (`seed_review_images.py`, `seed_category_images.py`); no por el API en runtime. |
+| `ASYNC_JOB_WORKER_ENABLED`        | `true` (default)                                           | `true` (default)                                        | **Kill switch**. `false` desactiva el worker in-process que drena la cola `async_job` (re-embed/sentiment). Útil si el worker se cuelga y necesitás dejar la API sirviendo sin background jobs. Flip + redeploy. |
+| `AGENT_LOOP_CACHE_DISABLED`       | vacío (cache ON)                                           | vacío (cache ON)                                        | **Kill switch**. `1`/`true`/`yes` desactiva el context caching de Gemini en el agent loop del chatbot. Cae a `system_instruction + tools` inline en cada turn. Usar si el caching produce respuestas raras o si Gemini cambia la API. Flip + redeploy. |
 | `PORT`                            | no setear (default 8000)                                   | auto-inyectada por Railway                              | `entrypoint.sh` la lee. |
 | `UVICORN_WORKERS`                 | `2`                                                        | `2` (subir si Railway escala vertical)                  | Override opcional. |
 | `NEXT_PUBLIC_SOCIAL_MOCK`         | `true`                                                     | `false`                                                 | Vive acá porque el front lo lee desde la misma fuente cuando se levanta junto. |
@@ -163,7 +164,7 @@ El dump **no** se commitea. Si trabaja más de una persona, distribuirlo por can
 | Credencial                          | Dev                                              | Prod                                                |
 |-------------------------------------|--------------------------------------------------|-----------------------------------------------------|
 | Frontend keys (`NEXT_PUBLIC_*`)     | `.env.development.local` (gitignored)            | Vercel dashboard                                    |
-| Frontend server keys (fal, gemini)  | `.env.development.local` (gitignored)            | Vercel dashboard                                    |
+| Frontend build tokens (Sentry)      | `.env.development.local` (gitignored)            | Vercel dashboard (`SENTRY_AUTH_TOKEN` para source maps) |
 | Backend `.env`                      | `backend/.env` (gitignored)                      | Railway dashboard                                   |
 | `JWT_SECRET`                        | dev value en `backend/.env`                      | Railway, distinto, rotable                          |
 | Postgres user/password              | `backend/.env` (compose lo usa para inicializar) | gestionado por Railway, en la URL `DATABASE_URL`    |
@@ -214,3 +215,33 @@ Si el orden se invierte, el front nuevo puede pegarle a un backend viejo durante
 | 401s en loop después de rotar `JWT_SECRET`             | Refresh tokens viejos firmados con el secret anterior | Es esperado, el usuario debe re-loguearse. |
 | Railway deploy falla en `alembic upgrade head`         | Migración requiere data manual o falta una columna    | Logs de Railway → fixear migración → push de nuevo. La versión vieja sigue sirviendo. |
 | Vercel build OK pero la app crashea con `fetch failed` | `NEXT_PUBLIC_API_URL` no setead o con typo            | Vercel → Project → Settings → Environment Variables. |
+| Costo de Gemini desbocado en el chatbot                | Context caching mal aplicado o bug en cache reuse    | `AGENT_LOOP_CACHE_DISABLED=1` en Railway + redeploy. Vuelve a inline prompts (más caro per-turn pero sin caché). |
+| `async_job` worker cuelga la API o consume CPU         | Worker in-process atascado en un re-embed/sentiment   | `ASYNC_JOB_WORKER_ENABLED=false` en Railway + redeploy. La API sigue sirviendo; los jobs se acumulan hasta que se reactive. |
+
+---
+
+## Observabilidad (Sentry)
+
+### Wiring actual
+
+| Runtime           | Archivo                                                | Notas |
+|-------------------|--------------------------------------------------------|-------|
+| FE — browser      | `instrumentation-client.ts`                            | Canonical en `@sentry/nextjs` v8+. Auto-detectado por nombre. `sentry.client.config.ts` (v7 legacy) está deliberadamente **ausente**. |
+| FE — server/edge  | `instrumentation.ts` → `sentry.{server,edge}.config.ts` | Dispatcher por `NEXT_RUNTIME`. |
+| FE — build        | `withSentryConfig(...)` en `next.config.ts`             | Sube source maps. `tunnelRoute: '/monitoring'` evita ad-blockers. |
+| Backend           | `app/main.py` (`sentry_sdk.init`)                       | Trazas con `SENTRY_TRACES_SAMPLE_RATE`. |
+
+### Smoke-test de que los eventos llegan al dashboard
+
+Antes de promover a prod (o después de cambios en cualquier `sentry.*config.ts` / `instrumentation*.ts`):
+
+1. **FE — browser**: en una preview de Vercel, abrí DevTools → Console y tipeá:
+   ```js
+   throw new Error('sentry-smoke-fe-browser')
+   ```
+   En el dashboard de Sentry → Issues, debería aparecer el evento con tag `environment=preview` en < 30s. Verificá que el stack trace está **deminified** (eso prueba que el source map upload funcionó).
+2. **FE — server**: en una preview, navegá a una ruta que tire un error en RSC. En el dashboard debe aparecer con `runtime: nodejs`.
+3. **Backend**: desde un endpoint protegido (e.g. `/api/admin/...`), tirá una excepción a mano vía un script o curl + un endpoint de test. Aparece con `environment=production` y los breadcrumbs del request.
+4. **User context** (FE): logueate en la app, dispará un error, y confirmá que el evento trae `user.id` + `user.handle` (lo setea `AuthContext.syncSentryUser`).
+
+Si algo no aparece, ver Troubleshooting de arriba o revisar el output del build de Vercel: tiene que decir `Sentry: Successfully uploaded source maps`.
