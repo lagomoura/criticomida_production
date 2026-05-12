@@ -184,7 +184,7 @@ function ErrorCard() {
           lineHeight: 1.1,
         }}
       >
-        Palato
+        Palato.me
       </div>
       <div
         style={{
@@ -285,7 +285,7 @@ export async function GET(
           <img
             src={`${origin}/img/palato_logo_light.png`}
             height={80}
-            alt="Palato"
+            alt="Palato.me"
             style={{ height: 80, width: 'auto' }}
           />
         </div>

@@ -1,6 +1,6 @@
 {
   "common": {
-    "siteName": "Palato",
+    "siteName": "Palato.me",
     "close": "Close",
     "closeDialog": "Close dialog",
     "back": "Back",
@@ -111,7 +111,7 @@
     "registerPage": {
       "kicker": "Join us",
       "title": "Every dish, <em>its review</em>.",
-      "subtitle": "Palato isn't about delivery: it's about tasting, sharing, and discovering the best of the cuisine near you. Start with a dish that blew your mind.",
+      "subtitle": "Palato.me isn't about delivery: it's about tasting, sharing, and discovering the best of the cuisine near you. Start with a dish that blew your mind.",
       "bullet1": "Review specific dishes, not entire restaurants.",
       "bullet2": "Save what you want to try and build your list.",
       "bullet3": "Follow critics whose palate matches yours.",
@@ -143,7 +143,7 @@
     "verifyEmail": {
       "verifying": "Confirming your email…",
       "successTitle": "Email confirmed!",
-      "successMessage": "You now have full access to Palato.",
+      "successMessage": "You now have full access to Palato.me.",
       "goToFeed": "Go to feed",
       "errorTitle": "We couldn't confirm the link",
       "errorMessage": "The link was already used or expired. Request a new email from the header banner."
@@ -324,8 +324,8 @@
   },
   "ownerDashboard": {
     "businessChat": {
-      "badge": "Palato Business",
-      "title": "Ask Palato",
+      "badge": "Palato.me Business",
+      "title": "Ask Palato.me",
       "subtitle": "Analytical assistant scoped to your restaurant's data.",
       "open": "Open Business chat",
       "exampleDrop": "Why did presentation drop on the most-reviewed dish at {restaurant} this month?",
@@ -419,7 +419,7 @@
       "authorAnonymousShort": "Anonymous",
       "authorCritic": "Verified critic",
       "authorCriticShort": "Critic",
-      "authorAdmin": "Palato team",
+      "authorAdmin": "Palato.me team",
       "authorAdminShort": "Team",
       "genderFemale": "Woman",
       "genderFemaleShort": "Woman",
@@ -548,14 +548,14 @@
   },
   "claim": {
     "alreadyClaimed": "This listing is already claimed",
-    "alreadyClaimedDescription": "{name} already has a verified owner on Palato. If you think this is a mistake, contact support.",
+    "alreadyClaimedDescription": "{name} already has a verified owner on Palato.me. If you think this is a mistake, contact support.",
     "backToRestaurant": "← Back to {name}",
     "needAccount": "You need an account",
     "needAccountDescription": "To claim a listing you need to be signed in. The claim is tied to your user so we can contact you if we ask for extra evidence.",
     "backToRestaurantShort": "← Back to restaurant",
     "successTitle": "Claim sent!",
     "successDomainEmail": "We sent (or will send shortly) a verification link to the email you provided. Click it and your listing gets verified instantly.",
-    "successManual": "A Palato admin will review your evidence and email you when we approve or need more.",
+    "successManual": "A Palato.me admin will review your evidence and email you when we approve or need more.",
     "kicker": "Listing claim",
     "intro": "If you're the owner or manager, claim the listing to reply to reviews, upload official photos, and keep info up to date. Only one owner is approved per restaurant; the data is recorded for audit.",
     "verifyHowLegend": "How do you want to verify?",
@@ -583,11 +583,11 @@
     "breadcrumbAria": "Breadcrumbs",
     "backToFeed": "← Back to feed",
     "kicker": "Category",
-    "subtitle": "What Palato has mapped within {label}.",
+    "subtitle": "What Palato.me has mapped within {label}.",
     "mapHeading": "Map",
     "listHeading": "List",
     "emptyTitle": "No restaurants yet in",
-    "emptyDescription": "This category is already part of Palato, but we haven't published visits in this section yet. Come back soon or explore other cuisines from the home page.",
+    "emptyDescription": "This category is already part of Palato.me, but we haven't published visits in this section yet. Come back soon or explore other cuisines from the home page.",
     "viewOtherCategories": "View other categories",
     "goHome": "Go home"
   },
@@ -637,8 +637,8 @@
   "categories": {
     "all": "All",
     "notFound": "Category not found",
-    "metaTitle": "{label} | Restaurants | Palato",
-    "metaDescription": "Restaurants and reviews in the {label} category on Palato.",
+    "metaTitle": "{label} | Restaurants | Palato.me",
+    "metaDescription": "Restaurants and reviews in the {label} category on Palato.me.",
     "argentina": "Argentine",
     "brasilena": "Brazilian",
     "peruana": "Peruvian",
@@ -1089,7 +1089,7 @@
       "priceTierMid": "Moderate",
       "priceTierHigh": "Premium",
       "successTitle": "Review published",
-      "successDescription": "Your review of {dish} is now on Palato.",
+      "successDescription": "Your review of {dish} is now on Palato.me.",
       "viewReview": "View review",
       "discardConfirmTitle": "Discard changes?",
       "discardConfirmAction": "Yes, discard",
@@ -1415,7 +1415,7 @@
       "photoOf": "Photo of {name}",
       "verifiedBadge": "Verified by the restaurant",
       "verifiedTitle": "This listing was verified by the restaurant's owner.",
-      "averageTitle": "Palato average",
+      "averageTitle": "Palato.me average",
       "googleAverageTitle": "Google Maps average",
       "reviewOne": "{count} review",
       "reviewMany": "{count} reviews",
@@ -1435,7 +1435,7 @@
     "restaurantContext": {
       "servedAt": "Served at",
       "viewRestaurant": "View the full restaurant →",
-      "ratingPalato": "★ {value} Palato",
+      "ratingPalato": "★ {value} Palato.me",
       "ratingGoogle": "Google {value}"
     },
     "related": {
@@ -1704,10 +1704,10 @@
     "ctaPrompt": "Want to add your palate?",
     "ctaPrimary": "Create account",
     "ctaSecondary": "View the feed",
-    "footerCredit": "Made with care · © {year} Palato",
+    "footerCredit": "Made with care · © {year} Palato.me",
     "pillars": {
       "dishHeading": "The dish rules",
-      "dishBody": "A restaurant can be a mix of hits and misses. A milanesa is not. A milanesa is either good or it isn't. Palato indexes by dish — because when you order, that's all that matters.",
+      "dishBody": "A restaurant can be a mix of hits and misses. A milanesa is not. A milanesa is either good or it isn't. Palato.me indexes by dish — because when you order, that's all that matters.",
       "reviewHeading": "Reviews with body",
       "reviewBody": "Texture, doneness, portion, price. The voice of someone who already ordered. No emotional asides, no decorative emojis: what you ate, how it was, whether you'd come back.",
       "communityHeading": "A palate community",
@@ -1720,7 +1720,7 @@
     "notFoundTitle": "Review not found",
     "notFoundDescription": "It may have been deleted or never existed.",
     "backToFeed": "Back to feed",
-    "fallbackShareLabel": "Review on Palato",
+    "fallbackShareLabel": "Review on Palato.me",
     "shareCardErrorTitle": "We couldn't generate the card",
     "shareCardErrorBody": "Try again in a moment.",
     "loadRepliesError": "We couldn't load the replies",
@@ -2191,11 +2191,11 @@
       "title": "An editorial feed of <em>what's actually worth ordering</em>.",
       "greetingPrefix": "Hi, ",
       "greetingSuffix": ". Below, the latest from the people you follow and dishes worth trying.",
-      "anonymousIntro": "Palato doesn't review entire restaurants: it reviews the dish. Sign in or create an account to review what you taste, save what you want to try, and follow the palate of people who know.",
+      "anonymousIntro": "Palato.me doesn't review entire restaurants: it reviews the dish. Sign in or create an account to review what you taste, save what you want to try, and follow the palate of people who know.",
       "tip1": "Review specific dishes, not entire restaurants.",
       "tip2": "Save what you want to try and build your list.",
       "tip3": "Follow people whose taste matches yours.",
-      "tipsLabel": "How Palato works"
+      "tipsLabel": "How Palato.me works"
     }
   },
   "globalError": {
@@ -2204,126 +2204,126 @@
   },
   "metadata": {
     "default": {
-      "title": "Palato",
+      "title": "Palato.me",
       "description": "Every dish, its review."
     },
     "home": {
-      "title": "Palato",
+      "title": "Palato.me",
       "description": "Dish reviews. The feed of what's actually worth ordering."
     },
     "login": {
-      "title": "Sign in · Palato",
+      "title": "Sign in · Palato.me",
       "description": "Sign in to your account to review dishes and follow critics."
     },
     "register": {
-      "title": "Create account · Palato",
-      "description": "Join Palato to review dishes and share what you taste."
+      "title": "Create account · Palato.me",
+      "description": "Join Palato.me to review dishes and share what you taste."
     },
     "forgotPassword": {
-      "title": "Forgot my password | Palato"
+      "title": "Forgot my password | Palato.me"
     },
     "resetPassword": {
-      "title": "New password | Palato"
+      "title": "New password | Palato.me"
     },
     "verifyEmail": {
-      "title": "Confirm email | Palato"
+      "title": "Confirm email | Palato.me"
     },
     "claim": {
-      "title": "Claim restaurant · Palato",
+      "title": "Claim restaurant · Palato.me",
       "description": "Claim your restaurant's listing to reply to reviews and upload official photos."
     },
     "notifications": {
-      "title": "Notifications | Palato"
+      "title": "Notifications | Palato.me"
     },
     "settings": {
-      "title": "Settings | Palato"
+      "title": "Settings | Palato.me"
     },
     "profile": {
-      "title": "Profile | Palato"
+      "title": "Profile | Palato.me"
     },
     "followers": {
-      "title": "Followers | Palato"
+      "title": "Followers | Palato.me"
     },
     "following": {
-      "title": "Following | Palato"
+      "title": "Following | Palato.me"
     },
     "compose": {
-      "title": "New review | Palato"
+      "title": "New review | Palato.me"
     },
     "about": {
-      "title": "About Palato",
+      "title": "About Palato.me",
       "description": "We review dishes, not restaurants. The difference matters."
     },
     "search": {
-      "title": "Search | Palato"
+      "title": "Search | Palato.me"
     },
     "trending": {
-      "title": "Trending | Palato",
+      "title": "Trending | Palato.me",
       "description": "The dishes critics search for the most in your city."
     },
     "saved": {
-      "title": "Saved | Palato"
+      "title": "Saved | Palato.me"
     },
     "wantToTry": {
-      "title": "Want to try | Palato",
+      "title": "Want to try | Palato.me",
       "description": "Your pending dish list for next Friday."
     },
     "preferences": {
-      "title": "My preferences | Palato",
+      "title": "My preferences | Palato.me",
       "description": "Tune your reply language, style and dietary restrictions so the Sommelier knows you better."
     },
     "privacy": {
-      "title": "Privacy | Palato",
+      "title": "Privacy | Palato.me",
       "description": "Manage users you've muted or blocked."
     },
     "mapa": {
-      "title": "Map | Palato",
-      "description": "Explore Palato dishes and restaurants on the map."
+      "title": "Map | Palato.me",
+      "description": "Explore Palato.me dishes and restaurants on the map."
     },
     "restaurant": {
-      "fallbackTitle": "Restaurant · Palato",
-      "title": "{name} · Palato",
-      "fallbackDescription": "{name} in {location} · Palato — reviews, signature dishes, photos and hours."
+      "fallbackTitle": "Restaurant · Palato.me",
+      "title": "{name} · Palato.me",
+      "fallbackDescription": "{name} in {location} · Palato.me — reviews, signature dishes, photos and hours."
     },
     "dish": {
-      "fallbackTitle": "Dish · Palato",
-      "title": "{name} — {restaurant} · Palato",
+      "fallbackTitle": "Dish · Palato.me",
+      "title": "{name} — {restaurant} · Palato.me",
       "ogTitle": "{name} · {restaurant}",
-      "fallbackDescription": "{name} at {restaurant} · Palato — dish reviews, photos and opinions."
+      "fallbackDescription": "{name} at {restaurant} · Palato.me — dish reviews, photos and opinions."
     },
     "review": {
-      "title": "Review | Palato"
+      "title": "Review | Palato.me"
     },
     "restaurantsIndex": {
-      "title": "Restaurants | Palato"
+      "title": "Restaurants | Palato.me"
     },
     "ownerDashboard": {
-      "title": "Restaurant dashboard · Palato"
+      "title": "Restaurant dashboard · Palato.me"
     },
     "ownerSettings": {
-      "title": "Agent preferences · Palato"
+      "title": "Agent preferences · Palato.me"
     },
     "adminClaims": {
-      "title": "Restaurant claims | Palato"
+      "title": "Restaurant claims | Palato.me"
     },
     "adminMetrics": {
-      "title": "B2B metrics | Palato"
+      "title": "B2B metrics | Palato.me"
     },
     "adminReservations": {
-      "title": "Affiliate reservations | Palato"
+      "title": "Affiliate reservations | Palato.me"
     },
     "adminReports": {
-      "title": "Moderation | Palato"
+      "title": "Moderation | Palato.me"
     },
     "categoriesIndex": {
-      "title": "Categories | Palato",
-      "description": "Browse restaurants by cuisine in Palato."
+      "title": "Categories | Palato.me",
+      "description": "Browse restaurants by cuisine in Palato.me."
     },
     "adminCategorias": {
-      "title": "Categories | Palato"
+      "title": "Categories | Palato.me"
     },
     "adminUncategorized": {
-      "title": "Uncategorized restaurants | Palato"
+      "title": "Uncategorized restaurants | Palato.me"
     }
   },
   "restaurantsIndex": {
@@ -2368,7 +2368,7 @@
     },
     "taste": {
       "heading": "Your tastes",
-      "subtitle": "What Palato knows about you. Some fields we infer from your reviews; others you can declare here.",
+      "subtitle": "What Palato.me knows about you. Some fields we infer from your reviews; others you can declare here.",
       "empty": "No data yet",
       "dominantPillar": "Dominant pillar",
       "topNeighborhoods": "Frequent neighborhoods",
@@ -2418,8 +2418,8 @@
     "anonDescription": "You need an account to manage blocks and mutes."
   },
   "chat": {
-    "title": "Palato Sommelier",
-    "businessTitle": "Palato Business",
+    "title": "Palato.me Sommelier",
+    "businessTitle": "Palato.me Business",
     "open": "Open chat",
     "close": "Close chat",
     "clear": "Start over",
@@ -2631,10 +2631,10 @@
     "itemCount": "{count, plural, =1 {1 dish} other {# dishes}}",
     "byOwner": "By {owner} · {count, plural, =1 {1 dish} other {# dishes}}",
     "reviewCount": "{count, plural, =0 {no reviews} =1 {1 review} other {# reviews}}",
-    "metaFallbackTitle": "List — Palato",
-    "metaTitle": "{name} · Palato",
-    "metaDescription": "A curated route of {count} dishes on Palato.",
-    "metaOgDescription": "{count} hand-picked dishes on Palato."
+    "metaFallbackTitle": "List — Palato.me",
+    "metaTitle": "{name} · Palato.me",
+    "metaDescription": "A curated route of {count} dishes on Palato.me.",
+    "metaOgDescription": "{count} hand-picked dishes on Palato.me."
   },
   "tour": {
     "buttons": {
@@ -2647,7 +2647,7 @@
     "progress": "Step {current} of {total}",
     "steps": {
       "welcome": {
-        "title": "Welcome to Palato",
+        "title": "Welcome to Palato.me",
         "body": "An editorial take on the food that matters. Here are the essentials in 30 seconds."
       },
       "feedTabs": {
@@ -2656,7 +2656,7 @@
       },
       "dishDuel": {
         "title": "Dish duel",
-        "body": "Two versions of the same dish, judged by the community. Palato's signature piece."
+        "body": "Two versions of the same dish, judged by the community. Palato.me's signature piece."
       },
       "discoveryGeo": {
         "title": "Discover",
@@ -2681,7 +2681,7 @@
     },
     "settings": {
       "heading": "Guided tour",
-      "subtitle": "Replay the walkthrough of Palato's main features.",
+      "subtitle": "Replay the walkthrough of Palato.me's main features.",
       "restart": "Replay the tour"
     }
   }

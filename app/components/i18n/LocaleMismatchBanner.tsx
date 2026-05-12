@@ -14,12 +14,12 @@ type SupportedLocale = (typeof routing.locales)[number];
 const STRINGS: Record<SupportedLocale, { hint: string; cta: string; dismissAria: string }> = {
   es: {
     hint: 'Tu navegador está configurado en español.',
-    cta: 'Ver Palato en español',
+    cta: 'Ver Palato.me en español',
     dismissAria: 'Cerrar',
   },
   en: {
     hint: 'Your browser is set to English.',
-    cta: 'View Palato in English',
+    cta: 'View Palato.me in English',
     dismissAria: 'Dismiss',
   },
   pt: {

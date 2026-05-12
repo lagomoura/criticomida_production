@@ -37,7 +37,7 @@ export async function generateMetadata({
   }
   const match = categories.find((c) => c.slug === slug);
   if (!match) {
-    return { title: tCategories('notFound') + ' | Palato' };
+    return { title: tCategories('notFound') + ' | Palato.me' };
   }
 
   const label = await resolveLabel(slug, match.name, locale);
