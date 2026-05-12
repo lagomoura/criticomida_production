@@ -18,6 +18,75 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **D2 — Review Recall** (cierre del loop descubrimiento → reseña).
+    Cuando el Sommelier llama `recommend_dishes` para un comensal
+    autenticado, el handler encola un `AsyncJob`
+    `kind=sommelier_review_recall` por cada `dish_id` del output, con
+    `scheduled_at = now() + SOMMELIER_RECALL_DELAY_HOURS` (default
+    24h). Pre-filtra los `dish_ids` ya reseñados por el usuario antes
+    de encolar — ahorra cola para platos que no necesitan recall.
+
+    Al disparar el job, el worker
+    (`async_job_worker._run_job` → `sommelier_recall_service.
+    process_sommelier_review_recall`) hace 4 chequeos en orden,
+    cualquiera de ellos corta el flujo sin escribir la notificación:
+    (1) el comensal ya reseñó el plato; (2) ya existe una
+    notificación `sommelier_review_recall` para ese `(user, dish)`;
+    (3) `should_deliver_notification` rechaza la entrega (block /
+    mute contra el bot — improbable en la práctica pero el guard se
+    mantiene uniforme); (4) el plato fue borrado entre el enqueue y
+    el run. Si pasa los 4, inserta una fila en `notifications` con
+    `kind='sommelier_review_recall'`, `target_dish_id=<id>`,
+    `text="<dish> · <restaurante>"`, y `actor_user_id` apuntando al
+    **bot user Sommelier** (UUID determinístico
+    `00000000-0000-4000-8000-50616c61746f`, seeded por migración
+    063). El bot user tiene `password_hash` inválido por
+    construcción — no puede loguearse.
+
+    Dedup en 3 capas:
+    (a) partial UNIQUE index `ix_async_job_pending_recall_dedup`
+        sobre `(kind, payload_user_id, payload_dish_id)` filtrado a
+        `status='pending'` — si una segunda conversación recomienda
+        el mismo plato mientras hay un recall pendiente, el segundo
+        INSERT colapsa en `DO NOTHING`.
+    (b) handler chequea `DishReview(user, dish)` antes de notificar.
+    (c) handler chequea `Notification(recipient, kind, target_dish)`
+        contra `ix_notifications_recall_dedup` — cubre el caso en
+        que el job pendiente ya entregó (deja de estar en `pending`,
+        sale del partial index) y otra recomendación intenta
+        encolar de nuevo.
+
+    Frontend: `NotificationItem` rendea el nuevo kind con icono
+    `faPenToSquare` y tint `text-action-highlight` (dorado Palato).
+    El click navega a `/[locale]/compose?dish_id=<id>` — el compose
+    form ya pre-llena el `dish_id` por query param. i18n del kicker
+    en `messages/{es,en,pt}.json` bajo
+    `social.notifications.kicker.sommelier_review_recall`.
+
+    Schema: la migración 063 (a) extiende el enum `async_job_kind`,
+    (b) agrega `payload_user_id` / `payload_dish_id` a `async_job`
+    y hace `payload_review_id` nullable, con un CHECK
+    (`ck_async_job_payload_shape`) que fuerza coherencia entre el
+    `kind` y los campos de payload, (c) agrega
+    `'sommelier_review_recall'` al CHECK `kind` de `notifications`,
+    (d) agrega `notifications.target_dish_id` (FK CASCADE), (e)
+    inserta el bot user.
+
+    Tests: 13 unit tests en
+    `tests/unit/test_sommelier_recall_service.py` cubren cada una
+    de las 4 ramas de idempotencia + happy path + sanity del UUID
+    del bot. Los tests existentes de `recommend_dishes` siguen
+    pasando (359 unit tests en total) — el enqueue es no-op cuando
+    `user_id is None` (anónimos) y los tests existentes no pasan
+    `user_id`.
+
+    Anónimos quedan fuera por diseño: sin identidad no hay
+    destinatario para la notificación. El bot user existe para
+    satisfacer `notifications.actor_user_id NOT NULL` sin
+    schema-changes invasivos en una FK con miles de filas. El
+    delay (24h) es configurable vía
+    `SOMMELIER_RECALL_DELAY_HOURS` para iterar la cadencia sin
+    redeploy de código.
   - **Context caching server-side en el agent loop**
     (`_ensure_cached_content` en `agent_loop.py`). Al inicio de
     cada `run()`, si el prefijo (`system_instruction` +

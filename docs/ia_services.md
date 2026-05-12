@@ -19,7 +19,21 @@ es un changelog; describe el estado actual.
   catálogo, búsqueda híbrida (filtros + KNN), perfil de gustos,
   visión de plato (Ghostwriter + Sommelier multimodal), motor
   editorial de platos, sentiment de reseñas, auto-titulado de
-  conversaciones.
+  conversaciones, review-recall del Sommelier.
+- **Cambios recientes (Sommelier review-recall, D2)** —
+  nueva clase de `AsyncJob` que no usa IA pero comparte la
+  infraestructura del worker: `kind='sommelier_review_recall'`,
+  payload `(payload_user_id, payload_dish_id)`. El tool
+  `recommend_dishes` encola un job por dish recomendado a un
+  comensal autenticado, con `scheduled_at = now() +
+  SOMMELIER_RECALL_DELAY_HOURS` (default 24h, configurable). El
+  worker lo procesa cuando llega la hora y, si el comensal no
+  reseñó el plato, escribe una `Notification` con el bot user
+  `00000000-0000-4000-8000-50616c61746f` como `actor_user_id` y
+  `target_dish_id` para el link al compose form.
+  Dedup en 3 capas: partial UNIQUE index sobre el job, chequeo de
+  review existente, chequeo de notificación previa. Migración 063.
+  Detalle producto en `chatbot.md`.
 - **Cambios recientes (context caching en agent_loop)** —
   `_ensure_cached_content` corre al inicio de cada `run()` y crea
   un `cachedContents/...` server-side cuando el prefijo
@@ -797,6 +811,74 @@ sequenceDiagram
   NO emite card, NO genera blurb editorial, NO sugiere pros/cons.
   Devuelve matches contra el catálogo + el dump de visión para que
   el agente lo cite.
+
+### CU-IA-8 — Review-recall del Sommelier (no-IA, ride-along del worker)
+
+```mermaid
+sequenceDiagram
+    participant Diner
+    participant Sommelier as Sommelier (agent_loop)
+    participant Tool as recommend_dishes
+    participant Queue as async_job
+    participant Worker as async_job_worker
+    participant DB as Postgres
+
+    Diner->>Sommelier: "¿qué pido en La Vinoteca?"
+    Sommelier->>Tool: recommend_dishes(dish_ids=[r1, r2])
+    Tool->>DB: load dishes + allergy filter + wishlist
+    Tool->>DB: filter dish_ids NOT IN dish_reviews(user)
+    Tool->>Queue: INSERT async_job × N (scheduled_at = now() + 24h)
+    Note over Queue: partial UNIQUE (kind, user, dish) WHERE pending<br/>colapsa duplicados
+    Tool-->>Sommelier: cards
+    Sommelier-->>Diner: respuesta + grid
+
+    Note over Worker,DB: ... 24h después ...
+    Worker->>Queue: claim FOR UPDATE SKIP LOCKED<br/>WHERE scheduled_at <= now()
+    Worker->>DB: EXISTS dish_review(user, dish)?
+    alt diner already reviewed
+        Worker->>Queue: mark done — no notification
+    else nothing yet
+        Worker->>DB: EXISTS notification(recipient, kind, dish)?
+        alt already notified
+            Worker->>Queue: mark done
+        else fresh recall
+            Worker->>DB: should_deliver_notification(user, bot)
+            Worker->>DB: INSERT notification(kind='sommelier_review_recall', actor=bot, target_dish_id)
+            Worker->>Queue: mark done
+        end
+    end
+```
+
+**Notas**:
+
+- **Sin IA en el camino del worker**. Aunque la entrada al queue
+  viene del agent loop, el procesamiento es puramente SQL: dos
+  EXISTS, un guard de safety, un INSERT. El job consume tokens
+  cero. Vive en este catálogo solo porque comparte la
+  infraestructura (`async_job` + `async_job_worker`) que se
+  introdujo para `embed_review` / `sentiment_review`, y porque el
+  trigger lo dispara el chatbot.
+- **`scheduled_at` ya existía** en `async_job` desde la migración
+  053 (`ix_async_job_pending` cubre `(kind, scheduled_at)`). El
+  worker hace `WHERE scheduled_at <= now()`, así que un INSERT con
+  `scheduled_at = now() + 24h` simplemente no se pickea hasta que
+  el tiempo llega. Esto reemplaza la necesidad de un cron externo.
+- **Idempotency contract** del handler
+  (`process_sommelier_review_recall`): re-correr el mismo job N
+  veces deja la DB en el mismo estado. Esto importa porque el
+  worker reintenta con backoff lineal hasta `MAX_ATTEMPTS=5` ante
+  cualquier excepción transitoria.
+- **Bot user**: la migración 063 inserta
+  `00000000-0000-4000-8000-50616c61746f` con `password_hash`
+  inválido (`'!system-no-login!'`). El handle es `sommelier`,
+  display name `Sommelier`. Reutilizable para futuras
+  notificaciones del agente sin schema-changes.
+- **Configuración**: `SOMMELIER_RECALL_DELAY_HOURS` en
+  `Settings`. Cambiar el delay no requiere migración ni deploy de
+  código — solo un redeploy con la env var nueva.
+- **Anónimos quedan fuera**: el tool handler pone un guard
+  `if user_id is not None and kept_dishes:` antes del enqueue.
+  Sin `user_id` no hay destinatario para la notificación.
 
 ### CU-IA-5 — Diagnóstico de pilar (Business)
 

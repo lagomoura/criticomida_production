@@ -45,6 +45,16 @@ export default function NotificationsClient() {
         router.push(`/restaurants/${notification.target.restaurantId}`);
         return;
       }
+      if (
+        notification.kind === 'sommelier_review_recall' &&
+        notification.target?.dishId
+      ) {
+        // Compose form pre-fills the dish via query param so the
+        // diner lands one step away from publishing the recall's
+        // whole point: a fresh review.
+        router.push(`/compose?dish_id=${notification.target.dishId}`);
+        return;
+      }
       if (notification.target?.postId) {
         router.push(`/reviews/${notification.target.postId}`);
       } else if (notification.target?.userId) {

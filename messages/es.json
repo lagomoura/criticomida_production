@@ -860,7 +860,8 @@
         "comment_reply": "Respuesta",
         "reservation_requested": "Nueva solicitud de reserva",
         "review_on_owned_restaurant": "Reseña nueva en tu restaurante",
-        "mention": "Te mencionaron"
+        "mention": "Te mencionaron",
+        "sommelier_review_recall": "¿Lo probaste? Reseñalo"
       },
       "unread": "Sin leer"
     },

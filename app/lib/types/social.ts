@@ -124,7 +124,8 @@ export type NotificationKind =
   | 'comment_reply'
   | 'reservation_requested'
   | 'review_on_owned_restaurant'
-  | 'mention';
+  | 'mention'
+  | 'sommelier_review_recall';
 
 export interface SocialNotification {
   id: string;
@@ -137,6 +138,7 @@ export interface SocialNotification {
     userId?: string | null;
     restaurantId?: string | null;
     restaurantSlug?: string | null;
+    dishId?: string | null;
   };
   /** Message already resolved by backend or formatter. */
   text: string;
