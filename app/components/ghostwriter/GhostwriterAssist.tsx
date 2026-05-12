@@ -157,10 +157,10 @@ export default function GhostwriterAssist({
       )}
 
       {open && (
-        <div className="flex w-full flex-col gap-3 rounded-2xl border border-border-subtle bg-surface-card p-4 text-left shadow-[var(--shadow-micro)]">
+        <div className="flex w-full flex-col gap-3 rounded-2xl border border-color-terracota/30 bg-surface-card p-4 text-left shadow-[var(--shadow-base)]">
           <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col">
-              <span className="text-xs uppercase tracking-wide text-action-primary">
+              <span className="text-xs font-semibold uppercase tracking-wide text-color-terracota-deep">
                 {t('label')}
               </span>
               <span className="font-display text-sm font-medium text-text-primary">
@@ -178,7 +178,7 @@ export default function GhostwriterAssist({
           </div>
 
           {!suggestions && !busy && !error && (
-            <div className="flex flex-col gap-2 rounded-xl border border-dashed border-border-default bg-surface-page p-4 text-sm text-text-muted">
+            <div className="flex flex-col gap-2 rounded-xl border border-dashed border-color-terracota/30 bg-surface-page p-4 text-sm text-text-secondary">
               <p>{t('uploadPrompt')}</p>
               <input
                 ref={fileRef}
@@ -435,7 +435,7 @@ function Chip({
         used && 'cursor-default border-border-subtle bg-surface-subtle text-text-muted line-through',
         !used &&
           accent &&
-          'border-action-primary bg-action-primary/10 text-action-primary hover:bg-action-primary/20',
+          'border-color-terracota bg-color-terracota-pale text-color-terracota-deep hover:bg-[color-mix(in_srgb,var(--color-terracota)_22%,var(--surface-card))]',
         !used &&
           !accent &&
           'border-border-default bg-surface-page text-text-primary hover:bg-color-terracota-pale hover:border-color-terracota/40',

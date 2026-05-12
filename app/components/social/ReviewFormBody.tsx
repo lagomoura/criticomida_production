@@ -283,15 +283,15 @@ export default function ReviewFormBody({
           {t('photosLabel')}
         </label>
         {value.existingImages.length === 0 && value.photos.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-border-default bg-surface-card px-4 py-7 text-text-muted">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-color-terracota-pale text-color-terracota">
+          <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-color-terracota/40 bg-surface-card px-4 py-7 text-text-secondary">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-color-terracota text-text-inverse shadow-[var(--shadow-micro)]">
               <FontAwesomeIcon icon={faCamera} className="h-5 w-5" aria-hidden="true" />
             </span>
             <div className="flex flex-col items-center gap-0.5">
               <span className="font-sans text-sm font-semibold text-text-primary">
                 {t('photoCtaTitle')}
               </span>
-              <span className="font-sans text-[11px] text-text-muted">
+              <span className="font-sans text-[11px] text-text-secondary">
                 {t('photoCtaHelp')}
               </span>
             </div>

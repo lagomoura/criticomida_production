@@ -120,6 +120,26 @@
   --color-crema:           var(--color-crema);
   --color-crema-dark:      var(--color-crema-dark);
   --color-crema-darker:    var(--color-crema-darker);
+  /* ── Aliases `color-*` para componentes históricos ──
+     El convention real de Tailwind 4 es `bg-terracota` (el prefijo `--color-`
+     se elide al generar utilidades). Pero ~14 componentes históricos usan
+     `bg-color-terracota`, `text-color-terracota-deep`, etc. Sin estos aliases
+     esas clases no generan CSS y los botones quedan invisibles en light mode
+     (texto blanco sobre fondo blanco). Mantener mientras esos componentes
+     migren al nombre canónico. */
+  --color-color-terracota:       var(--color-terracota);
+  --color-color-terracota-light: var(--color-terracota-light);
+  --color-color-terracota-pale:  var(--color-terracota-pale);
+  --color-color-terracota-deep:  var(--color-terracota-deep);
+  --color-color-dorado:          var(--color-dorado);
+  --color-color-dorado-light:    var(--color-dorado-light);
+  --color-color-dorado-pale:     var(--color-dorado-pale);
+  --color-color-espresso:        var(--color-espresso);
+  --color-color-espresso-mid:    var(--color-espresso-mid);
+  --color-color-espresso-soft:   var(--color-espresso-soft);
+  --color-color-crema:           var(--color-crema);
+  --color-color-crema-dark:      var(--color-crema-dark);
+  --color-color-crema-darker:    var(--color-crema-darker);
   /* ── Neutrales cálidos ── */
   --color-neutral-100: var(--neutral-100);
   --color-neutral-200: var(--neutral-200);
