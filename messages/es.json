@@ -2534,7 +2534,8 @@
       "saved": "En tu lista",
       "showOnMap": "Ver en mapa",
       "noPhoto": "Sin foto",
-      "reviewCount": "{count, plural, =0 {sin reseñas} =1 {1 reseña} other {# reseñas}}"
+      "reviewCount": "{count, plural, =0 {sin reseñas} =1 {1 reseña} other {# reseñas}}",
+      "inThisChat": "En este chat"
     },
     "mapCard": {
       "title": "Ver en el mapa",

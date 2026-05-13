@@ -424,6 +424,7 @@ export default function ChatDrawer({
                 agent === 'business' ? restaurantSlug ?? null : null
               }
               onDraftDeepLinkClick={onClose}
+              activeDishId={clientContext?.dish_id ?? null}
               emptyState={
                 agent === 'business' ? (
                   <BusinessEmptyState

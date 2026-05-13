@@ -27,6 +27,16 @@ interface DishCardProps {
    * lands on the page but the chat keeps obscuring the hero.
    */
   onNavigate?: () => void;
+  /**
+   * True when this dish is the one currently open in the
+   * background — i.e. the page that feeds ``ChatClientContext`` for
+   * the chat. The launcher derives it from ``usePathname()`` so the
+   * highlight flips on/off automatically as the comensal navigates,
+   * without any extra state. We surface it visually so a diner who
+   * scrolls back through a long chat history can tell at a glance
+   * WHICH past recommendation is grounding the agent's current reply.
+   */
+  isActive?: boolean;
 }
 
 /**
@@ -40,6 +50,7 @@ export default function DishCard({
   dish,
   onShowOnMap,
   onNavigate,
+  isActive = false,
 }: DishCardProps) {
   const t = useTranslations('chat.dishCard');
   // Rutas de la app viven bajo ``app/[locale]/...`` con next-intl, así
@@ -75,11 +86,26 @@ export default function DishCard({
 
   return (
     <article
+      aria-current={isActive ? 'true' : undefined}
       className={cn(
-        'group flex gap-3 rounded-2xl border border-border-subtle bg-surface-card p-3',
+        'relative group flex gap-3 rounded-2xl border border-border-subtle bg-surface-card p-3',
         'transition-shadow hover:shadow-[var(--shadow-elevated)]',
+        isActive &&
+          'ring-2 ring-[var(--color-terracota)] ring-offset-1 ring-offset-surface-card',
       )}
     >
+      {isActive && (
+        <span
+          aria-hidden="true"
+          className={cn(
+            'absolute -top-2 right-3 z-10 rounded-full px-2 py-0.5',
+            'bg-[var(--color-terracota)] text-text-inverse',
+            'text-[10px] font-medium shadow-sm',
+          )}
+        >
+          {t('inThisChat')}
+        </span>
+      )}
       <Link
         href={dishHref}
         onClick={onNavigate}

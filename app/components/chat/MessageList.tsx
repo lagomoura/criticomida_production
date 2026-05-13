@@ -58,6 +58,15 @@ interface MessageListProps {
    * apply to the owner-facing chat.
    */
   emptyState?: ReactNode;
+  /**
+   * Dish id currently open in the background (page underneath the
+   * chat drawer). Used to flag the matching ``DishCard`` in chat
+   * history as "in this chat" so the comensal can tell which past
+   * recommendation is grounding the agent's current reply. Derived
+   * by ``ChatLauncher`` from ``usePathname()`` so it flips on/off as
+   * the user navigates, without extra state.
+   */
+  activeDishId?: string | null;
 }
 
 export default function MessageList({
@@ -68,6 +77,7 @@ export default function MessageList({
   draftDeepLinkSlug = null,
   onDraftDeepLinkClick,
   emptyState,
+  activeDishId = null,
 }: MessageListProps) {
   const t = useTranslations('chat');
   const endRef = useRef<HTMLDivElement>(null);
@@ -126,6 +136,7 @@ export default function MessageList({
           draftDeepLinkSlug={draftDeepLinkSlug}
           onDraftDeepLinkClick={onDraftDeepLinkClick}
           isInflight={msg.id === inflightAssistantId}
+          activeDishId={activeDishId}
         />
       ))}
       {inflightAssistantId !== null && <TypingIndicator />}
@@ -148,6 +159,8 @@ interface MessageRowProps {
    *  text bubble is empty. Used to defer card rendering until the
    *  framing sentence starts arriving. */
   isInflight?: boolean;
+  /** Dish currently open behind the drawer. See ``MessageListProps``. */
+  activeDishId?: string | null;
 }
 
 function MessageRow({
@@ -158,6 +171,7 @@ function MessageRow({
   draftDeepLinkSlug,
   onDraftDeepLinkClick,
   isInflight = false,
+  activeDishId = null,
 }: MessageRowProps) {
   const isUser = message.role === 'user';
   const renderedTools = isUser ? [] : collapseChipDuplicates(message.tools);
@@ -206,6 +220,7 @@ function MessageRow({
               tool={tool}
               onShowDishOnMap={onShowDishOnMap}
               onDishNavigate={onDishNavigate}
+              activeDishId={activeDishId}
             />
           ))}
           {pendingTools.map((tool) => (
@@ -214,6 +229,7 @@ function MessageRow({
               tool={tool}
               onShowDishOnMap={onShowDishOnMap}
               onDishNavigate={onDishNavigate}
+              activeDishId={activeDishId}
             />
           ))}
         </div>
@@ -242,6 +258,7 @@ function MessageRow({
               tool={tool}
               onShowDishOnMap={onShowDishOnMap}
               onDishNavigate={onDishNavigate}
+              activeDishId={activeDishId}
             />
           ))}
         </div>
@@ -420,12 +437,15 @@ interface ToolInvocationProps {
   tool: UiToolInvocation;
   onShowDishOnMap?: (dish: DishCardData) => void;
   onDishNavigate?: () => void;
+  /** Dish currently open behind the drawer. See ``MessageListProps``. */
+  activeDishId?: string | null;
 }
 
 function ToolInvocation({
   tool,
   onShowDishOnMap,
   onDishNavigate,
+  activeDishId = null,
 }: ToolInvocationProps) {
   const t = useTranslations('chat.tools');
 
@@ -482,6 +502,7 @@ function ToolInvocation({
             dish={dish}
             onShowOnMap={onShowDishOnMap}
             onNavigate={onDishNavigate}
+            isActive={activeDishId !== null && dish.dish_id === activeDishId}
           />
         ))}
       </div>
