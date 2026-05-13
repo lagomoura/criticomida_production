@@ -1,9 +1,9 @@
 -- Update `categories.image_url` for the 36 slugs whose hero image we
 -- regenerated and bundled at `public/img/categories/{slug}.jpg`.
 --
--- Idempotent: only rows currently pointing at the ephemeral fal.media CDN
--- are rewritten — rows with persistent local paths (`/img/xxxfood.jpg`)
--- or other hosts are left untouched.
+-- Idempotent: only rows whose current `image_url` is empty/null OR points at
+-- the ephemeral fal.media CDN are rewritten — rows with persistent local
+-- paths (`/img/xxxfood.jpg`) or other hosts are left untouched.
 --
 -- Run on dev:
 --   docker exec -i backend-db-1 psql -U criticomida -d criticomida \
@@ -55,7 +55,7 @@ FROM (VALUES
   ('cerveceria',     '/img/categories/cerveceria.jpg')
 ) AS v(slug, new_url)
 WHERE c.slug = v.slug
-  AND c.image_url LIKE '%fal.media%';
+  AND (c.image_url IS NULL OR c.image_url = '' OR c.image_url LIKE '%fal.media%');
 
 -- Sanity check: list updated rows.
 SELECT slug, image_url
