@@ -18,6 +18,32 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **Sommelier: tool `list_restaurant_reviews` (cobertura de
+    opiniones)**. Listado paramétrico de reseñas de un restaurante
+    concreto del catálogo. Filtros: `sentiment`, `sort` (incluye
+    `most_negative` / `most_positive`), rangos rating/fecha,
+    `dish_name_contains`. Espejo B2C del `list_reviews` (Business)
+    con dos diferencias clave: (a) **scope dinámico** — resuelve
+    el restaurante por `restaurant_id` / `restaurant_slug` /
+    `restaurant_name` vía un helper `_resolve_restaurant_global`
+    paralelo a `_resolve_dish_global` (mismo patrón defensivo:
+    ambiguity → `needs_disambiguation`, no_match → suggestions);
+    (b) **output anónimo** — no expone `user_id` ni autor,
+    consistente con `get_dish_detail`. Output enriquecido con
+    `restaurant.rating` + `restaurant.review_count` para encuadre
+    editorial, y por cada review devuelve `would_order_again` +
+    `meal_period` además de los pilares, sentimiento, excerpt
+    (≤240 chars, whitespace colapsado) y pros/cons (3 + 3 max).
+    Safety filter SQL contra autores bloqueados/muteados cuando
+    hay viewer logueado. Habilita preguntas tipo "¿peor reseña
+    de Eretz?", "¿quejas de la última semana?", "¿peor reseña
+    del risotto en Y?". El system prompt suma dos reglas nuevas:
+    "encuadre justo" para reseñas negativas (contextualizar con
+    rating global, parafrasear sin veredicto absoluto desde 1
+    sola reseña) y "autor anónimo siempre". Tests:
+    `tests/unit/test_list_restaurant_reviews_tool.py` (35 casos:
+    schema, model_validator, range checks, resolver, registry,
+    metadata).
   - **A — Context Injection** (drawer hereda el contexto de la
     página). Cuando el comensal abre el Sommelier desde una página
     contextual (detail de restaurante o detail de plato), el
@@ -1120,6 +1146,7 @@ es un panel derecho de ~440px.
 | Buscar por nombre de plato concreto | `search_dishes(name_contains)` | Filtro SQL AND acento-insensible contra `dishes.name_normalized` (columna generada `lower(f_unaccent(name))`). Garantiza que el resultado contiene el nombre pedido aunque el embedding del plato esté ruidoso o sin generar — el `semantic_query` solo no alcanza para este caso. El LLM lo activa cuando el comensal nombre un plato/bebida ("ceviche", "ramen", "café"). |
 | Re-rankear semánticamente con un "mood" | `search_dishes(semantic_query)` | El LLM extrae filtros duros, KNN sobre embeddings dentro del subset. Cae a ranking estructurado si Gemini no está configurado. |
 | Mostrar detalle de un plato (top reseñas + pros/cons) | `get_dish_detail` | Para profundizar antes de decidir. |
+| Listar reseñas de un restaurante con filtros (sentiment / sort / rating / fecha / plato) | `list_restaurant_reviews` | Identifica el restaurante por uuid, slug o nombre libre. Output **anónimo** (sin autor), enriquecido con `restaurant.rating` + `review_count` para encuadre, y `would_order_again` / `meal_period` por review. Safety filter contra autores bloqueados/muteados con viewer logueado. Espejo B2C del `list_reviews` (Business). Habilita "peor reseña", "quejas recientes", "peor reseña del [plato] en [lugar]". |
 | Guardar plato en deseados | `add_to_wishlist` | Reusa `WantToTryDish`; idempotente. Requiere login. |
 | Abrir el mapa con bbox/centro/dishes pinned | `open_in_map` | Devuelve struct para que la UI haga deeplink a `/mapa`. |
 | Crear ruta de platos (compartible) | `create_dish_route` | Crea `dish_lists` + `dish_list_items` con slug único. Por defecto `is_public=true`. URL pública en `/listas/{slug}` con metadata OG para WhatsApp/Twitter. |
@@ -1414,6 +1441,59 @@ flowchart LR
 
 **Resultado UX**: el bot dice "estás en el percentil 35: 65% de los
 platos comparables están mejor rankeados" y lista 3-8 dishes vecinos.
+
+### CU-CHAT-8 — Sommelier: peor reseña de un restaurante
+
+> *"¿Cuál es la peor reseña de Eretz Cantina?"*
+
+```mermaid
+flowchart TD
+    A[Comensal pregunta por peor reseña] --> B[Sommelier elige<br/>list_restaurant_reviews]
+    B --> C{¿id/slug del<br/>output previo?}
+    C -- Sí --> D[restaurant_id /<br/>restaurant_slug]
+    C -- No --> E[restaurant_name<br/>texto libre]
+    D --> F[_resolve_restaurant_global]
+    E --> F
+    F --> G{Match único?}
+    G -- No --> H[needs_disambiguation<br/>+ candidates]
+    H --> I[Agente lista candidatos<br/>numerados al comensal]
+    G -- Sí --> J[Query DishReview JOIN Dish<br/>WHERE restaurant_id=X<br/>ORDER BY sentiment_score ASC NULLS LAST]
+    J --> K[Output anónimo:<br/>review_id, dish_name, rating,<br/>pilares, sentiment, would_order_again,<br/>meal_period, excerpt, pros, cons]
+    K --> L[Agente parafrasea con<br/>encuadre justo:<br/>rating global + count]
+```
+
+**Output contextual**. El bloque `restaurant` incluye `rating`
+(4.1/5) y `review_count` (47) — el agente los usa para no convertir
+1 reseña dura en veredicto absoluto. Por review, `would_order_again`
+agrega señal binaria fuerte ("3 de 5 marcaron 'no volvería a
+pedir'") y `meal_period` permite acotar ("las dos reseñas malas
+fueron de cena").
+
+**Encuadre justo (reglas 12 y 13 del system prompt)**.
+
+1. Contextualizá la muestra con `rating` global del restaurante.
+2. Parafraseá o citá UN excerpt corto (≤120 chars). NO transcribas
+   JSON.
+3. Tercera persona obligatoria — el output no trae autor, no
+   inventes nombres.
+4. Nunca veredicto absoluto desde 1 reseña.
+5. Si solo aparecen reseñas negativas, honestidad sin tono punitivo.
+
+**Defensa en 3 capas** (sin novedades para esta tool — hereda):
+
+1. Prompt: Regla #0 + reglas 12 y 13 (encuadre + anonimato).
+2. Tool contract: `extra=forbid`, enums estrictos, `_resolve_restaurant_global`
+   defensivo, rangos cruzados (`min_rating > max_rating`,
+   `date_from > date_to`) como `{error, message}` retornado al LLM
+   para que reintente sin asustar al comensal.
+3. Audit: `audit_chat_handoffs.py` ya genérico — cubre la tool
+   nueva sin cambios.
+
+**Scope semántico**. La tool NO se registra en Business porque
+Business tiene `list_reviews` scoped al `restaurant_scope_id` del
+owner verificado y necesita exponer `responded_status` /
+`has_owner_response` que no son data pública. Sommelier vive en el
+catálogo público, output anónimo. La separación es deliberada.
 
 ---
 
