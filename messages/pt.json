@@ -1604,7 +1604,9 @@
       "photoMany": "{count} fotos",
       "venueLabel": "Local:",
       "googleLabel": "Google:",
-      "curatedBy": "Curado por"
+      "curatedBy": "Curado por",
+      "wouldOrderAgain": "{pct}% pediria de novo",
+      "tagsAriaLabel": "Tags mais mencionadas"
     }
   },
   "trending": {

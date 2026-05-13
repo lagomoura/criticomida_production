@@ -113,7 +113,13 @@ export default async function DishDetailPage({ params }: PageProps) {
 
   return (
     <main id="main-content" className="cc-container px-4 pb-16 sm:px-6 lg:px-8">
-      <DishHeroV2 dish={dish} reviewsCount={dish.reviewCount} photosCount={aggregates.photosCount} />
+      <DishHeroV2
+        dish={dish}
+        reviewsCount={dish.reviewCount}
+        photosCount={aggregates.photosCount}
+        topTags={aggregates.tagsTop.slice(0, 3).map((t) => t.tag)}
+        wouldOrderAgainPct={dish.wouldOrderAgainPct ?? aggregates.wouldOrderAgain.pct}
+      />
       <DishPageClient
         dish={dish}
         aggregates={aggregates}
