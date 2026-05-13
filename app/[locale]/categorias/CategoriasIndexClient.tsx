@@ -12,6 +12,19 @@ const FILTER_THRESHOLD = 8;
 const POPULAR_LIMIT = 6;
 const POPULAR_MIN_REVIEWS = 1;
 
+/**
+ * Prefer the locally-bundled hero in `public/img/categories/{slug}.jpg` when
+ * the backend points at the ephemeral fal.media CDN (URLs expire). Persistent
+ * local URLs (`/img/...`) and remote hosts other than fal.media are respected.
+ */
+function resolveCategoryImage(category: Category): string {
+  const url = category.image_url ?? '';
+  if (!url || url.includes('fal.media')) {
+    return `/img/categories/${category.slug}.jpg`;
+  }
+  return url;
+}
+
 interface CategoryEntry {
   category: Category;
   /** Already-resolved label (i18n or fallback to name). */
@@ -244,23 +257,23 @@ function CategoryGrid({ entries, viewLabel, formatCount }: CategoryGridProps) {
               className="group block overflow-hidden rounded-2xl border border-border-default bg-surface-card no-underline transition-shadow hover:shadow-[var(--shadow-elevated)] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
             >
               <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-subtle">
-                {category.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={category.image_url}
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                  />
-                ) : (
-                  <div
-                    aria-hidden
-                    className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--color-terracota-deep)] via-[var(--color-terracota)] to-[var(--color-terracota-light)]"
-                  >
-                    <span className="font-display text-7xl font-medium text-white/95 drop-shadow-sm">
-                      {label.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
+                <div
+                  aria-hidden
+                  className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--color-terracota-deep)] via-[var(--color-terracota)] to-[var(--color-terracota-light)]"
+                >
+                  <span className="font-display text-7xl font-medium text-white/95 drop-shadow-sm">
+                    {label.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={resolveCategoryImage(category)}
+                  alt=""
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = 'none';
+                  }}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent"
