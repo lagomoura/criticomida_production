@@ -25,7 +25,6 @@ export interface CreatePostInput {
   restaurant?: ComposeRestaurant;
   /** Legacy free-text path. Still accepted by the backend for scripts/mocks. */
   restaurantName?: string;
-  category?: string | null;
   score: number;
   text: string;
   extras?: ReviewExtras;
@@ -48,7 +47,6 @@ interface PostCreateDTO {
     phone_number: string | null;
   };
   restaurant_name?: string;
-  category?: string | null;
   score: number;
   text: string;
   extras?: {
@@ -75,7 +73,6 @@ interface PostCreateDTO {
 function toPostCreateDTO(input: CreatePostInput): PostCreateDTO {
   const dto: PostCreateDTO = {
     dish_name: input.dishName,
-    category: input.category ?? null,
     score: input.score,
     text: input.text,
   };

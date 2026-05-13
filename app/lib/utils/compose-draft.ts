@@ -23,7 +23,6 @@ const COMPOSE_DRAFT_KEY = 'cc:compose-draft:v1';
 export interface ComposeDraftSnapshot {
   place: SelectedPlace | null;
   dish: SelectedDish | null;
-  category: string;
   priceTier: PriceTier | null;
   body: Omit<ReviewFormBodyValue, 'photos' | 'existingImages'>;
   /** Optional flag added in the progressive-disclosure redesign. When the
@@ -69,7 +68,6 @@ export function hasDetailsContent(
 
 function isEmptySnapshot(snap: ComposeDraftSnapshot): boolean {
   if (snap.place || snap.dish) return false;
-  if (snap.category) return false;
   if (snap.priceTier) return false;
   const b = snap.body;
   if (b.note.trim()) return false;

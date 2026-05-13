@@ -4,7 +4,6 @@ import { mockAddUserPost } from './feed';
 export interface MockCreatePostInput {
   dishName: string;
   restaurantName: string;
-  category?: string | null;
   score: number;
   text: string;
   extras?: ReviewExtras;
@@ -25,7 +24,7 @@ export function mockCreatePost(input: MockCreatePostInput): ReviewPost {
       name: input.dishName,
       restaurantId,
       restaurantName: input.restaurantName,
-      category: input.category ?? null,
+      category: null,
     },
     score: input.score,
     text: input.text,

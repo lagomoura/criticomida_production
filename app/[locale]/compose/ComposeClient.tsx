@@ -12,8 +12,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
-import Chip from '@/app/components/ui/Chip';
-import Select from '@/app/components/ui/Select';
 import Skeleton from '@/app/components/ui/Skeleton';
 import RestaurantAutocomplete, {
   type SelectedPlace,
@@ -26,10 +24,6 @@ import ReviewFormBody, {
   type PhotoEntry,
   type ReviewFormBodyValue,
 } from '@/app/components/social/ReviewFormBody';
-import {
-  REVIEW_CATEGORY_GROUPS,
-  categorySlugToI18nKey,
-} from '@/app/data/review-categories';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { createPost, type ComposeRestaurant } from '@/app/lib/api/compose';
 import { getDishDetail } from '@/app/lib/api/dishes-social';
@@ -43,11 +37,6 @@ import {
   readComposeDraft,
   writeComposeDraft,
 } from '@/app/lib/utils/compose-draft';
-import {
-  inferCategoriesFromDishName,
-  inferCategoriesFromRestaurant,
-  mergeCategorySuggestions,
-} from '@/app/lib/utils/category-inference';
 
 const MIN_TEXT = 20;
 const MAX_TEXT = 1200;
@@ -89,14 +78,11 @@ export default function ComposeClient() {
   const t = useTranslations('compose');
   const tForm = useTranslations('restaurant.dishReviewForm');
   const tModal = useTranslations('restaurant.publishReviewModal');
-  const tCat = useTranslations('categories');
-  const tSec = useTranslations('categoriesIndex');
 
   const prefillDishId = searchParams?.get('dish') ?? null;
 
   const [place, setPlace] = useState<SelectedPlace | null>(null);
   const [dish, setDish] = useState<SelectedDish | null>(null);
-  const [category, setCategory] = useState<string>('');
   const [priceTier, setPriceTier] = useState<PriceTier | null>(null);
   const [body, setBody] = useState<ReviewFormBodyValue>(makeBodyInitial);
 
@@ -106,9 +92,6 @@ export default function ComposeClient() {
   // toggles the "Agregar detalles" collapse below the essentials block. Auto-
   // opens on draft restore when the saved body has any optional content.
   const [expandedDetails, setExpandedDetails] = useState(false);
-  // When true, the legacy 52-item <Select> is revealed inside the details
-  // panel as an escape hatch from the inferred chip suggestions.
-  const [showAllCategories, setShowAllCategories] = useState(false);
   // Tracks upload status per-photo (keyed by PhotoEntry.id) so we can show
   // granular progress in the submit button while Promise.all runs in parallel.
   const [uploadProgress, setUploadProgress] = useState<Map<number, UploadStatus>>(new Map());
@@ -130,7 +113,6 @@ export default function ComposeClient() {
     if (snap) {
       if (snap.place) setPlace(snap.place);
       if (snap.dish) setDish(snap.dish);
-      setCategory(snap.category);
       setPriceTier(snap.priceTier);
       setBody({ ...snap.body, photos: [], existingImages: [] });
       setDraftRestored(true);
@@ -140,9 +122,6 @@ export default function ComposeClient() {
       if (snap.expandedDetails || hasDetailsContent(snap.body)) {
         setExpandedDetails(true);
       }
-      // If the snapshot already has a category set, surface it via the legacy
-      // Select escape hatch so the user can see and change it.
-      if (snap.category) setShowAllCategories(true);
     }
     draftHydrated.current = true;
   }, [prefillDishId]);
@@ -167,14 +146,13 @@ export default function ComposeClient() {
       writeComposeDraft({
         place,
         dish,
-        category,
         priceTier,
         body: bodyWithoutPhotos as Parameters<typeof writeComposeDraft>[0]['body'],
         expandedDetails,
       });
     }, 600);
     return () => window.clearTimeout(handle);
-  }, [place, dish, category, priceTier, body, submitting, expandedDetails]);
+  }, [place, dish, priceTier, body, submitting, expandedDetails]);
 
   // Cleanup blob previews on unmount.
   useEffect(() => {
@@ -188,12 +166,10 @@ export default function ComposeClient() {
     clearComposeDraft();
     setPlace(null);
     setDish(null);
-    setCategory('');
     setPriceTier(null);
     setBody(makeBodyInitial());
     setDraftRestored(false);
     setExpandedDetails(false);
-    setShowAllCategories(false);
   }, []);
 
   useEffect(() => {
@@ -205,7 +181,6 @@ export default function ComposeClient() {
         const detail = await getDishDetail(prefillDishId);
         if (cancelled) return;
         setDish({ id: null, name: detail.name });
-        if (detail.category) setCategory(detail.category);
       } catch {
         // Non-fatal — user can fill manually.
       } finally {
@@ -218,23 +193,6 @@ export default function ComposeClient() {
   }, [prefillDishId]);
 
   const isNewDish = dish !== null && dish.id === null;
-
-  // Category chip suggestions — drawn from the dish name (keyword match) and,
-  // when surfaced, the restaurant's dominant categories. If the user has
-  // already chosen a category that's not in the suggestion set, we prepend it
-  // so they can see/clear their selection without expanding "Ver todas".
-  const categorySuggestions = useMemo(() => {
-    if (!dish) return [] as string[];
-    const fromName = inferCategoriesFromDishName(dish.name ?? '');
-    const fromRestaurant = inferCategoriesFromRestaurant(place);
-    return mergeCategorySuggestions([], fromRestaurant, fromName);
-  }, [dish, place]);
-
-  const renderedCategoryChoices = useMemo(() => {
-    const slugs = [...categorySuggestions];
-    if (category && !slugs.includes(category)) slugs.unshift(category);
-    return slugs;
-  }, [categorySuggestions, category]);
 
   const noteLength = body.note.trim().length;
 
@@ -300,6 +258,17 @@ export default function ComposeClient() {
         }
       };
 
+      // Failsafe: si la navegación post-submit no descarga la pantalla
+      // (puede pasar en dev con HMR, o si el router.push se traga la
+      // navegación silenciosamente), liberamos el botón al cabo de 12 s
+      // para que el usuario no quede prendido en "Publicando…" para
+      // siempre. El reset se cancela en el catch (que ya pone false) y
+      // se cancela también después de un router.push exitoso para no
+      // gatillar tarde si la navegación efectivamente ocurrió.
+      const failsafeUnlock = window.setTimeout(() => {
+        setSubmitting(false);
+      }, 12000);
+
       try {
         const imageUrls = body.photos.length > 0
           ? await Promise.all(body.photos.map((p, i) => runUpload(p, i)))
@@ -343,7 +312,6 @@ export default function ComposeClient() {
           dishName: trimmedDishName,
           dishId: dish.id,
           restaurant,
-          category: category.trim() || null,
           score: body.rating,
           text: body.note.trim(),
           extras: Object.keys(extras).length > 0 ? extras : undefined,
@@ -367,7 +335,15 @@ export default function ComposeClient() {
           },
         });
         router.push(`/reviews/${postId}`);
+        // Plan A: la navegación descarga la pantalla, no hace falta
+        // resetear submitting. Plan B (defensivo): si por algún motivo
+        // la nav no descarga (HMR, ruta inválida, etc.) liberamos el
+        // botón después de un beat corto para que el usuario pueda
+        // intentar volver a publicar o navegar al review desde el toast.
+        window.clearTimeout(failsafeUnlock);
+        window.setTimeout(() => setSubmitting(false), 1500);
       } catch (err) {
+        window.clearTimeout(failsafeUnlock);
         const message =
           err instanceof ApiError && typeof err.detail === 'string'
             ? err.detail
@@ -377,7 +353,7 @@ export default function ComposeClient() {
         setSubmitting(false);
       }
     },
-    [canSubmit, user, place, dish, body, priceTier, isNewDish, category, router, toast, t, tForm],
+    [canSubmit, user, place, dish, body, priceTier, isNewDish, router, toast, t, tForm],
   );
 
   const minCharsHint = useMemo(() => {
@@ -590,58 +566,6 @@ export default function ComposeClient() {
                 </div>
               </div>
             )}
-
-            {/* Category — chips inferidos por keyword del nombre del plato.
-                Escape hatch "Ver todas" revela el Select legacy. */}
-            <div className="flex flex-col gap-2">
-              <label className="font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-text-secondary">
-                {renderedCategoryChoices.length > 0
-                  ? t('categorySuggestionsLabel')
-                  : t('categoryLabel')}
-              </label>
-              {renderedCategoryChoices.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {renderedCategoryChoices.map((slug) => (
-                    <Chip
-                      key={slug}
-                      selected={category === slug}
-                      onClick={() =>
-                        setCategory(category === slug ? '' : slug)
-                      }
-                    >
-                      {tCat(categorySlugToI18nKey(slug))}
-                    </Chip>
-                  ))}
-                </div>
-              )}
-              {!showAllCategories ? (
-                <button
-                  type="button"
-                  onClick={() => setShowAllCategories(true)}
-                  className="inline-flex min-h-[44px] w-fit items-center px-1 font-sans text-xs font-semibold text-action-primary hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
-                >
-                  {t('categoryShowAll')}
-                </button>
-              ) : (
-                <Select
-                  name="category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  disabled={submitting}
-                >
-                  <option value="">{t('categoryNone')}</option>
-                  {REVIEW_CATEGORY_GROUPS.map((group) => (
-                    <optgroup key={group.titleKey} label={tSec(group.titleKey)}>
-                      {group.slugs.map((slug) => (
-                        <option key={slug} value={slug}>
-                          {tCat(categorySlugToI18nKey(slug))}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </Select>
-              )}
-            </div>
 
             {/* Detalles del review body — pilares, pros/cons, contexto,
                 tags, anónimo. Misma forma que el modal. */}

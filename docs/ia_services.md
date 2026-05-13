@@ -573,6 +573,90 @@ el bloque simplemente no se renderiza en el frontend.
 
 ---
 
+### J. Clasificador de categoría de plato — Gemini `gemini-2.5-flash`
+
+`backend/app/services/category_inference_service.py`. Reemplaza el
+picker manual de 52 categorías que vivía en `/compose`: cuando el
+usuario publica una reseña, el backend deriva la categoría a partir
+del nombre del plato + nombre del restaurante + (cuando existe) el
+`editorial_origin` / `editorial_blurb` ya enriquecidos por el motor
+editorial (servicio I). El picker se eliminó del FE — la categoría
+es 100% server-inferida ahora.
+
+Output JSON (`response_mime_type="application/json"` con
+`thinking_budget=0`, misma receta que sentiment — memoria
+`feedback_gemini_thinking`):
+
+```python
+class _CategoryInferenceResponse(BaseModel):
+    existing: _ExistingPick | None     # slug existente + confidence (0-1)
+    proposed_new: _NewCategoryProposal | None  # slug nuevo + name + description
+```
+
+**Política de decisión** (en orden):
+
+1. Si `existing` tiene confidence ≥ 0.6 y el slug existe en DB →
+   se usa esa categoría.
+2. Si `proposed_new` es coherente y su slug (slugificado a kebab-case
+   ASCII) no colisiona con uno existente → se crea una nueva fila en
+   `categories` con `pending_review = True, display_order = 999`. Se
+   dispara `admin_notification_service.notify_admins_category_pending`
+   que mete una row por admin en `notifications` (kind=
+   `category_pending_review`) + email transaccional vía Resend
+   (`render_category_pending_review`).
+3. Si `proposed_new.slug` slugificado colapsa con uno existente, se
+   trata como pick implícito de ese existente (no se duplica).
+4. En cualquier otro caso (Gemini falla, ambos campos en null,
+   confidence baja) → fallback duro a la categoría `otros`. El servicio
+   nunca tira excepción; el peor caso es `(otros.id, was_newly_created=False)`.
+
+**Persistencia**: la categoría se aplica a `restaurants.category_id`.
+No existe una columna de categoría en `dishes` ni en `dish_reviews` —
+el modelo de datos sigue siendo "restaurant tiene cuisine; los dishes
+heredan". El servicio solo dispara cuando `restaurant.category_id IS
+NULL` (no pisa categorías ya asignadas).
+
+**Flag `pending_review` en `categories`** (migration 065): partial
+index `ix_categories_pending_review` para que la cola del admin sea
+barata. `GET /api/categories` filtra `pending_review = FALSE` así las
+nuevas no aparecen en feeds públicos hasta que el admin las aprueba
+desde `/admin/categorias-pendientes` (`POST /api/categories/{slug}/approve`
+o `.../reject` con `target_slug` para re-asignar restaurantes).
+
+**Descripciones enriquecidas** (migration 066): cada una de las 52
+categorías canónicas tiene en `description` una línea de 1 rasgo + 4-6
+platos típicos (ej: `"Cocina italiana: pizza napoletana, pasta, lasaña,
+risotto, gnocchi, tiramisú"`). Eso funciona como few-shot dentro del
+prompt — el modelo ancla el sentido de cada slug y deja de confundir
+'pizzeria' con 'italiana' o de proponer slugs redundantes.
+
+Endpoint admin nuevo:
+
+- `GET /api/categories/pending` — lista las pendientes con
+  `restaurant_count` para que el admin vea impacto antes de decidir.
+- `POST /api/categories/{slug}/approve` — flip del flag a `False`.
+- `POST /api/categories/{slug}/reject` con body `{target_slug}` —
+  mueve restaurantes a `target_slug` (default `otros`) y borra la fila.
+
+Degradación: sin `GEMINI_API_KEY` el servicio cae al fallback `otros`
+y el post se publica igual con esa categoría. Cualquier excepción del
+provider (`genai_errors.APIError`, `httpx.HTTPError`) también cae al
+fallback — el flujo de creación de post nunca se rompe.
+
+Latencia: el call bloquea el request de `POST /api/posts` mientras
+Gemini responde (~500-1500 ms con `thinking_budget=0`). Si en
+producción se vuelve relevante, el plan es asincronizar vía
+`async_job_worker` (igual que sentiment) y persistir un placeholder.
+
+**Consumidores**:
+
+- `backend/app/routers/posts.py::create_post` — hook entre resolver
+  el dish y persistir la review.
+- `app/[locale]/admin/categorias-pendientes/` (FE admin) — cola de
+  pendientes con approve/reject.
+
+---
+
 ## Casos de uso end-to-end
 
 ### CU-IA-1 — Indexación incremental al publicar reseña

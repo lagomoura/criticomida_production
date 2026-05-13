@@ -320,6 +320,33 @@
       "assignSuccess": "{name} categorizado.",
       "assignError": "No se pudo asignar la categoría.",
       "badgeOtros": "Otros"
+    },
+    "categoriasPendientes": {
+      "kicker": "Admin",
+      "title": "Categorías pendientes",
+      "subtitle": "Categorías creadas automáticamente por el clasificador. Aprobá o reasigná los restaurantes a otra existente.",
+      "empty": "No hay categorías pendientes de revisión.",
+      "loadError": "No pudimos cargar las categorías pendientes.",
+      "retry": "Reintentar",
+      "tableName": "Nombre",
+      "tableSlug": "Slug",
+      "tableDescription": "Descripción",
+      "tableRestaurants": "Restaurantes",
+      "tableActions": "Acciones",
+      "approve": "Aprobar",
+      "approveSuccess": "Categoría aprobada.",
+      "approveError": "No se pudo aprobar la categoría.",
+      "reject": "Rechazar",
+      "rejectTitle": "Rechazar {name}",
+      "rejectMessage": "Vas a borrar la categoría y mover los restaurantes a otra existente. Esta acción no se puede deshacer.",
+      "rejectTargetLabel": "Reasignar restaurantes a",
+      "rejectConfirm": "Rechazar y reasignar",
+      "rejectCancel": "Cancelar",
+      "rejectSuccess": "Categoría rechazada y reasignada.",
+      "rejectError": "No se pudo rechazar la categoría.",
+      "accessRestricted": "Acceso restringido",
+      "adminOnly": "Esta página es solo para administradores.",
+      "backToFeed": "Volver al feed"
     }
   },
   "ownerDashboard": {
@@ -1746,8 +1773,6 @@
     "signIn": "Iniciar sesión",
     "createAccount": "Crear cuenta",
     "restaurantPlaceholder": "Buscá tu restaurante — ej. Güerrin",
-    "categoryLabel": "Categoría",
-    "categoryNone": "Sin categoría",
     "scoreLabel": "Puntaje (1–5)",
     "reviewLabel": "Reseña",
     "reviewPlaceholder": "¿Cómo estuvo? Detalles que importan: textura, punto, porción, precio…",
@@ -1806,9 +1831,7 @@
     "collapseDetails": "Ocultar detalles",
     "restaurantQuestion": "¿Dónde lo comiste?",
     "dishQuestion": "¿Qué plato?",
-    "changeRestaurantDish": "Cambiar",
-    "categorySuggestionsLabel": "Sugerencias de categoría",
-    "categoryShowAll": "Ver todas las categorías"
+    "changeRestaurantDish": "Cambiar"
   },
   "settings": {
     "title": "Configuración",
@@ -1937,7 +1960,9 @@
       "emptyOtherTitle": "Sin reseñas por ahora",
       "emptySelfDescription": "Compartí tu primera reseña y empezá a construir tu voz crítica.",
       "emptyOtherDescription": "Cuando este usuario publique algo, lo vas a ver acá.",
-      "emptySelfAction": "Publicar reseña"
+      "emptySelfAction": "Publicar reseña",
+      "loadMoreError": "No pudimos cargar más reseñas. Probá de nuevo en un momento.",
+      "endOfList": "Llegaste al final de las reseñas."
     },
     "followers": {
       "title": "Seguidores",
@@ -2338,6 +2363,9 @@
     },
     "adminUncategorized": {
       "title": "Restaurantes sin categoría | Palato.me"
+    },
+    "adminCategoriasPendientes": {
+      "title": "Categorías pendientes | Palato.me"
     }
   },
   "restaurantsIndex": {

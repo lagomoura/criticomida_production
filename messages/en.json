@@ -320,6 +320,33 @@
       "assignSuccess": "{name} categorized.",
       "assignError": "Couldn't assign the category.",
       "badgeOtros": "Other"
+    },
+    "categoriasPendientes": {
+      "kicker": "Admin",
+      "title": "Pending categories",
+      "subtitle": "Categories auto-created by the classifier. Approve them or reassign their restaurants to another existing one.",
+      "empty": "No categories pending review.",
+      "loadError": "Couldn't load pending categories.",
+      "retry": "Retry",
+      "tableName": "Name",
+      "tableSlug": "Slug",
+      "tableDescription": "Description",
+      "tableRestaurants": "Restaurants",
+      "tableActions": "Actions",
+      "approve": "Approve",
+      "approveSuccess": "Category approved.",
+      "approveError": "Couldn't approve the category.",
+      "reject": "Reject",
+      "rejectTitle": "Reject {name}",
+      "rejectMessage": "You're about to delete this category and move its restaurants to another existing one. This action cannot be undone.",
+      "rejectTargetLabel": "Reassign restaurants to",
+      "rejectConfirm": "Reject and reassign",
+      "rejectCancel": "Cancel",
+      "rejectSuccess": "Category rejected and reassigned.",
+      "rejectError": "Couldn't reject the category.",
+      "accessRestricted": "Access restricted",
+      "adminOnly": "This page is admin-only.",
+      "backToFeed": "Back to feed"
     }
   },
   "ownerDashboard": {
@@ -1746,8 +1773,6 @@
     "signIn": "Sign in",
     "createAccount": "Create account",
     "restaurantPlaceholder": "Search for your restaurant — e.g. Joe's Pizza",
-    "categoryLabel": "Category",
-    "categoryNone": "No category",
     "scoreLabel": "Score (1–5)",
     "reviewLabel": "Review",
     "reviewPlaceholder": "How was it? The details that matter: texture, doneness, portion, price…",
@@ -1806,9 +1831,7 @@
     "collapseDetails": "Hide details",
     "restaurantQuestion": "Where did you eat it?",
     "dishQuestion": "Which dish?",
-    "changeRestaurantDish": "Change",
-    "categorySuggestionsLabel": "Category suggestions",
-    "categoryShowAll": "See all categories"
+    "changeRestaurantDish": "Change"
   },
   "settings": {
     "title": "Settings",
@@ -1937,7 +1960,9 @@
       "emptyOtherTitle": "No reviews yet",
       "emptySelfDescription": "Share your first review and start building your critical voice.",
       "emptyOtherDescription": "When this user posts something, you'll see it here.",
-      "emptySelfAction": "Post review"
+      "emptySelfAction": "Post review",
+      "loadMoreError": "We couldn't load more reviews. Try again in a moment.",
+      "endOfList": "You've reached the end of the reviews."
     },
     "followers": {
       "title": "Followers",
@@ -2338,6 +2363,9 @@
     },
     "adminUncategorized": {
       "title": "Uncategorized restaurants | Palato.me"
+    },
+    "adminCategoriasPendientes": {
+      "title": "Pending categories | Palato.me"
     }
   },
   "restaurantsIndex": {

@@ -39,3 +39,37 @@ export async function deleteCategory(slug: string): Promise<void> {
     method: 'DELETE',
   });
 }
+
+export interface PendingCategory {
+  id: number;
+  slug: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+  display_order: number;
+  parent_id: number | null;
+  restaurant_count: number;
+}
+
+export async function getPendingCategories(): Promise<PendingCategory[]> {
+  return fetchApi<PendingCategory[]>('/api/categories/pending');
+}
+
+export async function approveCategory(slug: string): Promise<Category> {
+  return fetchApi<Category>(`/api/categories/${slug}/approve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  });
+}
+
+export async function rejectCategory(
+  slug: string,
+  targetSlug: string = 'otros',
+): Promise<void> {
+  await fetchApi<void>(`/api/categories/${slug}/reject`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ target_slug: targetSlug }),
+  });
+}
