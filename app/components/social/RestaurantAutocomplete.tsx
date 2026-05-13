@@ -29,7 +29,7 @@ export interface RestaurantAutocompleteProps {
   label?: string;
   placeholder?: string;
   disabled?: boolean;
-  /** Restrict predictions to a country (ISO-3166-1 alpha-2). Default: 'ar'. */
+  /** Restrict predictions to a country (ISO-3166-1 alpha-2). Default: null (global). */
   country?: string | null;
 }
 
@@ -70,7 +70,7 @@ function AutocompleteInner({
   label,
   placeholder,
   disabled = false,
-  country = 'ar',
+  country = null,
 }: RestaurantAutocompleteProps) {
   const t = useTranslations('social.restaurantAutocomplete');
   const effectiveLabel = label ?? t('label');
@@ -82,6 +82,10 @@ function AutocompleteInner({
     useState<google.maps.places.PlacesService | null>(null);
   const [sessionToken, setSessionToken] =
     useState<google.maps.places.AutocompleteSessionToken | null>(null);
+  // Geolocation-based bias: predictions stay global but nearby restaurants
+  // rank higher. Permission is requested once on mount; denial/timeout is
+  // silent — search keeps working without bias.
+  const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
 
   const [query, setQuery] = useState('');
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
@@ -103,6 +107,26 @@ function AutocompleteInner({
     setPlacesService(new placesLib.PlacesService(attribution));
     setSessionToken(new placesLib.AutocompleteSessionToken());
   }, [placesLib]);
+
+  // Best-effort geolocation for ranking bias. Cached up to 10 min, 5s timeout,
+  // low accuracy — we only need a coarse anchor for "what's near me".
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) return;
+    let cancelled = false;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        if (cancelled) return;
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      () => {
+        // Denied / unavailable / timeout — fall back to unbiased global search.
+      },
+      { timeout: 5000, maximumAge: 600_000, enableHighAccuracy: false },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Close the dropdown on outside click.
   useEffect(() => {
@@ -131,6 +155,15 @@ function AutocompleteInner({
           sessionToken,
           types: ['restaurant', 'food', 'cafe', 'bakery', 'bar'],
           componentRestrictions: country ? { country } : undefined,
+          // `location` + `radius` (without `strictBounds`) acts as a soft bias:
+          // nearby results rank higher but matches anywhere in the world still
+          // surface. 50 km covers a metro area generously.
+          ...(userLocation
+            ? {
+                location: new google.maps.LatLng(userLocation.lat, userLocation.lng),
+                radius: 50_000,
+              }
+            : {}),
         },
         (results, status) => {
           setLoading(false);
@@ -148,7 +181,7 @@ function AutocompleteInner({
         },
       );
     },
-    [autocompleteService, sessionToken, country, t],
+    [autocompleteService, sessionToken, country, userLocation, t],
   );
 
   const onInput = useCallback(
