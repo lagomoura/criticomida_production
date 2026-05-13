@@ -393,9 +393,23 @@ export interface SommelierPreviewProfile {
   avg_price_band: string | null;
 }
 
+export interface SommelierPreviewPendingRecall {
+  dish_id: string;
+  dish_name: string;
+  cover_image_url: string | null;
+  restaurant_name: string;
+  restaurant_slug: string | null;
+  /** ISO datetime when the Sommelier recommended this dish. */
+  recommended_at: string;
+}
+
 export interface SommelierPreview {
   user: SommelierPreviewUser | null;
   profile: SommelierPreviewProfile | null;
+  /** Dishes the Sommelier recommended in the last 14 days that the
+   * diner hasn't reviewed yet. Always present (never null); empty
+   * array when the user is anonymous or there's nothing pending. */
+  pending_recalls: SommelierPreviewPendingRecall[];
 }
 
 /**
@@ -409,6 +423,21 @@ export interface SommelierPreview {
  */
 export async function getSommelierPreview(): Promise<SommelierPreview> {
   return fetchApi<SommelierPreview>('/api/chat/sommelier/preview');
+}
+
+/**
+ * Dismiss a pending review-recall card (Post-visit Bridge "X").
+ *
+ * Idempotent on the backend (ON CONFLICT DO NOTHING), so a retry
+ * from a flaky network is harmless. Auth required — the FE only
+ * exposes the action on cards that came back in the user-bound
+ * preview payload.
+ */
+export async function dismissPendingRecall(dishId: string): Promise<void> {
+  await fetchApi(
+    `/api/chat/sommelier/recalls/${encodeURIComponent(dishId)}/dismiss`,
+    { method: 'POST' },
+  );
 }
 
 // ── deprecated non-streaming entry — kept for parity with old callers ────

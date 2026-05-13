@@ -2484,6 +2484,11 @@
       "greetingAnon": "Bem-vindo ao Sommelier",
       "subtitle": "Me diga o que está com vontade e eu sugiro pratos sob medida.",
       "anonInvite": "Faça login para que possamos lembrar dos seus gostos entre conversas.",
+      "pendingRecalls": {
+        "heading": "Faltam avaliar",
+        "cta": "Escrever avaliação",
+        "dismiss": "Remover da lista"
+      },
       "startersHeading": "Comece por aqui",
       "profileChip": {
         "label": "Sabemos que você gosta",

@@ -2484,6 +2484,11 @@
       "greetingAnon": "Welcome to the Sommelier",
       "subtitle": "Tell me what you're craving and I'll suggest dishes for you.",
       "anonInvite": "Sign in so we can remember your tastes across conversations.",
+      "pendingRecalls": {
+        "heading": "Pending reviews",
+        "cta": "Write a review",
+        "dismiss": "Remove from list"
+      },
       "startersHeading": "Start here",
       "profileChip": {
         "label": "We know you like this",

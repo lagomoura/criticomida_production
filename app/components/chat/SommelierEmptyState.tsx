@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,9 +8,15 @@ import {
   faUtensils,
   faPenToSquare,
   faTriangleExclamation,
+  faChevronRight,
+  faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 
-import type { SommelierPreview } from '@/app/lib/api/chat';
+import {
+  dismissPendingRecall,
+  type SommelierPreview,
+  type SommelierPreviewPendingRecall,
+} from '@/app/lib/api/chat';
 
 /**
  * Empty state for the Sommelier chat drawer.
@@ -136,6 +143,34 @@ export default function SommelierEmptyState({
   const topCategory = profile?.top_categories?.[0] ?? null;
   const topNeighborhood = profile?.top_neighborhoods?.[0] ?? null;
   const allergies = profile?.allergies ?? [];
+  const pendingRecalls = preview?.pending_recalls ?? [];
+
+  // Local dismissals are tracked client-side so the "X" tap removes
+  // the card instantly without waiting for the round-trip; the POST
+  // runs in the background and the backend idempotency makes a retry
+  // (or a stale state from a re-fetch) harmless. We keep the set
+  // additive within the component lifetime — it resets when the
+  // drawer remounts, which is the natural moment to re-fetch the
+  // server-side truth anyway.
+  const [dismissedDishIds, setDismissedDishIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const handleDismiss = useCallback((dishId: string) => {
+    setDismissedDishIds((prev) => {
+      if (prev.has(dishId)) return prev;
+      const next = new Set(prev);
+      next.add(dishId);
+      return next;
+    });
+    void dismissPendingRecall(dishId).catch(() => {
+      // Eventual consistency: the next drawer-open will reconcile
+      // by re-fetching the preview. Swallowing the error keeps the
+      // empty state quiet — a failed dismiss is low-stakes UX-wise.
+    });
+  }, []);
+  const visibleRecalls = pendingRecalls.filter(
+    (r) => !dismissedDishIds.has(r.dish_id),
+  );
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-5 px-6 py-10 text-center">
@@ -158,6 +193,40 @@ export default function SommelierEmptyState({
         </h2>
         <p className="text-sm text-text-muted">{t('subtitle')}</p>
       </div>
+
+      {/* Post-visit Bridge (B) — dishes the Sommelier recommended in
+          the last 14 days and the diner hasn't reviewed yet. Lives
+          above the profile chip because closing the loop on a
+          recommendation is the most actionable thing the empty state
+          can offer; the profile chip is identity, not action. Each
+          card navigates to /compose?dish_id=X — same destination as
+          the D2 push notification, so the two surfaces stay coherent. */}
+      {visibleRecalls.length > 0 && (
+        <section
+          aria-labelledby="sommelier-pending-recalls-heading"
+          className="flex w-full max-w-[28rem] flex-col gap-2"
+        >
+          <p
+            id="sommelier-pending-recalls-heading"
+            className="text-xs uppercase tracking-wider text-action-highlight"
+          >
+            {t('pendingRecalls.heading')}
+          </p>
+          <ul className="flex flex-col gap-2">
+            {visibleRecalls.map((recall) => (
+              <PendingRecallCard
+                key={recall.dish_id}
+                recall={recall}
+                locale={locale}
+                onNavigate={() => onCloseDrawer?.()}
+                onDismiss={handleDismiss}
+                ctaLabel={t('pendingRecalls.cta')}
+                dismissLabel={t('pendingRecalls.dismiss')}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Profile chip — only when the comensal has a populated profile. */}
       {profile && (pillarText || topCategory || topNeighborhood || allergies.length > 0) && (
@@ -237,5 +306,108 @@ export default function SommelierEmptyState({
         </Link>
       )}
     </div>
+  );
+}
+
+interface PendingRecallCardProps {
+  recall: SommelierPreviewPendingRecall;
+  locale: string;
+  onNavigate: () => void;
+  onDismiss: (dishId: string) => void;
+  ctaLabel: string;
+  dismissLabel: string;
+}
+
+/**
+ * Compact card surfaced inside the Sommelier empty state for the
+ * Post-visit Bridge (B). One per dish the agent recommended in the
+ * last 14 days that the diner hasn't reviewed yet. Click navigates
+ * to the compose form pre-filled with the dish; the "X" in the
+ * top-right corner dismisses the card permanently.
+ *
+ * Layout is full-width inside the section (not horizontal scroll)
+ * because we cap at 3 items; vertical stack reads better on a 360px
+ * phone than a tight horizontal carousel.
+ *
+ * The dismiss button sits as a sibling of the ``Link`` (not nested
+ * inside it) because an interactive button inside an anchor breaks
+ * a11y semantics. ``stopPropagation`` on the click keeps the dismiss
+ * from triggering the surrounding navigation handler when the user
+ * actually wants to remove the card.
+ */
+function PendingRecallCard({
+  recall,
+  locale,
+  onNavigate,
+  onDismiss,
+  ctaLabel,
+  dismissLabel,
+}: PendingRecallCardProps) {
+  // The row is a flex container holding three slots: a primary Link
+  // (thumb + texts) that takes the navigation tap, an explicit
+  // dismiss button, and a decorative chevron. Border + bg live on
+  // the outer ``<li>`` so the whole row feels like one card while
+  // the interactive surfaces (Link, button) stay semantically
+  // distinct — interactive elements nested inside an anchor would
+  // break a11y, so the dismiss button is a sibling of the Link.
+  //
+  // The chevron is purely visual now (``aria-hidden`` +
+  // ``pointer-events-none``): its only job is to telegraph "this row
+  // navigates somewhere". The Link covers everything to its left,
+  // so a tap anywhere outside the X still routes to /compose.
+  return (
+    <li className="group relative flex items-center gap-1.5 rounded-2xl border border-border-subtle bg-surface-card pr-3 transition hover:border-action-highlight">
+      <Link
+        href={`/${locale}/compose?dish_id=${recall.dish_id}`}
+        onClick={onNavigate}
+        aria-label={ctaLabel}
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl px-3 py-2.5 text-left focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+      >
+        {/* Thumbnail. Always reserves the square so the row height
+            stays stable whether or not the dish has a cover image. */}
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-action-highlight/10">
+          {recall.cover_image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={recall.cover_image_url}
+              alt=""
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <FontAwesomeIcon
+              icon={faUtensils}
+              className="h-5 w-5 text-action-highlight"
+              aria-hidden="true"
+            />
+          )}
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate font-sans text-sm font-medium text-text-primary">
+            {recall.dish_name}
+          </span>
+          <span className="truncate font-sans text-xs text-text-muted">
+            {recall.restaurant_name}
+          </span>
+        </span>
+      </Link>
+      <button
+        type="button"
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          onDismiss(recall.dish_id);
+        }}
+        aria-label={dismissLabel}
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-text-muted transition hover:bg-action-danger/10 hover:text-action-danger focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+      >
+        <FontAwesomeIcon icon={faXmark} className="h-3 w-3" aria-hidden="true" />
+      </button>
+      <FontAwesomeIcon
+        icon={faChevronRight}
+        className="h-3 w-3 shrink-0 text-text-muted transition group-hover:text-action-highlight pointer-events-none"
+        aria-hidden="true"
+      />
+    </li>
   );
 }

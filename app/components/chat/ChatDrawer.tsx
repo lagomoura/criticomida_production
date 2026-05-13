@@ -120,7 +120,8 @@ export default function ChatDrawer({
       .catch(() => {
         // Graceful degrade: a network blip shouldn't gate the drawer.
         // The empty state falls back to the anonymous branch.
-        if (!cancelled) setSommelierPreview({ user: null, profile: null });
+        if (!cancelled)
+          setSommelierPreview({ user: null, profile: null, pending_recalls: [] });
       });
     return () => {
       cancelled = true;

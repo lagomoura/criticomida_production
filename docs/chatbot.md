@@ -18,6 +18,57 @@ estado actual, no la historia.
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **B — Post-visit Bridge** (pull complementario al push de D2).
+    Cuando el diner vuelve a abrir el Sommelier, el empty state
+    ahora incluye una sección "Pendientes de reseñar" con cards
+    para los platos recomendados en los últimos 14 días que el
+    diner todavía no reseñó. Cada card linkea a
+    `/[locale]/compose?dish_id=<id>` — mismo destino que la notif
+    push de D2, así las dos surfaces son coherentes.
+
+    El endpoint `GET /api/chat/sommelier/preview` se extendió con
+    `pending_recalls: list[PendingRecallItem]`. La fuente de verdad
+    es la tabla `async_job`: cada llamada del Sommelier a
+    `recommend_dishes` deja una fila con `(payload_user_id,
+    payload_dish_id)` que el preview lee con un join a `dishes` +
+    `restaurants`, filtrando `NOT EXISTS dish_review(user, dish)` y
+    con `DISTINCT ON (dish_id)` para colapsar el caso de "mismo
+    plato recomendado en dos conversaciones". Order by recencia
+    (memoria del sabor decae rápido), cap 3 cards, lookback 14 días
+    (tunable en `sommelier_recall_service`). El partial UNIQUE index
+    `ix_async_job_pending_recall_dedup` (migración 063) ayuda al
+    filtro principal.
+
+    Frontend: `SommelierEmptyState` rendea la sección arriba del
+    profile chip — la acción concreta va antes que la identidad
+    (DMMT). Anónimos no la ven (no hay identidad para lookup).
+    El array por default es `[]` para no romper consumidores del
+    preview que no esperan el campo. i18n × 3 bajo
+    `chat.sommelierEmpty.pendingRecalls.{heading,cta,dismiss}`.
+
+    Escape hatch — cada card tiene una **"X"** en la esquina
+    superior derecha. Click → optimistic remove (set local en el
+    componente) + `POST /api/chat/sommelier/recalls/{dish_id}/dismiss`
+    en background. El backend inserta en `sommelier_recall_dismissals`
+    (PK `(user_id, dish_id)`, migración 064) con
+    `ON CONFLICT DO NOTHING` — idempotente. El query de
+    `get_pending_recalls` agrega un segundo `NOT EXISTS` contra la
+    tabla, así dishes dismissed no vuelven a aparecer ni cuando el
+    Sommelier los re-recomienda. Dismiss es permanente por diseño
+    (DMMT: "una X significa no quiero ver más esto"). Tabla aparte en
+    lugar de un array en `user_ui_state` por escalabilidad
+    (crecimiento acotado, métricas naturales, FK CASCADE limpia).
+
+    Tests: 6 nuevos en `test_sommelier_recall_service.py` (4 de
+    `get_pending_recalls` + 2 de `dismiss_pending_recall`).
+    Total: 15 unit tests para el módulo de recall.
+
+    Pull (B) vs push (D2): la notif desaparece después del polling
+    cada 60s y un click de "marcar leído"; el empty state es
+    persistente y se vuelve a leer en cada apertura del drawer. Si
+    el diner ignoró la notif pero vuelve al chat, la card sigue ahí
+    como recordatorio suave — hasta que la dismissa explícitamente
+    con la X o termina de reseñar el plato.
   - **D2 — Review Recall** (cierre del loop descubrimiento → reseña).
     Cuando el Sommelier llama `recommend_dishes` para un comensal
     autenticado, el handler encola un `AsyncJob`
