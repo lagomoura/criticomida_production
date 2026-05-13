@@ -2208,7 +2208,10 @@
   "metadata": {
     "default": {
       "title": "Palato.me",
-      "description": "Every dish, its review."
+      "description": "Every dish, its review.",
+      "og_title": "Palato · Every dish, its review",
+      "og_description": "Review individual dishes, not whole restaurants. Save what you want to try and follow the palates you trust.",
+      "og_image_alt": "Palato logo"
     },
     "home": {
       "title": "Palato.me",

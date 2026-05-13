@@ -2208,7 +2208,10 @@
   "metadata": {
     "default": {
       "title": "Palato.me",
-      "description": "Cada plato, su reseña."
+      "description": "Cada plato, su reseña.",
+      "og_title": "Palato · Cada plato, su reseña",
+      "og_description": "Reseñá platos puntuales, no restaurantes enteros. Guardá lo que querés probar y seguí a quienes coinciden con tu paladar.",
+      "og_image_alt": "Logo de Palato"
     },
     "home": {
       "title": "Palato.me",

@@ -24,6 +24,9 @@ const cormorantGaramond = Cormorant_Garamond({
   display: 'swap',
 });
 
+const SITE_URL = 'https://www.palato.me';
+const OG_IMAGE = '/img/palato_logo_horizontal_trim_dark.png';
+
 export async function generateMetadata({
   params,
 }: {
@@ -31,9 +34,75 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata.default' });
+  const title = t('title');
+  const description = t('description');
+  const ogTitle = t('og_title');
+  const ogDescription = t('og_description');
+  const ogImageAlt = t('og_image_alt');
+
+  const localeOg: Record<string, string> = {
+    es: 'es_AR',
+    en: 'en_US',
+    pt: 'pt_BR',
+  };
+
+  const languages = Object.fromEntries(
+    routing.locales.map((l) => [l, `/${l}`]),
+  );
+
   return {
-    title: t('title'),
-    description: t('description'),
+    metadataBase: new URL(SITE_URL),
+    title,
+    description,
+    applicationName: 'Palato',
+    manifest: '/manifest.webmanifest',
+    icons: {
+      icon: [
+        { url: '/favicon.ico', sizes: 'any', type: 'image/x-icon' },
+        { url: '/icon.png', sizes: '1024x1024', type: 'image/png' },
+      ],
+      apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
+      shortcut: '/favicon.ico',
+    },
+    alternates: {
+      canonical: `/${locale}`,
+      languages: {
+        ...languages,
+        'x-default': `/${routing.defaultLocale}`,
+      },
+    },
+    openGraph: {
+      type: 'website',
+      siteName: 'Palato',
+      title: ogTitle,
+      description: ogDescription,
+      url: `${SITE_URL}/${locale}`,
+      locale: localeOg[locale] ?? 'es_AR',
+      images: [
+        {
+          url: OG_IMAGE,
+          width: 1200,
+          height: 630,
+          alt: ogImageAlt,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: ogTitle,
+      description: ogDescription,
+      images: [OG_IMAGE],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
   };
 }
 
