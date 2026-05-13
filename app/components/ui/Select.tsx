@@ -54,7 +54,7 @@ export default function Select({
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           className={cn(
-            'h-10 w-full appearance-none rounded-md border bg-surface-card pl-3 pr-8 font-sans text-sm text-text-primary',
+            'h-11 w-full appearance-none rounded-md border bg-surface-card pl-3 pr-8 font-sans text-sm text-text-primary',
             'focus:outline-none focus:[box-shadow:var(--focus-ring)]',
             'disabled:cursor-not-allowed disabled:opacity-60',
             error ? 'border-action-danger' : 'border-border-default focus:border-action-primary',

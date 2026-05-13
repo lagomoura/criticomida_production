@@ -23,6 +23,8 @@ export interface DishAutocompleteProps {
   onChange: (dish: SelectedDish | null) => void;
   disabled?: boolean;
   placeholder?: string;
+  /** Override the field label. Defaults to `social.dishAutocomplete.label`. */
+  label?: string;
 }
 
 interface DishSearchResponse {
@@ -35,9 +37,11 @@ export default function DishAutocomplete({
   onChange,
   disabled = false,
   placeholder,
+  label,
 }: DishAutocompleteProps) {
   const t = useTranslations('social.dishAutocomplete');
   const effectivePlaceholder = placeholder ?? t('placeholder');
+  const effectiveLabel = label ?? t('label');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Array<{ id: string; name: string }>>([]);
   const [loading, setLoading] = useState(false);
@@ -208,7 +212,7 @@ export default function DishAutocomplete({
   return (
     <div ref={containerRef} className="relative flex flex-col gap-1.5">
       <label className="font-sans text-sm font-medium text-text-secondary">
-        {t('label')}
+        {effectiveLabel}
         <span aria-hidden className="ml-0.5 text-action-danger">*</span>
       </label>
       <div className="relative">
@@ -230,6 +234,8 @@ export default function DishAutocomplete({
           placeholder={restaurantPlaceId ? effectivePlaceholder : t('pickRestaurantFirst')}
           disabled={isDisabled}
           autoComplete="off"
+          autoCapitalize="words"
+          enterKeyHint="search"
           aria-expanded={open}
           aria-autocomplete="list"
           aria-controls={listboxId}
@@ -248,7 +254,7 @@ export default function DishAutocomplete({
             aria-label={t('clearSelection')}
             onClick={clearSelection}
             disabled={disabled}
-            className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+            className="absolute right-1 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
           >
             <FontAwesomeIcon icon={faXmark} className="h-3 w-3" />
           </button>

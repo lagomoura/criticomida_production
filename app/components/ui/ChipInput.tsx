@@ -19,6 +19,12 @@ interface ChipInputProps {
   disabled?: boolean;
   /** Override the per-chip remove aria-label. Falls back to `chip.remove`. */
   removeLabel?: (item: string) => string;
+  /**
+   * Mobile keyboard capitalization for the typed input. Defaults to
+   * `'sentences'` (pros/cons style: natural-language fragments). Use
+   * `'none'` for tag-style chips that are lowercase by convention.
+   */
+  autoCapitalize?: 'sentences' | 'words' | 'none' | 'off';
 }
 
 const ACTIVE_TONE: Record<NonNullable<ChipInputProps['tone']>, string> = {
@@ -36,6 +42,7 @@ export default function ChipInput({
   tone = 'neutral',
   disabled = false,
   removeLabel,
+  autoCapitalize = 'sentences',
 }: ChipInputProps) {
   const t = useTranslations('restaurant.dishReviewForm');
   const [draft, setDraft] = useState('');
@@ -105,7 +112,7 @@ export default function ChipInput({
           placeholder={placeholder}
           disabled={disabled}
           autoComplete="off"
-          autoCapitalize="none"
+          autoCapitalize={autoCapitalize}
           className={cn(
             // text-base on mobile prevents iOS Safari zoom on focus.
             'h-10 flex-1 rounded-xl border border-border-subtle bg-surface-card px-3.5 font-sans text-base text-text-primary sm:text-sm',
@@ -119,7 +126,7 @@ export default function ChipInput({
           onClick={commitDraft}
           disabled={disabled || !draft.trim()}
           aria-label={t('addChip')}
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border-subtle bg-surface-card text-text-muted transition-colors hover:border-color-terracota hover:text-color-terracota disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border-subtle bg-surface-card text-text-muted transition-colors hover:border-color-terracota hover:text-color-terracota disabled:cursor-not-allowed disabled:opacity-40"
         >
           <span aria-hidden>＋</span>
         </button>

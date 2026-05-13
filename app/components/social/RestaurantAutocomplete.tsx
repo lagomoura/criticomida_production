@@ -294,6 +294,8 @@ function AutocompleteInner({
           placeholder={effectivePlaceholder}
           disabled={disabled || !autocompleteService}
           autoComplete="off"
+          autoCapitalize="words"
+          enterKeyHint="search"
           aria-expanded={open}
           aria-autocomplete="list"
           aria-controls={listboxId}
@@ -312,7 +314,7 @@ function AutocompleteInner({
             aria-label={t('clearSelection')}
             onClick={clearSelection}
             disabled={disabled}
-            className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+            className="absolute right-1 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
           >
             <FontAwesomeIcon icon={faXmark} className="h-3 w-3" />
           </button>

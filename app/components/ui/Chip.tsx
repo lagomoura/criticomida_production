@@ -42,7 +42,7 @@ export default function Chip({
             e.stopPropagation();
             onRemove();
           }}
-          className="-mr-2 inline-flex h-7 w-7 items-center justify-center rounded-full text-base leading-none text-current hover:bg-black/10 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+          className="-mr-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-base leading-none text-current hover:bg-black/10 focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
           ×
         </button>

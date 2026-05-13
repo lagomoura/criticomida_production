@@ -63,6 +63,19 @@ export interface ReviewFormBodyValue {
   isAnonymous: boolean;
 }
 
+/**
+ * Which subset of the form to render.
+ * - `'all'` (default): everything in the legacy order. Keeps the modal flow
+ *   (`PublishReviewModal` / `DishReviewForm`) intact.
+ * - `'essentials'`: photos + ghostwriter banner + rating/would-order-again
+ *   + nota. The compose page uses this above the fold so the emotional
+ *   capture comes before any cold identification field.
+ * - `'details'`: pillars + pros/cons + context (portion/meal/company/price/
+ *   date) + tags + anonymous. The compose page renders this inside the
+ *   "Agregar detalles" collapse.
+ */
+export type ReviewFormBodyMode = 'all' | 'essentials' | 'details';
+
 interface ReviewFormBodyProps {
   value: ReviewFormBodyValue;
   onChange: (next: ReviewFormBodyValue) => void;
@@ -72,6 +85,7 @@ interface ReviewFormBodyProps {
   /** ISO 4217. Drives the currency adornment of the price input. */
   currencyCode?: string | null;
   submitting: boolean;
+  mode?: ReviewFormBodyMode;
 }
 
 let _id = 0;
@@ -167,7 +181,16 @@ export default function ReviewFormBody({
   dishName,
   currencyCode,
   submitting,
+  mode = 'all',
 }: ReviewFormBodyProps) {
+  // Section visibility derived from `mode`. The JSX below is structured in
+  // four contiguous blocks so each can collapse independently while the
+  // 'all' mode keeps the legacy order: essentials head → pillars+divider →
+  // nota → details rest.
+  const showEssentialsHead = mode === 'all' || mode === 'essentials';
+  const showPillarsAndOpinionDivider = mode === 'all' || mode === 'details';
+  const showNota = mode === 'all' || mode === 'essentials';
+  const showDetailsRest = mode === 'all' || mode === 'details';
   const t = useTranslations('restaurant.dishReviewForm');
   const photoInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
@@ -274,6 +297,8 @@ export default function ReviewFormBody({
 
   return (
     <>
+      {showEssentialsHead && (
+        <>
       {/* 1. Photos — first action, mobile convention (Instagram/TikTok).
           Empty state shows a full-width dropzone CTA so the affordance is
           impossible to miss on mobile; once the user adds at least one photo
@@ -500,7 +525,11 @@ export default function ReviewFormBody({
           </div>
         </div>
       </div>
+        </>
+      )}
 
+      {showPillarsAndOpinionDivider && (
+        <>
       {/* 3. Pilares técnicos */}
       <TechnicalPillars
         value={value.pillars}
@@ -510,7 +539,11 @@ export default function ReviewFormBody({
 
       {/* ── Bloque: Tu opinión ─────────────────────────────────────────── */}
       <SectionDivider label={t('sectionOpinion')} />
+        </>
+      )}
 
+      {showNota && (
+        <>
       {/* 4. Notes — full width, breathes */}
       <div>
         <label
@@ -531,7 +564,11 @@ export default function ReviewFormBody({
           disabled={submitting}
         />
       </div>
+        </>
+      )}
 
+      {showDetailsRest && (
+        <>
       {/* 5. Pros — chips + preset suggestions */}
       <ChipInput
         label={t('prosLabel')}
@@ -681,10 +718,11 @@ export default function ReviewFormBody({
         placeholder={t('tagsPlaceholder')}
         tone="neutral"
         disabled={submitting}
+        autoCapitalize="none"
       />
 
       {/* 12. Anonymous toggle */}
-      <label className="flex cursor-pointer items-center gap-2 pt-1 font-sans text-sm text-text-secondary">
+      <label className="flex min-h-[44px] cursor-pointer items-center gap-2 py-2 font-sans text-sm text-text-secondary">
         <input
           type="checkbox"
           checked={value.isAnonymous}
@@ -694,6 +732,8 @@ export default function ReviewFormBody({
         />
         {t('anonymous')}
       </label>
+        </>
+      )}
 
     </>
   );

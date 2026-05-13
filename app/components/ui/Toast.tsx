@@ -202,7 +202,7 @@ function ToastCard({
                 entry.action?.onClick();
                 onDismiss(entry.id);
               }}
-              className="mt-1.5 inline-flex min-h-[36px] items-center rounded-md px-2 py-1.5 font-sans text-xs font-semibold text-action-primary hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+              className="mt-1.5 inline-flex min-h-[44px] items-center rounded-md px-2 py-2 font-sans text-xs font-semibold text-action-primary hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
             >
               {entry.action.label}
             </button>
@@ -212,7 +212,7 @@ function ToastCard({
           type="button"
           onClick={() => onDismiss(entry.id)}
           aria-label={t('dismiss')}
-          className="-mr-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle hover:text-text-primary focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+          className="-mr-1 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle hover:text-text-primary focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         >
           <FontAwesomeIcon icon={faXmark} aria-hidden className="text-xs" />
         </button>

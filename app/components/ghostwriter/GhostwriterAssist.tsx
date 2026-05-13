@@ -190,7 +190,7 @@ export default function GhostwriterAssist({
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="inline-flex w-fit items-center gap-2 rounded-full bg-action-primary px-3 py-1.5 text-xs font-semibold text-text-inverse hover:bg-action-primary-hover"
+                className="inline-flex min-h-[44px] w-fit items-center gap-2 rounded-full bg-action-primary px-4 py-3 text-xs font-semibold text-text-inverse hover:bg-action-primary-hover"
               >
                 {t('uploadButton')}
               </button>
@@ -350,7 +350,7 @@ export default function GhostwriterAssist({
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="inline-flex w-fit items-center gap-2 self-end rounded-full border border-border-default bg-surface-page px-3 py-1 text-xs font-medium text-text-secondary hover:bg-color-terracota-pale hover:text-text-primary"
+                className="inline-flex min-h-[44px] w-fit items-center gap-2 self-end rounded-full border border-border-default bg-surface-page px-4 py-3 text-xs font-medium text-text-secondary hover:bg-color-terracota-pale hover:text-text-primary"
               >
                 {t('reanalyze')}
               </button>
