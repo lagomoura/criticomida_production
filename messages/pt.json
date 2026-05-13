@@ -1800,7 +1800,15 @@
     "viewReview": "Ver resenha",
     "disabledNeedsRestaurant": "Escolha um restaurante para continuar",
     "disabledNeedsDish": "Escolha ou escreva o nome do prato",
-    "disabledNeedsNote": "Escreva pelo menos 20 caracteres"
+    "disabledNeedsNote": "Escreva pelo menos 20 caracteres",
+    "addDetailsCta": "Adicionar detalhes",
+    "addDetailsHint": "Opcional — pilares, contexto, tags",
+    "collapseDetails": "Ocultar detalhes",
+    "restaurantQuestion": "Onde você comeu?",
+    "dishQuestion": "Qual prato?",
+    "changeRestaurantDish": "Trocar",
+    "categorySuggestionsLabel": "Sugestões de categoria",
+    "categoryShowAll": "Ver todas as categorias"
   },
   "settings": {
     "title": "Configurações",

@@ -1800,7 +1800,15 @@
     "viewReview": "View review",
     "disabledNeedsRestaurant": "Choose a restaurant to continue",
     "disabledNeedsDish": "Choose or enter the dish name",
-    "disabledNeedsNote": "Write at least 20 characters"
+    "disabledNeedsNote": "Write at least 20 characters",
+    "addDetailsCta": "Add details",
+    "addDetailsHint": "Optional — pillars, context, tags",
+    "collapseDetails": "Hide details",
+    "restaurantQuestion": "Where did you eat it?",
+    "dishQuestion": "Which dish?",
+    "changeRestaurantDish": "Change",
+    "categorySuggestionsLabel": "Category suggestions",
+    "categoryShowAll": "See all categories"
   },
   "settings": {
     "title": "Settings",

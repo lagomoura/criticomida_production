@@ -4,9 +4,15 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { useRouter } from '@/app/lib/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLock, faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  faChevronDown,
+  faChevronUp,
+  faLock,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import Button from '@/app/components/ui/Button';
+import Chip from '@/app/components/ui/Chip';
 import Select from '@/app/components/ui/Select';
 import Skeleton from '@/app/components/ui/Skeleton';
 import RestaurantAutocomplete, {
@@ -33,9 +39,15 @@ import { useToast } from '@/app/components/ui/Toast';
 import type { PriceTier, ReviewExtras } from '@/app/lib/types/social';
 import {
   clearComposeDraft,
+  hasDetailsContent,
   readComposeDraft,
   writeComposeDraft,
 } from '@/app/lib/utils/compose-draft';
+import {
+  inferCategoriesFromDishName,
+  inferCategoriesFromRestaurant,
+  mergeCategorySuggestions,
+} from '@/app/lib/utils/category-inference';
 
 const MIN_TEXT = 20;
 const MAX_TEXT = 1200;
@@ -90,6 +102,13 @@ export default function ComposeClient() {
 
   const [prefilling, setPrefilling] = useState(Boolean(prefillDishId));
   const [submitting, setSubmitting] = useState(false);
+  // Progressive-disclosure state for the new compose layout. `expandedDetails`
+  // toggles the "Agregar detalles" collapse below the essentials block. Auto-
+  // opens on draft restore when the saved body has any optional content.
+  const [expandedDetails, setExpandedDetails] = useState(false);
+  // When true, the legacy 52-item <Select> is revealed inside the details
+  // panel as an escape hatch from the inferred chip suggestions.
+  const [showAllCategories, setShowAllCategories] = useState(false);
   // Tracks upload status per-photo (keyed by PhotoEntry.id) so we can show
   // granular progress in the submit button while Promise.all runs in parallel.
   const [uploadProgress, setUploadProgress] = useState<Map<number, UploadStatus>>(new Map());
@@ -115,6 +134,15 @@ export default function ComposeClient() {
       setPriceTier(snap.priceTier);
       setBody({ ...snap.body, photos: [], existingImages: [] });
       setDraftRestored(true);
+      // Auto-expand the details collapse when the restored body holds any
+      // optional content — the user lands on what they were filling out, not
+      // a hidden panel. Fall back to the persisted flag if present.
+      if (snap.expandedDetails || hasDetailsContent(snap.body)) {
+        setExpandedDetails(true);
+      }
+      // If the snapshot already has a category set, surface it via the legacy
+      // Select escape hatch so the user can see and change it.
+      if (snap.category) setShowAllCategories(true);
     }
     draftHydrated.current = true;
   }, [prefillDishId]);
@@ -142,10 +170,11 @@ export default function ComposeClient() {
         category,
         priceTier,
         body: bodyWithoutPhotos as Parameters<typeof writeComposeDraft>[0]['body'],
+        expandedDetails,
       });
     }, 600);
     return () => window.clearTimeout(handle);
-  }, [place, dish, category, priceTier, body, submitting]);
+  }, [place, dish, category, priceTier, body, submitting, expandedDetails]);
 
   // Cleanup blob previews on unmount.
   useEffect(() => {
@@ -163,6 +192,8 @@ export default function ComposeClient() {
     setPriceTier(null);
     setBody(makeBodyInitial());
     setDraftRestored(false);
+    setExpandedDetails(false);
+    setShowAllCategories(false);
   }, []);
 
   useEffect(() => {
@@ -187,6 +218,23 @@ export default function ComposeClient() {
   }, [prefillDishId]);
 
   const isNewDish = dish !== null && dish.id === null;
+
+  // Category chip suggestions — drawn from the dish name (keyword match) and,
+  // when surfaced, the restaurant's dominant categories. If the user has
+  // already chosen a category that's not in the suggestion set, we prepend it
+  // so they can see/clear their selection without expanding "Ver todas".
+  const categorySuggestions = useMemo(() => {
+    if (!dish) return [] as string[];
+    const fromName = inferCategoriesFromDishName(dish.name ?? '');
+    const fromRestaurant = inferCategoriesFromRestaurant(place);
+    return mergeCategorySuggestions([], fromRestaurant, fromName);
+  }, [dish, place]);
+
+  const renderedCategoryChoices = useMemo(() => {
+    const slugs = [...categorySuggestions];
+    if (category && !slugs.includes(category)) slugs.unshift(category);
+    return slugs;
+  }, [categorySuggestions, category]);
 
   const noteLength = body.note.trim().length;
 
@@ -430,14 +478,6 @@ export default function ComposeClient() {
               {t('draftRestoredDesc')}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleDiscardDraft}
-            className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-border-default bg-surface-card px-3 font-sans text-xs font-semibold text-text-secondary hover:border-color-terracota-deep hover:text-color-terracota-deep focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
-          >
-            <FontAwesomeIcon icon={faXmark} className="h-3 w-3" aria-hidden />
-            {t('draftDiscard')}
-          </button>
         </div>
       )}
 
@@ -449,94 +489,173 @@ export default function ComposeClient() {
           className="flex flex-col gap-3"
           noValidate
         >
-          {/* 1. Restaurant picker (Google Places) */}
-          <RestaurantAutocomplete
-            value={place}
-            onChange={setPlace}
-            disabled={submitting}
-            placeholder={t('restaurantPlaceholder')}
-          />
-
-          {/* 2. Dish picker */}
-          <DishAutocomplete
-            restaurantPlaceId={place?.place_id ?? null}
-            value={dish}
-            onChange={setDish}
-            disabled={submitting}
-          />
-
-          {/* 3. Category — keeps current behavior: tags the restaurant when
-              new. Always shown; the user can pre-set it for new restaurants. */}
-          <Select
-            label={t('categoryLabel')}
-            name="category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            disabled={submitting}
-          >
-            <option value="">{t('categoryNone')}</option>
-            {REVIEW_CATEGORY_GROUPS.map((group) => (
-              <optgroup key={group.titleKey} label={tSec(group.titleKey)}>
-                {group.slugs.map((slug) => (
-                  <option key={slug} value={slug}>
-                    {tCat(categorySlugToI18nKey(slug))}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </Select>
-
-          {/* 4. Price tier — only shown when the dish is being created from
-              scratch. Tier is a property of the Dish, not the Review, so for
-              existing dishes it's already set in the catalog. */}
-          {isNewDish && (
-            <div>
-              <label className="mb-1.5 block font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-text-secondary">
-                {tModal('priceRangeLabel')}
-              </label>
-              <div role="radiogroup" aria-label={tModal('priceRangeLabel')} className="grid grid-cols-3 gap-2">
-                {PRICE_TIER_OPTIONS.map((opt) => {
-                  const isSelected = priceTier === opt.value;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      role="radio"
-                      aria-checked={isSelected}
-                      disabled={submitting}
-                      onClick={() => setPriceTier(isSelected ? null : opt.value)}
-                      className={[
-                        'flex flex-col items-center justify-center gap-0.5',
-                        'rounded-xl border-2 px-3 py-2 transition-all',
-                        'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
-                        isSelected
-                          ? 'border-color-terracota bg-color-terracota-pale text-color-terracota-deep shadow-[var(--shadow-micro)]'
-                          : 'border-border-subtle bg-surface-card text-text-secondary hover:border-border-default hover:bg-surface-subtle',
-                      ].join(' ')}
-                    >
-                      <span className="font-display text-xl font-semibold leading-none">
-                        {opt.symbol}
-                      </span>
-                      <span className="text-[9.5px] font-medium uppercase tracking-[0.1em]">
-                        {tModal(opt.labelKey)}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* 5. The full review body — same component used by the restaurant modal */}
+          {/* 1. Essentials — captura emocional primero: foto + rating +
+              ¿lo pedirías? + nota. El "qué pasó" antes del "dónde fue". */}
           <div className="flex flex-col gap-2.5 rounded-2xl border border-border-subtle bg-surface-page p-3 text-text-primary sm:gap-3 sm:p-4">
             <ReviewFormBody
               value={body}
               onChange={setBody}
+              mode="essentials"
               dishId={dish?.id ?? undefined}
               dishName={dish?.name ?? ''}
               currencyCode={null}
               submitting={submitting}
             />
+          </div>
+
+          {/* 2. Identificación — restaurante + plato. Va después de la
+              captura para que el formulario no arranque pidiendo datos fríos. */}
+          <div className="flex flex-col gap-3">
+            <RestaurantAutocomplete
+              value={place}
+              onChange={setPlace}
+              disabled={submitting}
+              label={t('restaurantQuestion')}
+              placeholder={t('restaurantPlaceholder')}
+            />
+            <DishAutocomplete
+              restaurantPlaceId={place?.place_id ?? null}
+              value={dish}
+              onChange={setDish}
+              disabled={submitting}
+              label={t('dishQuestion')}
+            />
+          </div>
+
+          {/* 3. Agregar detalles — single toggle. Esconde lo opcional para
+              que el usuario no sienta que tiene 14 campos por completar. */}
+          <button
+            type="button"
+            onClick={() => setExpandedDetails((v) => !v)}
+            aria-expanded={expandedDetails}
+            aria-controls="compose-details"
+            className="flex min-h-[44px] w-full items-center justify-between gap-3 rounded-2xl border border-border-default bg-surface-card px-4 py-3 text-left font-sans text-sm font-semibold text-text-primary transition-colors hover:border-color-terracota focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+          >
+            <span className="flex flex-col">
+              <span>{expandedDetails ? t('collapseDetails') : t('addDetailsCta')}</span>
+              {!expandedDetails && (
+                <span className="font-normal text-xs text-text-muted">
+                  {t('addDetailsHint')}
+                </span>
+              )}
+            </span>
+            <FontAwesomeIcon
+              icon={expandedDetails ? faChevronUp : faChevronDown}
+              className="h-3 w-3 text-text-muted"
+              aria-hidden
+            />
+          </button>
+
+          <div
+            id="compose-details"
+            hidden={!expandedDetails}
+            className="flex flex-col gap-3"
+          >
+            {/* Price tier — sólo cuando se está creando un plato nuevo;
+                para platos existentes ya vino del catálogo. */}
+            {isNewDish && (
+              <div>
+                <label className="mb-1.5 block font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-text-secondary">
+                  {tModal('priceRangeLabel')}
+                </label>
+                <div role="radiogroup" aria-label={tModal('priceRangeLabel')} className="grid grid-cols-3 gap-2">
+                  {PRICE_TIER_OPTIONS.map((opt) => {
+                    const isSelected = priceTier === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        disabled={submitting}
+                        onClick={() => setPriceTier(isSelected ? null : opt.value)}
+                        className={[
+                          'flex flex-col items-center justify-center gap-0.5',
+                          'rounded-xl border-2 px-3 py-2 transition-all',
+                          'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                          isSelected
+                            ? 'border-color-terracota bg-color-terracota-pale text-color-terracota-deep shadow-[var(--shadow-micro)]'
+                            : 'border-border-subtle bg-surface-card text-text-secondary hover:border-border-default hover:bg-surface-subtle',
+                        ].join(' ')}
+                      >
+                        <span className="font-display text-xl font-semibold leading-none">
+                          {opt.symbol}
+                        </span>
+                        <span className="text-[9.5px] font-medium uppercase tracking-[0.1em]">
+                          {tModal(opt.labelKey)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Category — chips inferidos por keyword del nombre del plato.
+                Escape hatch "Ver todas" revela el Select legacy. */}
+            <div className="flex flex-col gap-2">
+              <label className="font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-text-secondary">
+                {renderedCategoryChoices.length > 0
+                  ? t('categorySuggestionsLabel')
+                  : t('categoryLabel')}
+              </label>
+              {renderedCategoryChoices.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {renderedCategoryChoices.map((slug) => (
+                    <Chip
+                      key={slug}
+                      selected={category === slug}
+                      onClick={() =>
+                        setCategory(category === slug ? '' : slug)
+                      }
+                    >
+                      {tCat(categorySlugToI18nKey(slug))}
+                    </Chip>
+                  ))}
+                </div>
+              )}
+              {!showAllCategories ? (
+                <button
+                  type="button"
+                  onClick={() => setShowAllCategories(true)}
+                  className="inline-flex min-h-[44px] w-fit items-center px-1 font-sans text-xs font-semibold text-action-primary hover:underline focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                >
+                  {t('categoryShowAll')}
+                </button>
+              ) : (
+                <Select
+                  name="category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  disabled={submitting}
+                >
+                  <option value="">{t('categoryNone')}</option>
+                  {REVIEW_CATEGORY_GROUPS.map((group) => (
+                    <optgroup key={group.titleKey} label={tSec(group.titleKey)}>
+                      {group.slugs.map((slug) => (
+                        <option key={slug} value={slug}>
+                          {tCat(categorySlugToI18nKey(slug))}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </Select>
+              )}
+            </div>
+
+            {/* Detalles del review body — pilares, pros/cons, contexto,
+                tags, anónimo. Misma forma que el modal. */}
+            <div className="flex flex-col gap-2.5 rounded-2xl border border-border-subtle bg-surface-page p-3 text-text-primary sm:gap-3 sm:p-4">
+              <ReviewFormBody
+                value={body}
+                onChange={setBody}
+                mode="details"
+                dishId={dish?.id ?? undefined}
+                dishName={dish?.name ?? ''}
+                currencyCode={null}
+                submitting={submitting}
+              />
+            </div>
           </div>
 
           {minCharsHint && (
@@ -551,15 +670,25 @@ export default function ComposeClient() {
             </p>
           )}
 
-          {/* Sticky submit bar — keeps "Publicar" reachable from any scroll
-              position on mobile, where the form is tall (photos + ghostwriter
-              + 12 sections). The bar respects iOS safe-area and the parent
-              padding-bottom prevents the last form field from being covered. */}
+          {/* Sticky submit bar — el botón "Descartar borrador" se monta
+              acá cuando hay draft restaurado para que viva en la zona del
+              pulgar, junto al CTA primario. */}
           <div
             className="sticky bottom-0 z-30 -mx-3 mt-1 border-t border-border-subtle bg-surface-page/95 px-3 py-3 backdrop-blur supports-[backdrop-filter]:bg-surface-page/85 sm:-mx-0 sm:px-0"
             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)' }}
           >
-            <div className="flex items-center justify-end gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {draftRestored && (
+                <button
+                  type="button"
+                  onClick={handleDiscardDraft}
+                  disabled={submitting}
+                  className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-border-default bg-surface-card px-3 font-sans text-xs font-semibold text-text-secondary transition-colors hover:border-color-terracota-deep hover:text-color-terracota-deep focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <FontAwesomeIcon icon={faXmark} className="h-3 w-3" aria-hidden />
+                  {t('draftDiscard')}
+                </button>
+              )}
               <Button
                 type="button"
                 variant="ghost"

@@ -26,7 +26,45 @@ export interface ComposeDraftSnapshot {
   category: string;
   priceTier: PriceTier | null;
   body: Omit<ReviewFormBodyValue, 'photos' | 'existingImages'>;
+  /** Optional flag added in the progressive-disclosure redesign. When the
+   * restored body carries any optional content (pros/cons/pillars/etc.), the
+   * compose page pre-expands "Agregar detalles" so the user lands on what
+   * they were filling out. Optional → drafts written before this field exist
+   * are forward-compatible without bumping the storage-key version. */
+  expandedDetails?: boolean;
   savedAt: number;
+}
+
+/** Returns true when the saved body has any optional / "details" content that
+ * lives below the essentials block of the compose form (pros, cons, tags,
+ * pillars, portion, meal period, company, price). The compose page uses this
+ * on restore to decide whether to auto-expand the "Agregar detalles" panel.
+ * Note: `note`, `rating`, `wouldOrderAgain` and `dateTasted` are NOT details
+ * — they belong to the essentials block. */
+export function hasDetailsContent(
+  body: Pick<
+    ReviewFormBodyValue,
+    | 'pros'
+    | 'cons'
+    | 'tags'
+    | 'pillars'
+    | 'portionSize'
+    | 'mealPeriod'
+    | 'companyType'
+    | 'visitedWith'
+    | 'pricePaid'
+    | 'isAnonymous'
+  >,
+): boolean {
+  if (body.pros.length || body.cons.length || body.tags.length) return true;
+  if (body.pillars.presentation || body.pillars.value_prop || body.pillars.execution) return true;
+  if (body.portionSize) return true;
+  if (body.mealPeriod) return true;
+  if (body.companyType) return true;
+  if (body.visitedWith.trim()) return true;
+  if (body.pricePaid.trim()) return true;
+  if (body.isAnonymous) return true;
+  return false;
 }
 
 function isEmptySnapshot(snap: ComposeDraftSnapshot): boolean {
