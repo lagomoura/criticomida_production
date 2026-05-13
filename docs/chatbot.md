@@ -14,10 +14,59 @@ estado actual, no la historia.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-12
+- **Fecha**: 2026-05-13
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **A — Context Injection** (drawer hereda el contexto de la
+    página). Cuando el comensal abre el Sommelier desde una página
+    contextual (detail de restaurante o detail de plato), el
+    drawer manda al backend un `ChatClientContext`
+    (`restaurant_slug` o `dish_id`) en el body del `/api/chat/stream`.
+    Solo se envía en el **primer turno** de la conversación (cuando
+    `conversation_id` todavía es null); turnos siguientes lo omiten
+    porque el tema ya quedó establecido en la transcript.
+
+    El backend (`chat/client_context.build_context_hint`) resuelve
+    el hint a un bloque corto en castellano del tipo
+    `[contexto: el comensal abrió el chat desde la página del
+    restaurante "Sagardi". Usá esto como pista de orientación, no
+    como filtro obligatorio.]` y lo **prepend-ea al user_message
+    que va al agent_loop** — NO al system_instruction. Esa
+    decisión es deliberada: el cache server-side del prefijo
+    (sha256 de model + system + tools, `_ensure_cached_content`)
+    perdería su 25%-cost reduction si cada
+    (user, restaurant)-página generara una variante del system.
+    El bloque va en el contenido del primer user turn, que no es
+    cacheable de todos modos.
+
+    El user_message persistido en `chat_messages` queda con la
+    redacción ORIGINAL del comensal — el augmenta se hace solo
+    para el agent loop, así la transcript guardada es fiel para
+    auditoría y replay. La historia que el agente lee en turnos
+    siguientes muestra el mensaje original.
+
+    Solo se aplica al Sommelier. Business ya tiene
+    `restaurant_scope_id` enforced en cada tool del registry — eso
+    es constraint real, no hint, y mezclar las dos semánticas
+    confundiría al modelo.
+
+    Resolución defensiva: si el slug/dish_id apunta a una entidad
+    borrada entre que la URL se cachó en el FE y el chat se abrió,
+    `build_context_hint` devuelve `None` silenciosamente — no
+    prefija un bloque erróneo ni interrumpe el chat.
+
+    Frontend: `ChatLauncher` deriva el `ChatClientContext` del
+    `usePathname()` con un regex sobre los path segments
+    (`{locale}/restaurants/{slug}` y `{locale}/dishes/{uuid}`,
+    excluyendo `/owner` que es Business). El UUID se valida con
+    regex defensivo para no mandar paths inválidos. `useChatStream`
+    gate la inyección con `isFirstTurn = conversationId == null`.
+
+    Tests: 6 unit tests en `test_chat_client_context.py` cubriendo
+    dish, slug, prioridad dish-over-slug, ambos null, dish missing,
+    slug missing. La integración first-turn-only se valida vía
+    integration suite (history empty path).
   - **B — Post-visit Bridge** (pull complementario al push de D2).
     Cuando el diner vuelve a abrir el Sommelier, el empty state
     ahora incluye una sección "Pendientes de reseñar" con cards

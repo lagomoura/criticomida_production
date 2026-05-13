@@ -1,12 +1,54 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { cn } from '@/app/lib/utils/cn';
+import type { ChatClientContext } from '@/app/lib/api/chat';
 import ChatDrawer from './ChatDrawer';
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * A — Context Injection. Derive a ``ChatClientContext`` from the
+ * current route so the Sommelier can ground its first reply in the
+ * page the diner was just on.
+ *
+ * Recognised shapes (locale is the first segment under next-intl):
+ * - ``/{locale}/restaurants/{slug}``        → restaurant_slug
+ * - ``/{locale}/restaurants/{uuid}``        → restaurant_id
+ *   (the restaurant detail route accepts both; the launcher detects
+ *   the shape so the backend can resolve in one query instead of
+ *   falling back from slug to id)
+ * - ``/{locale}/restaurants/{...}/owner``   → null (Business panel,
+ *   not a diner surface; the Sommelier launcher is hidden there
+ *   anyway but the guard keeps the contract clean)
+ * - ``/{locale}/dishes/{uuid}``             → dish_id
+ *
+ * Anything else returns ``null`` and the chat runs with no hint.
+ */
+function deriveClientContext(pathname: string | null): ChatClientContext | null {
+  if (!pathname) return null;
+  const parts = pathname.split('/').filter(Boolean);
+  if (parts.length < 3) return null;
+  // parts[0] = locale, parts[1] = section, parts[2] = id-or-slug
+  if (parts[1] === 'restaurants' && parts[3] !== 'owner') {
+    const idOrSlug = decodeURIComponent(parts[2]);
+    return UUID_PATTERN.test(idOrSlug)
+      ? { restaurant_id: idOrSlug }
+      : { restaurant_slug: idOrSlug };
+  }
+  if (parts[1] === 'dishes' && UUID_PATTERN.test(parts[2])) {
+    // Defensive UUID check: bad ids would 404 the page anyway, but a
+    // malformed string here would just produce a useless 422 round-trip
+    // on the backend. Better to omit the hint.
+    return { dish_id: parts[2] };
+  }
+  return null;
+}
 
 /**
  * Floating button that opens the global Sommelier chat. Hidden on
@@ -36,6 +78,16 @@ export default function ChatLauncher() {
 
   // /es/restaurants/{slug}/owner, /en/restaurants/{slug}/owner, etc.
   const isOwnerPanel = /\/restaurants\/[^/]+\/owner(?:\/|$)/.test(pathname || '');
+
+  // Memoize so the drawer doesn't re-trigger its preview-fetch effect
+  // every time the launcher re-renders for unrelated reasons (eg. a
+  // body-style mutation tick from MutationObserver). The dependency
+  // is just the pathname string.
+  const clientContext = useMemo(
+    () => deriveClientContext(pathname),
+    [pathname],
+  );
+
   if (isOwnerPanel) return null;
   if (modalOpen) return null;
 
@@ -58,7 +110,11 @@ export default function ChatLauncher() {
           className="h-5 w-5"
         />
       </button>
-      <ChatDrawer open={open} onClose={() => setOpen(false)} />
+      <ChatDrawer
+        open={open}
+        onClose={() => setOpen(false)}
+        clientContext={clientContext}
+      />
     </>
   );
 }

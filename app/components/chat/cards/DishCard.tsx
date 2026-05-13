@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBookmark as faBookmarkRegular,
@@ -18,6 +18,15 @@ interface DishCardProps {
   dish: DishCardData;
   /** Called when the user wants to see this dish on the map. */
   onShowOnMap?: (dish: DishCardData) => void;
+  /**
+   * Fired synchronously when the comensal taps the card's thumb,
+   * dish name or restaurant name — i.e. about to navigate away.
+   * ``ChatDrawer`` wires this to ``onClose`` so the drawer slides
+   * off and the destination page (dish detail / restaurant detail)
+   * isn't covered by a still-open chat. Without it, the comensal
+   * lands on the page but the chat keeps obscuring the hero.
+   */
+  onNavigate?: () => void;
 }
 
 /**
@@ -27,8 +36,17 @@ interface DishCardProps {
  * cards can flow inside the chat drawer without dominating the
  * conversation.
  */
-export default function DishCard({ dish, onShowOnMap }: DishCardProps) {
+export default function DishCard({
+  dish,
+  onShowOnMap,
+  onNavigate,
+}: DishCardProps) {
   const t = useTranslations('chat.dishCard');
+  // Rutas de la app viven bajo ``app/[locale]/...`` con next-intl, así
+  // que cualquier ``Link`` que arrancara con ``/dishes`` o
+  // ``/restaurants`` cae en una 404 silenciosa. El resto del proyecto
+  // prefija el locale manualmente — replicamos ese patrón acá.
+  const locale = useLocale();
   // Seed the saved state from the server-side flag so a refresh
   // doesn't reset the chip to "Quiero probar" for dishes the
   // comensal already has in their want-to-try list.
@@ -52,8 +70,8 @@ export default function DishCard({ dish, onShowOnMap }: DishCardProps) {
     }
   }
 
-  const restaurantHref = `/restaurants/${dish.restaurant.slug}`;
-  const dishHref = `/dishes/${dish.dish_id}`;
+  const restaurantHref = `/${locale}/restaurants/${dish.restaurant.slug}`;
+  const dishHref = `/${locale}/dishes/${dish.dish_id}`;
 
   return (
     <article
@@ -64,6 +82,7 @@ export default function DishCard({ dish, onShowOnMap }: DishCardProps) {
     >
       <Link
         href={dishHref}
+        onClick={onNavigate}
         className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-surface-subtle"
       >
         {dish.cover_image_url ? (
@@ -86,12 +105,14 @@ export default function DishCard({ dish, onShowOnMap }: DishCardProps) {
           <div className="min-w-0">
             <Link
               href={dishHref}
+              onClick={onNavigate}
               className="line-clamp-1 font-display text-base font-medium text-text-primary hover:text-action-primary"
             >
               {dish.name}
             </Link>
             <Link
               href={restaurantHref}
+              onClick={onNavigate}
               className="line-clamp-1 text-xs text-text-muted hover:text-text-primary"
             >
               {dish.restaurant.name} · {dish.restaurant.location_name}

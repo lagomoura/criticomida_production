@@ -25,6 +25,15 @@ interface MessageListProps {
   /** Optional handler so cards can ask the parent to open the map. */
   onShowDishOnMap?: (dish: DishCardData) => void;
   /**
+   * Fired synchronously when the comensal taps a dish/restaurant
+   * link inside a chat card (``DishCard`` thumb/title, or a
+   * ``ComparisonCard`` column header). ``ChatDrawer`` wires this to
+   * ``onClose`` so the drawer slides off and the destination page
+   * (dish detail / restaurant detail) is fully visible instead of
+   * being covered by the still-open chat surface.
+   */
+  onDishNavigate?: () => void;
+  /**
    * Slug of the restaurant whose owner panel should receive the
    * "Responder esta reseña" deep link. When set, ``MessageList``
    * renders a button below assistant drafts (text that follows a
@@ -55,6 +64,7 @@ export default function MessageList({
   messages,
   isStreaming,
   onShowDishOnMap,
+  onDishNavigate,
   draftDeepLinkSlug = null,
   onDraftDeepLinkClick,
   emptyState,
@@ -111,6 +121,7 @@ export default function MessageList({
           key={msg.id}
           message={msg}
           onShowDishOnMap={onShowDishOnMap}
+          onDishNavigate={onDishNavigate}
           draftReviewId={draftAnchors.get(msg.id) ?? null}
           draftDeepLinkSlug={draftDeepLinkSlug}
           onDraftDeepLinkClick={onDraftDeepLinkClick}
@@ -126,6 +137,7 @@ export default function MessageList({
 interface MessageRowProps {
   message: UiMessage;
   onShowDishOnMap?: (dish: DishCardData) => void;
+  onDishNavigate?: () => void;
   /** Review id this assistant message drafts a response for, or
    *  ``null`` if it isn't a draft. Computed in the parent so we
    *  don't re-scan history on every row render. */
@@ -141,6 +153,7 @@ interface MessageRowProps {
 function MessageRow({
   message,
   onShowDishOnMap,
+  onDishNavigate,
   draftReviewId,
   draftDeepLinkSlug,
   onDraftDeepLinkClick,
@@ -192,6 +205,7 @@ function MessageRow({
               key={tool.id}
               tool={tool}
               onShowDishOnMap={onShowDishOnMap}
+              onDishNavigate={onDishNavigate}
             />
           ))}
           {pendingTools.map((tool) => (
@@ -199,6 +213,7 @@ function MessageRow({
               key={tool.id}
               tool={tool}
               onShowDishOnMap={onShowDishOnMap}
+              onDishNavigate={onDishNavigate}
             />
           ))}
         </div>
@@ -226,6 +241,7 @@ function MessageRow({
               key={tool.id}
               tool={tool}
               onShowDishOnMap={onShowDishOnMap}
+              onDishNavigate={onDishNavigate}
             />
           ))}
         </div>
@@ -403,9 +419,14 @@ function extractDraftReviewId(tools: UiToolInvocation[]): string | null {
 interface ToolInvocationProps {
   tool: UiToolInvocation;
   onShowDishOnMap?: (dish: DishCardData) => void;
+  onDishNavigate?: () => void;
 }
 
-function ToolInvocation({ tool, onShowDishOnMap }: ToolInvocationProps) {
+function ToolInvocation({
+  tool,
+  onShowDishOnMap,
+  onDishNavigate,
+}: ToolInvocationProps) {
   const t = useTranslations('chat.tools');
 
   if (tool.pending) {
@@ -460,6 +481,7 @@ function ToolInvocation({ tool, onShowDishOnMap }: ToolInvocationProps) {
             key={dish.dish_id}
             dish={dish}
             onShowOnMap={onShowDishOnMap}
+            onNavigate={onDishNavigate}
           />
         ))}
       </div>
@@ -485,7 +507,13 @@ function ToolInvocation({ tool, onShowDishOnMap }: ToolInvocationProps) {
         </div>
       );
     }
-    return <ComparisonCard result={result} onShowDishOnMap={onShowDishOnMap} />;
+    return (
+      <ComparisonCard
+        result={result}
+        onShowDishOnMap={onShowDishOnMap}
+        onNavigate={onDishNavigate}
+      />
+    );
   }
 
   if (tool.name === 'open_in_map') {

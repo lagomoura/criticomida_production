@@ -148,11 +148,27 @@ export type StreamEvent =
   | { type: 'error'; data: { message: string } | string }
   | { type: 'done'; data: null };
 
+/**
+ * A — Context Injection. The FE attaches this hint when the Sommelier
+ * drawer opens from a contextual page (restaurant detail, dish detail)
+ * so the backend can prefix the agent's first turn with a one-line
+ * grounding block ("the diner is looking at Sagardi"). Strictly a
+ * hint; the agent still has every tool and the full catalog. Backend
+ * resolves stale references silently — passing a slug whose
+ * restaurant got removed yields no hint, not an error.
+ */
+export interface ChatClientContext {
+  restaurant_slug?: string | null;
+  restaurant_id?: string | null;
+  dish_id?: string | null;
+}
+
 export interface StreamChatRequest {
   message: string;
   conversation_id?: string | null;
   agent?: ChatAgent;
   restaurant_scope_id?: string | null;
+  client_context?: ChatClientContext | null;
 }
 
 /**

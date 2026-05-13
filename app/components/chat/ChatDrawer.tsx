@@ -15,6 +15,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import {
   ChatAgent,
+  ChatClientContext,
   DishCardData,
   SommelierPreview,
   getSommelierPreview,
@@ -52,6 +53,16 @@ interface ChatDrawerProps {
    * harmless when omitted (the deep-link button just won't render).
    */
   restaurantSlug?: string | null;
+  /**
+   * A — Context Injection. When the drawer is open on a contextual
+   * page (restaurant detail, dish detail), the launcher passes the
+   * page-derived hint here so the Sommelier can ground every reply
+   * in what the diner is currently looking at — and update as they
+   * navigate. Null on non-contextual surfaces (home, feed, profile)
+   * — the chat then runs with no hint, identical to its pre-A
+   * behaviour.
+   */
+  clientContext?: ChatClientContext | null;
 }
 
 /**
@@ -65,6 +76,7 @@ export default function ChatDrawer({
   agent = 'sommelier',
   restaurantScopeId = null,
   restaurantSlug = null,
+  clientContext = null,
 }: ChatDrawerProps) {
   const t = useTranslations('chat');
   const locale = useLocale();
@@ -95,10 +107,9 @@ export default function ChatDrawer({
     isStreaming,
     error,
     send,
-    abort,
     reset,
     loadConversation,
-  } = useChatStream({ agent, restaurantScopeId });
+  } = useChatStream({ agent, restaurantScopeId, clientContext });
 
   const [historyOpen, setHistoryOpen] = useState(false);
 
@@ -160,17 +171,27 @@ export default function ChatDrawer({
     await loadConversation(id);
   };
 
-  // Focus input on open (or when returning from history view) + cancel
-  // any in-flight stream on close. Toggling the history panel must NOT
-  // abort the stream — only closing the drawer does.
+  // Focus input on open (or when returning from history view).
+  //
+  // We deliberately do NOT abort an in-flight stream on close: the
+  // comensal might minimise the drawer to read a review while the
+  // Sommelier is still composing. The ``useChatStream`` hook stays
+  // mounted across the close (the launcher keeps the drawer
+  // component alive, ``open=false`` only suppresses its JSX), so
+  // the SSE reader keeps writing into ``messages`` in the
+  // background and the next time they reopen the drawer they find
+  // the answer already painted. A true unmount (page nav that
+  // tears down the launcher) still cancels via the hook's own
+  // cleanup, which is the right shape — we just don't want a
+  // visibility toggle to cancel work the user explicitly asked
+  // for.
   useEffect(() => {
     if (open && !historyOpen) {
       // Defer to next tick so the drawer is visible before focusing.
       const t = setTimeout(() => inputRef.current?.focus(), 50);
       return () => clearTimeout(t);
     }
-    if (!open) abort();
-  }, [open, historyOpen, abort]);
+  }, [open, historyOpen]);
 
   // Re-focus the composer when a stream finishes so the user can keep
   // typing the next turn without clicking back into the textarea. The
@@ -398,6 +419,7 @@ export default function ChatDrawer({
               messages={messages}
               isStreaming={isStreaming}
               onShowDishOnMap={onShowDishOnMap}
+              onDishNavigate={onClose}
               draftDeepLinkSlug={
                 agent === 'business' ? restaurantSlug ?? null : null
               }

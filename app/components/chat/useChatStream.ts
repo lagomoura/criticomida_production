@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ChatAgent,
+  ChatClientContext,
   ChatMessageData,
   StreamEvent,
   listConversationMessages,
@@ -34,6 +35,16 @@ export interface UiToolInvocation {
 interface UseChatStreamOptions {
   agent: ChatAgent;
   restaurantScopeId?: string | null;
+  /**
+   * A — Context Injection. Page-derived hint attached to EVERY
+   * request while the diner sits on a contextual page (restaurant
+   * detail, dish detail). It refreshes on navigation so a chat
+   * thread that starts at restaurant X and follows a recommendation
+   * into dish Y picks up the dish context on the next turn. Pass
+   * ``null`` from non-contextual pages (eg. home) so the hook
+   * stays inert.
+   */
+  clientContext?: ChatClientContext | null;
 }
 
 /**
@@ -265,12 +276,19 @@ function historyToUiMessages(history: ChatMessageData[]): UiMessage[] {
 export function useChatStream({
   agent,
   restaurantScopeId = null,
+  clientContext = null,
 }: UseChatStreamOptions): UseChatStreamApi {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<UiMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // Snapshot of ``clientContext`` at mount time. Used by the
+  // restore-on-mount effect to decide whether to resume the previous
+  // conversation. We capture it in a ref (not a state/dep) so later
+  // navigations don't re-trigger the effect — see the effect's
+  // comment block for the UX rationale.
+  const clientContextOnMountRef = useRef(clientContext);
 
   // Cancel any in-flight request when the component unmounts.
   useEffect(() => () => abortRef.current?.abort(), []);
@@ -294,8 +312,27 @@ export function useChatStream({
   // restaurants). If the saved id no longer exists or the user is
   // anonymous, the API call returns an error and we silently start
   // fresh.
+  //
+  // A — Context Injection: the page-derived hint (``clientContext``)
+  // is intentionally NOT a dependency of this effect. Otherwise
+  // every client-side navigation between a contextual page and
+  // anywhere else would reset the chat surface, which is jarring
+  // when the diner is mid-conversation. We only consult the hint
+  // ONCE — on initial mount, before the chat has been opened — so:
+  //   • Deep-linking straight to a restaurant/dish (the most common
+  //     way the context-injection feature is exercised) starts a
+  //     fresh conversation that picks up the hint.
+  //   • Arriving at the same page after navigating from elsewhere
+  //     preserves whatever conversation was in progress; the
+  //     comensal can hit "nueva conversación" from the header if
+  //     they want a fresh thread that absorbs the new context.
   useEffect(() => {
     let cancelled = false;
+    if (clientContextOnMountRef.current != null) {
+      setConversationId(null);
+      setMessages([]);
+      return;
+    }
     const savedId = readLastConversationId(agent, restaurantScopeId);
     if (!savedId) {
       setConversationId(null);
@@ -461,6 +498,16 @@ export function useChatStream({
 
       setMessages((prev) => [...prev, userMsg, assistantMsg]);
 
+      // A — Context Injection. Send the page-derived hint on EVERY
+      // turn (not only the first). The comensal can navigate
+      // between contextual pages while keeping the same chat open
+      // — start in restaurant X, get a dish recommendation, tap
+      // the dish, ask a follow-up — and the follow-up needs to
+      // know the comensal is now on the dish page. The backend's
+      // hint resolver re-renders the prefix per turn, so a stale
+      // URL just yields no hint and falls back gracefully.
+      // ``clientContext`` is null on non-contextual pages (home,
+      // feed, etc.), in which case the field is a no-op anyway.
       try {
         for await (const ev of streamChat(
           {
@@ -468,6 +515,7 @@ export function useChatStream({
             conversation_id: conversationId,
             agent,
             restaurant_scope_id: restaurantScopeId,
+            client_context: clientContext,
           },
           controller.signal,
         )) {
@@ -482,7 +530,14 @@ export function useChatStream({
         setIsStreaming(false);
       }
     },
-    [agent, conversationId, isStreaming, restaurantScopeId, applyEvent],
+    [
+      agent,
+      conversationId,
+      isStreaming,
+      restaurantScopeId,
+      clientContext,
+      applyEvent,
+    ],
   );
 
   return {

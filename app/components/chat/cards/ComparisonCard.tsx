@@ -28,6 +28,10 @@ interface Props {
    *  reuse the existing handler — the map page only needs the
    *  ids and the restaurant lat/lng. */
   onShowDishOnMap?: (dish: DishCardData) => void;
+  /** Mirrors ``DishCard.onNavigate``: fired right before the user
+   *  navigates away by clicking a column's title link, so the chat
+   *  drawer can close itself and not cover the destination page. */
+  onNavigate?: () => void;
 }
 
 /**
@@ -48,7 +52,11 @@ interface Props {
  * pillar scale is 1-3 (see ``DishReview`` constraints in the
  * backend).
  */
-export default function ComparisonCard({ result, onShowDishOnMap }: Props) {
+export default function ComparisonCard({
+  result,
+  onShowDishOnMap,
+  onNavigate,
+}: Props) {
   const t = useTranslations('chat.comparisonCard');
   const locale = useLocale();
   const dishes = result.dishes;
@@ -84,6 +92,7 @@ export default function ComparisonCard({ result, onShowDishOnMap }: Props) {
             dish={dish}
             highlightLeader={idx === 0}
             onShowDishOnMap={onShowDishOnMap}
+            onNavigate={onNavigate}
             locale={locale}
           />
         ))}
@@ -98,6 +107,7 @@ interface ColumnProps {
    *  first, which by contract is the lead recommendation. */
   highlightLeader: boolean;
   onShowDishOnMap?: (dish: DishCardData) => void;
+  onNavigate?: () => void;
   locale: string;
 }
 
@@ -105,6 +115,7 @@ function ComparisonColumn({
   dish,
   highlightLeader,
   onShowDishOnMap,
+  onNavigate,
   locale,
 }: ColumnProps) {
   const t = useTranslations('chat.comparisonCard');
@@ -234,6 +245,7 @@ function ComparisonColumn({
           {dish.restaurant_slug ? (
             <Link
               href={`/${locale}/restaurants/${dish.restaurant_slug}`}
+              onClick={onNavigate}
               className="hover:text-action-primary"
             >
               {dish.name}
