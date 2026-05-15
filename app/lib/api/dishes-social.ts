@@ -306,15 +306,19 @@ function toRelatedDishes(dto: RelatedDishesDTO): RelatedDishItem[] {
   }));
 }
 
-export async function getDishDetail(dishId: string): Promise<DishDetail> {
+export async function getDishDetail(
+  dishId: string,
+  lang?: string,
+): Promise<DishDetail> {
   if (isSocialMockEnabled()) {
     await mockDelay();
     const detail = mockGetDishDetail(dishId);
     if (!detail) throw new ApiError(404, 'Dish not found');
     return detail;
   }
+  const qs = lang ? `?lang=${encodeURIComponent(lang)}` : '';
   const dto = await fetchApi<DishSocialDetailDTO>(
-    `/api/social/dishes/${encodeURIComponent(dishId)}`,
+    `/api/social/dishes/${encodeURIComponent(dishId)}${qs}`,
   );
   return toDishDetail(dto);
 }

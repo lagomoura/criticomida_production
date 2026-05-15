@@ -511,16 +511,21 @@ trivial):
 - `origin`: etiqueta corta (≤ 5 palabras) que ubica al plato en
   su tradición — "Cocina napolitana", "Sushi · Edo, Japón",
   "Asado rioplatense". Renderiza como chip en `EditorialStoryCard`.
-- `story`: 2-3 oraciones (≤ 60 palabras) en español rioplatense
-  con origen + una curiosidad concreta (ingrediente clave,
-  técnica, anécdota cultural, momento histórico).
+- `story`: 2-3 oraciones (≤ 60 palabras) **en el idioma pedido**
+  (es/en/pt — `SUPPORTED_LANGS`, default `es`) con origen + una
+  curiosidad concreta (ingrediente clave, técnica, anécdota
+  cultural, momento histórico). El system prompt parametriza el
+  idioma de salida vía `_system_prompt(lang)`; las instrucciones
+  siguen en español (el modelo las obedece igual).
 
-Persistencia en `dishes`:
+Persistencia en `dishes` (solo el canónico **ES**):
 
-- `editorial_blurb` ← `story`
-- `editorial_origin` ← `origin`
-- `editorial_blurb_lang` ← `"es"` (los idiomas adicionales están
-  en roadmap)
+- `editorial_blurb` ← `story` (es)
+- `editorial_origin` ← `origin` (es)
+- `editorial_blurb_lang` ← `"es"` — el dish row es el store
+  canónico español que leen los metadatos de página y otros
+  consumidores. **Los idiomas no-ES viven exclusivamente en
+  `dish_editorial_cache`**, no se espejan al dish row.
 - `editorial_blurb_source` ← `"gemini"` (uso interno; ya no se
   expone al usuario, antes formaba parte de la attribution editorial
   que se quitó por DMMT). Filas viejas pueden tener `"claude"` de
@@ -534,30 +539,40 @@ Persistencia en `dishes`:
 **Cache compartida `dish_editorial_cache`**: un mismo plato
 ("milanesa", "asado", "sushi") puede aparecer en N restaurantes
 y la historia es la misma. La cache se keyea por
-`(name_key, cuisine_key)` donde `name_key = dish.name_normalized`
-(función SQL `public.dish_name_normalized`) y `cuisine_key` es el
-primer `cuisine_types` del restaurante en lower (o `''` si no
-hay). Lookup antes de llamar al LLM, upsert después con
-`ON CONFLICT DO UPDATE` para race-safety. Versionada por
-`prompt_version`: cuando bumpea, los lookups de versión vieja
-fallan y caen al LLM. El costo escala con el número de **platos
-distintos**, no con `count(*) FROM dishes`.
+`(name_key, cuisine_key, lang)` donde `name_key =
+dish.name_normalized` (función SQL `public.dish_name_normalized`),
+`cuisine_key` es el primer `cuisine_types` del restaurante en
+lower (o `''` si no hay) y `lang ∈ {es,en,pt}` (migración 069 lo
+agrega a la PK; filas viejas quedan `'es'`). Lookup antes de
+llamar al LLM, upsert después con `ON CONFLICT DO UPDATE` para
+race-safety. Versionada por `prompt_version`: cuando bumpea, los
+lookups de versión vieja fallan y caen al LLM. El costo escala
+con el número de **platos distintos × idiomas pedidos**, no con
+`count(*) FROM dishes`.
 
 Funciones expuestas:
 
-- `refresh_dish_blurb(db, dish_id, force=False)` — cheque de
-  staleness (versión + presencia) → cache → LLM → persistir.
-  Idempotente: si nada está stale y `force=False`, retorna
-  `False` sin tocar nada.
-- `maybe_schedule_blurb_refresh(background_tasks, dish_id)` —
-  fire-and-forget desde el endpoint de detalle. La sesión del
-  request ya está cerrada cuando corre el task, así que abre
-  `async_session()` propia.
+- `refresh_dish_blurb(db, dish_id, *, lang="es", force=False)` —
+  ES tiene fast-path por el dish row (staleness = versión +
+  presencia); el resto se resuelve contra la cache de ese `lang`.
+  Cache → LLM → persistir (cache siempre; dish row solo si ES).
+  Idempotente: si ya está al día y `force=False`, retorna `False`.
+- `get_cached_blurb(db, dish, restaurant, lang)` — lookup
+  síncrono (sin LLM) que usa el endpoint para servir la historia
+  en el idioma de la URL.
+- `maybe_schedule_blurb_refresh(background_tasks, dish_id,
+  lang="es")` — fire-and-forget desde el endpoint de detalle. La
+  sesión del request ya está cerrada cuando corre el task, así
+  que abre `async_session()` propia.
 
 **Triggers**:
 
-- Lazy: `GET /api/social/dishes/{dish_id}` enqueue un refresh
-  como background task. Próxima visita ve el blurb nuevo.
+- Lazy: `GET /api/social/dishes/{dish_id}?lang=<locale>` sirve el
+  blurb cacheado para `lang` (cae al ES del dish row solo cuando
+  `lang=es` y no hay cache) y encola la generación del idioma
+  pedido. Próxima visita en ese idioma ve la historia traducida.
+  El frontend manda `?lang` con el locale de la URL desde
+  `getDishDetail(id, locale)`.
 - Admin/critic: `POST /api/social/dishes/{dish_id}/refresh-editorial`
   (forzar regeneración).
 - Backfill: `python -m app.scripts.refresh_editorial_blurbs`

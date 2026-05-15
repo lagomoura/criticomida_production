@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id, locale } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata.dish' });
   try {
-    const dish = await getDishDetail(id);
+    const dish = await getDishDetail(id, locale);
     const description =
       dish.editorialBlurb ||
       dish.description ||
@@ -47,11 +47,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function DishDetailPage({ params }: PageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
 
   let dish;
   try {
-    dish = await getDishDetail(id);
+    dish = await getDishDetail(id, locale);
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
       notFound();
