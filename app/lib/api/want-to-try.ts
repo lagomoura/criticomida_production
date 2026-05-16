@@ -18,6 +18,8 @@ interface WantToTryItemDTO {
   restaurant_city: string | null;
   restaurant_latitude: number | string | null;
   restaurant_longitude: number | string | null;
+  reservation_url: string | null;
+  reservation_provider: string | null;
   saved_at: string;
 }
 
@@ -48,6 +50,8 @@ function toItem(dto: WantToTryItemDTO): WantToTryItem {
     restaurantCity: dto.restaurant_city,
     restaurantLatitude: toNumberOrNull(dto.restaurant_latitude),
     restaurantLongitude: toNumberOrNull(dto.restaurant_longitude),
+    reservationUrl: dto.reservation_url,
+    reservationProvider: dto.reservation_provider,
     savedAt: dto.saved_at,
   };
 }

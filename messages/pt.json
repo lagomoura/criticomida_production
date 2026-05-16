@@ -888,7 +888,8 @@
         "reservation_requested": "Nova solicitação de reserva",
         "review_on_owned_restaurant": "Nova avaliação no seu restaurante",
         "mention": "Você foi mencionado",
-        "sommelier_review_recall": "Você experimentou? Avalie agora"
+        "sommelier_review_recall": "Você experimentou? Avalie agora",
+        "category_pending_review": "Categoria pendente"
       },
       "unread": "Não lido"
     },
@@ -915,6 +916,9 @@
   },
   "restaurant": {
     "noReviews": "Ainda não há resenhas. Seja o primeiro a contar sua experiência!",
+    "savedHere": {
+      "label": "{count, plural, =1 {Você salvou 1 prato aqui} other {Você salvou # pratos aqui}}"
+    },
     "emptyReviewsTitle": "Ainda não há resenhas",
     "emptyReviewsDescription": "Seja o primeiro a contar sua experiência.",
     "emptyReviewsActionLogged": "Publicar primeira resenha",
@@ -1668,10 +1672,16 @@
     "wantToTry": {
       "heading": "Quero provar",
       "count": "{count, plural, =1 {1 prato} other {# pratos}}",
+      "groupCount": "{count, plural, =1 {1 prato salvo} other {# pratos salvos}}",
       "empty": "Você ainda não marcou pratos para provar. Quando usar 'Quero provar' no chat ou em uma card, eles aparecem aqui.",
       "loadError": "Não conseguimos carregar sua lista.",
       "noPhoto": "Sem foto",
       "openDish": "Ver detalhe de {name}",
+      "openRestaurant": "Ver lugar",
+      "openRestaurantAria": "Abrir a página de {name}",
+      "openInMaps": "Como chegar",
+      "openInMapsAria": "Abrir como chegar a {name} no Google Maps",
+      "reserve": "Reservar",
       "remove": "Remover {name} de Quero provar"
     },
     "bookmarks": {
@@ -2569,6 +2579,9 @@
       "save": "Quero provar",
       "saved": "Na sua lista",
       "showOnMap": "Ver no mapa",
+      "openRestaurant": "Ver lugar",
+      "openInMaps": "Como chegar",
+      "reserve": "Reservar",
       "noPhoto": "Sem foto",
       "reviewCount": "{count, plural, =0 {sem resenhas} =1 {1 resenha} other {# resenhas}}",
       "inThisChat": "Neste chat"

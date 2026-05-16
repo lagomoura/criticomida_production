@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from '@/app/lib/i18n/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,6 +8,9 @@ import {
   faBookmark,
   faStar,
   faXmark,
+  faLocationArrow,
+  faArrowRight,
+  faCalendarCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 
@@ -20,6 +23,8 @@ import {
 } from '@/app/lib/api/want-to-try';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { usePostsInteraction } from '@/app/lib/hooks/usePostsInteraction';
+import { buildMapsUrl } from '@/app/lib/utils/maps';
+import { openReservation } from '@/app/lib/utils/reservation';
 import type { WantToTryItem } from '@/app/lib/types/social';
 
 /**
@@ -110,6 +115,17 @@ export default function SavedClient() {
     }
   }, []);
 
+  // Group by restaurant so the page reads as a to-do list of *places*,
+  // not a flat archive of dishes. The header of each group surfaces
+  // the actions that close the loop ("go to the place", "get
+  // directions") — that's the whole point of this view vs. a passive
+  // archive of bookmarked reviews. Groups sort by the most-recent
+  // ``savedAt`` inside them, so newly-saved restaurants float up.
+  const wishlistGroups = useMemo(
+    () => groupWishlistByRestaurant(wishlist),
+    [wishlist],
+  );
+
   useEffect(() => {
     if (!authLoading && user) void loadFirst();
   }, [authLoading, user, loadFirst]);
@@ -198,31 +214,17 @@ export default function SavedClient() {
           <p className="text-sm text-text-muted">{t('wantToTry.empty')}</p>
         )}
 
-        {wishlistStatus === 'ready' && wishlist.length > 0 && (
-          // Up to 4 dishes the comensal hasn't tried yet → roomy
-          // grid (2/3/4 cols) so each tile is comfortable to read.
-          // Past that the page would feel front-heavy with the
-          // mosaic dominating the viewport, so we densify the grid
-          // (3/4/5/6 cols) and tiles get proportionally smaller.
-          // The break point is the comensal's expected upper bound
-          // for "things I'm actively going to try" — beyond that,
-          // the wishlist is more an archive than a to-do list.
-          //
-          // Both class strings are literal so Tailwind captures
-          // them; do not interpolate ``grid-cols-${n}``.
-          <ul
-            className={
-              wishlist.length > 4
-                ? 'grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
-                : 'grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4'
-            }
-          >
-            {wishlist.map((item) => (
-              <WishlistTile
-                key={item.dishId}
-                item={item}
-                onOpen={() => router.push(`/dishes/${item.dishId}`)}
-                onRemove={() => void onRemoveFromWishlist(item.dishId)}
+        {wishlistStatus === 'ready' && wishlistGroups.length > 0 && (
+          <ul className="flex flex-col gap-5">
+            {wishlistGroups.map((group) => (
+              <WishlistRestaurantGroup
+                key={group.restaurantId}
+                group={group}
+                onOpenRestaurant={() =>
+                  router.push(`/restaurants/${group.restaurantSlug}`)
+                }
+                onOpenDish={(dishId) => router.push(`/dishes/${dishId}`)}
+                onRemove={(dishId) => void onRemoveFromWishlist(dishId)}
               />
             ))}
           </ul>
@@ -268,18 +270,159 @@ export default function SavedClient() {
   );
 }
 
+interface WishlistGroup {
+  restaurantId: string;
+  restaurantSlug: string;
+  restaurantName: string;
+  restaurantCity: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  reservationUrl: string | null;
+  reservationProvider: string | null;
+  items: WantToTryItem[];
+}
+
+/**
+ * Bucket wishlist items by ``restaurant_id``. Inside each bucket
+ * items are sorted by ``savedAt`` desc; buckets themselves are
+ * sorted by the freshest ``savedAt`` they contain — newly-saved
+ * restaurants float to the top of the page.
+ */
+function groupWishlistByRestaurant(items: WantToTryItem[]): WishlistGroup[] {
+  const byId = new Map<string, WishlistGroup>();
+  for (const item of items) {
+    const existing = byId.get(item.restaurantId);
+    if (existing) {
+      existing.items.push(item);
+    } else {
+      byId.set(item.restaurantId, {
+        restaurantId: item.restaurantId,
+        restaurantSlug: item.restaurantSlug,
+        restaurantName: item.restaurantName,
+        restaurantCity: item.restaurantCity,
+        latitude: item.restaurantLatitude,
+        longitude: item.restaurantLongitude,
+        reservationUrl: item.reservationUrl,
+        reservationProvider: item.reservationProvider,
+        items: [item],
+      });
+    }
+  }
+  return Array.from(byId.values())
+    .map((g) => ({
+      ...g,
+      items: [...g.items].sort((a, b) => b.savedAt.localeCompare(a.savedAt)),
+    }))
+    .sort((a, b) => b.items[0].savedAt.localeCompare(a.items[0].savedAt));
+}
+
+interface WishlistRestaurantGroupProps {
+  group: WishlistGroup;
+  onOpenRestaurant: () => void;
+  onOpenDish: (dishId: string) => void;
+  onRemove: (dishId: string) => void;
+}
+
+/**
+ * One restaurant's worth of saved dishes. Header carries the actions
+ * that close the loop — opening the venue page or pulling up
+ * directions in Maps. The dish grid below is purely visual: each
+ * tile still routes to the dish detail and supports the soft
+ * "remove" affordance that lived on the flat grid before grouping.
+ */
+function WishlistRestaurantGroup({
+  group,
+  onOpenRestaurant,
+  onOpenDish,
+  onRemove,
+}: WishlistRestaurantGroupProps) {
+  const t = useTranslations('saved');
+  const mapsHref = buildMapsUrl(
+    group.latitude,
+    group.longitude,
+    group.restaurantName,
+  );
+
+  return (
+    <li className="overflow-hidden rounded-2xl border border-border-subtle bg-surface-card">
+      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-5">
+        <div className="min-w-0 flex-1">
+          <h3 className="line-clamp-1 font-display text-base text-text-primary sm:text-lg">
+            {group.restaurantName}
+          </h3>
+          <p className="line-clamp-1 text-xs text-text-muted">
+            {group.restaurantCity ? `${group.restaurantCity} · ` : ''}
+            {t('wantToTry.groupCount', { count: group.items.length })}
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {group.reservationUrl && (
+            <button
+              type="button"
+              onClick={() =>
+                openReservation(
+                  group.restaurantSlug,
+                  group.reservationUrl!,
+                  group.reservationProvider,
+                )
+              }
+              className="inline-flex items-center gap-1.5 rounded-full border border-border-strong bg-transparent px-3 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+            >
+              <FontAwesomeIcon icon={faCalendarCheck} className="h-3 w-3" aria-hidden />
+              {t('wantToTry.reserve')}
+            </button>
+          )}
+          {mapsHref && (
+            <a
+              href={mapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={t('wantToTry.openInMapsAria', {
+                name: group.restaurantName,
+              })}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border-strong bg-transparent px-3 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+            >
+              <FontAwesomeIcon icon={faLocationArrow} className="h-3 w-3" aria-hidden />
+              {t('wantToTry.openInMaps')}
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={onOpenRestaurant}
+            aria-label={t('wantToTry.openRestaurantAria', {
+              name: group.restaurantName,
+            })}
+            className="inline-flex items-center gap-1.5 rounded-full bg-action-primary px-3 py-1.5 text-xs font-medium text-text-inverse transition-colors hover:bg-action-primary-hover focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+          >
+            {t('wantToTry.openRestaurant')}
+            <FontAwesomeIcon icon={faArrowRight} className="h-3 w-3" aria-hidden />
+          </button>
+        </div>
+      </header>
+      <ul className="grid grid-cols-2 gap-2 border-t border-border-subtle p-3 sm:grid-cols-3 sm:gap-3 sm:p-4 lg:grid-cols-4">
+        {group.items.map((item) => (
+          <WishlistTile
+            key={item.dishId}
+            item={item}
+            onOpen={() => onOpenDish(item.dishId)}
+            onRemove={() => onRemove(item.dishId)}
+          />
+        ))}
+      </ul>
+    </li>
+  );
+}
+
 interface WishlistTileProps {
   item: WantToTryItem;
   onOpen: () => void;
   onRemove: () => void;
 }
 
-/** Square mosaic tile for a single wishlist dish.
- *
- * Click the body → dish detail. Click the small ``×`` overlay →
- * remove from wishlist (idempotent on the server). The remove
- * button is intentionally subtle (corner, low opacity until hover)
- * so the comensal doesn't tap it by accident on a mobile mis-tap. */
+/** Square tile inside a restaurant group. Click the body → dish
+ * detail. The ``×`` overlay removes the dish from the wishlist
+ * (idempotent on the server). The remove button is intentionally
+ * subtle so the comensal doesn't tap it by accident on mobile. */
 function WishlistTile({ item, onOpen, onRemove }: WishlistTileProps) {
   const t = useTranslations('saved');
   return (
@@ -287,7 +430,7 @@ function WishlistTile({ item, onOpen, onRemove }: WishlistTileProps) {
       <button
         type="button"
         onClick={onOpen}
-        className="flex w-full flex-col gap-1 overflow-hidden rounded-2xl border border-border-subtle bg-surface-card text-left transition-shadow hover:shadow-[var(--shadow-elevated)] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+        className="flex w-full flex-col gap-1 overflow-hidden rounded-xl border border-border-subtle bg-surface-card text-left transition-shadow hover:shadow-[var(--shadow-elevated)] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
         aria-label={t('wantToTry.openDish', { name: item.dishName })}
       >
         <div className="relative aspect-square w-full bg-surface-subtle">
@@ -311,12 +454,9 @@ function WishlistTile({ item, onOpen, onRemove }: WishlistTileProps) {
             </span>
           )}
         </div>
-        <div className="flex flex-col gap-0.5 px-2.5 py-2">
-          <span className="line-clamp-1 font-display text-sm text-text-primary">
+        <div className="px-2.5 py-2">
+          <span className="line-clamp-2 font-display text-sm text-text-primary">
             {item.dishName}
-          </span>
-          <span className="line-clamp-1 text-[11px] text-text-muted">
-            {item.restaurantName}
           </span>
         </div>
       </button>

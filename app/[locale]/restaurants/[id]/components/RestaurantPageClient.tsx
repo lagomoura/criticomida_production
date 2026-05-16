@@ -27,6 +27,7 @@ import LocationMap from './LocationMap';
 import AddDishModal from './AddDishModal';
 import PublishReviewModal from './PublishReviewModal';
 import ClaimPromptFooter from './ClaimPromptFooter';
+import SavedHereBanner from './SavedHereBanner';
 import EmptyState from '@/app/components/ui/EmptyState';
 
 interface DishWithReviews {
@@ -113,6 +114,7 @@ export default function RestaurantPageClient({
 
   return (
     <>
+      <SavedHereBanner restaurantId={restaurant.id} />
       <RestaurantTabs
         counts={tabCounts}
       >

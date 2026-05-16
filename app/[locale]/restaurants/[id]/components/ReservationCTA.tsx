@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { logReservationClick } from '@/app/lib/api/restaurants';
+import { openReservation, withUtm } from '@/app/lib/utils/reservation';
 import type { ReservationProvider } from '@/app/lib/types/restaurant';
 
 interface ReservationCTAProps {
@@ -20,24 +20,6 @@ const PROVIDER_KEY: Record<string, string> = {
   own_site: 'providerOwnSite',
 };
 
-const UTM_PARAMS: Record<string, string> = {
-  utm_source: 'palato',
-  utm_medium: 'referral',
-  utm_campaign: 'reservation_cta',
-};
-
-function withUtm(url: string): string {
-  try {
-    const u = new URL(url);
-    for (const [key, value] of Object.entries(UTM_PARAMS)) {
-      if (!u.searchParams.has(key)) u.searchParams.set(key, value);
-    }
-    return u.toString();
-  } catch {
-    return url;
-  }
-}
-
 export default function ReservationCTA({
   slug,
   reservationUrl,
@@ -52,12 +34,7 @@ export default function ReservationCTA({
 
   function handleClick(event: React.MouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
-    void logReservationClick(slug, {
-      provider: reservationProvider ?? null,
-      utm: UTM_PARAMS,
-      referrer: typeof window !== 'undefined' ? window.location.href : null,
-    });
-    window.open(withUtm(reservationUrl), '_blank', 'noopener,noreferrer');
+    openReservation(slug, reservationUrl, reservationProvider ?? null);
   }
 
   return (

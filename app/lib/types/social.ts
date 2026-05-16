@@ -125,7 +125,8 @@ export type NotificationKind =
   | 'reservation_requested'
   | 'review_on_owned_restaurant'
   | 'mention'
-  | 'sommelier_review_recall';
+  | 'sommelier_review_recall'
+  | 'category_pending_review';
 
 export interface SocialNotification {
   id: string;
@@ -417,6 +418,8 @@ export interface WantToTryItem {
   restaurantCity: string | null;
   restaurantLatitude: number | null;
   restaurantLongitude: number | null;
+  reservationUrl: string | null;
+  reservationProvider: string | null;
   /** ISO timestamp del momento en que se agregó a la wishlist. */
   savedAt: string;
 }

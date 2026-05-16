@@ -888,7 +888,8 @@
         "reservation_requested": "Nueva solicitud de reserva",
         "review_on_owned_restaurant": "Reseña nueva en tu restaurante",
         "mention": "Te mencionaron",
-        "sommelier_review_recall": "¿Lo probaste? Reseñalo"
+        "sommelier_review_recall": "¿Lo probaste? Reseñalo",
+        "category_pending_review": "Categoría pendiente"
       },
       "unread": "Sin leer"
     },
@@ -915,6 +916,9 @@
   },
   "restaurant": {
     "noReviews": "Aún no hay reseñas. ¡Sé el primero en contar tu experiencia!",
+    "savedHere": {
+      "label": "{count, plural, =1 {Tenés 1 plato guardado acá} other {Tenés # platos guardados acá}}"
+    },
     "emptyReviewsTitle": "Aún no hay reseñas",
     "emptyReviewsDescription": "Sé el primero en contar tu experiencia.",
     "emptyReviewsActionLogged": "Publicar primera reseña",
@@ -1668,10 +1672,16 @@
     "wantToTry": {
       "heading": "Quiero probar",
       "count": "{count, plural, =1 {1 plato} other {# platos}}",
+      "groupCount": "{count, plural, =1 {1 plato guardado} other {# platos guardados}}",
       "empty": "Todavía no marcaste platos para probar. Cuando uses 'Quiero probar' en el chat o en una card, vas a verlos acá.",
       "loadError": "No pudimos cargar tus platos pendientes.",
       "noPhoto": "Sin foto",
       "openDish": "Ver detalle de {name}",
+      "openRestaurant": "Ver lugar",
+      "openRestaurantAria": "Ver la página de {name}",
+      "openInMaps": "Cómo llegar",
+      "openInMapsAria": "Abrir cómo llegar a {name} en Google Maps",
+      "reserve": "Reservar",
       "remove": "Sacar {name} de Quiero probar"
     },
     "bookmarks": {
@@ -2569,6 +2579,9 @@
       "save": "Quiero probar",
       "saved": "En tu lista",
       "showOnMap": "Ver en mapa",
+      "openRestaurant": "Ver lugar",
+      "openInMaps": "Cómo llegar",
+      "reserve": "Reservar",
       "noPhoto": "Sin foto",
       "reviewCount": "{count, plural, =0 {sin reseñas} =1 {1 reseña} other {# reseñas}}",
       "inThisChat": "En este chat"

@@ -17,6 +17,8 @@ export interface DishCardRestaurant {
   category: string | null;
   has_reservation: boolean;
   is_claimed: boolean;
+  reservation_url: string | null;
+  reservation_provider: string | null;
 }
 
 export interface DishCardData {

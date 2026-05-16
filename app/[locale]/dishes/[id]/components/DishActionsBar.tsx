@@ -1,11 +1,15 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from '@/app/lib/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
 import { useToast } from '@/app/components/ui/Toast';
-import { addToWantToTry, removeFromWantToTry } from '@/app/lib/api/want-to-try';
+import {
+  addToWantToTry,
+  removeFromWantToTry,
+  checkWantToTry,
+} from '@/app/lib/api/want-to-try';
 
 interface DishActionsBarProps {
   dishId: string;
@@ -29,6 +33,31 @@ export default function DishActionsBar({
   const [wantToTry, setWantToTry] = useState(initialWantToTry);
   const [busy, setBusy] = useState(false);
   const [shared, setShared] = useState(false);
+  // ``initialWantToTry`` comes from the SSR fetch in page.tsx, which
+  // runs without the user's auth cookie (the project forwards no
+  // cookies in server-side fetches), so the backend always sees an
+  // anonymous viewer and ships want_to_try=false. That made the
+  // button reset on every refresh even for saved dishes. Re-check the
+  // real state in the browser, where the cookie travels. ``userActed``
+  // guards against clobbering an optimistic toggle if the diner taps
+  // before this resolves.
+  const userActed = useRef(false);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    checkWantToTry([dishId])
+      .then((savedSet) => {
+        if (cancelled || userActed.current) return;
+        setWantToTry(savedSet.has(dishId));
+      })
+      .catch(() => {
+        /* keep the SSR default — degrade gracefully */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, dishId]);
 
   const handleWriteReview = useCallback(() => {
     if (!user) {
@@ -47,6 +76,7 @@ export default function DishActionsBar({
       return;
     }
     if (busy) return;
+    userActed.current = true;
     const next = !wantToTry;
     setWantToTry(next);
     setBusy(true);

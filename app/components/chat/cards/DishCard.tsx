@@ -8,11 +8,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBookmark as faBookmarkRegular,
   faMapLocationDot,
+  faLocationArrow,
+  faArrowRight,
+  faCalendarCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as faBookmarkSolid } from '@fortawesome/free-solid-svg-icons';
 import { fetchApi } from '@/app/lib/api/client';
 import { DishCardData } from '@/app/lib/api/chat';
 import { cn } from '@/app/lib/utils/cn';
+import { buildMapsUrl } from '@/app/lib/utils/maps';
+import { openReservation } from '@/app/lib/utils/reservation';
 
 interface DishCardProps {
   dish: DishCardData;
@@ -83,6 +88,11 @@ export default function DishCard({
 
   const restaurantHref = `/${locale}/restaurants/${dish.restaurant.slug}`;
   const dishHref = `/${locale}/dishes/${dish.dish_id}`;
+  const mapsHref = buildMapsUrl(
+    dish.restaurant.lat,
+    dish.restaurant.lng,
+    dish.restaurant.name,
+  );
 
   return (
     <article
@@ -202,6 +212,76 @@ export default function DishCard({
             </button>
           )}
         </div>
+
+        {/* Post-save nudge: the moment the comensal commits ("I want
+            to try this") is exactly when "where is it / how do I get
+            there" becomes the next intent. Surface the loop-closing
+            actions inline instead of leaving the dish to die in the
+            wishlist. Mirrors the action row on /saved for
+            consistency (convention over invention). */}
+        {saved && (
+          <div className="mt-1.5 flex flex-wrap gap-2 border-t border-border-subtle pt-2">
+            <Link
+              href={restaurantHref}
+              onClick={onNavigate}
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full bg-action-primary px-2.5 py-1 text-[11px] font-medium text-text-inverse transition-colors',
+                'hover:bg-action-primary-hover',
+                'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+              )}
+            >
+              {t('openRestaurant')}
+              <FontAwesomeIcon
+                icon={faArrowRight}
+                aria-hidden
+                className="h-3 w-3"
+              />
+            </Link>
+            {dish.restaurant.reservation_url && (
+              <button
+                type="button"
+                onClick={() =>
+                  openReservation(
+                    dish.restaurant.slug,
+                    dish.restaurant.reservation_url!,
+                    dish.restaurant.reservation_provider,
+                  )
+                }
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-subtle px-2.5 py-1 text-[11px] font-medium text-text-primary transition-colors',
+                  'hover:bg-surface-card',
+                  'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                )}
+              >
+                <FontAwesomeIcon
+                  icon={faCalendarCheck}
+                  aria-hidden
+                  className="h-3 w-3"
+                />
+                {t('reserve')}
+              </button>
+            )}
+            {mapsHref && (
+              <a
+                href={mapsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-subtle px-2.5 py-1 text-[11px] font-medium text-text-primary transition-colors',
+                  'hover:bg-surface-card',
+                  'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
+                )}
+              >
+                <FontAwesomeIcon
+                  icon={faLocationArrow}
+                  aria-hidden
+                  className="h-3 w-3"
+                />
+                {t('openInMaps')}
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );

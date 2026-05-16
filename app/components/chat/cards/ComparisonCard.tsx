@@ -186,6 +186,8 @@ function ComparisonColumn({
           category: null,
           has_reservation: false,
           is_claimed: false,
+          reservation_url: null,
+          reservation_provider: null,
         },
       }
     : null;

@@ -888,7 +888,8 @@
         "reservation_requested": "New reservation request",
         "review_on_owned_restaurant": "New review at your restaurant",
         "mention": "You were mentioned",
-        "sommelier_review_recall": "Did you try it? Write your review"
+        "sommelier_review_recall": "Did you try it? Write your review",
+        "category_pending_review": "Pending category"
       },
       "unread": "Unread"
     },
@@ -915,6 +916,9 @@
   },
   "restaurant": {
     "noReviews": "No reviews yet. Be the first to share your experience!",
+    "savedHere": {
+      "label": "{count, plural, =1 {You saved 1 dish here} other {You saved # dishes here}}"
+    },
     "emptyReviewsTitle": "No reviews yet",
     "emptyReviewsDescription": "Be the first to share your experience.",
     "emptyReviewsActionLogged": "Publish first review",
@@ -1668,10 +1672,16 @@
     "wantToTry": {
       "heading": "Want to try",
       "count": "{count, plural, =1 {1 dish} other {# dishes}}",
+      "groupCount": "{count, plural, =1 {1 saved dish} other {# saved dishes}}",
       "empty": "No dishes flagged yet. When you tap 'Want to try' in the chat or on a card, they'll show up here.",
       "loadError": "We couldn't load your wishlist.",
       "noPhoto": "No photo",
       "openDish": "Open detail for {name}",
+      "openRestaurant": "View venue",
+      "openRestaurantAria": "Open the page for {name}",
+      "openInMaps": "Directions",
+      "openInMapsAria": "Open directions to {name} in Google Maps",
+      "reserve": "Reserve",
       "remove": "Remove {name} from Want to try"
     },
     "bookmarks": {
@@ -2569,6 +2579,9 @@
       "save": "Want to try",
       "saved": "In your list",
       "showOnMap": "View on map",
+      "openRestaurant": "View venue",
+      "openInMaps": "Directions",
+      "reserve": "Reserve",
       "noPhoto": "No photo",
       "reviewCount": "{count, plural, =0 {no reviews} =1 {1 review} other {# reviews}}",
       "inThisChat": "In this chat"
