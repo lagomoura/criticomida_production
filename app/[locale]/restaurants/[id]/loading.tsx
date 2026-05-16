@@ -1,29 +1,35 @@
 export default function Loading() {
   return (
     <main id="main-content" className="cc-container px-4 pb-16 sm:px-6 lg:px-8">
-      {/* Hero skeleton — matches HeroV2 height */}
-      <section className="-mx-4 mb-8 sm:-mx-6 lg:-mx-8">
-        <div className="relative h-72 w-full motion-safe:animate-pulse bg-[var(--color-crema-dark)] sm:h-[22rem] md:h-[26rem]">
+      {/* Hero skeleton — matches HeroV2 (rounded card) */}
+      <section className="mb-10">
+        <div className="relative h-[28rem] w-full overflow-hidden rounded-3xl border border-border-default motion-safe:animate-pulse bg-[var(--color-crema-dark)] sm:h-[32rem] md:h-[34rem]">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--color-espresso)]/20" />
-          {/* Simulated breadcrumb */}
-          <div className="absolute inset-x-0 top-0 px-4 pt-4 sm:px-6">
+          {/* Simulated breadcrumb + verified badge */}
+          <div className="absolute inset-x-0 top-0 flex items-start justify-between px-4 pt-4 sm:px-6 sm:pt-5 lg:px-8">
             <div className="h-4 w-32 rounded-full bg-white/20" />
+            <div className="h-6 w-24 rounded-full bg-white/20" />
           </div>
-          {/* Simulated title + badges */}
-          <div className="absolute inset-x-0 bottom-0 px-4 pb-6 sm:px-6 sm:pb-8">
-            <div className="flex gap-2 mb-4">
-              <div className="h-6 w-20 rounded-full bg-white/20" />
-              <div className="h-6 w-16 rounded-full bg-white/20" />
-            </div>
-            <div className="h-10 w-2/3 rounded-lg bg-white/20 sm:w-1/2" />
-            <div className="mt-3 flex gap-3">
-              <div className="h-4 w-28 rounded-full bg-white/15" />
-              <div className="h-4 w-20 rounded-full bg-white/15" />
+          {/* Simulated frosted info card */}
+          <div className="absolute inset-x-0 bottom-0 px-3 pb-3 sm:px-5 sm:pb-5">
+            <div className="rounded-2xl bg-white/10 px-5 py-5 sm:px-7 sm:py-6">
+              <div className="h-3 w-24 rounded-full bg-white/15" />
+              <div className="mt-3 h-10 w-2/3 rounded-lg bg-white/20 sm:w-1/2" />
+              <div className="mt-3 h-4 w-48 rounded-full bg-white/15" />
+              <div className="my-5 h-px w-full bg-white/15" />
+              <div className="flex gap-3">
+                <div className="h-4 w-28 rounded-full bg-white/15" />
+                <div className="h-4 w-20 rounded-full bg-white/15" />
+              </div>
+              <div className="mt-3 flex gap-2">
+                <div className="h-6 w-14 rounded-full bg-white/15" />
+                <div className="h-6 w-20 rounded-full bg-white/15" />
+              </div>
             </div>
           </div>
         </div>
         {/* Actions bar skeleton */}
-        <div className="cc-container relative -mt-3 px-4 sm:px-6 lg:px-8">
+        <div className="relative mt-4 mb-2">
           <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-crema-darker)] bg-[var(--color-surface-card)] px-3 py-2 shadow-sm motion-safe:animate-pulse">
             <div className="h-9 w-28 rounded-full bg-[var(--color-crema-dark)]" />
             <div className="h-9 w-24 rounded-full bg-[var(--color-crema-dark)]" />
