@@ -25,7 +25,7 @@ interface PillarConfig {
 
 const TONE_STYLES: Record<PillarOption['tone'], string> = {
   negative: 'border-color-terracota-deep bg-color-terracota-deep text-text-inverse shadow-sm',
-  neutral: 'border-color-terracota bg-color-terracota text-text-primary shadow-sm',
+  neutral: 'border-color-terracota bg-color-terracota text-text-inverse shadow-sm',
   positive: 'border-color-dorado bg-color-dorado text-text-inverse shadow-sm',
 };
 

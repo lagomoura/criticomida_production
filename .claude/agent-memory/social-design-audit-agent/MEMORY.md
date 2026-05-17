@@ -8,6 +8,9 @@
 ## Hallazgos descartados (falsos positivos confirmados)
 - [bg-white en toggle switch del owner dashboard](fp_owner_toggle_bg_white.md) — bg-white en el thumb del toggle dentro de overlay oscuro es técnicamente correcto (contraste garantizado por el fondo oscuro del track)
 
+## Auditorías anteriores (hallazgos por flujo)
+- [Compose audit — commit 210e297](project_compose_audit_findings.md) — hallazgos del flujo compose: paridad dark OK por tokens semánticos, TechnicalPillars neutral contrast ~3.6:1 fallo, estado éxito solo toast, copy "Notas" seco, legacy rgba Azafrán en globals.css
+
 ## Convenciones del repo
 - [Iconografía: solo FontAwesome v6](convention_icons_fontawesome.md) — única familia de iconos; brand-identity-v2.md §10 lo documenta explícitamente
 - [Modal tiene position=bottom-sheet en mobile, center en desktop](convention_modal_position.md) — el componente Modal soporta ambos; AuthModal ya usa bottom-sheet correctamente

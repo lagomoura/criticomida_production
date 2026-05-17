@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronDown,
   faChevronUp,
+  faCircle,
+  faCircleCheck,
   faLock,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
@@ -362,14 +364,28 @@ export default function ComposeClient() {
     return t('minCharsHint', { remaining: MIN_TEXT - noteLength });
   }, [noteLength, t]);
 
-  /** The first missing requirement — shown below the disabled submit button. */
-  const submitBlockReason = useMemo(() => {
-    if (submitting || canSubmit) return null;
-    if (!place) return t('disabledNeedsRestaurant');
-    if (!dish || dish.name.trim().length <= 1) return t('disabledNeedsDish');
-    if (noteLength < MIN_TEXT || noteLength > MAX_TEXT) return t('disabledNeedsNote');
-    return null;
-  }, [submitting, canSubmit, place, dish, noteLength, t]);
+  /**
+   * The three publish requirements as a live checklist. Shown continuously
+   * near the CTA while incomplete so the user always knows what's missing —
+   * closing the feedback loop instead of one reactive hint on the disabled
+   * button (mobile-ux audit Medio #7).
+   */
+  const requirements = useMemo(
+    () => [
+      { key: 'restaurant', label: t('checklistRestaurant'), done: place !== null },
+      {
+        key: 'dish',
+        label: t('checklistDish'),
+        done: dish !== null && dish.name.trim().length > 1,
+      },
+      {
+        key: 'note',
+        label: t('checklistNote'),
+        done: noteLength >= MIN_TEXT && noteLength <= MAX_TEXT,
+      },
+    ],
+    [place, dish, noteLength, t],
+  );
 
   /**
    * Dynamic copy for the submit button that reflects the current upload phase:
@@ -480,8 +496,21 @@ export default function ComposeClient() {
           </div>
 
           {/* 2. Identificación — restaurante + plato. Va después de la
-              captura para que el formulario no arranque pidiendo datos fríos. */}
+              captura para que el formulario no arranque pidiendo datos fríos.
+              El kicker editorial le da jerarquía de "sección" a este bloque
+              en vez de que se lea como dos campos sueltos más (social-design
+              audit Alto #2). */}
           <div className="flex flex-col gap-3">
+            <div
+              role="separator"
+              aria-label={t('identificationKicker')}
+              className="flex items-center gap-3 pt-1"
+            >
+              <span className="shrink-0 font-sans text-[10px] font-semibold uppercase tracking-[0.20em] text-color-terracota">
+                {t('identificationKicker')}
+              </span>
+              <span className="h-px flex-1 bg-border-subtle" aria-hidden="true" />
+            </div>
             <RestaurantAutocomplete
               value={place}
               onChange={setPlace}
@@ -601,6 +630,35 @@ export default function ComposeClient() {
             className="sticky bottom-0 z-30 -mx-3 mt-1 border-t border-border-subtle bg-surface-page/95 px-3 py-3 backdrop-blur supports-[backdrop-filter]:bg-surface-page/85 sm:-mx-0 sm:px-0"
             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)' }}
           >
+            {!canSubmit && !submitting && (
+              <div
+                className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1"
+                role="status"
+                aria-live="polite"
+              >
+                <span className="font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
+                  {t('checklistTitle')}
+                </span>
+                {requirements.map((r) => (
+                  <span
+                    key={r.key}
+                    className={
+                      'inline-flex items-center gap-1 font-sans text-xs ' +
+                      (r.done
+                        ? 'text-color-dorado'
+                        : 'font-semibold text-text-secondary')
+                    }
+                  >
+                    <FontAwesomeIcon
+                      icon={r.done ? faCircleCheck : faCircle}
+                      className={r.done ? 'h-3 w-3' : 'h-2 w-2'}
+                      aria-hidden
+                    />
+                    {r.label}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="flex flex-wrap items-center justify-end gap-2">
               {draftRestored && (
                 <button
@@ -633,15 +691,6 @@ export default function ComposeClient() {
                 {submitLabel}
               </Button>
             </div>
-            {submitBlockReason && (
-              <p
-                className="mt-1.5 text-right font-sans text-xs text-text-muted"
-                role="status"
-                aria-live="polite"
-              >
-                {submitBlockReason}
-              </p>
-            )}
           </div>
         </form>
       )}

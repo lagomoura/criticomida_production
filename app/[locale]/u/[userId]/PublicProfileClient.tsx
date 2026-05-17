@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from '@/app/lib/i18n/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation, faPenToSquare, faUtensils } from '@fortawesome/free-solid-svg-icons';
@@ -10,6 +10,7 @@ import Skeleton from '@/app/components/ui/Skeleton';
 import EmptyState from '@/app/components/ui/EmptyState';
 import ProfileHeader from '@/app/components/social/ProfileHeader';
 import PostCard from '@/app/components/social/PostCard';
+import { PostCardSkeleton } from '@/app/components/ui/SkeletonPresets';
 import UserActionsMenu from '@/app/components/social/UserActionsMenu';
 import { getUserProfile, getUserPosts } from '@/app/lib/api/users';
 import { deleteReview } from '@/app/lib/api/reviews';
@@ -20,6 +21,13 @@ import { useFollowToggle } from '@/app/lib/hooks/useFollowToggle';
 import type { PublicUserProfile, ReviewPost } from '@/app/lib/types/social';
 import PostActionsMenu from './PostActionsMenu';
 import EditPostModal from './EditPostModal';
+
+// Defensiva: el backend ya ordena por created_at DESC, pero un sort en el
+// cliente nos blinda contra paginaciones que mezclen páginas o estados
+// optimistas que reordenen la lista (ej. post recién editado).
+function sortNewestFirst(posts: ReviewPost[]): ReviewPost[] {
+  return [...posts].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
 
 interface Props {
   userId: string;
@@ -42,6 +50,11 @@ export default function PublicProfileClient({ userId }: Props) {
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   // Menú ⋯ del header del perfil ajeno (Silenciar / Bloquear / Reportar usuario)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  // Paginación de la lista de reseñas — cursor opaco + flags de fetch.
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
   const t = useTranslations('profile.publicProfile');
 
   // Acceso al perfil público requiere sesión: anon → /login con next al perfil
@@ -96,6 +109,9 @@ export default function PublicProfileClient({ userId }: Props) {
 
   const load = useCallback(async () => {
     setViewState({ status: 'loading' });
+    setNextCursor(null);
+    setLoadingMore(false);
+    setLoadMoreError(null);
     // Resolve the profile first — a 404 here means the user genuinely
     // doesn't exist. Posts are loaded independently so a posts-endpoint
     // failure doesn't mask a valid profile.
@@ -125,12 +141,35 @@ export default function PublicProfileClient({ userId }: Props) {
 
     try {
       const userPosts = await getUserPosts(userId);
-      setPosts(userPosts.items);
+      setPosts(sortNewestFirst(userPosts.items));
+      setNextCursor(userPosts.nextCursor);
     } catch {
       // Non-fatal: keep the profile visible with an empty list.
       setPosts([]);
+      setNextCursor(null);
     }
   }, [userId, user, setPosts, t]);
+
+  const loadMore = useCallback(async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    setLoadMoreError(null);
+    try {
+      const page = await getUserPosts(userId, nextCursor);
+      setPosts((prev) => {
+        // Dedupe en caso de que el cursor devuelva un id ya presente
+        // (puede pasar si una review nueva se insertó entre páginas).
+        const seen = new Set(prev.map((p) => p.id));
+        const merged = [...prev, ...page.items.filter((p) => !seen.has(p.id))];
+        return sortNewestFirst(merged);
+      });
+      setNextCursor(page.nextCursor);
+    } catch {
+      setLoadMoreError(t('loadMoreError'));
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [userId, nextCursor, loadingMore, setPosts, t]);
 
   useEffect(() => {
     // No disparamos el fetch hasta saber que hay sesión; si no la hay, el
@@ -139,6 +178,25 @@ export default function PublicProfileClient({ userId }: Props) {
     if (!user) return;
     void load();
   }, [isAuthLoading, user, load]);
+
+  // IntersectionObserver: cuando el sentinel entra en viewport, pedimos
+  // la siguiente página. Re-attach cada vez que cambian cursor o estado
+  // de fetch para mantener el observer coherente con el estado actual.
+  useEffect(() => {
+    if (!nextCursor || loadingMore || loadMoreError) return;
+    const node = sentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          void loadMore();
+        }
+      },
+      { rootMargin: '240px 0px' },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [nextCursor, loadingMore, loadMoreError, loadMore]);
 
   const handleFollow = useCallback(
     async (targetId: string, next: boolean) => {
@@ -273,6 +331,32 @@ export default function PublicProfileClient({ userId }: Props) {
                 }
               />
             ))}
+
+            {nextCursor && !loadingMore && !loadMoreError && (
+              <div ref={sentinelRef} aria-hidden className="h-1 w-full" />
+            )}
+
+            {loadingMore && (
+              <div className="flex flex-col gap-4" aria-busy="true" aria-live="polite">
+                <PostCardSkeleton />
+                <PostCardSkeleton />
+              </div>
+            )}
+
+            {loadMoreError && (
+              <div className="rounded-2xl border border-border-default bg-surface-card p-4 text-center">
+                <p className="mb-2 font-sans text-sm text-text-secondary">{loadMoreError}</p>
+                <Button variant="outline" size="sm" onClick={() => void loadMore()}>
+                  {t('tryAgain')}
+                </Button>
+              </div>
+            )}
+
+            {!nextCursor && !loadMoreError && posts.length >= 6 && (
+              <p className="py-4 text-center font-display italic text-sm text-text-muted">
+                {t('endOfList')}
+              </p>
+            )}
           </div>
         )}
       </section>

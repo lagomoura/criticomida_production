@@ -241,7 +241,7 @@ export default function DishAutocomplete({
           aria-controls={listboxId}
           role="combobox"
           className={cn(
-            'h-10 w-full rounded-xl border bg-surface-card pl-9 pr-9 font-sans text-base sm:text-sm text-text-primary',
+            'h-11 w-full rounded-xl border bg-surface-card pl-9 pr-9 font-sans text-base sm:text-sm text-text-primary',
             'placeholder:text-text-muted',
             'focus:outline-none focus:[box-shadow:var(--focus-ring)]',
             'disabled:cursor-not-allowed disabled:opacity-60',
@@ -285,7 +285,7 @@ export default function DishAutocomplete({
                 onMouseEnter={() => setActiveIndex(i)}
                 onClick={() => pickExisting(d)}
                 className={cn(
-                  'flex w-full items-center gap-2 px-3 py-2 text-left font-sans text-sm text-text-primary',
+                  'flex min-h-[44px] w-full items-center gap-2 px-3 py-2.5 text-left font-sans text-sm text-text-primary',
                   i === activeIndex ? 'bg-surface-subtle' : 'bg-transparent',
                 )}
               >
@@ -304,7 +304,7 @@ export default function DishAutocomplete({
                 onClick={() => void createNew()}
                 disabled={checkingSimilar}
                 className={cn(
-                  'flex w-full items-center gap-2 px-3 py-2 text-left font-sans text-sm',
+                  'flex min-h-[44px] w-full items-center gap-2 px-3 py-2.5 text-left font-sans text-sm',
                   activeIndex === results.length
                     ? 'bg-surface-subtle text-text-primary'
                     : 'bg-transparent text-action-primary',

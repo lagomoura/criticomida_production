@@ -14,15 +14,15 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClass: Record<Variant, string> = {
   primary:
-    'bg-action-primary text-text-inverse hover:bg-action-primary-hover',
+    'bg-action-primary text-text-inverse hover:bg-action-primary-hover active:scale-[0.98] active:brightness-95',
   secondary:
-    'bg-action-secondary text-text-inverse hover:brightness-110',
+    'bg-action-secondary text-text-inverse hover:brightness-110 active:scale-[0.98] active:brightness-95',
   outline:
-    'border border-border-strong bg-transparent text-text-primary hover:bg-surface-subtle',
+    'border border-border-strong bg-transparent text-text-primary hover:bg-surface-subtle active:bg-surface-subtle',
   ghost:
-    'bg-transparent text-action-primary hover:bg-surface-subtle',
+    'bg-transparent text-action-primary hover:bg-surface-subtle active:bg-surface-subtle',
   danger:
-    'bg-action-danger text-text-inverse hover:brightness-110',
+    'bg-action-danger text-text-inverse hover:brightness-110 active:scale-[0.98] active:brightness-95',
 };
 
 const sizeClass: Record<Size, string> = {
@@ -51,7 +51,7 @@ export default function Button({
       disabled={isDisabled}
       aria-busy={loading || undefined}
       className={cn(
-        'inline-flex items-center justify-center rounded-md font-sans font-medium transition-colors',
+        'inline-flex items-center justify-center rounded-md font-sans font-medium transition-[color,background-color,transform,filter] duration-100',
         'disabled:cursor-not-allowed disabled:opacity-60',
         'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
         variantClass[variant],

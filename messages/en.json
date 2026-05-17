@@ -1133,11 +1133,11 @@
       "sectionOpinion": "Your take",
       "sectionContext": "The context",
       "sectionDetails": "Details",
-      "ratingLabel": "Rating",
+      "ratingLabel": "How was it?",
       "wouldOrderAgainLabel": "Would you order it again?",
       "yes": "Yes",
       "no": "No",
-      "notesLabel": "Notes",
+      "notesLabel": "Your review",
       "notesPlaceholder": "Tell us what blew you away — or what fell short. Texture, doneness, temperature, portion.",
       "prosLabel": "Pros",
       "prosPlaceholder": "e.g. Very tasty",
@@ -1161,8 +1161,8 @@
       "portionLarge": "Large",
       "dateLabel": "Date",
       "timeLabel": "Time",
-      "ghostwriterIntroTitle": "Need help writing?",
-      "ghostwriterIntroDesc": "AI looks at your photo and suggests notes, tags and pros/cons.",
+      "ghostwriterIntroTitle": "Don't feel like writing? We'll draft it",
+      "ghostwriterIntroDesc": "Add the dish photo and AI drafts your review — notes, tags and pros/cons. You just tweak it.",
       "visitedWithLabel": "Who with?",
       "visitedWithPlaceholder": "Family, Friends…",
       "tagsLabel": "Tags",
@@ -1216,7 +1216,11 @@
         "Bland",
         "Overcooked",
         "Slow service"
-      ]
+      ],
+      "notesPlaceholderWithDish": "Tell us what you thought of the {dish} — texture, doneness, temperature, portion.",
+      "addDetailsCta": "Advanced options",
+      "collapseDetails": "Hide advanced options",
+      "addDetailsHint": "For detail lovers: pillars, pros/cons and tags"
     },
     "technicalPillars": {
       "heading": "Technical pillars",
@@ -1836,12 +1840,17 @@
     "disabledNeedsRestaurant": "Choose a restaurant to continue",
     "disabledNeedsDish": "Choose or enter the dish name",
     "disabledNeedsNote": "Write at least 20 characters",
-    "addDetailsCta": "Add details",
-    "addDetailsHint": "Optional — pillars, context, tags",
+    "addDetailsCta": "Advanced options",
+    "addDetailsHint": "For detail lovers: pillars, pros/cons and tags",
     "collapseDetails": "Hide details",
     "restaurantQuestion": "Where did you eat it?",
     "dishQuestion": "Which dish?",
-    "changeRestaurantDish": "Change"
+    "changeRestaurantDish": "Change",
+    "identificationKicker": "Where & what did you eat?",
+    "checklistTitle": "To publish, you still need",
+    "checklistRestaurant": "Restaurant",
+    "checklistDish": "Dish",
+    "checklistNote": "Your review (20+ chars)"
   },
   "settings": {
     "title": "Settings",

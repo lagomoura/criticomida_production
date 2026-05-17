@@ -301,7 +301,7 @@ function AutocompleteInner({
           aria-controls={listboxId}
           role="combobox"
           className={cn(
-            'h-10 w-full rounded-xl border bg-surface-card pl-9 pr-9 font-sans text-base sm:text-sm text-text-primary',
+            'h-11 w-full rounded-xl border bg-surface-card pl-9 pr-9 font-sans text-base sm:text-sm text-text-primary',
             'placeholder:text-text-muted',
             'focus:outline-none focus:[box-shadow:var(--focus-ring)]',
             'disabled:cursor-not-allowed disabled:opacity-60',
@@ -349,7 +349,7 @@ function AutocompleteInner({
                 onMouseEnter={() => setActiveIndex(i)}
                 onClick={() => pickPrediction(p)}
                 className={cn(
-                  'flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left font-sans text-sm',
+                  'flex min-h-[44px] w-full flex-col items-start justify-center gap-0.5 px-3 py-2.5 text-left font-sans text-sm',
                   i === activeIndex ? 'bg-surface-subtle' : 'bg-transparent',
                 )}
               >

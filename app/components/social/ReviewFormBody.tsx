@@ -438,7 +438,7 @@ export default function ReviewFormBody({
           </span>
           <div className="flex flex-1 flex-col gap-2.5">
             <div className="flex flex-col gap-0.5">
-              <p className="m-0 font-sans text-sm font-semibold text-text-primary">
+              <p className="m-0 font-display text-lg font-medium leading-tight text-text-primary">
                 {t('ghostwriterIntroTitle')}
               </p>
               <p className="m-0 font-sans text-[12.5px] leading-snug text-text-secondary">
@@ -487,10 +487,12 @@ export default function ReviewFormBody({
         </div>
       </div>
 
-      {/* 2. Rating + ¿lo pedirías? — the gate */}
-      <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border-subtle bg-surface-card p-2.5 sm:p-3">
+      {/* 2. Rating + ¿lo pedirías? — the gate. Warm Dorado wash + accent rule
+          so the heart of the review reads as a distinct moment, not just
+          another field in the rail (social-design audit Crítico #1/Medio #2). */}
+      <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-color-dorado/30 border-l-[3px] border-l-color-dorado bg-color-dorado-pale p-2.5 sm:p-3">
         <div>
-          <label className="mb-1 block font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-text-secondary">
+          <label className="mb-1 block font-display text-base font-medium text-text-primary">
             {t('ratingLabel')} <span className="text-color-terracota">*</span>
           </label>
           <StarRating value={value.rating} onChange={(r) => set('rating', r)} size="lg" showValue />
@@ -558,7 +560,11 @@ export default function ReviewFormBody({
           hideLabel
           className="min-h-[120px]"
           rows={4}
-          placeholder={t('notesPlaceholder')}
+          placeholder={
+            dishName?.trim()
+              ? t('notesPlaceholderWithDish', { dish: dishName.trim() })
+              : t('notesPlaceholder')
+          }
           value={value.note}
           onChange={(v) => set('note', v)}
           disabled={submitting}

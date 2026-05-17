@@ -140,7 +140,7 @@ export default function ChipInput({
               type="button"
               onClick={() => togglePreset(preset)}
               disabled={disabled}
-              className="inline-flex items-center gap-1 rounded-full border border-dashed border-border-default bg-surface-card px-3 py-1 font-sans text-xs text-text-secondary transition-all hover:border-color-terracota hover:bg-color-terracota-pale hover:text-color-terracota-deep disabled:opacity-40"
+              className="inline-flex min-h-[36px] items-center gap-1 rounded-full border border-dashed border-border-default bg-surface-card px-3 py-2 font-sans text-xs text-text-secondary transition-all hover:border-color-terracota hover:bg-color-terracota-pale hover:text-color-terracota-deep disabled:opacity-40"
             >
               <span aria-hidden>+</span>
               {preset}

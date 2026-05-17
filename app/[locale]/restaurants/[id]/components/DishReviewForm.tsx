@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { createReview, updateReview, uploadReviewPhoto } from '@/app/lib/api/reviews';
 import { ApiError } from '@/app/lib/api/client';
 import { DishReview, MealPeriod, PillarScore, PortionSize } from '@/app/lib/types';
@@ -128,6 +130,11 @@ export default function DishReviewForm({
   const [body, setBody] = useState<ReviewFormBodyValue>(() => buildInitialValue(initial));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Progressive disclosure for the in-restaurant create flow: the hot path
+  // (reviewing while eating) starts on essentials only so it doesn't read as
+  // a spreadsheet. Edit keeps the full form — editing is deliberate and the
+  // user expects to see everything they previously filled.
+  const [expandedDetails, setExpandedDetails] = useState(false);
 
   function handleBodyChange(nextBody: ReviewFormBodyValue) {
     setBody(nextBody);
@@ -296,14 +303,67 @@ export default function DishReviewForm({
         </div>
       )}
 
-      <ReviewFormBody
-        value={body}
-        onChange={handleBodyChange}
-        dishId={dishId}
-        dishName={dishName}
-        currencyCode={currencyCode}
-        submitting={submitting}
-      />
+      {isEdit ? (
+        <ReviewFormBody
+          value={body}
+          onChange={handleBodyChange}
+          dishId={dishId}
+          dishName={dishName}
+          currencyCode={currencyCode}
+          submitting={submitting}
+          mode="all"
+        />
+      ) : (
+        <>
+          <ReviewFormBody
+            value={body}
+            onChange={handleBodyChange}
+            dishId={dishId}
+            dishName={dishName}
+            currencyCode={currencyCode}
+            submitting={submitting}
+            mode="essentials"
+          />
+
+          <button
+            type="button"
+            onClick={() => setExpandedDetails((v) => !v)}
+            aria-expanded={expandedDetails}
+            aria-controls="dish-review-details"
+            className="flex min-h-[44px] w-full items-center justify-between gap-3 rounded-2xl border border-border-default bg-surface-card px-4 py-3 text-left font-sans text-sm font-semibold text-text-primary transition-colors hover:border-color-terracota focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+          >
+            <span className="flex flex-col">
+              <span>{expandedDetails ? t('collapseDetails') : t('addDetailsCta')}</span>
+              {!expandedDetails && (
+                <span className="font-normal text-xs text-text-muted">
+                  {t('addDetailsHint')}
+                </span>
+              )}
+            </span>
+            <FontAwesomeIcon
+              icon={expandedDetails ? faChevronUp : faChevronDown}
+              className="h-3 w-3 text-text-muted"
+              aria-hidden
+            />
+          </button>
+
+          <div
+            id="dish-review-details"
+            hidden={!expandedDetails}
+            className="flex flex-col gap-2.5 sm:gap-3"
+          >
+            <ReviewFormBody
+              value={body}
+              onChange={handleBodyChange}
+              dishId={dishId}
+              dishName={dishName}
+              currencyCode={currencyCode}
+              submitting={submitting}
+              mode="details"
+            />
+          </div>
+        </>
+      )}
 
       <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
         <button

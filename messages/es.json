@@ -1133,11 +1133,11 @@
       "sectionOpinion": "Tu opinión",
       "sectionContext": "El contexto",
       "sectionDetails": "Detalles",
-      "ratingLabel": "Calificación",
+      "ratingLabel": "¿Cómo estuvo?",
       "wouldOrderAgainLabel": "¿Lo pedirías de nuevo?",
       "yes": "Sí",
       "no": "No",
-      "notesLabel": "Notas",
+      "notesLabel": "Tu reseña",
       "notesPlaceholder": "Contá qué te voló la cabeza — o lo que decepcionó. Textura, punto, temperatura, porción.",
       "prosLabel": "Pros",
       "prosPlaceholder": "Ej: Muy sabroso",
@@ -1161,8 +1161,8 @@
       "portionLarge": "Grande",
       "dateLabel": "Fecha",
       "timeLabel": "Hora",
-      "ghostwriterIntroTitle": "¿Querés ayuda para escribir?",
-      "ghostwriterIntroDesc": "La IA mira tu foto y te sugiere notas, etiquetas y pros/contras.",
+      "ghostwriterIntroTitle": "¿Sin ganas de escribir? Lo armamos por vos",
+      "ghostwriterIntroDesc": "Subí la foto del plato y la IA redacta tu reseña: nota, etiquetas y pros/contras. Vos solo la retocás.",
       "visitedWithLabel": "¿Con quién?",
       "visitedWithPlaceholder": "Familia, Amigos…",
       "tagsLabel": "Etiquetas",
@@ -1216,7 +1216,11 @@
         "Soso",
         "Mal cocinado",
         "Tardó mucho"
-      ]
+      ],
+      "notesPlaceholderWithDish": "Contá qué te pareció el {dish} — textura, punto, temperatura, porción.",
+      "addDetailsCta": "Ver opciones avanzadas",
+      "collapseDetails": "Ocultar opciones avanzadas",
+      "addDetailsHint": "Para amantes del detalle: pilares, pros/contras y tags"
     },
     "technicalPillars": {
       "heading": "Pilares técnicos",
@@ -1836,12 +1840,17 @@
     "disabledNeedsRestaurant": "Elegí un restaurante para continuar",
     "disabledNeedsDish": "Elegí o escribí el nombre del plato",
     "disabledNeedsNote": "Escribí al menos 20 caracteres",
-    "addDetailsCta": "Agregar detalles",
-    "addDetailsHint": "Opcional — pilares, contexto, tags",
+    "addDetailsCta": "Ver opciones avanzadas",
+    "addDetailsHint": "Para amantes del detalle: pilares, pros/contras y tags",
     "collapseDetails": "Ocultar detalles",
     "restaurantQuestion": "¿Dónde lo comiste?",
     "dishQuestion": "¿Qué plato?",
-    "changeRestaurantDish": "Cambiar"
+    "changeRestaurantDish": "Cambiar",
+    "identificationKicker": "¿Dónde y qué comiste?",
+    "checklistTitle": "Para publicar te falta",
+    "checklistRestaurant": "Restaurante",
+    "checklistDish": "Plato",
+    "checklistNote": "Tu reseña (20+ caracteres)"
   },
   "settings": {
     "title": "Configuración",
