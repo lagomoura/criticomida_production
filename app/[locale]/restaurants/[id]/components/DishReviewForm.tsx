@@ -352,6 +352,19 @@ export default function DishReviewForm({
             hidden={!expandedDetails}
             className="flex flex-col gap-2.5 sm:gap-3"
           >
+            {/* Ola 3 — Encuadre editorial "modo avanzado" (ver ComposeClient).
+                Mismo patrón: voz Palato, no un warning. */}
+            <div className="flex items-start gap-3 rounded-2xl border border-border-subtle bg-surface-card px-4 py-3">
+              <span aria-hidden="true" className="mt-0.5 text-base">✦</span>
+              <div>
+                <p className="m-0 font-display text-base font-medium leading-snug text-text-primary">
+                  {t('advancedModeTitle')}
+                </p>
+                <p className="m-0 mt-0.5 font-sans text-[12.5px] leading-relaxed text-text-muted">
+                  {t('advancedModeDesc')}
+                </p>
+              </div>
+            </div>
             <ReviewFormBody
               value={body}
               onChange={handleBodyChange}

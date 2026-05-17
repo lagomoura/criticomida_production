@@ -30,7 +30,7 @@ const TONE_STYLES: Record<NonNullable<SegmentedOption<string>['tone']>, string> 
   // Dorado = confirmación / positivo (premium).
   // Terracota queda reservado para CTA / acción primaria (tone="neutral").
   // Terracota-deep para tono negativo / destructivo.
-  positive: 'border-[color:var(--color-dorado)] bg-[color:var(--color-dorado)] text-text-inverse shadow-sm',
+  positive: 'border-[color:var(--color-dorado)] bg-[color:var(--color-dorado)] text-text-on-gold shadow-sm',
   neutral:  'border-action-primary bg-action-primary text-text-inverse shadow-sm',
   negative: 'border-[color:var(--color-terracota-deep)] bg-[color:var(--color-terracota-deep)] text-text-inverse shadow-sm',
 };

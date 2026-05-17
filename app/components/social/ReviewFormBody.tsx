@@ -516,7 +516,7 @@ export default function ReviewFormBody({
                   'rounded-full border-2 px-4 py-2.5 font-sans text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] ' +
                   (value.wouldOrderAgain === v
                     ? v
-                      ? 'border-color-dorado bg-color-dorado text-text-inverse'
+                      ? 'border-color-dorado bg-color-dorado text-text-on-gold'
                       : 'border-color-terracota-deep bg-color-terracota-deep text-text-inverse'
                     : 'border-border-subtle bg-surface-page text-text-secondary hover:border-border-default hover:bg-surface-subtle')
                 }
@@ -546,14 +546,28 @@ export default function ReviewFormBody({
 
       {showNota && (
         <>
-      {/* 4. Notes — full width, breathes */}
+      {/* 4. Notes — full width, breathes.
+          Ola 3: en modo essentials el label pasa de planilla uppercase-chico
+          a pregunta editorial en Cormorant — diferencia visual intencional
+          entre el campo primario (la opinión) y los secundarios (precio, fecha,
+          porción). En modo 'all' conservamos el estilo compacto porque el form
+          es más denso y el usuario ya está en modo nerd. */}
       <div>
-        <label
-          htmlFor="review-note"
-          className="mb-1 block font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-text-secondary"
-        >
-          {t('notesLabel')}
-        </label>
+        {mode === 'essentials' ? (
+          <label
+            htmlFor="review-note"
+            className="mb-1.5 block font-display text-lg font-medium leading-tight text-text-primary"
+          >
+            {t('notesLabel')}
+          </label>
+        ) : (
+          <label
+            htmlFor="review-note"
+            className="mb-1 block font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-text-secondary"
+          >
+            {t('notesLabel')}
+          </label>
+        )}
         <MentionTextarea
           id="review-note"
           label={t('notesLabel')}

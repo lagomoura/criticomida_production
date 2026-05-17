@@ -273,7 +273,7 @@ export default function GhostwriterAssist({
                         setBlurbApplied(true);
                       }}
                       className={cn(
-                        'inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold',
+                        'inline-flex min-h-[44px] w-fit items-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold',
                         blurbApplied
                           ? 'bg-surface-subtle text-text-muted'
                           : 'bg-action-primary text-text-inverse hover:bg-action-primary-hover',
@@ -431,7 +431,7 @@ function Chip({
       onClick={onClick}
       disabled={used}
       className={cn(
-        'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+        'inline-flex min-h-[36px] items-center gap-1 rounded-full border px-3 py-2 text-xs font-medium transition-colors',
         used && 'cursor-default border-border-subtle bg-surface-subtle text-text-muted line-through',
         !used &&
           accent &&

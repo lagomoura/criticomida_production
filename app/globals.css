@@ -49,6 +49,9 @@
   --text-muted:     var(--neutral-600);
   --text-disabled:  var(--neutral-500);
   --text-inverse:   var(--color-white);   /* sobre fondos de marca; fijo en ambos temas */
+  --text-on-gold:   #2A211C;               /* texto sobre fondos Dorado (#D6A75C/#C99A52);
+                                              fijo en ambos temas — WCAG AA ≥5.9:1.
+                                              No usar --color-espresso: se invierte en .dark. */
 
   /* Superficies */
   --surface-page:   var(--neutral-200);
@@ -157,6 +160,7 @@
   --color-text-muted:           var(--text-muted);
   --color-text-disabled:        var(--text-disabled);
   --color-text-inverse:         var(--text-inverse);
+  --color-text-on-gold:         var(--text-on-gold);
   --color-surface-page:         var(--surface-page);
   --color-surface-card:         var(--surface-card);
   --color-surface-subtle:       var(--surface-subtle);
@@ -261,6 +265,38 @@ body::before {
     from { opacity: 0; transform: translateY(4px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+}
+
+/* Publish celebration — overlay de éxito post-publicación en ComposeClient. */
+/* Tres layers: fade-in del overlay, scale-in del check, slide-up del texto. */
+/* prefers-reduced-motion: solo fade (sin transform) para no incomodar.      */
+@keyframes cc-celebrate-overlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes cc-celebrate-check {
+  0%   { transform: scale(0.4) rotate(-15deg); opacity: 0; }
+  55%  { transform: scale(1.18) rotate(4deg);  opacity: 1; }
+  80%  { transform: scale(0.94) rotate(-1deg); }
+  100% { transform: scale(1)    rotate(0deg);  opacity: 1; }
+}
+@keyframes cc-celebrate-text {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Motion-safe wrappers — sin prefers-reduced-motion solo aparece el fade. */
+@media (prefers-reduced-motion: no-preference) {
+  .cc-celebrate-check-anim {
+    animation: cc-celebrate-check 650ms var(--ease-spoon) both;
+  }
+  .cc-celebrate-text-anim {
+    animation: cc-celebrate-text 500ms ease-out both;
+    animation-delay: 300ms;
+  }
+}
+/* Fade siempre activo (no es motion, es opacidad de entrada). */
+.cc-celebrate-overlay-anim {
+  animation: cc-celebrate-overlay 280ms ease-out both;
 }
 
 .text-muted {

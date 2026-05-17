@@ -1220,7 +1220,9 @@
       "notesPlaceholderWithDish": "Conta o que achou do {dish} — textura, ponto, temperatura, porção.",
       "addDetailsCta": "Ver opções avançadas",
       "collapseDetails": "Ocultar opções avançadas",
-      "addDetailsHint": "Para quem ama detalhes: pilares, prós/contras e tags"
+      "addDetailsHint": "Para quem ama detalhes: pilares, prós/contras e tags",
+      "advancedModeTitle": "Modo crítico",
+      "advancedModeDesc": "Pilares técnicos, prós/contras e contexto. Tudo é opcional — preencha só o que agrega valor."
     },
     "technicalPillars": {
       "heading": "Pilares técnicos",
@@ -1780,7 +1782,12 @@
     "shareCardCTA": "Criar cartão"
   },
   "compose": {
-    "title": "Nova resenha",
+    "title": "O que você comeu?",
+    "titlePrefix": "Minha resenha de",
+    "celebrationKicker": "Sua resenha já está no Palato",
+    "celebrationMessage": "Obrigado por compartilhar. Cada resenha ajuda alguém a escolher melhor sua próxima refeição.",
+    "advancedModeTitle": "Modo crítico",
+    "advancedModeDesc": "Pilares técnicos, prós/contras e contexto. Para quando quiser ir mais fundo — tudo é opcional.",
     "subtitle": "Fale do prato: textura, ponto, porção, preço. Seja específico, como se contasse para um amigo.",
     "anonTitle": "Entre para publicar",
     "anonDescription": "Você assina suas resenhas. Entre na sua conta para publicar.",
@@ -1842,7 +1849,7 @@
     "disabledNeedsNote": "Escreva pelo menos 20 caracteres",
     "addDetailsCta": "Ver opções avançadas",
     "addDetailsHint": "Para quem ama detalhes: pilares, prós/contras e tags",
-    "collapseDetails": "Ocultar detalhes",
+    "collapseDetails": "Ocultar opções avançadas",
     "restaurantQuestion": "Onde você comeu?",
     "dishQuestion": "Qual prato?",
     "changeRestaurantDish": "Trocar",

@@ -1220,7 +1220,9 @@
       "notesPlaceholderWithDish": "Tell us what you thought of the {dish} — texture, doneness, temperature, portion.",
       "addDetailsCta": "Advanced options",
       "collapseDetails": "Hide advanced options",
-      "addDetailsHint": "For detail lovers: pillars, pros/cons and tags"
+      "addDetailsHint": "For detail lovers: pillars, pros/cons and tags",
+      "advancedModeTitle": "Critic mode",
+      "advancedModeDesc": "Technical pillars, pros/cons and context. All optional — fill in only what adds value."
     },
     "technicalPillars": {
       "heading": "Technical pillars",
@@ -1780,7 +1782,12 @@
     "shareCardCTA": "Create card"
   },
   "compose": {
-    "title": "New review",
+    "title": "What did you eat?",
+    "titlePrefix": "My review of",
+    "celebrationKicker": "Your review is now on Palato",
+    "celebrationMessage": "Thanks for sharing. Every review helps someone make a better choice for their next meal.",
+    "advancedModeTitle": "Critic mode",
+    "advancedModeDesc": "Technical pillars, pros/cons and context. For when you want to go deeper — all optional.",
     "subtitle": "Talk about the dish: texture, doneness, portion, price. Be specific, like you'd tell a friend.",
     "anonTitle": "Sign in to post",
     "anonDescription": "You sign your reviews. Sign in to publish.",
@@ -1842,7 +1849,7 @@
     "disabledNeedsNote": "Write at least 20 characters",
     "addDetailsCta": "Advanced options",
     "addDetailsHint": "For detail lovers: pillars, pros/cons and tags",
-    "collapseDetails": "Hide details",
+    "collapseDetails": "Hide advanced options",
     "restaurantQuestion": "Where did you eat it?",
     "dishQuestion": "Which dish?",
     "changeRestaurantDish": "Change",

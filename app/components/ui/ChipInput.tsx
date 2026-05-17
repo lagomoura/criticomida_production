@@ -28,7 +28,7 @@ interface ChipInputProps {
 }
 
 const ACTIVE_TONE: Record<NonNullable<ChipInputProps['tone']>, string> = {
-  positive: 'border-transparent bg-color-dorado text-text-inverse',
+  positive: 'border-transparent bg-color-dorado text-text-on-gold',
   negative: 'border-transparent bg-color-terracota-deep text-text-inverse',
   neutral: 'border-transparent bg-action-primary text-text-inverse',
 };

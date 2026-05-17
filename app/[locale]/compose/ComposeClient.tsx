@@ -9,6 +9,7 @@ import {
   faChevronUp,
   faCircle,
   faCircleCheck,
+  faCheckCircle,
   faLock,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
@@ -99,6 +100,13 @@ export default function ComposeClient() {
   const [uploadProgress, setUploadProgress] = useState<Map<number, UploadStatus>>(new Map());
   const [formError, setFormError] = useState<string | null>(null);
   const [draftRestored, setDraftRestored] = useState(false);
+  // Post-publish celebration overlay. `celebrationData` holds the info to
+  // display (dish + restaurant name) while the timed navigation fires.
+  const [celebrationData, setCelebrationData] = useState<{
+    dishName: string;
+    restaurantName: string;
+    postId: string;
+  } | null>(null);
   // Hydration gate for the autosave effect: skip the very first render so we
   // don't clobber the persisted draft with the empty initial state before the
   // restore effect has had a chance to run.
@@ -326,6 +334,16 @@ export default function ComposeClient() {
         });
         clearComposeDraft();
         const postId = post.id;
+
+        // Ola 3 WOW: muestra el overlay celebratorio ~1.7 s antes de navegar.
+        // El toast sigue como fallback accesible; el overlay es el momento
+        // emocional principal. El router.push ocurre después del beat para
+        // que el usuario lea el nombre de su plato en Cormorant.
+        setCelebrationData({
+          dishName: trimmedDishName,
+          restaurantName: place.name,
+          postId,
+        });
         toast.toast({
           title: t('successTitle'),
           description: t('successDescription', { dish: dish.name, restaurant: place.name }),
@@ -336,14 +354,15 @@ export default function ComposeClient() {
             onClick: () => router.push(`/reviews/${postId}`),
           },
         });
-        router.push(`/reviews/${postId}`);
-        // Plan A: la navegación descarga la pantalla, no hace falta
-        // resetear submitting. Plan B (defensivo): si por algún motivo
-        // la nav no descarga (HMR, ruta inválida, etc.) liberamos el
-        // botón después de un beat corto para que el usuario pueda
-        // intentar volver a publicar o navegar al review desde el toast.
         window.clearTimeout(failsafeUnlock);
-        window.setTimeout(() => setSubmitting(false), 1500);
+        // Navegar después de 1700 ms — tiempo suficiente para leer el overlay
+        // sin sentir que la navegación "faltó". El failsafe de 12 s sigue
+        // vigente vía la nueva rama setTimeout que resetea submitting si la
+        // navegación no ocurre (ej. dev HMR).
+        window.setTimeout(() => {
+          router.push(`/reviews/${postId}`);
+          window.setTimeout(() => setSubmitting(false), 1500);
+        }, 1700);
       } catch (err) {
         window.clearTimeout(failsafeUnlock);
         const message =
@@ -441,15 +460,62 @@ export default function ComposeClient() {
   }
 
   return (
+    <>
+    {/* Ola 3 — Overlay de éxito post-publicación.
+        Aparece ~1.7 s antes de la navegación: feedback emocional puro.
+        Sin botones que hagan pensar (DMMT). Fondo crema semiopaco con
+        blur para que el form de fondo confirme que el submit ocurrió.
+        La animación respeta prefers-reduced-motion (solo fade si reduce). */}
+    {celebrationData && (
+      <div
+        role="status"
+        aria-live="polite"
+        aria-label={t('successTitle')}
+        className="cc-celebrate-overlay-anim fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-surface-page/95 px-6 text-center backdrop-blur-sm"
+      >
+        {/* Check icon en Dorado — éxito semántico con ícono explícito */}
+        <span
+          aria-hidden="true"
+          className="cc-celebrate-check-anim flex h-20 w-20 items-center justify-center rounded-full bg-color-dorado-pale text-color-dorado shadow-[var(--shadow-elevated)]"
+        >
+          <FontAwesomeIcon icon={faCheckCircle} className="h-10 w-10" />
+        </span>
+
+        <div className="cc-celebrate-text-anim flex flex-col items-center gap-2">
+          <p className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-text-secondary">
+            {t('celebrationKicker')}
+          </p>
+          {/* Nombre del plato en Cormorant italic — brand-identity-v2 §3.4 */}
+          <p className="font-display text-3xl font-medium leading-tight text-text-primary sm:text-4xl">
+            <em className="italic">{celebrationData.dishName}</em>
+          </p>
+          <p className="font-sans text-sm text-text-muted">
+            {celebrationData.restaurantName}
+          </p>
+          <p className="mt-1 max-w-xs font-sans text-[13px] leading-relaxed text-text-secondary">
+            {t('celebrationMessage')}
+          </p>
+        </div>
+      </div>
+    )}
+
     <div
       className="cc-container flex max-w-3xl flex-col gap-4 py-5"
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.5rem)' }}
     >
       <header className="flex flex-col gap-1">
+        {/* Ola 3: h1 con voz de marca Palato. Cuando hay plato, el nombre
+            va en Cormorant italic (brand-identity-v2 §3.4: itálica para
+            nombres de platos en reviews). Sin plato: copy con voz editorial. */}
         <h1 className="line-clamp-2 font-display text-3xl font-medium text-text-primary sm:text-4xl">
-          {dish?.name?.trim()
-            ? t('titleWithDish', { dish: dish.name.trim() })
-            : t('title')}
+          {dish?.name?.trim() ? (
+            <>
+              {t('titlePrefix')}{' '}
+              <em className="italic">{dish.name.trim()}</em>
+            </>
+          ) : (
+            t('title')
+          )}
         </h1>
         <p className="font-sans text-sm text-text-muted">
           {t('subtitle')}
@@ -556,6 +622,24 @@ export default function ComposeClient() {
             hidden={!expandedDetails}
             className="flex flex-col gap-3"
           >
+            {/* Ola 3 — Encuadre editorial "modo avanzado".
+                Orienta al usuario sin romper el flujo del nerd: copy con voz
+                Palato + separador visual que marca la transición del camino
+                esencial al opcional. DMMT: no es un bloqueo ni un warning,
+                solo contexto que libera la tensión de "¿tengo que llenar todo?"
+            */}
+            <div className="flex items-start gap-3 rounded-2xl border border-border-subtle bg-surface-card px-4 py-3">
+              <span aria-hidden="true" className="mt-0.5 text-base">✦</span>
+              <div>
+                <p className="m-0 font-display text-base font-medium leading-snug text-text-primary">
+                  {t('advancedModeTitle')}
+                </p>
+                <p className="m-0 mt-0.5 font-sans text-[12.5px] leading-relaxed text-text-muted">
+                  {t('advancedModeDesc')}
+                </p>
+              </div>
+            </div>
+
             {/* Price tier — sólo cuando se está creando un plato nuevo;
                 para platos existentes ya vino del catálogo. */}
             {isNewDish && (
@@ -645,13 +729,13 @@ export default function ComposeClient() {
                     className={
                       'inline-flex items-center gap-1 font-sans text-xs ' +
                       (r.done
-                        ? 'text-color-dorado'
+                        ? 'text-text-muted'
                         : 'font-semibold text-text-secondary')
                     }
                   >
                     <FontAwesomeIcon
                       icon={r.done ? faCircleCheck : faCircle}
-                      className={r.done ? 'h-3 w-3' : 'h-2 w-2'}
+                      className={r.done ? 'h-3 w-3 text-color-dorado' : 'h-2 w-2'}
                       aria-hidden
                     />
                     {r.label}
@@ -695,6 +779,7 @@ export default function ComposeClient() {
         </form>
       )}
     </div>
+    </>
   );
 }
 
