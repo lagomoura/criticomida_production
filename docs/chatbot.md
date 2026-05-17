@@ -528,6 +528,19 @@ estado actual, no la historia.
       en `DishCardData` y `ComparisonDishEntry` (queda compatible
       hacia atrás con respuestas viejas que aún no traen el campo).
     Suite unit: 270/270 sigue pasando.
+  - **Extensión del fix — `search_dishes` y `get_dish_detail`**.
+    El bugfix original sólo cableó `recommend_dishes`/`compare_dishes`.
+    Faltaban dos call-sites de `_serialize_dish` que seguían saliendo
+    siempre con `want_to_try:false`:
+    - `execute_dish_search` (`search_dishes`) ahora carga
+      `get_saved_dish_ids` para el lote y pasa `saved_ids=` —
+      mismo patrón que `recommend`.
+    - `make_get_dish_detail_tool` (`get_dish_detail`) hidrata el
+      único dish contra la wishlist real del comensal. Anon/Business
+      (`user_id` None, p. ej. cuando el Business usa la tool para
+      diagnóstico de pilares) → set vacío → `want_to_try:false`,
+      que es el comportamiento correcto: ahí la tool no es de
+      consumo social.
   - **Fase 7 — Memoria persistente B2C + página `/me/preferencias`**.
     Espejo del Sommelier de la Fase 5 del Business: el comensal
     ahora puede pinear preferencias del chat (idioma + estilo de
