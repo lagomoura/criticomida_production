@@ -214,13 +214,19 @@ function NavLink({
 
   const content = (
     <>
-      <FontAwesomeIcon icon={icon} aria-hidden className="h-4 w-4" />
+      <span className="relative inline-flex">
+        <FontAwesomeIcon icon={icon} aria-hidden className="h-4 w-4" />
+        {typeof badge === 'number' && badge > 0 && (
+          <Badge
+            variant="danger"
+            size="sm"
+            className="absolute -right-2 -top-2 ring-2 ring-surface-page"
+          >
+            {badge > 99 ? '99+' : badge}
+          </Badge>
+        )}
+      </span>
       <span>{label}</span>
-      {typeof badge === 'number' && badge > 0 && (
-        <Badge variant="danger" size="sm" className="ml-0.5">
-          {badge > 99 ? '99+' : badge}
-        </Badge>
-      )}
       <span
         aria-hidden
         className={cn(
