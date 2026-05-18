@@ -48,7 +48,7 @@ export default function IconButton({
       aria-busy={loading || undefined}
       className={cn(
         'inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full px-2 text-sm transition-colors',
-        'hover:bg-surface-subtle active:opacity-85',
+        'active:opacity-85',
         'disabled:cursor-not-allowed disabled:opacity-60',
         'focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]',
         selectedClasses,
@@ -82,19 +82,19 @@ export default function IconButton({
 }
 
 /**
- * Cuando un toggle está seleccionado, además del color del icono pintamos un
- * fondo "encendido" (color pale del token) — el botón se siente activo, no
- * solo "marcado". Cuando no está seleccionado: muted neutro.
+ * Patrón Instagram: sin relleno de fondo. Cuando un toggle está seleccionado
+ * solo pintamos el color del icono con su token "encendido"; cuando no está
+ * seleccionado, muted neutro.
  */
 function selectedClassesFor(intent: IconButtonIntent, selected: boolean): string {
   if (!selected) return 'text-text-muted';
   switch (intent) {
     case 'like':
-      return 'text-[var(--state-like-on)] bg-[color:var(--color-terracota-pale)] hover:bg-[color:var(--color-terracota-pale)]';
+      return 'text-[var(--state-like-on)]';
     case 'save':
-      return 'text-[var(--state-save-on)] bg-[color:var(--color-terracota-pale)] hover:bg-[color:var(--color-terracota-pale)]';
+      return 'text-[var(--state-save-on)]';
     case 'follow':
-      return 'text-[var(--state-follow-on)] bg-[color:var(--color-dorado-pale)] hover:bg-[color:var(--color-dorado-pale)]';
+      return 'text-[var(--state-follow-on)]';
     default:
       return 'text-text-primary';
   }
