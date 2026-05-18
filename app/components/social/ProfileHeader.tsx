@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faCircleCheck,
   faEllipsisVertical,
   faRightFromBracket,
   faShieldHalved,
   faUtensils,
 } from '@fortawesome/free-solid-svg-icons';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/app/lib/i18n/navigation';
 import Avatar from '@/app/components/ui/Avatar';
 import Button from '@/app/components/ui/Button';
@@ -32,6 +33,11 @@ export interface ProfileHeaderProps {
   onOpenFollowers?: (userId: string) => void;
   onOpenFollowing?: (userId: string) => void;
   /**
+   * Scroll suave a la sección de reseñas del propio perfil.
+   * Misma convención que onOpenFollowers/onOpenFollowing.
+   */
+  onOpenReviews?: (userId: string) => void;
+  /**
    * Abre el menú "⋯" en el header (Reportar / Silenciar / Bloquear).
    * Solo se renderiza el botón cuando el viewer está logueado Y no es su
    * propio perfil; eso lo decide el caller con esta prop.
@@ -48,10 +54,12 @@ export default function ProfileHeader({
   logoutLoading = false,
   onOpenFollowers,
   onOpenFollowing,
+  onOpenReviews,
   onOpenMenu,
 }: ProfileHeaderProps) {
   const t = useTranslations('profile.header');
   const tSpec = useTranslations('profile.specialty');
+  const locale = useLocale();
   const { isSelf, following } = profile.viewerState;
   const kicker = isSelf ? t('kickerSelf') : t('kickerOther');
   const [bioExpanded, setBioExpanded] = useState(false);
@@ -120,45 +128,43 @@ export default function ProfileHeader({
         </div>
       )}
 
-      <dl className="flex flex-wrap items-baseline gap-x-5 gap-y-3 font-sans text-sm">
-        <Stat label={t('statReviews')} value={profile.counts.reviews} />
+      {/* ── Barra de stats estilo Instagram: 3 columnas iguales, siempre una fila.
+           No es <dl>: son botones de navegación, no una lista de definiciones.
+           El nombre accesible va por aria-label en cada <button>. ── */}
+      <div className="grid grid-cols-3 divide-x divide-border-subtle border-y border-border-subtle">
+        <Stat
+          label={t('statReviews')}
+          value={profile.counts.reviews}
+          locale={locale}
+          onClick={onOpenReviews ? () => onOpenReviews(profile.id) : undefined}
+        />
         <Stat
           label={t('statFollowers')}
           value={profile.counts.followers}
+          locale={locale}
           onClick={onOpenFollowers ? () => onOpenFollowers(profile.id) : undefined}
         />
         <Stat
           label={t('statFollowing')}
           value={profile.counts.following}
+          locale={locale}
           onClick={onOpenFollowing ? () => onOpenFollowing(profile.id) : undefined}
         />
-        {profile.reputation && profile.reputation.verifiedReviewCount > 0 && (
-          <Tooltip
-            multiline
-            portal
-            label={
-              <>
-                <strong className="font-semibold">{t('expertTooltipLead')}</strong>{' '}
-                {t('expertTooltipBody')}
-              </>
-            }
-          >
-            <span tabIndex={0} className="cursor-help">
-              <Stat
-                label={t('statExperts')}
-                value={profile.reputation.verifiedReviewCount}
-                accent
-              />
-            </span>
-          </Tooltip>
-        )}
-        {profile.reputation && profile.reputation.restaurantsVisited > 0 && (
-          <Stat
-            label={t('statVenues')}
-            value={profile.reputation.restaurantsVisited}
+      </div>
+
+      {/* ── Tira de reputación: solo si hay datos, ubicada antes de Especialidades ── */}
+      {profile.reputation &&
+        (profile.reputation.verifiedReviewCount > 0 ||
+          profile.reputation.restaurantsVisited > 0) && (
+          <ReputationStrip
+            verifiedCount={profile.reputation.verifiedReviewCount}
+            venuesCount={profile.reputation.restaurantsVisited}
+            expertLabel={t('statExperts')}
+            venuesLabel={t('statVenues')}
+            tooltipLead={t('expertTooltipLead')}
+            tooltipBody={t('expertTooltipBody')}
           />
         )}
-      </dl>
 
       {profile.reputation && profile.reputation.topCategories.length > 0 && (
         <SpecialtySection categories={profile.reputation.topCategories} />
@@ -324,49 +330,135 @@ export default function ProfileHeader({
   }
 }
 
+/**
+ * Stat — columna de la barra de stats estilo Instagram.
+ * Siempre es un <button> (las 3 columnas tienen onClick).
+ * Layout columna: número arriba (Cormorant), label abajo (DM Sans caps).
+ * Tap target mínimo 44px garantizado por min-h-[44px].
+ */
 function Stat({
   label,
   value,
+  locale,
   onClick,
-  accent = false,
 }: {
   label: string;
   value: number;
+  locale: string;
   onClick?: () => void;
-  accent?: boolean;
 }) {
-  const content = (
-    <>
-      <dt className="sr-only">{label}</dt>
-      <dd className="m-0 flex items-baseline gap-1.5">
-        <span
-          className={
-            accent
-              ? 'font-display text-2xl font-medium tabular-nums text-[color:var(--color-terracota)]'
-              : 'font-display text-2xl font-medium tabular-nums text-action-primary'
+  const formatted = formatStatCount(value, locale);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
+      aria-label={`${formatted} ${label}`}
+      className={[
+        'flex w-full flex-col items-center justify-center gap-0.5 py-3',
+        'min-h-[44px] transition-colors',
+        onClick
+          ? 'cursor-pointer hover:bg-surface-subtle/60 active:bg-surface-subtle focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]'
+          : 'cursor-default',
+      ].join(' ')}
+    >
+      <span
+        aria-hidden
+        className="font-display text-2xl font-medium tabular-nums text-text-primary"
+      >
+        {formatted}
+      </span>
+      <span
+        aria-hidden
+        className="font-sans text-[11px] uppercase tracking-[0.14em] text-text-muted"
+      >
+        {label}
+      </span>
+    </button>
+  );
+}
+
+/**
+ * Formatea un contador de stat. Bajo 10.000 usa separador de miles del
+ * locale ("1.234"); a partir de 10.000 usa notación compacta ("12 mil",
+ * "1,2 M") para que el número no rompa el ancho de la columna en mobile.
+ */
+function formatStatCount(value: number, locale: string): string {
+  if (value < 10_000) {
+    return new Intl.NumberFormat(locale).format(value);
+  }
+  return new Intl.NumberFormat(locale, {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
+/**
+ * ReputationStrip — tira de credibilidad de reputación.
+ * Muestra "verificadas" (con tooltip) y "locales" como chips de marca,
+ * reaprovechando el lenguaje visual de CategoryChip.
+ * Solo se renderiza cuando hay al menos un dato positivo.
+ * CONTRASTE: texto text-text-primary/espresso sobre tinte terracota-pale → WCAG AA.
+ */
+function ReputationStrip({
+  verifiedCount,
+  venuesCount,
+  expertLabel,
+  venuesLabel,
+  tooltipLead,
+  tooltipBody,
+}: {
+  verifiedCount: number;
+  venuesCount: number;
+  expertLabel: string;
+  venuesLabel: string;
+  tooltipLead: string;
+  tooltipBody: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {verifiedCount > 0 && (
+        <Tooltip
+          multiline
+          portal
+          label={
+            <>
+              <strong className="font-semibold">{tooltipLead}</strong>{' '}
+              {tooltipBody}
+            </>
           }
         >
-          {value}
+          <span
+            tabIndex={0}
+            className="inline-flex cursor-help items-center gap-1.5 rounded-full border border-[color:var(--color-terracota)]/30 bg-[color:var(--color-terracota)]/8 px-3 py-1 font-sans text-xs font-medium text-text-primary"
+          >
+            <FontAwesomeIcon
+              icon={faCircleCheck}
+              className="text-[12px] text-[color:var(--color-terracota)]"
+              aria-hidden
+            />
+            <span className="font-display text-xs font-semibold tabular-nums text-text-primary">
+              {verifiedCount}
+            </span>
+            <span>{expertLabel}</span>
+          </span>
+        </Tooltip>
+      )}
+      {venuesCount > 0 && (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--color-terracota)]/30 bg-[color:var(--color-terracota)]/8 px-3 py-1 font-sans text-xs font-medium text-text-primary">
+          <FontAwesomeIcon
+            icon={faUtensils}
+            className="text-[10px] text-[color:var(--color-terracota)]"
+            aria-hidden
+          />
+          <span className="font-display text-xs font-semibold tabular-nums text-text-primary">
+            {venuesCount}
+          </span>
+          <span>{venuesLabel}</span>
         </span>
-        <span className="font-sans text-xs uppercase tracking-[0.14em] text-text-muted">
-          {label}
-        </span>
-      </dd>
-    </>
+      )}
+    </div>
   );
-
-  if (onClick) {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        className="cursor-pointer rounded-md text-left transition-colors hover:[&_dd>span:first-child]:text-action-primary-hover focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
-      >
-        {content}
-      </button>
-    );
-  }
-  return <div>{content}</div>;
 }
 
 const LEVEL_ORDER: Array<MasteryLevel | null> = [

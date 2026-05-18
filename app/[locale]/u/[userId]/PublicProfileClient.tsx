@@ -256,6 +256,17 @@ export default function PublicProfileClient({ userId }: Props) {
         logoutLoading={loggingOut}
         onOpenFollowers={(id) => router.push(`/u/${id}/followers`)}
         onOpenFollowing={(id) => router.push(`/u/${id}/following`)}
+        onOpenReviews={() => {
+          // Respeta prefers-reduced-motion: 'smooth' solo si el usuario
+          // no ha solicitado reducción de movimiento.
+          const prefersReduced =
+            typeof window !== 'undefined' &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          document.getElementById('user-reviews')?.scrollIntoView({
+            behavior: prefersReduced ? 'auto' : 'smooth',
+            block: 'start',
+          });
+        }}
         // Solo perfil ajeno con sesión activa: ⋯ ofrece block/mute/report.
         onOpenMenu={user && !profile.viewerState.isSelf ? () => setProfileMenuOpen(true) : undefined}
       />
@@ -272,7 +283,14 @@ export default function PublicProfileClient({ userId }: Props) {
         />
       )}
 
-      <section className="flex flex-col gap-4" aria-labelledby="user-reviews-title">
+      <section
+        id="user-reviews"
+        // scroll-margin que absorbe el notch/Dynamic Island: el MobileTopbar
+        // sticky mide ~3.85rem + env(safe-area-inset-top). Un scroll-mt fijo
+        // dejaba el heading tapado en iPhone 13+/14 Pro/15.
+        className="flex flex-col gap-4 [scroll-margin-top:calc(5rem+env(safe-area-inset-top,0px))]"
+        aria-labelledby="user-reviews-title"
+      >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="user-reviews-title" className="font-display text-2xl font-medium text-text-primary">
             {t('reviewsHeading')}
@@ -413,10 +431,15 @@ function LoadingView() {
           <Skeleton shape="line" width="70%" />
         </div>
       </div>
-      <div className="flex gap-6">
-        <Skeleton shape="line" width={80} />
-        <Skeleton shape="line" width={80} />
-        <Skeleton shape="line" width={80} />
+      {/* Refleja la barra de stats real (grid 3-col con border-y/divide-x)
+          para que la transición loading→cargado no genere layout shift. */}
+      <div className="grid grid-cols-3 divide-x divide-border-subtle border-y border-border-subtle">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex flex-col items-center gap-0.5 py-3">
+            <Skeleton shape="line" width={36} height={24} />
+            <Skeleton shape="line" width={56} height={10} />
+          </div>
+        ))}
       </div>
       <Skeleton shape="box" width={120} height={40} />
       <div className="flex flex-col gap-4">
