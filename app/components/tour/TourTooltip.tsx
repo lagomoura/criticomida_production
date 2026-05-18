@@ -27,6 +27,9 @@ interface TourTooltipProps {
   isLast: boolean;
   position: TooltipPosition;
   reducedMotion: boolean;
+  /** Reporta el alto real del card al overlay para reposicionarlo
+   *  (un card hero/copy largo no entra en la estimación constante). */
+  onHeight?: (height: number) => void;
   onPrev: () => void;
   onNext: () => void;
   onSkip: () => void;
@@ -42,6 +45,7 @@ export default function TourTooltip({
   isLast,
   position,
   reducedMotion,
+  onHeight,
   onPrev,
   onNext,
   onSkip,
@@ -56,6 +60,26 @@ export default function TourTooltip({
     const cleanup = trapFocus(cardRef.current);
     return cleanup;
   }, [currentStep]);
+
+  // Medir el alto real y reportarlo. ResizeObserver cubre el cambio de
+  // copy entre steps y el reflow por fuente/idioma. Solo emitimos si
+  // cambió >1px para no entrar en loop con el reposicionamiento.
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el || !onHeight) return;
+    let last = 0;
+    const report = () => {
+      const h = el.offsetHeight;
+      if (Math.abs(h - last) > 1) {
+        last = h;
+        onHeight(h);
+      }
+    };
+    report();
+    const obs = new ResizeObserver(report);
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [onHeight, currentStep]);
 
   return (
     <div

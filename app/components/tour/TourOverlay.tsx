@@ -73,6 +73,7 @@ function computeTooltipPosition(
   rect: DOMRect | null,
   placement: TourPlacement,
   width: number,
+  height: number,
 ): TooltipPosition {
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1024;
   const vh = typeof window !== 'undefined' ? window.innerHeight : 768;
@@ -80,7 +81,7 @@ function computeTooltipPosition(
 
   if (!rect || placement === 'center') {
     return {
-      top: Math.max((vh - TOOLTIP_HEIGHT_EST) / 2, MARGIN),
+      top: Math.max((vh - height) / 2, MARGIN),
       left: Math.max((vw - width) / 2, MARGIN),
       transformOrigin: 'center',
     };
@@ -109,16 +110,16 @@ function computeTooltipPosition(
         vw - width - MARGIN,
       );
       return {
-        top: Math.max(rect.top - TOOLTIP_HEIGHT_EST - GAP, MARGIN),
+        top: Math.max(rect.top - height - GAP, MARGIN),
         left,
         transformOrigin: 'bottom center',
       };
     }
     case 'right': {
       const top = clamp(
-        rect.top + rect.height / 2 - TOOLTIP_HEIGHT_EST / 2,
+        rect.top + rect.height / 2 - height / 2,
         MARGIN,
-        vh - TOOLTIP_HEIGHT_EST - MARGIN,
+        vh - height - MARGIN,
       );
       return {
         top,
@@ -128,9 +129,9 @@ function computeTooltipPosition(
     }
     case 'left': {
       const top = clamp(
-        rect.top + rect.height / 2 - TOOLTIP_HEIGHT_EST / 2,
+        rect.top + rect.height / 2 - height / 2,
         MARGIN,
-        vh - TOOLTIP_HEIGHT_EST - MARGIN,
+        vh - height - MARGIN,
       );
       return {
         top,
@@ -197,6 +198,11 @@ export default function TourOverlay() {
   const reducedMotion = usePrefersReducedMotion();
   const [mounted, setMounted] = useState(false);
   const [rect, setRect] = useState<DOMRect | null>(null);
+  // Alto real del card medido por TourTooltip. Posicionar con el alto
+  // medido (y no una constante) evita que un card alto — el step hero
+  // del Sommelier, o copy largo en otro idioma — se solape con su
+  // propio spotlight o tape el header.
+  const [tooltipHeight, setTooltipHeight] = useState(TOOLTIP_HEIGHT_EST);
   const [targetMissing, setTargetMissing] = useState(false);
   const targetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -213,6 +219,13 @@ export default function TourOverlay() {
     if (!def) return null;
     return def.steps[stepIndex] ?? null;
   }, [activeTourId, stepIndex]);
+
+  // Semilla del alto al cambiar de step: hero arranca más alto para que
+  // el primer paint ya quede cerca y el ajuste medido sea sub-pixel
+  // (la animación de entrada del card lo enmascara).
+  useEffect(() => {
+    setTooltipHeight(step?.hero ? 380 : TOOLTIP_HEIGHT_EST);
+  }, [step?.id, step?.hero]);
 
   // ─────────────────────────────────────────────────────────────────
   //   Resolver target + medirlo. Re-medición en scroll/resize/mutation.
@@ -345,7 +358,12 @@ export default function TourOverlay() {
   if (!mounted || !isActive || !step) return null;
 
   const tooltipWidth = Math.min(TOOLTIP_WIDTH, viewportWidth - 32);
-  const position = computeTooltipPosition(rect, step.placement, tooltipWidth);
+  const position = computeTooltipPosition(
+    rect,
+    step.placement,
+    tooltipWidth,
+    tooltipHeight,
+  );
   const spotlightRect: SpotlightRect | null =
     rect && step.targetTourId
       ? { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
@@ -364,6 +382,7 @@ export default function TourOverlay() {
         isLast={stepIndex === totalSteps - 1}
         position={position}
         reducedMotion={reducedMotion}
+        onHeight={setTooltipHeight}
         onPrev={prev}
         onNext={next}
         onSkip={skip}
