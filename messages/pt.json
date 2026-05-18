@@ -889,7 +889,8 @@
         "review_on_owned_restaurant": "Nova avaliação no seu restaurante",
         "mention": "Você foi mencionado",
         "sommelier_review_recall": "Você experimentou? Avalie agora",
-        "category_pending_review": "Categoria pendente"
+        "category_pending_review": "Categoria pendente",
+        "user_created": "Novo usuário"
       },
       "unread": "Não lido"
     },

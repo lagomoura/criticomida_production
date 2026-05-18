@@ -126,7 +126,8 @@ export type NotificationKind =
   | 'review_on_owned_restaurant'
   | 'mention'
   | 'sommelier_review_recall'
-  | 'category_pending_review';
+  | 'category_pending_review'
+  | 'user_created';
 
 export interface SocialNotification {
   id: string;

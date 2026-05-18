@@ -14,6 +14,7 @@ import {
   faAt,
   faPenToSquare,
   faTag,
+  faUserCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import { useLocale, useTranslations } from 'next-intl';
 import Avatar from '@/app/components/ui/Avatar';
@@ -40,6 +41,7 @@ const kindIcon: Record<NotificationKind, typeof faHeart> = {
   mention: faAt,
   sommelier_review_recall: faPenToSquare,
   category_pending_review: faTag,
+  user_created: faUserCheck,
 };
 
 const kindTint: Record<NotificationKind, string> = {
@@ -56,6 +58,7 @@ const kindTint: Record<NotificationKind, string> = {
   mention: 'text-action-primary',
   sommelier_review_recall: 'text-action-highlight',
   category_pending_review: 'text-amber-600',
+  user_created: 'text-action-primary',
 };
 
 export default function NotificationItem({ notification, onOpen }: NotificationItemProps) {

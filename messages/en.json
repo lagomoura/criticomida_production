@@ -889,7 +889,8 @@
         "review_on_owned_restaurant": "New review at your restaurant",
         "mention": "You were mentioned",
         "sommelier_review_recall": "Did you try it? Write your review",
-        "category_pending_review": "Pending category"
+        "category_pending_review": "Pending category",
+        "user_created": "New user"
       },
       "unread": "Unread"
     },
