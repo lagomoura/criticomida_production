@@ -2062,6 +2062,8 @@
       "reasonSharedFollowerMany": "{count} mutuals",
       "reasonSharedRestaurantOne": "1 restaurant in common",
       "reasonSharedRestaurantMany": "{count} restaurants in common",
+      "reasonPopularCritic": "Featured critic on Palato",
+      "reasonPopular": "Popular on Palato",
       "followErrorTitle": "We couldn't update the follow",
       "followErrorGeneric": "Try again in a few seconds."
     },

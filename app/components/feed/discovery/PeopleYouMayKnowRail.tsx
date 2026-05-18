@@ -130,6 +130,16 @@ function SuggestionCard({ user, following, pending, onToggle }: SuggestionCardPr
         : t('reasonSharedRestaurantMany', { count: user.sharedRestaurants }),
     );
   }
+  // Relleno de cold-start: no hay señal compartida, mostramos por qué
+  // igual lo proponemos (crítico destacado / popular) en vez de una card
+  // sin contexto.
+  if (reasonParts.length === 0) {
+    if (user.reasonKind === 'popular_critic') {
+      reasonParts.push(t('reasonPopularCritic'));
+    } else if (user.reasonKind === 'popular') {
+      reasonParts.push(t('reasonPopular'));
+    }
+  }
   const reason = reasonParts.join(' · ');
 
   return (

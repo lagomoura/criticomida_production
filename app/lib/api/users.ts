@@ -219,6 +219,12 @@ export interface UserSuggestion {
    * Señal de afinidad gastronómica.
    */
   sharedRestaurants: number;
+  /**
+   * Origen del candidato. `signal` = FoF/co-reviewers (hay
+   * sharedFollowers/sharedRestaurants > 0). `popular_critic` / `popular`
+   * = relleno de cold-start cuando el viewer no tiene señal todavía.
+   */
+  reasonKind: 'signal' | 'popular_critic' | 'popular';
 }
 
 interface UserSuggestionDTO {
@@ -229,6 +235,7 @@ interface UserSuggestionDTO {
   bio: string | null;
   shared_followers: number;
   shared_restaurants: number;
+  reason_kind?: 'signal' | 'popular_critic' | 'popular';
 }
 
 interface UserSuggestionsPageDTO {
@@ -253,5 +260,6 @@ export async function getMyUserSuggestions(
     bio: dto.bio,
     sharedFollowers: dto.shared_followers,
     sharedRestaurants: dto.shared_restaurants,
+    reasonKind: dto.reason_kind ?? 'signal',
   }));
 }
