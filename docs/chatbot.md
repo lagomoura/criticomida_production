@@ -14,10 +14,17 @@ estado actual, no la historia.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-17
+- **Fecha**: 2026-05-18
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **C — Live Location del Sommelier**. La ubicación viva del
+    comensal (geoloc del navegador, solo si ya está `granted`) viaja
+    en cada turno del Sommelier, se resuelve a un bloque de grounding
+    con etiqueta humana (restaurante más cercano del catálogo, sin API
+    externa) y habilita `near_lat/near_lng/radius_km` en
+    `search_dishes`/`surprise_me`. Detalle completo en la sección
+    **C — Live Location** más abajo.
   - **C — Discovery del Sommelier (promoción + pieza principal del
     tour)**. El Sommelier era la feature diferencial pero vivía
     escondido detrás del FAB flotante: un usuario nuevo podía recorrer
@@ -201,6 +208,57 @@ estado actual, no la historia.
     el diner ignoró la notif pero vuelve al chat, la card sigue ahí
     como recordatorio suave — hasta que la dismissa explícitamente
     con la X o termina de reseñar el plato.
+  - **C — Live Location** (ubicación viva como centro de búsqueda).
+    Cuando el comensal ya le concedió permiso de geolocalización al
+    navegador en otra superficie (Discovery / Mapa), `ChatDrawer`
+    monta `useUserLocation()` y, **solo si `status === 'granted'` y el
+    agente es el Sommelier**, adjunta `user_location: {lat, lng,
+    accuracy}` al body de `/api/chat/stream` en **cada turno** (no
+    solo el primero — el comensal puede caminar entre barrios con el
+    chat abierto). El chat **nunca** dispara el prompt de permiso:
+    se monta sobre un grant dado en otro lado. Business lo ignora
+    (hard-pinned a `restaurant_scope_id`; proximidad no aplica).
+
+    El backend valida rangos con el modelo pydantic `UserLocation`
+    (`lat ∈ [-90,90]`, `lng ∈ [-180,180]`, `accuracy ≥ 0`) y el FE
+    descarta coords no finitas antes de mandarlas (un fix roto = turno
+    sin geo, no un 422). `stream_chat` recibe `user_lat/user_lng/
+    user_accuracy` y llama `client_context.build_location_hint`.
+
+    `build_location_hint` deriva la **etiqueta humana** del
+    restaurante más cercano del catálogo vía `haversine_km_expr`
+    (`app/services/_geo.py`) — **sin API externa de geocoding**,
+    consistente con el enfoque sin PostGIS. Si el más cercano está a
+    ≤ 25 km usa su `location_name` (+`city`); más lejos o sin
+    restaurantes, cae a un label genérico pero **igual pasa las
+    coordenadas** (siguen siendo accionables para geo-filtrar). Si
+    `accuracy > 3000 m` suaviza el lenguaje ("en la zona de" en vez
+    de "cerca de") — un fix impreciso de IP-fallback no debe leerse
+    como "estás en Palermo". El bloque resultante se **prepend-ea al
+    user_message** (mismo mecanismo y razón de cache que A; cuando hay
+    A + C los dos bloques se apilan, C primero). Las coords **no** se
+    persisten en `chat_messages` — misma postura que A.
+
+    El bloque le dice al agente: si el comensal pide algo "cerca" o
+    un plato/bebida genérico sin nombrar zona, **NO preguntar el
+    barrio** → pasar `near_lat`/`near_lng` a `search_dishes` /
+    `surprise_me`. Si el comensal nombra una zona/ciudad explícita,
+    eso manda sobre las coords. Privacidad reforzada en el prompt:
+    nunca recitar coordenadas crudas, hablar siempre en barrio/zona.
+
+    Tools: `SearchDishesInput` y `SurpriseMeInput` ganaron
+    `near_lat` / `near_lng` / `radius_km` (radio default **3 km**
+    caminable, tope **25 km** — alineado con la convención de
+    `benchmark_dish`). En `search.py`, con `near_*` se agrega el
+    filtro Haversine `dist ≤ radius` y, **si no hay `semantic_query`**,
+    el ORDER BY pasa a `dist ASC, computed_rating DESC` (lo más
+    cercano bien rankeado) en vez del top-rated global. Con
+    `semantic_query` el radio queda como filtro duro y el orden sigue
+    siendo coseno. En `surprise_me`, `near_*` acota el candidate pool
+    cuando no hay `neighborhood` explícito, antes de la lógica de
+    serendipity. Restaurantes sin coords quedan excluidos del path
+    geo (no se puede medir distancia a un punto NULL).
+
   - **D2 — Review Recall** (cierre del loop descubrimiento → reseña).
     Cuando el Sommelier llama `recommend_dishes` para un comensal
     autenticado, el handler encola un `AsyncJob`
@@ -1213,6 +1271,7 @@ es un panel derecho de ~440px.
 |-----------|-----------------|-------|
 | Saludo personalizado por `display_name` | — | Auto cuando hay sesión iniciada. |
 | Buscar platos con filtros estructurados | `search_dishes` | Barrio (substring de `location_name`), ciudad, bbox geográfico, mínimos por pilar (1-3), categoría, `max_price_tier`, `name_contains`. |
+| Buscar cerca del comensal (ubicación viva) | `search_dishes(near_lat, near_lng, radius_km)` | C — Live Location. El LLM rellena `near_lat`/`near_lng` desde el bloque `[contexto: el comensal está cerca de ...]`. Filtro Haversine `dist ≤ radius` (default 3 km, tope 25 km). Sin `semantic_query` el orden pasa a `dist ASC, rating DESC`; con él, radio = filtro duro y orden = coseno. Mismo set de params en `surprise_me`. |
 | Buscar por nombre de plato concreto | `search_dishes(name_contains)` | Filtro SQL AND acento-insensible contra `dishes.name_normalized` (columna generada `lower(f_unaccent(name))`). Garantiza que el resultado contiene el nombre pedido aunque el embedding del plato esté ruidoso o sin generar — el `semantic_query` solo no alcanza para este caso. El LLM lo activa cuando el comensal nombre un plato/bebida ("ceviche", "ramen", "café"). |
 | Re-rankear semánticamente con un "mood" | `search_dishes(semantic_query)` | El LLM extrae filtros duros, KNN sobre embeddings dentro del subset. Cae a ranking estructurado si Gemini no está configurado. |
 | Mostrar detalle de un plato (top reseñas + pros/cons) | `get_dish_detail` | Para profundizar antes de decidir. |

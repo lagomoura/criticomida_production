@@ -165,12 +165,30 @@ export interface ChatClientContext {
   dish_id?: string | null;
 }
 
+/**
+ * C — Live Location. The diner's current device coordinates, attached
+ * to EVERY request when (and only when) the browser already granted
+ * geolocation permission to this origin. The chat surface never
+ * triggers the permission prompt itself — it piggybacks on a grant
+ * the diner gave elsewhere (discovery / map). The backend grounds the
+ * Sommelier with a human-readable "you're near X" block and lets the
+ * agent geo-filter ``search_dishes`` instead of asking the diner to
+ * type their zone. Raw coords are never persisted in the transcript.
+ */
+export interface ChatUserLocation {
+  lat: number;
+  lng: number;
+  /** GPS accuracy radius in metres (from the Geolocation API). */
+  accuracy: number;
+}
+
 export interface StreamChatRequest {
   message: string;
   conversation_id?: string | null;
   agent?: ChatAgent;
   restaurant_scope_id?: string | null;
   client_context?: ChatClientContext | null;
+  user_location?: ChatUserLocation | null;
 }
 
 /**
@@ -188,10 +206,23 @@ export async function* streamChat(
 ): AsyncGenerator<StreamEvent> {
   // FastAPI rechaza `""` como UUID — coercear a null evita un 422 cuando
   // un caller pasa el prop sin normalizar (e.g. `?scope=` en una URL).
+  // Drop a malformed location rather than risk a 422 from the
+  // backend's range validators — a missing/NaN coord just means the
+  // turn runs without geo grounding, which is the graceful default.
+  const loc = body.user_location;
+  const safeLocation: ChatUserLocation | null =
+    loc &&
+    Number.isFinite(loc.lat) &&
+    Number.isFinite(loc.lng) &&
+    Number.isFinite(loc.accuracy)
+      ? { lat: loc.lat, lng: loc.lng, accuracy: loc.accuracy }
+      : null;
+
   const safeBody: StreamChatRequest = {
     ...body,
     conversation_id: body.conversation_id || null,
     restaurant_scope_id: body.restaurant_scope_id || null,
+    user_location: safeLocation,
   };
 
   const res = await fetch(`${BASE_URL}/api/chat/stream`, {

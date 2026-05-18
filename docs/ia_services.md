@@ -14,12 +14,16 @@ es un changelog; describe el estado actual.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-12
+- **Fecha**: 2026-05-18
 - **Servicios activos**: agent loop multi-tool, embeddings de
-  catálogo, búsqueda híbrida (filtros + KNN), perfil de gustos,
-  visión de plato (Ghostwriter + Sommelier multimodal), motor
+  catálogo, búsqueda híbrida (filtros + KNN + proximidad), perfil de
+  gustos, visión de plato (Ghostwriter + Sommelier multimodal), motor
   editorial de platos, sentiment de reseñas, auto-titulado de
   conversaciones, review-recall del Sommelier.
+- **Cambios recientes (C — Live Location)** — la búsqueda híbrida
+  ganó un filtro de proximidad Haversine (sin API externa, sin
+  PostGIS) alimentado por la ubicación viva del comensal. Detalle en
+  la sección **D. Búsqueda híbrida**.
 - **Cambios recientes (Sommelier review-recall, D2)** —
   nueva clase de `AsyncJob` que no usa IA pero comparte la
   infraestructura del worker: `kind='sommelier_review_recall'`,
@@ -353,6 +357,24 @@ por `embed_query` y se ordena por `cosine_distance` sobre
 Si el LLM no manda `semantic_query` o Gemini está caído, ordena por
 `computed_rating, review_count`. Garantiza que filtros duros nunca se
 violen.
+
+**C — Live Location (proximidad).** `search_dishes` y `surprise_me`
+aceptan `near_lat`/`near_lng`/`radius_km`. El LLM los rellena desde el
+bloque de grounding que arma `client_context.build_location_hint` a
+partir de la ubicación viva del comensal (input de contexto del
+**Sommelier únicamente**; Business está hard-pinned a un
+`restaurant_scope_id` y no recibe ubicación). El filtro de distancia
+es Haversine en SQL puro vía `app/services/_geo.haversine_km_expr` —
+**sin API externa de geocoding**: la etiqueta humana ("cerca de
+Palermo") sale del restaurante más cercano del propio catálogo,
+consistente con el enfoque sin PostGIS. Default 3 km, tope 25 km. Sin
+`semantic_query` el orden pasa a `dist ASC, rating DESC`; con él el
+radio es filtro duro y el orden sigue siendo coseno.
+
+Postura de privacidad: las coordenadas solo se envían si el navegador
+ya concedió permiso (el chat nunca lo dispara), **no se persisten** en
+`chat_messages`, y el prompt del Sommelier tiene instrucción explícita
+de no recitarlas en crudo (habla en barrio/zona).
 
 **Consumidores**: Sommelier, Business (vía scope).
 

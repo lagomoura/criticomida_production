@@ -5,6 +5,7 @@ import {
   ChatAgent,
   ChatClientContext,
   ChatMessageData,
+  ChatUserLocation,
   StreamEvent,
   listConversationMessages,
   streamChat,
@@ -45,6 +46,14 @@ interface UseChatStreamOptions {
    * stays inert.
    */
   clientContext?: ChatClientContext | null;
+  /**
+   * C — Live Location. The diner's current coordinates, attached to
+   * EVERY request, refreshed as they physically move with the chat
+   * open. Already gated by the caller: it's only non-null when the
+   * browser granted geolocation permission, so the hook stays inert
+   * (no permission prompt, no field sent) for everyone else.
+   */
+  userLocation?: ChatUserLocation | null;
 }
 
 /**
@@ -277,6 +286,7 @@ export function useChatStream({
   agent,
   restaurantScopeId = null,
   clientContext = null,
+  userLocation = null,
 }: UseChatStreamOptions): UseChatStreamApi {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<UiMessage[]>([]);
@@ -516,6 +526,11 @@ export function useChatStream({
             agent,
             restaurant_scope_id: restaurantScopeId,
             client_context: clientContext,
+            // C — Live Location. Non-null only when the browser
+            // already granted geolocation; refreshed per turn so a
+            // diner walking between barrios with the chat open gets
+            // proximity that tracks where they actually are.
+            user_location: userLocation,
           },
           controller.signal,
         )) {
@@ -536,6 +551,7 @@ export function useChatStream({
       isStreaming,
       restaurantScopeId,
       clientContext,
+      userLocation,
       applyEvent,
     ],
   );

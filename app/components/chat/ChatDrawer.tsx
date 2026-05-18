@@ -22,6 +22,7 @@ import {
 } from '@/app/lib/api/chat';
 import { uploadChatPhoto } from '@/app/lib/api/images';
 import { useAuthContext } from '@/app/lib/contexts/AuthContext';
+import { useUserLocation } from '@/app/lib/hooks/useUserLocation';
 import { cn } from '@/app/lib/utils/cn';
 import ConversationList from './ConversationList';
 import MessageList from './MessageList';
@@ -101,6 +102,22 @@ export default function ChatDrawer({
   // click llevaría a un 401 o a un agente que no procesa la foto.
   const showAttach = agent === 'sommelier' && Boolean(user);
 
+  // C — Live Location. The hook auto-fetches ONLY when the browser
+  // already granted geolocation to this origin (the diner opted in
+  // from discovery/map); it never prompts on its own. We forward
+  // coords only in that ``granted`` state, and only for the Sommelier
+  // — the Business agent is hard-pinned to one restaurant_scope_id so
+  // proximity is meaningless there.
+  const { location: geoLocation, status: geoStatus } = useUserLocation();
+  const userLocation =
+    agent === 'sommelier' && geoStatus === 'granted' && geoLocation
+      ? {
+          lat: geoLocation.latitude,
+          lng: geoLocation.longitude,
+          accuracy: geoLocation.accuracy,
+        }
+      : null;
+
   const {
     conversationId,
     messages,
@@ -109,7 +126,12 @@ export default function ChatDrawer({
     send,
     reset,
     loadConversation,
-  } = useChatStream({ agent, restaurantScopeId, clientContext });
+  } = useChatStream({
+    agent,
+    restaurantScopeId,
+    clientContext,
+    userLocation,
+  });
 
   const [historyOpen, setHistoryOpen] = useState(false);
 
