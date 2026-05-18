@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import Tabs from '@/app/components/ui/Tabs';
 import FeedList, { type FeedState } from './FeedList';
 import FeedWelcome from './FeedWelcome';
+import SommelierSpotlightCard from './SommelierSpotlightCard';
 import DiscoveryRails from './discovery/DiscoveryRails';
 import MapDiscoveryView from './discovery/MapDiscoveryView';
 import { getFeed } from '@/app/lib/api/feed';
@@ -340,6 +341,7 @@ export default function FeedClient() {
   return (
     <section className="cc-container flex flex-col gap-6 py-6">
       <FeedWelcome />
+      <SommelierSpotlightCard />
       <header data-tour-id="feed_tabs" className="flex flex-col gap-2">
         <h1 className="sr-only">{t('heading')}</h1>
         <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-text-muted">

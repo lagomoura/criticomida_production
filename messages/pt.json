@@ -2261,6 +2261,13 @@
       "tip2": "Salve o que quer experimentar e monte sua lista.",
       "tip3": "Siga pessoas cujo paladar combina com o seu.",
       "tipsLabel": "Como o Palato.me funciona"
+    },
+    "sommelier": {
+      "kicker": "Novidade",
+      "title": "Conheça seu Sommelier",
+      "body": "Um assistente que entende o que você está a fim e recomenda pratos sob medida, com a opinião real da comunidade. Experimente agora.",
+      "cta": "Experimentar o Sommelier",
+      "dismiss": "Fechar"
     }
   },
   "globalError": {
@@ -2491,6 +2498,10 @@
   "chat": {
     "title": "Sommelier do Palato.me",
     "businessTitle": "Palato.me Business",
+    "coachmark": {
+      "title": "Conheça seu Sommelier",
+      "body": "Diga o que comer e ele monta recomendações sob medida. Está sempre aqui."
+    },
     "open": "Abrir chat",
     "close": "Fechar chat",
     "clear": "Começar de novo",
@@ -2725,10 +2736,15 @@
       "start": "Começar"
     },
     "progress": "Passo {current} de {total}",
+    "heroKicker": "A peça principal",
     "steps": {
       "welcome": {
         "title": "Bem-vindo ao Palato.me",
         "body": "Um olhar editorial sobre a comida que importa. Mostro o essencial em 30 segundos."
+      },
+      "sommelier": {
+        "title": "Seu Sommelier pessoal",
+        "body": "É o coração do Palato.me: conte o que está a fim de comer e ele monta recomendações de pratos sob medida pra você, com dados reais da comunidade. Sempre a um toque, aqui embaixo à direita."
       },
       "feedTabs": {
         "title": "Seu feed",

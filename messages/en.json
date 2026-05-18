@@ -2261,6 +2261,13 @@
       "tip2": "Save what you want to try and build your list.",
       "tip3": "Follow people whose taste matches yours.",
       "tipsLabel": "How Palato.me works"
+    },
+    "sommelier": {
+      "kicker": "What's new",
+      "title": "Meet your Sommelier",
+      "body": "An assistant that gets what you're craving and recommends dishes tailored to you, backed by the community's real take. Try it now.",
+      "cta": "Try the Sommelier",
+      "dismiss": "Close"
     }
   },
   "globalError": {
@@ -2491,6 +2498,10 @@
   "chat": {
     "title": "Palato.me Sommelier",
     "businessTitle": "Palato.me Business",
+    "coachmark": {
+      "title": "Meet your Sommelier",
+      "body": "Tell it what to eat and it builds recommendations tailored to you. Always right here."
+    },
     "open": "Open chat",
     "close": "Close chat",
     "clear": "Start over",
@@ -2725,10 +2736,15 @@
       "start": "Start"
     },
     "progress": "Step {current} of {total}",
+    "heroKicker": "The main piece",
     "steps": {
       "welcome": {
         "title": "Welcome to Palato.me",
         "body": "An editorial take on the food that matters. Here are the essentials in 30 seconds."
+      },
+      "sommelier": {
+        "title": "Your personal Sommelier",
+        "body": "It's the heart of Palato.me: tell it what you're in the mood for and it builds dish recommendations tailored to you, backed by real community data. Always one tap away, down here on the right."
       },
       "feedTabs": {
         "title": "Your feed",

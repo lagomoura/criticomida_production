@@ -22,6 +22,10 @@ export interface TourStep {
   placement: TourPlacement;
   /** Tab del feed que tiene que estar activo para que el target exista. */
   requireFeedTab?: FeedTabId;
+  /** Step destacado: el tooltip renderiza un bloque de marca extra
+   *  (medallón + kicker) para que se lea como LA feature, no un paso
+   *  más. Solo el step del Sommelier lo usa hoy. */
+  hero?: boolean;
 }
 
 export interface TourDefinition {
@@ -30,14 +34,22 @@ export interface TourDefinition {
 }
 
 /**
- * Tour de bienvenida en la home. Cobertura: tabs del feed → duelo →
- * discovery rails geográficos → acciones globales del nav (publicar,
- * notificaciones, perfil). 8 pasos, ~30s leídos.
+ * Tour de bienvenida en la home. Cobertura: bienvenida → Sommelier
+ * (pieza principal) → tabs del feed → duelo → discovery rails
+ * geográficos → acciones globales del nav (publicar, notificaciones,
+ * perfil). 9 pasos, ~35s leídos.
  */
 export const HOME_TOUR: TourDefinition = {
   id: 'home_v1',
   steps: [
     { id: 'welcome', i18nKey: 'welcome', placement: 'center' },
+    {
+      id: 'sommelier',
+      i18nKey: 'sommelier',
+      targetTourId: 'sommelier_fab',
+      placement: 'top',
+      hero: true,
+    },
     {
       id: 'feed_tabs',
       i18nKey: 'feedTabs',

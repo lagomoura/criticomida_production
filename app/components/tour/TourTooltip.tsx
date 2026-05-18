@@ -2,6 +2,8 @@
 
 import { useEffect, useId, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faWineGlass } from '@fortawesome/free-solid-svg-icons';
 import { trapFocus } from './focusTrap';
 
 const Z_INDEX = 2147483647; // por encima del spotlight
@@ -16,6 +18,9 @@ export interface TooltipPosition {
 interface TourTooltipProps {
   titleKey: string;
   bodyKey: string;
+  /** Step destacado: agrega un bloque de marca arriba de los dots.
+   *  Aditivo — con ``false`` el tooltip es idéntico al genérico. */
+  hero?: boolean;
   currentStep: number;
   totalSteps: number;
   isFirst: boolean;
@@ -30,6 +35,7 @@ interface TourTooltipProps {
 export default function TourTooltip({
   titleKey,
   bodyKey,
+  hero = false,
   currentStep,
   totalSteps,
   isFirst,
@@ -71,6 +77,24 @@ export default function TourTooltip({
       }}
       className="rounded-2xl border border-border-default bg-surface-page p-6 shadow-[var(--shadow-floating)]"
     >
+      {hero && (
+        <div className="mb-4 flex items-center gap-3">
+          <span
+            aria-hidden
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-inverse shadow-[var(--shadow-base)]"
+            style={{
+              background:
+                'linear-gradient(135deg, var(--color-terracota), var(--color-dorado))',
+            }}
+          >
+            <FontAwesomeIcon icon={faWineGlass} className="h-4 w-4" />
+          </span>
+          <span className="font-sans text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-action-primary">
+            {t('heroKicker')}
+          </span>
+        </div>
+      )}
+
       <div className="mb-3 flex items-center gap-1.5" aria-hidden>
         {Array.from({ length: totalSteps }).map((_, i) => {
           const active = i === currentStep;
@@ -101,7 +125,11 @@ export default function TourTooltip({
 
       <h2
         id={titleId}
-        className="mb-2 font-display text-2xl font-medium leading-tight text-text-primary"
+        className={
+          hero
+            ? 'mb-2 font-display text-[1.75rem] font-medium leading-tight text-text-primary'
+            : 'mb-2 font-display text-2xl font-medium leading-tight text-text-primary'
+        }
       >
         {t(`steps.${titleKey}.title`)}
       </h2>

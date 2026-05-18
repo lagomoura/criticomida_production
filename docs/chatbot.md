@@ -14,10 +14,67 @@ estado actual, no la historia.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-13
+- **Fecha**: 2026-05-17
 - **Fases entregadas**: Fase 0 (núcleo agentic), Fase 1 (Sommelier),
   Fase 2 (Ghostwriter), Fase 3 (Business).
 - **Cambios recientes**:
+  - **C — Discovery del Sommelier (promoción + pieza principal del
+    tour)**. El Sommelier era la feature diferencial pero vivía
+    escondido detrás del FAB flotante: un usuario nuevo podía recorrer
+    toda la app sin enterarse de que existe. Se agregan **dos
+    superficies de promoción** + se eleva el Sommelier a **pieza
+    principal del tour de onboarding**.
+
+    Tour: nuevo paso `sommelier` insertado como **2º** de `HOME_TOUR`
+    (justo después de `welcome`, apuntando a `[data-tour-id=
+    "sommelier_fab"]`, `placement: top`). Flag aditivo `hero?` en
+    `TourStep` → `TourTooltip` rendea un bloque de marca extra
+    (medallón gradiente Terracota→Dorado + kicker "La pieza
+    principal") gateado con `hero && (...)`, así los otros 8 pasos
+    quedan byte-idénticos. Total: 9 pasos.
+
+    Dos surfaces de promo, ambas self-gateadas (costo cero de layout
+    para inelegibles): (a) `SommelierCoachmark` — globo one-time
+    anclado encima del FAB, con cola apuntando al botón, montado en
+    `Providers.tsx`; **suprimido mientras el tour corre**
+    (`useTour().status === 'running'`) porque la pieza principal ya
+    enseña el Sommelier y se solaparía con el overlay; mismos guards
+    que `ChatLauncher` (owner panel, modal abierto). (b)
+    `SommelierSpotlightCard` — card editorial estilo `FeedWelcome`
+    (rounded-3xl, glow radial Terracota, título Cormorant), montada en
+    `FeedClient` tras `FeedWelcome`; su CTA abre el chat vía evento
+    DOM desacoplado `palato:sommelier:open` (mismo patrón que
+    `TOUR_REQUIRE_FEED_TAB_EVENT`) que `ChatLauncher` escucha.
+
+    Targeting (`useSommelierPromo`, hook compartido entre las dos
+    surfaces): solo usuario logueado, que **nunca abrió** el Sommelier
+    y no descartó la promo. La señal "nunca lo abrió" es
+    `listMyConversations({ agent:'sommelier', limit:1 })` vacío — esto
+    también suprime la promo para usuarios preexistentes que ya
+    chatearon antes de que la feature existiera, sin tocar backend.
+    Abrir el chat (FAB, evento, o CTA de la card) llama
+    `markOpenedAndDismiss()` → la promo se cierra para siempre; la
+    "X" de cualquier surface hace lo mismo.
+
+    Persistencia cross-device **sin cambios de backend**: se reusa la
+    pseudo-key `sommelier_promo_v1` dentro del set genérico
+    `dismissed_tours` (`/api/users/me/ui-state`; el backend valida
+    `^[a-z0-9_]+$` ≤64 y dedupea en SQL, así un id que no es un tour
+    real es contractualmente seguro). Fallback `localStorage`
+    `palato_sommelier_promo_u_<userId>` (mismo esquema scoped que
+    `TourProvider`) como atajo offline + drift recovery. Reset para
+    re-probar: limpiar esa key + `restoreTour('sommelier_promo_v1')`
+    + asegurar que el user no tenga conversaciones Sommelier.
+
+    Frontend: `app/lib/hooks/useSommelierPromo.ts` (nuevo),
+    `app/components/chat/SommelierCoachmark.tsx` (nuevo),
+    `app/components/feed/SommelierSpotlightCard.tsx` (nuevo);
+    modificados `tour-steps.ts`, `TourOverlay.tsx`, `TourTooltip.tsx`,
+    `ChatLauncher.tsx`, `Providers.tsx`, `FeedClient.tsx`. i18n × 3:
+    `tour.heroKicker`, `tour.steps.sommelier.{title,body}`,
+    `feed.sommelier.{kicker,title,body,cta,dismiss}`,
+    `chat.coachmark.{title,body}`. Backend: **sin cambios** (sin
+    migraciones, sin endpoints nuevos).
   - **Sommelier: tool `list_restaurant_reviews` (cobertura de
     opiniones)**. Listado paramétrico de reseñas de un restaurante
     concreto del catálogo. Filtros: `sentiment`, `sort` (incluye

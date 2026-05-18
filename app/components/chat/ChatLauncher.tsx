@@ -7,6 +7,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { cn } from '@/app/lib/utils/cn';
 import type { ChatClientContext } from '@/app/lib/api/chat';
+import {
+  useSommelierPromo,
+  SOMMELIER_OPEN_EVENT,
+} from '@/app/lib/hooks/useSommelierPromo';
 import ChatDrawer from './ChatDrawer';
 
 const UUID_PATTERN =
@@ -59,6 +63,7 @@ function deriveClientContext(pathname: string | null): ChatClientContext | null 
  */
 export default function ChatLauncher() {
   const t = useTranslations('chat');
+  const { markOpenedAndDismiss } = useSommelierPromo();
   const [open, setOpen] = useState(false);
   // Mientras hay un modal abierto (Publicar reseña, Reportar, etc.) el
   // launcher se esconde: en mobile su esquina inferior-derecha solapa el
@@ -75,6 +80,17 @@ export default function ChatLauncher() {
     observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
     return () => observer.disconnect();
   }, []);
+
+  // Apertura desde otra superficie (card spotlight del feed, etc.) vía
+  // evento DOM desacoplado — abrir el chat también cierra la promo.
+  useEffect(() => {
+    const onOpen = () => {
+      setOpen(true);
+      markOpenedAndDismiss();
+    };
+    document.addEventListener(SOMMELIER_OPEN_EVENT, onOpen);
+    return () => document.removeEventListener(SOMMELIER_OPEN_EVENT, onOpen);
+  }, [markOpenedAndDismiss]);
 
   // /es/restaurants/{slug}/owner, /en/restaurants/{slug}/owner, etc.
   const isOwnerPanel = /\/restaurants\/[^/]+\/owner(?:\/|$)/.test(pathname || '');
@@ -94,7 +110,14 @@ export default function ChatLauncher() {
   return (
     <>
       <button
-        onClick={() => setOpen((v) => !v)}
+        data-tour-id="sommelier_fab"
+        onClick={() =>
+          setOpen((v) => {
+            const nextOpen = !v;
+            if (nextOpen) markOpenedAndDismiss();
+            return nextOpen;
+          })
+        }
         className={cn(
           'fixed bottom-20 right-4 z-[1099] flex h-14 w-14 items-center justify-center rounded-full md:bottom-6 md:right-6',
           'bg-action-primary text-text-inverse shadow-[var(--shadow-elevated)]',

@@ -7,6 +7,7 @@ import { ThemeProvider } from '../lib/contexts/ThemeContext';
 import { NotificationProvider } from '../lib/contexts/NotificationContext';
 import { ToastProvider } from './ui/Toast';
 import ChatLauncher from './chat/ChatLauncher';
+import SommelierCoachmark from './chat/SommelierCoachmark';
 import NavShell from './nav/NavShell';
 import TourProvider from './tour/TourProvider';
 
@@ -28,6 +29,7 @@ export default function Providers({ children }: { children: ReactNode }) {
               {/* pb = 64px (BottomNav height) en mobile; 0 en md+ (TopNav es sticky sin solape) */}
               <div className="pb-16 md:pb-0">{children}</div>
               <ChatLauncher />
+              <SommelierCoachmark />
             </TourProvider>
           </NotificationProvider>
         </AuthProvider>

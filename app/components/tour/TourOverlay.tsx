@@ -357,6 +357,7 @@ export default function TourOverlay() {
       <TourTooltip
         titleKey={step.i18nKey}
         bodyKey={step.i18nKey}
+        hero={step.hero ?? false}
         currentStep={stepIndex}
         totalSteps={totalSteps}
         isFirst={stepIndex === 0}
