@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
@@ -61,6 +61,7 @@ export default function GhostwriterAssist({
   onPhotoUploaded,
 }: GhostwriterAssistProps) {
   const t = useTranslations('chat.ghostwriter');
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,6 +108,7 @@ export default function GhostwriterAssist({
         photo,
         dishId,
         draftText: draft,
+        locale,
       });
       setSuggestions(result);
       setUsedTags(new Set());

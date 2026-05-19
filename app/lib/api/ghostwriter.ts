@@ -26,6 +26,12 @@ export interface AssistJsonRequest {
   dish_id?: string;
   photo_url?: string;
   draft_text?: string;
+  /**
+   * Page locale (``es`` | ``en`` | ``pt``). The Ghostwriter must write
+   * tags, blurb and pros/cons in the language the user is reading the
+   * site in — not the backend's hardcoded default.
+   */
+  locale?: string;
 }
 
 export async function assistWithUrl(
@@ -41,6 +47,8 @@ export interface AssistUploadInput {
   photo: File;
   dishId?: string;
   draftText?: string;
+  /** Page locale — see ``AssistJsonRequest.locale``. */
+  locale?: string;
 }
 
 /**
@@ -51,11 +59,13 @@ export async function assistWithUpload({
   photo,
   dishId,
   draftText,
+  locale,
 }: AssistUploadInput): Promise<GhostwriterSuggestions> {
   const fd = new FormData();
   fd.append('photo', photo);
   if (dishId) fd.append('dish_id', dishId);
   if (draftText) fd.append('draft_text', draftText);
+  if (locale) fd.append('locale', locale);
 
   const res = await fetch(`${BASE_URL}/api/dish-reviews/assist/upload`, {
     method: 'POST',
