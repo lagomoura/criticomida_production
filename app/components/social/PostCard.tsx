@@ -66,6 +66,11 @@ export default function PostCard({
   return (
     <article
       className={cn(
+        // El post es una columna centrada en TODA superficie donde aparece
+        // (feed, detalle, perfil, reviews de plato), igual que
+        // Instagram/Letterboxd/Beli. Esto mantiene la foto a ~860px de display
+        // y evita que next/image estire la fuente y se vea borrosa en desktop.
+        'mx-auto w-full max-w-[900px]',
         'relative isolate flex flex-col gap-4 rounded-2xl border bg-surface-card p-4 sm:p-5',
         'shadow-[var(--shadow-base)] transition-[transform,box-shadow] duration-[var(--duration-standard)]',
         'motion-safe:[transition-timing-function:var(--ease-standard)]',

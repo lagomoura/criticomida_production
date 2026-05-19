@@ -11,6 +11,15 @@ import Button from '@/app/components/ui/Button';
 import { PostCardSkeleton } from '@/app/components/ui/SkeletonPresets';
 import type { PostCardProps } from '@/app/components/social/PostCard';
 
+/**
+ * Columna del feed en desktop. Convención de redes sociales (Instagram /
+ * Letterboxd / Beli): el feed vertical es una columna centrada, no el ancho
+ * completo del container. Además de la jerarquía visual, mantener la foto a
+ * ~860px de display evita que `next/image` tenga que estirar la fuente
+ * (capada a ~2048px lado largo) y se vea borrosa en pantallas grandes/retina.
+ */
+const FEED_COLUMN = 'mx-auto w-full max-w-[900px]';
+
 export type FeedState =
   | { status: 'loading' }
   | { status: 'error'; message: string; onRetry: () => void }
@@ -85,7 +94,7 @@ export default function FeedList({
 
   if (state.status === 'loading') {
     return (
-      <div className="flex flex-col gap-4">
+      <div className={`${FEED_COLUMN} flex flex-col gap-4`}>
         {Array.from({ length: 3 }).map((_, i) => (
           <PostCardSkeleton key={i} />
         ))}
@@ -95,7 +104,7 @@ export default function FeedList({
 
   if (state.status === 'error') {
     return (
-      <div className="rounded-2xl border border-border-default bg-surface-card p-6 text-center">
+      <div className={`${FEED_COLUMN} rounded-2xl border border-border-default bg-surface-card p-6 text-center`}>
         <FontAwesomeIcon
           icon={faTriangleExclamation}
           className="mb-2 h-5 w-5 text-action-danger"
@@ -111,17 +120,19 @@ export default function FeedList({
 
   if (state.posts.length === 0) {
     return (
-      <EmptyState
-        icon={<FontAwesomeIcon icon={faUtensils} className="h-8 w-8" aria-hidden />}
-        title={emptyTitle}
-        description={emptyDescription}
-        action={emptyAction}
-      />
+      <div className={FEED_COLUMN}>
+        <EmptyState
+          icon={<FontAwesomeIcon icon={faUtensils} className="h-8 w-8" aria-hidden />}
+          title={emptyTitle}
+          description={emptyDescription}
+          action={emptyAction}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col">
+    <div className={`${FEED_COLUMN} flex flex-col`}>
       {state.posts.map((post, idx) => (
         <div key={post.id} className="flex flex-col">
           {idx > 0 && <FeedSeparator />}

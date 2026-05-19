@@ -28,7 +28,8 @@ export default function PostMedia({ images, className, priority = false }: PostM
             src={img.url}
             alt={img.alt ?? ''}
             fill
-            sizes="(min-width: 640px) 640px, 100vw"
+            sizes="(min-width: 640px) 860px, 100vw"
+            quality={82}
             className="object-cover"
             priority={priority}
             fetchPriority={priority ? 'high' : undefined}
@@ -47,7 +48,8 @@ export default function PostMedia({ images, className, priority = false }: PostM
               src={img.url}
               alt={img.alt ?? ''}
               fill
-              sizes="(min-width: 640px) 320px, 50vw"
+              sizes="(min-width: 640px) 440px, 50vw"
+              quality={82}
               className="object-cover"
               priority={priority && i === 0}
               fetchPriority={priority && i === 0 ? 'high' : undefined}
@@ -69,7 +71,8 @@ export default function PostMedia({ images, className, priority = false }: PostM
           src={hero.url}
           alt={hero.alt ?? ''}
           fill
-          sizes="(min-width: 640px) 320px, 50vw"
+          sizes="(min-width: 640px) 440px, 50vw"
+          quality={82}
           className="object-cover"
           priority={priority}
           fetchPriority={priority ? 'high' : undefined}
@@ -77,7 +80,7 @@ export default function PostMedia({ images, className, priority = false }: PostM
       </figure>
       {visible.map((img, i) => (
         <figure key={i} className="relative aspect-square overflow-hidden rounded-lg bg-surface-subtle">
-          <Image src={img.url} alt={img.alt ?? ''} fill sizes="(min-width: 640px) 160px, 50vw" className="object-cover" />
+          <Image src={img.url} alt={img.alt ?? ''} fill sizes="(min-width: 640px) 440px, 50vw" quality={82} className="object-cover" />
           {i === visible.length - 1 && extra > 0 && (
             <span className="absolute inset-0 flex items-center justify-center bg-[color:var(--color-espresso)]/55 font-sans text-lg font-medium text-text-inverse">
               +{extra}

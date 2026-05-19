@@ -7,6 +7,8 @@ export function PostCardSkeleton({ className }: { className?: string }) {
     <div
       aria-hidden
       className={cn(
+        // Mismo ancho que PostCard para que no salte el layout al cargar.
+        'mx-auto w-full max-w-[900px]',
         'flex flex-col gap-4 rounded-2xl border border-border-default bg-surface-card p-4 sm:p-5',
         className,
       )}

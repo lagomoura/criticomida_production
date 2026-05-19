@@ -3,9 +3,10 @@
  *
  * Why: a fresh iPhone photo is typically 4–12MB. On 3G/4G uploads at the
  * restaurant table that's 30–90s of waiting with the publish button disabled.
- * Resizing to 1200px wide and re-encoding as JPEG@0.82 cuts the payload to
- * ~250–500KB without visible quality loss for feed-sized renders, and the
- * upload finishes in seconds.
+ * Resizing the longest edge to 2048px and re-encoding as JPEG@0.85 cuts the
+ * payload to ~400–900KB while keeping the photo sharp on retina desktop (the
+ * feed column renders at ~600px CSS → ~1800px on DPR 3, plus the detail-view
+ * hero which is wider). The upload still finishes in seconds.
  *
  * Behavior:
  * - Skips compression when the file is small enough to upload "as-is" or when
@@ -29,7 +30,7 @@ interface CompressOptions {
 
 export async function compressImage(
   file: File,
-  { maxEdge = 1600, quality = 0.82 }: CompressOptions = {},
+  { maxEdge = 2048, quality = 0.85 }: CompressOptions = {},
 ): Promise<File> {
   if (typeof window === 'undefined') return file;
   if (!file.type.startsWith('image/')) return file;
@@ -59,6 +60,13 @@ export async function compressImage(
       closeBitmap();
       return file;
     }
+    // Downscaling grande (ej. 4000px → 2048px) con el resampler por defecto
+    // del canvas (`imageSmoothingQuality: 'low'`) emborrona y produce aliasing:
+    // es la causa #1 de "la foto se ve sin nitidez una vez subida". Forzamos
+    // alta calidad (bicúbico/Lanczos según el browser) para que el resultado
+    // sea prácticamente indistinguible del original a tamaño de feed.
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(bitmap, 0, 0, targetW, targetH);
     closeBitmap();
 

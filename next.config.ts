@@ -119,6 +119,10 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // 75 = default de next/image (resto de la app). 82 = fotos de comida en
+    // el feed/detalle: el plato es el héroe, vale el peso extra para que se
+    // vea nítido en desktop/retina.
+    qualities: [75, 82],
     remotePatterns: [
       {
         protocol: 'https',

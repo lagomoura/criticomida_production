@@ -408,7 +408,7 @@ export default function FeedClient() {
 
       {!tabResolved ? (
         <div
-          className="flex flex-col gap-4"
+          className="mx-auto flex w-full max-w-[900px] flex-col gap-4"
           aria-busy="true"
           aria-live="polite"
           aria-label={t('loading')}
@@ -428,7 +428,11 @@ export default function FeedClient() {
           const key = slotKeyFor(tab, sort);
           return (
             <div className="flex flex-col gap-4">
-              <FollowingSortToggle value={sort} onChange={setFollowingSort} />
+              {/* El toggle se alinea a la columna del feed (mismo max-w que
+                  FeedList) para que no quede colgado a la izquierda. */}
+              <div className="mx-auto w-full max-w-[900px]">
+                <FollowingSortToggle value={sort} onChange={setFollowingSort} />
+              </div>
               <FeedList
                 state={cache[key].state}
                 emptyTitle={tEmpty('title')}
