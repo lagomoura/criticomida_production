@@ -1163,7 +1163,7 @@
       "dateLabel": "Date",
       "timeLabel": "Time",
       "ghostwriterIntroTitle": "Don't feel like writing? We'll draft it",
-      "ghostwriterIntroDesc": "Add the dish photo and AI drafts your review — notes, tags and pros/cons. You just tweak it.",
+      "ghostwriterIntroDesc": "Add the dish photo and the Sommelier drafts your review — notes, tags and pros/cons. It reads your recent reviews to write in your voice. You just tweak it.",
       "visitedWithLabel": "Who with?",
       "visitedWithPlaceholder": "Family, Friends…",
       "tagsLabel": "Tags",
@@ -2690,8 +2690,8 @@
       "copied": "Link copied"
     },
     "ghostwriter": {
-      "button": "Ask the Ghostwriter",
-      "label": "Ghostwriter",
+      "button": "Let the Sommelier write it",
+      "label": "Sommelier",
       "close": "Close assist",
       "uploadPrompt": "Upload a photo of the dish and we'll suggest tags, pros, cons and an editorial line.",
       "uploadButton": "Upload photo",

@@ -1163,7 +1163,7 @@
       "dateLabel": "Fecha",
       "timeLabel": "Hora",
       "ghostwriterIntroTitle": "¿Sin ganas de escribir? Lo armamos por vos",
-      "ghostwriterIntroDesc": "Subí la foto del plato y la IA redacta tu reseña: nota, etiquetas y pros/contras. Vos solo la retocás.",
+      "ghostwriterIntroDesc": "Subí la foto del plato y el Sommelier redacta tu reseña: nota, etiquetas y pros/contras. Lee tus últimas reseñas para escribir con tu voz. Vos solo la retocás.",
       "visitedWithLabel": "¿Con quién?",
       "visitedWithPlaceholder": "Familia, Amigos…",
       "tagsLabel": "Etiquetas",
@@ -2690,8 +2690,8 @@
       "copied": "Link copiado"
     },
     "ghostwriter": {
-      "button": "Pedir asistencia al Ghostwriter",
-      "label": "Ghostwriter",
+      "button": "Que lo escriba el Sommelier",
+      "label": "Sommelier",
       "close": "Cerrar asistencia",
       "uploadPrompt": "Subí una foto del plato y te sugerimos tags, pros, contras y una frase editorial.",
       "uploadButton": "Subir foto",
