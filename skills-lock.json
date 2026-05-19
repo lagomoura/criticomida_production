@@ -6,6 +6,12 @@
       "sourceType": "github",
       "computedHash": "4aa754f4f7fc54ac3e7f6e2fb55c0e2fb14b7d70da077b41a86bd1889ff9094c"
     },
+    "council": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/council/SKILL.md",
+      "computedHash": "633c474bdb57d7df0c5cf30f4e1952974cdfd7d5ea3c9ec3f3d330b21c80c5ac"
+    },
     "enhance-prompt": {
       "source": "google-labs-code/stitch-skills",
       "sourceType": "github",

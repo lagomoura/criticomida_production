@@ -10,6 +10,8 @@
 
 ## Auditorías anteriores (hallazgos por flujo)
 - [Compose audit — commit 210e297](project_compose_audit_findings.md) — hallazgos del flujo compose: paridad dark OK por tokens semánticos, TechnicalPillars neutral contrast ~3.6:1 fallo, estado éxito solo toast, copy "Notas" seco, legacy rgba Azafrán en globals.css
+- [Compose re-auditoría post Ola 1+2+3 — commit cb0b8b2](project_compose_reaudit_ola123.md) — 10 hallazgos cerrados, 2 abiertos (globals legacy), 1 reabierto (TechnicalPillars neutral regresión), 4 nuevos (contraste dorado 1.96:1, kickers 10px, icon size)
+- [Profile stats bar + ReputationStrip — commit 397ca19](project_profile_stats_audit_397ca19.md) — HTML inválido en dl/button, skeleton no representa nueva grid, sin K/M para números grandes; identidad y paridad dark OK
 
 ## Convenciones del repo
 - [Iconografía: solo FontAwesome v6](convention_icons_fontawesome.md) — única familia de iconos; brand-identity-v2.md §10 lo documenta explícitamente

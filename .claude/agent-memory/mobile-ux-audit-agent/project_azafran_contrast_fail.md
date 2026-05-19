@@ -1,21 +1,23 @@
 ---
-name: Azafrán + text-inverse falla WCAG AA — contraste 2.89:1
-description: El token azafrán (#D4870A) como fondo con text-inverse (blanco) tiene ratio 2.89:1, debajo del umbral 4.5:1 para texto pequeño
-type: project
+name: contrast-fail-brand-colors-on-white
+description: Terracota y Dorado como fondo con text-inverse (blanco) fallan WCAG AA para texto pequeño
+metadata:
+  type: project
 ---
 
-Azafrán (#D4870A) sobre blanco (#FFFFFF): **2.89:1** — falla WCAG AA para texto < 14pt bold.
-Azafrán (#D4870A) sobre carbón (#1A1714): **6.18:1** — pasa WCAG AA.
+Stale memory actualizada post-Ola 1+2+3 (commit cb0b8b2). La paleta cambió de Azafrán/Páprika a Especiería (Terracota/Dorado). El fallo persiste pero con diferentes tokens.
 
-Ubicaciones afectadas:
-- TechnicalPillars.tsx:29 — tono "neutral" usa bg-color-azafran text-text-inverse
-- SegmentedSelect.tsx:30 — tono "positive" usa bg-color-azafran text-text-inverse (preexistente)
-- SegmentedSelect.tsx:31 — tono "neutral" usa bg-color-azafran text-text-inverse (desde sprint A+B)
+**Terracota (#C96A4B) sobre blanco**: ~3.70:1 — falla WCAG AA para texto < 14pt bold (necesita 4.5:1).
+**Dorado (#D6A75C) sobre blanco**: ~2.20:1 — falla WCAG AA para TODO texto (incluso large text necesita 3:1).
 
-Los labels son text-[11px] font-semibold (pequeño → exige 4.5:1).
+Ubicaciones afectadas actualmente:
+- `TechnicalPillars.tsx:28` — tono "neutral": `bg-color-terracota text-text-inverse` → 3.70:1 para texto 11px semibold. FALLA AA.
+- `TechnicalPillars.tsx:29` — tono "positive": `bg-color-dorado text-text-inverse` → 2.20:1. FALLA AA y Large.
+- `SegmentedSelect.tsx:33` — tono "positive": `bg-color-dorado text-text-inverse` → 2.20:1. FALLA.
+- `SegmentedSelect.tsx:34` — tono "neutral": `bg-action-primary (=terracota) text-text-inverse` → 3.70:1. FALLA AA small text.
+- `ReviewFormBody.tsx:519` — WouldOrderAgain "Sí" seleccionado: `bg-color-dorado text-text-inverse` → 2.20:1. FALLA.
 
-FIX: usar text-text-primary en lugar de text-text-inverse cuando el fondo es azafrán.
-No aplica a páprika (paprika + blanco = 5.39:1 ✓) ni albahaca (albahaca + blanco = 6.63:1 ✓).
+FIX: para fondos Dorado → usar `text-espresso` o `text-text-primary` (carbón). Para fondos Terracota en texto < 14pt → ídem.
 
-**Why:** Flaggeado como ALTO en audit post-sprint A+B. No bloquea render pero viola accesibilidad en hot path.
-**How to apply:** Siempre calcular contraste al auditar botones con background de marca. Azafrán no puede combinarse con texto blanco en texto pequeño.
+**Why:** Flaggeado como ALTO en audit post-Ola 1+2+3. Los usuarios revisan la app al sol en restaurantes — contraste reducido ya es un problema, más aún al sol.
+**How to apply:** Siempre calcular contraste al auditar botones con background de marca. Ni Dorado ni Terracota pueden combinarse con texto blanco en texto pequeño. Solo color-terracota-deep (#8B3D27) o superior pasan AA con blanco en small text.
