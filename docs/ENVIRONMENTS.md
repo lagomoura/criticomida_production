@@ -20,14 +20,22 @@ Referencia operativa de cómo están armados dev y prod, qué variables vive en 
 └──────────────────────────────────────────────────────────┘
 
 ┌──────────────────────── PROD ────────────────────────────┐
-│  Vercel (Next.js)                                        │
+│  Vercel (Next.js)  https://palato.me                     │
 │      │                                                   │
-│      ▼  https://criticomida-backend-production.up.railway.app
+│      ▼  https://api.palato.me   (mismo site: palato.me)  │
 │  Railway: criticomida-backend-production                 │
 │   ├── service api  Dockerfile + entrypoint.sh            │
 │   └── service postgres  managed, separado de dev         │
 └──────────────────────────────────────────────────────────┘
 ```
+
+> **Por qué dominio propio y no `*.vercel.app` + `*.up.railway.app`:** son
+> dominios registrables distintos, así que las cookies de auth que setea el
+> backend son *third-party* para el browser. Safari (ITP) las bloquea siempre
+> y Chrome/Firefox las bloquean/particionan → el `refresh_token` no viaja y el
+> usuario se desloguea apenas caduca el access token (~15 min). Con
+> `palato.me` + `api.palato.me` (mismo site `palato.me`) las cookies son
+> first-party y persisten. Ver runbook *Migración a dominio propio* abajo.
 
 Las dos DBs son completamente independientes. Modificar dev no afecta prod y viceversa. El único puente es manual: `pg_dump` desde prod → `pg_restore` en dev cuando querés refrescar el baseline.
 
@@ -51,7 +59,7 @@ Vercel **no** lee archivos del repo para prod — todas las variables se setean 
 
 | Variable                          | Dev (`.env.development[.local]`)        | Prod (Vercel UI)                                              | Notas |
 |-----------------------------------|------------------------------------------|---------------------------------------------------------------|-------|
-| `NEXT_PUBLIC_API_URL`             | `http://localhost:8002`                  | `https://criticomida-backend-production.up.railway.app`       | Browser-exposed. |
+| `NEXT_PUBLIC_API_URL`             | `http://localhost:8002`                  | `https://api.palato.me`                                       | Browser-exposed. **Debe** ser mismo site que el dominio del front (`palato.me`) o las cookies se vuelven third-party. |
 | `NEXT_PUBLIC_SOCIAL_MOCK`         | `true`                                   | `false`                                                       | Cuando es `true` la UI de feed usa mocks. |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | dev key                                  | prod key                                                      | Browser-exposed. Restringir por dominio en Google Cloud. |
 
@@ -85,7 +93,8 @@ Vercel **no** lee archivos del repo para prod — todas las variables se setean 
 | `REFRESH_TOKEN_EXPIRE_DAYS`       | `7`                                                        | `7`                                                     |       |
 | `APP_ENV`                         | `development`                                              | `production`                                            |       |
 | `COOKIE_SECURE`                   | `false`                                                    | `true`                                                  | `Secure` cookies requieren HTTPS — sólo prod. |
-| `CORS_ORIGINS`                    | `http://localhost:3000,...`                                | `https://<vercel-app>.vercel.app`                       | Coma-separado. |
+| `CORS_ORIGINS`                    | `http://localhost:3000,...`                                | `https://palato.me`                                     | Coma-separado. El origin **exacto** del front (sin path, sin slash final). |
+| `PUBLIC_APP_URL`                  | `http://localhost:3000`                                    | `https://palato.me`                                     | Base para links absolutos en emails (verify, owner panel). |
 | `CHAT_MODEL` / `CHAT_API_KEY`     | dev keys                                                   | prod keys                                               | `google-genai` directo (Gemini AI Studio). Bare model name, sin prefijo. |
 | `CHAT_MODEL_B2C` / `CHAT_MODEL_B2B` | opcional (vacío)                                         | opcional (vacío)                                        | Override per-agent. Si está vacío cae a `CHAT_MODEL`. |
 | `GEMINI_API_KEY`                  | dev key                                                    | prod key                                                | Embeddings + vision. Sin esto el bot cae a structured-only ranking. |
@@ -245,3 +254,62 @@ Antes de promover a prod (o después de cambios en cualquier `sentry.*config.ts`
 4. **User context** (FE): logueate en la app, dispará un error, y confirmá que el evento trae `user.id` + `user.handle` (lo setea `AuthContext.syncSentryUser`).
 
 Si algo no aparece, ver Troubleshooting de arriba o revisar el output del build de Vercel: tiene que decir `Sentry: Successfully uploaded source maps`.
+
+---
+
+## Runbook — Migración a dominio propio (`palato.me` / `api.palato.me`)
+
+**Por qué:** con el front en `*.vercel.app` y el backend en `*.up.railway.app`
+(dominios registrables distintos), las cookies de auth son *third-party*. Safari
+las bloquea siempre; Chrome/Firefox las bloquean o particionan. Síntoma: el
+usuario se desloguea con un solo F5 apenas caduca el access token (~15 min),
+sin concurrencia de por medio. Con front y API bajo el mismo site (`palato.me`)
+las cookies pasan a ser first-party y persisten los 7 días del refresh token.
+
+**No requiere cambios de código** (el `SameSite=None; Secure` actual ya sirve
+una vez que es same-site). Es config de dashboards + DNS + env.
+
+### Pasos (en orden)
+
+1. **Railway — custom domain del backend**
+   - Service `api` → Settings → Networking → Custom Domain → `api.palato.me`.
+   - Railway da un target CNAME (algo como `xxxx.up.railway.app`).
+   - En el DNS de `palato.me`: `CNAME  api  →  <target de Railway>`.
+   - Esperá a que Railway marque el dominio *Active* (TLS emitido).
+2. **Vercel — custom domain del frontend**
+   - Project → Settings → Domains → agregar `palato.me` (y `www.palato.me`).
+   - Seguí las instrucciones de DNS de Vercel (`A`/`ALIAS` para el apex,
+     `CNAME` para `www`).
+   - Marcá `palato.me` como **Production / primary domain**: así
+     `criticomida-production.vercel.app` redirige (308) al dominio propio y
+     nadie queda en el host viejo (que volvería a romper las cookies).
+3. **Vercel — env vars (Production)**
+   - `NEXT_PUBLIC_API_URL = https://api.palato.me`
+   - Redeploy del frontend (las `NEXT_PUBLIC_*` se hornean en build).
+4. **Railway — env vars (service api)**
+   - `CORS_ORIGINS = https://palato.me` (agregá `https://www.palato.me` solo
+     si `www` no redirige al apex; lo ideal es que redirija y dejar solo el
+     apex).
+   - `PUBLIC_APP_URL = https://palato.me`
+   - `COOKIE_SECURE = true`, `APP_ENV = production` (deben seguir así).
+   - Redeploy del backend.
+5. **DNS de Google Maps key**: si `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` está
+   restringida por referrer, agregá `https://palato.me/*` a la allowlist.
+
+### Post-checks (hacelos sí o sí)
+
+- `curl -I https://api.palato.me/health` → 200 y TLS válido.
+- En `https://palato.me`, DevTools → Application → Cookies: tras login,
+  `access_token` y `refresh_token` aparecen con domain `api.palato.me`,
+  `Secure`, `SameSite=None`, `HttpOnly`.
+- Login → esperá > 15 min (o borrá la cookie `access_token` a mano) → F5.
+  Debe **seguir logueado** (el `/api/auth/refresh` ahora sí lleva la cookie).
+- Safari específicamente (es el más estricto): repetir el test anterior.
+- DevTools → Network en `/api/auth/refresh`: request con `Cookie: refresh_token=…`
+  y response 200 con nuevos `Set-Cookie`.
+
+### Rollback
+
+Volver `NEXT_PUBLIC_API_URL` a la URL de Railway y `CORS_ORIGINS` al dominio
+`*.vercel.app`, redeploy ambos. Vuelve el bug de cookies de terceros pero la
+app funciona; usar solo si el dominio propio quedó mal configurado.
