@@ -14,12 +14,24 @@ es un changelog; describe el estado actual.
 
 ## Última actualización
 
-- **Fecha**: 2026-05-18
+- **Fecha**: 2026-05-19
 - **Servicios activos**: agent loop multi-tool, embeddings de
   catálogo, búsqueda híbrida (filtros + KNN + proximidad), perfil de
   gustos, visión de plato (Ghostwriter + Sommelier multimodal), motor
   editorial de platos, sentiment de reseñas, auto-titulado de
   conversaciones, review-recall del Sommelier.
+- **Cambios recientes (Ghostwriter locale-aware)** — el endpoint
+  `POST /api/dish-reviews/assist[/upload]` ahora acepta `locale`
+  (`es|en|pt`). El frontend lo manda desde `useLocale()` de la URL.
+  `analyze_dish_photo(locale=...)` lo inyecta en el
+  `system_instruction` vía un slot `__LANG__` del template
+  (`_SYSTEM_INSTRUCTION_TEMPLATE` + `_system_instruction()`) más una
+  regla dominante de idioma de salida que pisa el idioma de las
+  muestras de voz del autor. `plating_style` queda como su enum fijo
+  en inglés. `locale` ausente/desconocido cae a español: las tools de
+  visión del chat (`suggest_tags_from_photo`,
+  `identify_dish_from_photo`) **no** pasan locale a propósito, así que
+  su comportamiento es idéntico al anterior. Detalle en la sección C.
 - **Cambios recientes (C — Live Location)** — la búsqueda híbrida
   ganó un filtro de proximidad Haversine (sin API externa, sin
   PostGIS) alimentado por la ubicación viva del comensal. Detalle en
@@ -309,6 +321,18 @@ Robustez:
 - Normaliza siempre antes de devolver: dedupe de tags, lowercase,
   límite de items, plating style fuera del enum se convierte en
   `null`.
+- **Idioma de salida atado al locale del lector**: `analyze_dish_photo`
+  toma `locale` (`es|en|pt`, default `es`) y renderiza el
+  `system_instruction` desde `_SYSTEM_INSTRUCTION_TEMPLATE` reemplazando
+  `__LANG__` por la etiqueta de idioma (`_lang_for()` mapea
+  `es→español rioplatense`, `en→English`, `pt→português do Brasil`;
+  un locale `en-US`/`pt-BR` resuelve por los 2 primeros chars). Una
+  regla innegociable obliga a que `tags`, `visible_ingredients`,
+  `editorial_blurb`, `suggested_pros` y `suggested_cons` salgan en ese
+  idioma **incluso si las muestras de voz del autor están en otro** —
+  `plating_style` es la única excepción (enum fijo en inglés). Locale
+  ausente/desconocido cae a español, idéntico al comportamiento previo
+  (las tools de visión del chat no pasan locale a propósito).
 - **Blurb con voz del autor**: el endpoint del Ghostwriter inyecta al
   `system_instruction` las últimas 5 notas del usuario (≥30 chars,
   excluyendo el mismo `dish_id` para evitar auto-cita) vía
@@ -765,8 +789,9 @@ sequenceDiagram
     participant Vision as Gemini Vision
     User->>FE: Sube foto
     User->>FE: Click "Pedir asistencia"
-    FE->>API: multipart (photo, dish_id, draft_text)
+    FE->>API: multipart (photo, dish_id, draft_text, locale)
     API->>API: lookup dish.name como hint
+    API->>API: render system_instruction en el idioma de `locale`
     API->>Vision: generateContent (system + image inline + JSON schema)
     Vision-->>API: candidates[0].content.parts[0].text
     API->>API: parse JSON (tolerante a truncado)
@@ -784,6 +809,9 @@ sequenceDiagram
   no" que devolver vacío.
 - La foto subida desde el panel del Ghostwriter se mirror-ea al post
   del usuario (callback `onPhotoUploaded`).
+- `locale` viene de `useLocale()` (la URL `/es|/en|/pt`); toda la
+  salida (tags, blurb, pros/cons) sale en ese idioma. Ver "Idioma de
+  salida atado al locale del lector" en la sección C.
 
 ### CU-IA-4 — Tool loop agentic (común a los 3 agentes)
 
