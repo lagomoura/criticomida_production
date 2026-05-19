@@ -57,6 +57,27 @@ export async function clearSessionCookies(): Promise<void> {
 
 let refreshInFlight: Promise<boolean> | null = null;
 
+/**
+ * Best-effort check that the session is currently usable. Used as a tiebreaker
+ * when our own refresh call fails: another tab (or a concurrent request flow)
+ * may have just rotated the refresh token and written fresh cookies. In that
+ * race our refresh legitimately 401s, but the session is alive — so we must
+ * re-verify before tearing it down, otherwise the loser of the race logs the
+ * user out (and `clearSessionCookies()` would even revoke the winner's brand
+ * new session). Raw fetch, never `fetchApi`, to avoid recursing into refresh.
+ */
+async function sessionStillValid(): Promise<boolean> {
+  try {
+    const res = await fetch(`${BASE_URL}/api/auth/me`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 async function tryRefreshToken(): Promise<boolean> {
   if (refreshInFlight) return refreshInFlight;
 
@@ -68,13 +89,16 @@ async function tryRefreshToken(): Promise<boolean> {
         headers: { 'Content-Type': 'application/json' },
         body: '{}',
       });
-      if (!res.ok) {
-        await clearSessionCookies();
-        notifyAuthCleared();
-        return false;
-      }
-      return true;
+      if (res.ok) return true;
+      // Our refresh failed. Before declaring the session dead, check whether
+      // a concurrent rotation already left us authenticated. Only clear if
+      // the session is genuinely gone.
+      if (await sessionStillValid()) return true;
+      await clearSessionCookies();
+      notifyAuthCleared();
+      return false;
     } catch {
+      if (await sessionStillValid()) return true;
       await clearSessionCookies();
       notifyAuthCleared();
       return false;
