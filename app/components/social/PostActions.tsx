@@ -8,8 +8,10 @@ import {
   faShareNodes,
   faFlag,
 } from '@fortawesome/free-solid-svg-icons';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import IconButton from '@/app/components/ui/IconButton';
+import PostLikersModal from './PostLikersModal';
 import type { PostStats, PostViewerState } from '@/app/lib/types/social';
 
 export interface PostActionsProps {
@@ -34,15 +36,31 @@ export default function PostActions({
   onReport,
 }: PostActionsProps) {
   const t = useTranslations('social.postActions');
+  const tLikers = useTranslations('social.likers');
+  const [likersOpen, setLikersOpen] = useState(false);
   return (
     <div className="flex items-center gap-1">
       <IconButton
         intent="like"
         selected={viewerState.liked}
-        count={stats.likes}
         ariaLabel={viewerState.liked ? t('unlike') : t('like')}
         icon={<FontAwesomeIcon icon={faHeart} className="h-4 w-4" />}
         onClick={() => onToggleLike?.(postId, !viewerState.liked)}
+      />
+      {stats.likes > 0 && (
+        <button
+          type="button"
+          onClick={() => setLikersOpen(true)}
+          aria-label={tLikers('seeLikers', { count: stats.likes })}
+          className="-ml-1 inline-flex min-h-[44px] items-center rounded-full px-1.5 font-sans text-xs tabular-nums text-text-muted transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+        >
+          {stats.likes}
+        </button>
+      )}
+      <PostLikersModal
+        postId={postId}
+        open={likersOpen}
+        onClose={() => setLikersOpen(false)}
       />
       <IconButton
         intent="neutral"

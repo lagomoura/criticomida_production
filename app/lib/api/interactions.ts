@@ -1,7 +1,12 @@
 import { fetchApi } from './client';
 import { isSocialMockEnabled, mockDelay } from './_mocks';
 import { toReviewPost, type FeedItemDTO } from './feed';
-import type { CursorPage, ReviewPost } from '@/app/lib/types/social';
+import { toFollowerSummary, type FollowersPageDTO } from './users';
+import type {
+  CursorPage,
+  FollowerSummary,
+  ReviewPost,
+} from '@/app/lib/types/social';
 
 /**
  * Like/save are optimistic in the UI — these helpers just hit the network
@@ -37,6 +42,28 @@ export async function unsavePost(postId: string): Promise<void> {
     return;
   }
   await fetchApi(`/api/reviews/${encodeURIComponent(postId)}/save`, { method: 'DELETE' });
+}
+
+/**
+ * Users who liked a post, newest first. Reuses the followers `FollowerSummary`
+ * shape (the backend returns the same schema) so the UI can render it with the
+ * same row component. In mock mode there is no liker store → empty list.
+ */
+export async function getPostLikers(
+  postId: string,
+  cursor?: string | null,
+  limit = 20,
+): Promise<CursorPage<FollowerSummary>> {
+  if (isSocialMockEnabled()) {
+    await mockDelay();
+    return { items: [], nextCursor: null };
+  }
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (cursor) params.set('cursor', cursor);
+  const raw = await fetchApi<FollowersPageDTO>(
+    `/api/reviews/${encodeURIComponent(postId)}/likers?${params.toString()}`,
+  );
+  return { items: raw.items.map(toFollowerSummary), nextCursor: raw.next_cursor };
 }
 
 interface BookmarksPageDTO {

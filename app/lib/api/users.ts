@@ -142,7 +142,7 @@ export async function unfollowUser(userId: string): Promise<void> {
   await fetchApi(`/api/users/${encodeURIComponent(userId)}/follow`, { method: 'DELETE' });
 }
 
-interface FollowerSummaryDTO {
+export interface FollowerSummaryDTO {
   id: string;
   display_name: string;
   handle: string | null;
@@ -152,12 +152,12 @@ interface FollowerSummaryDTO {
   viewer_following: boolean | null;
 }
 
-interface FollowersPageDTO {
+export interface FollowersPageDTO {
   items: FollowerSummaryDTO[];
   next_cursor: string | null;
 }
 
-function toFollowerSummary(dto: FollowerSummaryDTO): FollowerSummary {
+export function toFollowerSummary(dto: FollowerSummaryDTO): FollowerSummary {
   return {
     id: dto.id,
     displayName: dto.display_name,
