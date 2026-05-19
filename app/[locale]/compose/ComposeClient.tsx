@@ -136,33 +136,67 @@ export default function ComposeClient() {
     draftHydrated.current = true;
   }, [prefillDishId]);
 
-  // Autosave with a 600ms debounce. Photos and existingImages are stripped:
-  // File/Blob references can't survive a reload, and re-syncing stale
-  // ObjectURLs would point at nothing. The user re-attaches the photos but
-  // keeps the costly text/rating/metadata.
+  // Última instantánea serializable del draft. La usa el flush de salida
+  // (unmount / pagehide / visibilitychange) para persistir lo escrito dentro
+  // de la ventana del debounce: sin esto, al irte a "buscar" dentro de los
+  // 600 ms el timer se cancela en el cleanup del unmount y se pierde lo
+  // último tipeado (o todo, si escribiste y saliste rápido).
+  const latestDraftRef = useRef<Parameters<typeof writeComposeDraft>[0] | null>(null);
+
+  // Photos and existingImages are stripped: File/Blob references can't survive
+  // a reload, and re-syncing stale ObjectURLs would point at nothing. The user
+  // re-attaches the photos but keeps the costly text/rating/metadata.
+  const buildDraftSnapshot = useCallback((): Parameters<typeof writeComposeDraft>[0] => {
+    const bodyWithoutPhotos = { ...body } as Record<string, unknown>;
+    delete bodyWithoutPhotos.photos;
+    delete bodyWithoutPhotos.existingImages;
+    return {
+      place,
+      dish,
+      priceTier,
+      body: bodyWithoutPhotos as Parameters<typeof writeComposeDraft>[0]['body'],
+      expandedDetails,
+    };
+  }, [place, dish, priceTier, body, expandedDetails]);
+
+  // Autosave with a 600ms debounce. Mantiene además `latestDraftRef` al día
+  // sincrónicamente (no espera al timer) para que el flush de salida tenga
+  // siempre la versión más fresca aunque el debounce no haya disparado.
   useEffect(() => {
     if (!draftHydrated.current) return;
-    if (submitting) return;
-    const handle = window.setTimeout(() => {
-      // We can't import the inferred Omit type cleanly here; the writer
-      // accepts the same shape minus `savedAt`, which we provide.
-      const bodyWithoutPhotos = {
-        ...body,
-        photos: undefined,
-        existingImages: undefined,
-      };
-      delete (bodyWithoutPhotos as Record<string, unknown>).photos;
-      delete (bodyWithoutPhotos as Record<string, unknown>).existingImages;
-      writeComposeDraft({
-        place,
-        dish,
-        priceTier,
-        body: bodyWithoutPhotos as Parameters<typeof writeComposeDraft>[0]['body'],
-        expandedDetails,
-      });
-    }, 600);
+    if (submitting) {
+      // Tras publicar limpiamos el draft; no queremos que el flush de
+      // unmount lo reescriba con el contenido ya publicado.
+      latestDraftRef.current = null;
+      return;
+    }
+    const snap = buildDraftSnapshot();
+    latestDraftRef.current = snap;
+    const handle = window.setTimeout(() => writeComposeDraft(snap), 600);
     return () => window.clearTimeout(handle);
-  }, [place, dish, priceTier, body, submitting, expandedDetails]);
+  }, [buildDraftSnapshot, submitting]);
+
+  // Flush sincrónico al salir de /compose. Cubre tres salidas que el debounce
+  // solo no atrapa: (1) navegación SPA fuera de la página (unmount), (2)
+  // cambio de pestaña / minimizar (visibilitychange→hidden), (3) cierre o
+  // suspensión de la app en mobile (pagehide). Es lo que el docstring de
+  // compose-draft.ts promete y antes no estaba cableado.
+  useEffect(() => {
+    const flush = () => {
+      if (!draftHydrated.current) return;
+      if (latestDraftRef.current) writeComposeDraft(latestDraftRef.current);
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') flush();
+    };
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', onVisibility);
+      flush();
+    };
+  }, []);
 
   // Cleanup blob previews on unmount.
   useEffect(() => {
