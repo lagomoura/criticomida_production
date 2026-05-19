@@ -742,6 +742,15 @@
       "share": "Share",
       "report": "Report"
     },
+    "likers": {
+      "title": "Liked by",
+      "seeLikers": "See who liked this ({count})",
+      "emptyTitle": "No likes yet",
+      "emptyDescription": "Be the first to like this.",
+      "loadError": "We couldn't load the list. Try again in a moment.",
+      "loadMoreError": "Couldn't load more results.",
+      "tryAgain": "Try again"
+    },
     "postExtras": {
       "portionSmall": "Small portion",
       "portionMedium": "Right-sized portion",

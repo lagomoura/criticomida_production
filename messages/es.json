@@ -742,6 +742,15 @@
       "share": "Compartir",
       "report": "Reportar"
     },
+    "likers": {
+      "title": "Le gustó a",
+      "seeLikers": "Ver a quién le gustó ({count})",
+      "emptyTitle": "Todavía no hay likes",
+      "emptyDescription": "Sé la primera persona en darle like.",
+      "loadError": "No pudimos cargar la lista. Probá de nuevo en un momento.",
+      "loadMoreError": "No se pudieron cargar más resultados.",
+      "tryAgain": "Intentar de nuevo"
+    },
     "postExtras": {
       "portionSmall": "Porción chica",
       "portionMedium": "Porción justa",

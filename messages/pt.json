@@ -742,6 +742,15 @@
       "share": "Compartilhar",
       "report": "Denunciar"
     },
+    "likers": {
+      "title": "Quem curtiu",
+      "seeLikers": "Ver quem curtiu ({count})",
+      "emptyTitle": "Ainda não há curtidas",
+      "emptyDescription": "Seja a primeira pessoa a curtir.",
+      "loadError": "Não conseguimos carregar a lista. Tente novamente em um momento.",
+      "loadMoreError": "Não foi possível carregar mais resultados.",
+      "tryAgain": "Tentar novamente"
+    },
     "postExtras": {
       "portionSmall": "Porção pequena",
       "portionMedium": "Porção justa",
